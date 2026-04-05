@@ -1,0 +1,14 @@
+// 2. Import Bootstrap so utility classes can override Material 
+@use "bootstrap/scss/bootstrap";
+
+// 1. Angular Material Prebuilt Theme
+@import '@angular/material/prebuilt-themes/indigo-pink.css';
+
+html, body { 
+  height: 100%; 
+}
+
+body { 
+  margin: 0; 
+  font-family: Roboto, "Helvetica Neue", sans-serif; 
+}
