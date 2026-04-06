@@ -22,7 +22,11 @@
     "@angular/platform-browser": "^19.0.0",
     "@angular/platform-browser-dynamic": "^19.0.0",
     "@angular/router": "^19.0.0",
+    "@fortawesome/fontawesome-free": "^7.2.0",
+    "@techminds-group/tm-angular-lib": "^0.0.3",
     "bootstrap": "^5.3.3",
+    "bootstrap-icons": "^1.13.1",
+    "date-fns": "^4.1.0",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0",
     "zone.js": "~0.15.0"

@@ -1,0 +1,31 @@
+tm-sidebar {
+  /* Default / Dark Theme: Amarelo (Bootstrap Warning) */
+  --tm-sidebar-primary: #ffc107;
+  --tm-sidebar-icon-color: #ffc107;
+  --tm-primary-rgb: 255, 193, 7;
+  --tm-sidebar-active-text: #000;
+}
+
+/* Light Theme Overrides: Dark Sidebar for High Contrast */
+::ng-deep [data-theme='light'] tm-sidebar {
+  /* Set Sidebar Background to a softer Charcoal Slate */
+  --tm-surface-color: #1e293b !important; 
+  --tm-bg-color: #1e293b !important;
+  
+  /* Text and Icon Colors for Dark Background */
+  --tm-text-primary: #ffffff !important;
+  --tm-text-secondary: rgba(255, 255, 255, 0.75) !important;
+  --tm-sidebar-icon-color: #ffc107 !important; /* Yellow for high contrast */
+  --tm-sidebar-primary: #ffc107 !important;
+  --tm-sidebar-active-bg: #ffc107 !important;
+  --tm-sidebar-active-text: #000000 !important;
+  --tm-border-color: rgba(255, 255, 255, 0.08) !important;
+  --tm-primary-rgb: 255, 193, 7;
+
+  /* Force inner background override as library uses !important */
+  .sidebar {
+    background-color: #1e293b !important;
+    border-right-color: rgba(255, 255, 255, 0.08) !important;
+    box-shadow: 10px 0 30px rgba(0, 0, 0, 0.1) !important;
+  }
+}

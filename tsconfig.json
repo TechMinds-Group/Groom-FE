@@ -20,7 +20,8 @@
       "@shared/*": ["src/app/shared/*"],
       "@features/*": ["src/app/features/*"],
       "@env/*": ["src/environments/*"],
-      "@assets/*": ["src/assets/*"]
+      "@assets/*": ["src/assets/*"],
+      "@techminds-group/tm-angular-lib": ["../../TM-Angular-Library-Workspace/TM-Angular-Library/projects/tm-angular-lib/src/public-api"]
     }
   },
   "angularCompilerOptions": {
