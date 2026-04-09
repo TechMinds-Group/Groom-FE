@@ -1,85 +1,25 @@
-import { Component, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, effect, inject, Renderer2, signal } from '@angular/core';
+import { CommonModule, DOCUMENT } from '@angular/common';
 import { RouterOutlet } from '@angular/router';
-import { MenuItem, SidebarUser, TmSidebarComponent } from '@techminds-group/tm-angular-lib';
-
+import { SidebarComponent } from '../../features/sidebar/sidebar.component';
 import { ThemeService } from '../../core/services/theme.service';
 
 @Component({
   selector: 'app-main-layout',
   standalone: true,
-  imports: [RouterOutlet, TmSidebarComponent],
+  imports: [CommonModule, RouterOutlet, SidebarComponent],
   templateUrl: './main-layout.component.html',
   styleUrl: './main-layout.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class MainLayoutComponent {
-  public themeService = inject(ThemeService);
+  private themeService = inject(ThemeService);
 
-  get avatarColor(): string {
-    return this.themeService.isDarkMode() ? 'ffc107' : '795548';
-  }
-
-  isCollapsed = signal(false);
-
-  menuItems: MenuItem[] = [
-    {
-      label: 'Dashboard',
-      icon: 'bi-grid-1x2-fill',
-      route: '/dashboard',
-    },
-    {
-      label: 'Agendamentos',
-      icon: 'bi-calendar-event',
-      route: '/appointments',
-    },
-    {
-      label: 'Clientes',
-      icon: 'bi-people-fill',
-      route: '/clients',
-    },
-    {
-      label: 'Serviços',
-      icon: 'bi-scissors',
-      route: '/services',
-    },
-    {
-      label: 'Configurações',
-      icon: 'bi-gear-fill',
-      subItems: [
-        {
-          label: 'Geral',
-          icon: 'bi-sliders',
-          route: '/settings/general',
-        },
-        {
-          label: 'Perfil',
-          icon: 'bi-person-badge',
-          route: '/settings/profile',
-        },
-      ],
-    },
-  ];
-
-  currentUser: SidebarUser = {
-    nome: 'Michel Admin',
-    role: 'Administrador',
-    email: 'michel@groom.com',
-    avatarUrl: 'https://ui-avatars.com/api/?name=Michel+Admin&background=0D8ABC&color=fff',
-  };
-
-  handleLogout() {
-    console.log('Logout clicked');
-    // Implement logout logic here
-  }
-
-  handleToggleCollapse(collapsed: boolean) {
-    this.isCollapsed.set(collapsed);
-  }
-
-  handleThemeToggle() {
+  handleThemeToggle(): void {
     this.themeService.toggleTheme();
   }
 
-  handleItemClick(item: MenuItem) {
-    console.log('Menu item clicked:', item.label);
+  handleLogout(): void {
+    console.log('Logout from MainLayoutComponent');
   }
 }

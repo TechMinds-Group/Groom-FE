@@ -1,0 +1,118 @@
+/* Design Tokens - Groom-FE (Migrated from TM-Angular-Lib) */
+
+:root {
+  /* Brand Colors */
+  --tm-primary: #0d6efd;
+  --tm-primary-rgb: 13, 110, 253;
+  --tm-secondary: #6c757d;
+  --tm-success: #198754;
+  --tm-danger: #ef4444; 
+  --tm-warning: #ffc107; 
+  --tm-warning-text: #000000;
+  --tm-brand-yellow: #ffee00;
+
+  /* Global Sidebar Overrides to match reference */
+  --tm-sidebar-bg: #1a2233;
+  --tm-sidebar-icon-color: #ffee00;
+
+  --tm-info: #0dcaf0;
+
+  /* Neutrals */
+  --tm-white: #ffffff;
+  --tm-black: #000000;
+
+  /* Theme Tokens (Light - Default) */
+  --tm-bg-color: #f8fafc;
+  --tm-surface-color: #ffffff;
+  --tm-text-primary: #0f172a;
+  --tm-text-secondary: #64748b;
+  --tm-border-color: #e2e8f0;
+  --tm-input-bg: #e2e8f0;
+
+  --tm-hover-bg: rgba(13, 110, 253, 0.08);
+
+  /* Shared Properties */
+  --tm-border-radius: 12px;
+  --tm-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --tm-shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  --tm-font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+
+  /* Table Specific Tokens */
+  --tm-table-bg: var(--tm-surface-color);
+  --tm-table-border-color: var(--tm-border-color);
+  --tm-table-header-bg: var(--tm-input-bg);
+  --tm-table-header-text: var(--tm-text-secondary);
+  --tm-table-header-border: var(--tm-border-color);
+  --tm-table-row-hover: var(--tm-hover-bg);
+  --tm-table-cell-text: var(--tm-text-primary);
+  --tm-table-cell-border: var(--tm-border-color);
+  --tm-table-padding-x: 1.25rem;
+  --tm-table-padding-y: 1rem;
+  
+  /* Table Pagination */
+  --tm-table-pagination-bg: var(--tm-table-header-bg);
+  --tm-table-pagination-text: var(--tm-text-secondary);
+  --tm-table-pagination-btn-hover: var(--tm-hover-bg);
+  --tm-table-pagination-active-bg: var(--tm-primary);
+  --tm-table-pagination-active-text: #ffffff;
+}
+
+[data-theme='dark'] {
+  --tm-bg-color: #0b0f1a;
+  --tm-surface-color: #161b22;
+  --tm-text-primary: #f8fafc;
+  --tm-text-secondary: #cbd5e1;
+  --tm-border-color: rgba(255, 255, 255, 0.1);
+  --tm-input-bg: #0d1117;
+  --tm-hover-bg: rgba(13, 110, 253, 0.15);
+
+  /* Glow Palette Overrides */
+  --tm-primary: #3b82f6; 
+  --tm-success: #03dac6;
+  --tm-danger: #cf6679;
+  --tm-warning: #ffd166;
+  --tm-warning-text: #000000;
+
+  --tm-table-header-bg: var(--tm-input-bg);
+  --tm-table-header-border: rgba(255, 255, 255, 0.08);
+}
+
+.bg-success-subtle {
+  background-color: rgba(22, 163, 74, 0.1) !important;
+  color: #16a34a !important;
+  border: 1px solid rgba(22, 163, 74, 0.15) !important;
+
+  [data-theme='dark'] & {
+    background-color: rgba(3, 218, 198, 0.1) !important;
+    color: #03dac6 !important;
+    border-color: rgba(3, 218, 198, 0.2) !important;
+  }
+}
+
+.bg-danger-subtle {
+  background-color: rgba(220, 38, 38, 0.1) !important;
+  color: #dc2626 !important;
+  border: 1px solid rgba(220, 38, 38, 0.15) !important;
+
+  [data-theme='dark'] & {
+    background-color: rgba(207, 102, 121, 0.1) !important;
+    color: #cf6679 !important;
+    border-color: rgba(207, 102, 121, 0.2) !important;
+  }
+}
+
+.bg-warning-subtle {
+  background-color: rgba(245, 158, 11, 0.1) !important;
+  color: #d97706 !important;
+  border: 1px solid rgba(245, 158, 11, 0.15) !important;
+
+  [data-theme='dark'] & {
+    background-color: rgba(255, 209, 102, 0.1) !important;
+    color: #ffd166 !important;
+    border-color: rgba(255, 209, 102, 0.2) !important;
+  }
+}
+
+.text-success { color: var(--tm-success) !important; }
+.text-danger { color: var(--tm-danger) !important; }
+.text-warning { color: var(--tm-warning) !important; }

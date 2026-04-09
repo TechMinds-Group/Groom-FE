@@ -1,0 +1,26 @@
+@use './tokens' as *;
+
+/* Groom-FE Global Theme Styles */
+body {
+  font-family: var(--tm-font-sans);
+  background-color: var(--tm-bg-color);
+  color: var(--tm-text-primary);
+  transition: background-color 0.4s ease, color 0.4s ease;
+  margin: 0;
+}
+
+/* Theme Utilities */
+.tm-card {
+  background-color: var(--tm-surface-color) !important;
+  border: 1px solid var(--tm-border-color) !important;
+  border-radius: var(--tm-border-radius) !important;
+  color: var(--tm-text-primary) !important;
+}
+
+.tm-text-muted {
+  color: var(--tm-text-secondary) !important;
+}
+
+.tm-bg-surface {
+  background-color: var(--tm-surface-color) !important;
+}

@@ -1,26 +1,9 @@
-// 2. Import Bootstrap so utility classes can override Material 
-@use "bootstrap/scss/bootstrap";
+@use 'styles/theme';
 
-// 0. Import Library Theme Tokens and Defaults
-@use "../../../TM-Angular-Library-Workspace/TM-Angular-Library/projects/tm-angular-lib/src/lib/styles/tokens" as *;
-@use "../../../TM-Angular-Library-Workspace/TM-Angular-Library/projects/tm-angular-lib/src/lib/styles/theme-default" as *;
-
-// 3. Import Font Awesome
-@import "@fortawesome/fontawesome-free/css/all.min.css";
-
-// 4. Import Bootstrap Icons
-@import "bootstrap-icons/font/bootstrap-icons.css";
-
-// 1. Angular Material Prebuilt Theme
+/* Global styles */
+@import 'bootstrap/dist/css/bootstrap.min.css';
+@import '@fortawesome/fontawesome-free/css/all.min.css';
 @import '@angular/material/prebuilt-themes/indigo-pink.css';
 
-html, body { 
-  height: 100%; 
-}
-
-body { 
-  margin: 0; 
-  font-family: Roboto, "Helvetica Neue", sans-serif; 
-}
-
-
+html, body { height: 100%; }
+body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }

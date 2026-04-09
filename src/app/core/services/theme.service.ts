@@ -1,36 +1,39 @@
-import { Injectable, signal, effect, Inject } from '@angular/core';
+import { Injectable, Renderer2, RendererFactory2, signal, effect, inject } from '@angular/core';
 import { DOCUMENT } from '@angular/common';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ThemeService {
-  private readonly THEME_KEY = 'groom-theme';
-  isDarkMode = signal<boolean>(false);
+  private document = inject(DOCUMENT);
+  private renderer: Renderer2;
+  
+  isDarkMode = signal<boolean>(this.getInitialTheme());
 
-  constructor(@Inject(DOCUMENT) private document: Document) {
-    // Carrega o tema salvo ou prefere o do sistema
-    const savedTheme = localStorage.getItem(this.THEME_KEY);
-    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    
-    this.isDarkMode.set(savedTheme ? savedTheme === 'dark' : prefersDark);
+  constructor(rendererFactory: RendererFactory2) {
+    this.renderer = rendererFactory.createRenderer(null, null);
 
-    // Efeito para aplicar o tema sempre que o sinal mudar
     effect(() => {
-      const mode = this.isDarkMode() ? 'dark' : 'light';
-      this.document.documentElement.setAttribute('data-theme', mode);
-      localStorage.setItem(this.THEME_KEY, mode);
-      
-      // Também sincroniza com a classe do body para compatibilidade extra
-      if (this.isDarkMode()) {
-        this.document.body.classList.add('dark-theme');
+      const mode = this.isDarkMode();
+      if (mode) {
+        this.renderer.setAttribute(this.document.documentElement, 'data-theme', 'dark');
+        localStorage.setItem('theme', 'dark');
       } else {
-        this.document.body.classList.remove('dark-theme');
+        this.renderer.removeAttribute(this.document.documentElement, 'data-theme');
+        localStorage.setItem('theme', 'light');
       }
     });
   }
 
-  toggleTheme() {
-    this.isDarkMode.update(dark => !dark);
+  private getInitialTheme(): boolean {
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme) {
+      return savedTheme === 'dark';
+    }
+    return window.matchMedia('(prefers-color-scheme: dark)').matches;
+  }
+
+  toggleTheme(): void {
+    this.isDarkMode.update(v => !v);
   }
 }
