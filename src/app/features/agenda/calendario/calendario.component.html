@@ -1,0 +1,145 @@
+<div class="container-fluid py-4">
+  <tm-calendar
+    [viewDate]="viewDate()"
+    [view]="CalendarView.Day"
+    [events]="events()"
+    (viewDateChange)="onDateChange($event)"
+    (dayClicked)="onDayClicked($event)"
+    (eventClicked)="onEventClicked($event)"
+  >
+    <div filters>
+      <!-- Slot for filters if app wants to implement them -->
+      <div class="d-flex gap-2">
+        <span
+          class="badge bg-primary-subtle text-primary border border-primary-subtle rounded-pill px-3 py-2"
+        >
+          Filtro Ativo: Todos
+        </span>
+      </div>
+    </div>
+  </tm-calendar>
+
+  <!-- Adaptive Drawer for New Appointment -->
+  <tm-drawer [show]="showDrawer()" [title]="editingAgendamentoId() ? 'Editar Agendamento' : 'Novo Agendamento'" (close)="fecharDrawer()">
+    <form [formGroup]="agendaForm" class="p-1 p-md-3">
+      <!-- Banner de Data -->
+      <div class="date-selection-card d-flex align-items-center rounded-4 p-3 mb-4">
+        <div class="icon-shape text-primary rounded-4 d-flex align-items-center justify-content-center me-3 shadow-sm" style="width: 54px; height: 54px; flex-shrink: 0;">
+          <i class="fa-solid fa-calendar-check fs-4"></i>
+        </div>
+        <div>
+          <span class="d-block extra-small text-muted mb-1 text-uppercase fw-bold letter-spacing-1">Data Selecionada</span>
+          <strong class="fs-5 text-primary fw-bold">{{ selectedDate() | date: 'dd/MM/yyyy' }}</strong>
+        </div>
+      </div>
+
+      <!-- Debug visual para identificar campos travados -->
+      @if (agendaForm.invalid && (agendaForm.dirty || agendaForm.touched)) {
+        <div class="alert alert-warning py-2 mb-4 small rounded-4 border-0 shadow-sm">
+          <strong class="d-block mb-1"><i class="fa-solid fa-triangle-exclamation me-2"></i>Campos Pendentes:</strong>
+          <ul class="mb-0 ps-3">
+            @if (agendaForm.get('clienteNome')?.invalid) { <li>Nome (mín. 3 letras)</li> }
+            @if (agendaForm.get('clienteTelefone')?.invalid) { <li>WhatsApp obrigatório</li> }
+            @if (agendaForm.get('servico')?.invalid) { <li>Selecione o serviço</li> }
+            @if (agendaForm.get('profissional')?.invalid) { <li>Selecione o profissional</li> }
+          </ul>
+        </div>
+      }
+
+      <div class="row g-4">
+        <!-- Cliente -->
+        <div class="col-12">
+          <h6 class="fw-bold text-secondary text-uppercase small mb-3 letter-spacing-1">Informações do Cliente</h6>
+          
+          <div class="mb-3">
+            <tm-text
+              formControlName="clienteNome"
+              icon="fa-solid fa-user text-muted"
+              placeholder="Nome Completo do Cliente"
+            ></tm-text>
+          </div>
+          
+          <div class="mb-4">
+            <tm-text
+              formControlName="clienteTelefone"
+              icon="fa-brands fa-whatsapp fs-5 text-muted"
+              placeholder="(11) 99999-9999"
+              mask="phone"
+            ></tm-text>
+          </div>
+        </div>
+
+        <!-- Serviço & Profissional -->
+        <div class="col-12">
+          <h6 class="fw-bold text-secondary text-uppercase small mb-3 mt-2 letter-spacing-1">Detalhes do Agendamento</h6>
+          
+          <div class="mb-3">
+            <tm-select
+              label="Serviço Desejado"
+              [options]="servicos"
+              formControlName="servico"
+              placeholder="Selecione o serviço..."
+              class="d-block"
+            ></tm-select>
+          </div>
+
+          <div>
+            <tm-select
+              label="Profissional Responsável"
+              [options]="profissionais"
+              formControlName="profissional"
+              placeholder="Qualquer um"
+              class="d-block"
+            ></tm-select>
+          </div>
+        </div>
+
+        <!-- Horário -->
+        <div class="col-12">
+          <h6 class="fw-bold text-secondary text-uppercase small mb-3 mt-2 letter-spacing-1">Horário de Início</h6>
+          <tm-time formControlName="hora" class="d-block"></tm-time>
+          
+          <div class="text-muted mt-3 small bg-light p-2 rounded-3 d-flex align-items-center" [style.opacity]="'0.8'">
+            <i class="fa-solid fa-circle-info me-2 text-primary"></i>
+            <span class="duration-text">A duração será calculada com base no serviço.</span>
+          </div>
+        </div>
+      </div>
+    </form>
+
+    <div footer class="d-grid gap-2 px-3 pb-3 pt-2">
+      <tm-button
+        variant="primary"
+        [disabled]="agendaForm.invalid"
+        icon="fa-solid fa-check me-2"
+        label="Salvar"
+        (onClick)="onSalvar()"
+      ></tm-button>
+
+      @if (editingAgendamentoId()) {
+        <tm-button
+          variant="outline-danger"
+          icon="fa-solid fa-trash-can me-2"
+          label="Excluir"
+          (onClick)="confirmarRemover()"
+        ></tm-button>
+      }
+
+      <button class="btn btn-link text-muted text-decoration-none fw-medium mt-1" (click)="fecharDrawer()">Cancelar</button>
+    </div>
+  </tm-drawer>
+
+  <tm-modal
+    [show]="showDeleteModal()"
+    (showChange)="showDeleteModal.set($event)"
+    title="Excluir Agendamento"
+    confirmLabel="Sim, excluir"
+    cancelLabel="Voltar"
+    confirmClass="btn-danger"
+    icon="fa-solid fa-triangle-exclamation text-danger"
+    (confirm)="onRemover()"
+    (cancel)="showDeleteModal.set(false)"
+  >
+    <p class="mb-0 text-secondary">Tem certeza que deseja remover este agendamento? Esta ação não pode ser desfeita.</p>
+  </tm-modal>
+</div>

@@ -1,0 +1,38 @@
+<div class="card tm-card border-0 shadow-sm h-100 p-4">
+  <div class="d-flex justify-content-between align-items-start mb-4">
+    <div>
+      <span class="text-uppercase text-muted fw-bold small custom-dark-text">
+        {{ 'ASSINATURA.PLANO_ATUAL.TITLE' | translate }}
+      </span>
+      <h2 class="h3 text-primary-emphasis fw-bold mt-1 mb-0 custom-dark-text">
+        {{ plano().nome }}
+      </h2>
+    </div>
+    <span
+      class="badge px-3 py-1.5 fs-7"
+      [class.bg-success-subtle]="plano().status === StatusAssinatura.Ativo"
+      [class.text-success]="plano().status === StatusAssinatura.Ativo"
+      [class.border]="true"
+      [class.border-success-subtle]="plano().status === StatusAssinatura.Ativo"
+      [class.bg-danger-subtle]="plano().status !== StatusAssinatura.Ativo"
+      [class.text-danger]="plano().status !== StatusAssinatura.Ativo"
+      [class.border-danger-subtle]="plano().status !== StatusAssinatura.Ativo"
+    >
+      {{ plano().status }}
+    </span>
+  </div>
+
+  <div class="my-3">
+    <span class="display-5 fw-bold text-primary">{{ valorFormatado() }}</span>
+    <span class="text-muted custom-dark-text">/{{ plano().ciclo }}</span>
+  </div>
+
+  <p class="text-muted mb-4 custom-dark-text">
+    @if (plano().status === StatusAssinatura.Ativo && plano().validoAte) {
+      {{ 'ASSINATURA.PLANO_ATUAL.VALID_UNTIL' | translate }}: <strong>{{ plano().validoAte }}</strong> ({{ 'ASSINATURA.PLANO_ATUAL.DAYS_REMAINING' | translate }}:
+      {{ plano().diasRestantes }} {{ 'ASSINATURA.PLANO_ATUAL.DAYS_SUFFIX' | translate }}).
+    } @else {
+      {{ 'ASSINATURA.PLANO_ATUAL.STATUS_PREFIX' | translate }} {{ 'USUARIOS.STATUS.INACTIVE' | translate | lowercase }}.
+    }
+  </p>
+</div>

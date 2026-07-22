@@ -1,0 +1,78 @@
+<div class="container mt-4 mb-5 pb-5">
+  @if (servico(); as s) {
+    <div class="d-flex align-items-center gap-3 mb-4">
+      <button (click)="voltar()" class="btn btn-light shadow-sm rounded-circle p-0 d-flex align-items-center justify-content-center btn-voltar">
+        <i class="fas fa-arrow-left text-muted"></i>
+      </button>
+      <div>
+        <h2 class="h4 mb-0 fw-bold custom-dark-text">{{ s.nome }}</h2>
+        <span class="text-muted small custom-dark-text">Detalhes do serviço</span>
+      </div>
+    </div>
+
+    <div class="row g-4">
+      <div class="col-lg-8 col-12">
+        <div class="row g-3 mb-4">
+          <div class="col-12 col-md-4">
+            <div class="card tm-card border-0 shadow-sm rounded-4 h-100 p-3">
+              <div class="d-flex align-items-center mb-2 text-muted fw-semibold small custom-dark-text">
+                <i class="fas fa-tag me-2 text-primary"></i> Preço
+              </div>
+              <h3 class="fw-bold mb-0 text-primary">R$ {{ s.preco.toFixed(2).replace('.', ',') }}</h3>
+            </div>
+          </div>
+          <div class="col-12 col-md-4">
+            <div class="card tm-card border-0 shadow-sm rounded-4 h-100 p-3">
+              <div class="d-flex align-items-center mb-2 text-muted fw-semibold small custom-dark-text">
+                <i class="fas fa-clock me-2 text-primary"></i> Duração
+              </div>
+              <h3 class="fw-bold mb-0">{{ s.duracao }} min</h3>
+            </div>
+          </div>
+          <div class="col-12 col-md-4">
+            <div class="card tm-card border-0 shadow-sm rounded-4 h-100 p-3">
+              <div class="d-flex align-items-center mb-2 text-muted fw-semibold small custom-dark-text">
+                <i class="fas fa-info-circle me-2 text-primary"></i> Status
+              </div>
+              @if (s.status === 'Ativo') {
+                <h3 class="fw-bold mb-0 text-success">Ativo</h3>
+              } @else {
+                <h3 class="fw-bold mb-0 text-danger">Inativo</h3>
+              }
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-lg-4 col-12">
+        <div class="card border-0 shadow-sm p-4 actions-card custom-dark-card">
+          <h4 class="h5 fw-bold mb-4 custom-dark-text">
+            <i class="fas fa-sliders-h me-2 text-primary"></i>Ações Rápidas
+          </h4>
+
+          <div class="d-grid gap-3">
+            <button (click)="abrirEdicao()" class="btn btn-primary py-2.5 fw-bold w-100 transition-all custom-action-btn">
+              <i class="fas fa-edit me-2"></i>Editar
+            </button>
+
+            <button (click)="excluir()" class="btn btn-outline-danger py-2.5 fw-bold w-100 transition-all custom-action-btn">
+              <i class="fas fa-trash-can me-2"></i>Excluir
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+</div>
+
+<app-catalogo-modal-editar
+  [(show)]="showEditModal"
+  [servico]="servico()"
+  (confirm)="salvarEdicao($event)"
+/>
+
+<app-catalogo-modal-excluir
+  [(show)]="showDeleteConfirmModal"
+  [nomeServico]="servico()?.nome || ''"
+  (confirm)="confirmarExcluir()"
+/>

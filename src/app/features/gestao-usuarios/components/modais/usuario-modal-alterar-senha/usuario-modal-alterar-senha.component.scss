@@ -1,0 +1,11 @@
+:host-context([data-theme='dark']) {
+  .custom-dark-text {
+    color: #ffffff !important;
+  }
+
+  tm-modal {
+    ::ng-deep .form-label {
+      color: #ffffff !important;
+    }
+  }
+}

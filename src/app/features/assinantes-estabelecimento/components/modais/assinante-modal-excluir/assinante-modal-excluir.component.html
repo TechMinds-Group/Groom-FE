@@ -1,0 +1,20 @@
+<tm-modal
+  title="Excluir Assinante"
+  icon="fas fa-exclamation-triangle"
+  iconClass="text-danger"
+  confirmClass="btn-danger"
+  confirmLabel="Excluir"
+  cancelLabel="Cancelar"
+  [show]="show()"
+  (cancel)="onCancel()"
+  (confirm)="onConfirm()"
+>
+  <div class="p-1">
+    <p class="mb-0 text-main">
+      Tem certeza que deseja excluir a assinatura de <strong>{{ nomeAssinante() }}</strong>?
+    </p>
+    <p class="text-danger small mt-2 mb-0">
+      <i class="fas fa-exclamation-triangle me-1"></i>Isso diminuirá a contagem de assinantes do plano contratado.
+    </p>
+  </div>
+</tm-modal>

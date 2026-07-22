@@ -1,0 +1,20 @@
+<tm-modal
+  [title]="'USUARIOS.MODAL_DELETE.TITLE' | translate"
+  icon="fas fa-exclamation-triangle"
+  iconClass="text-danger"
+  confirmClass="btn-danger"
+  [confirmLabel]="'USUARIOS.MODAL_DELETE.DELETE_BTN' | translate"
+  [cancelLabel]="'USUARIOS.MODAL_DELETE.CANCEL' | translate"
+  [show]="show()"
+  (cancel)="onCancel()"
+  (confirm)="onConfirm()"
+>
+  <div class="p-1">
+    <p class="mb-0 text-main">
+      {{ 'USUARIOS.MODAL_DELETE.CONFIRM_MSG' | translate }} <strong>{{ nomeUsuario() }}</strong>?
+    </p>
+    <p class="text-danger small mt-2 mb-0">
+      <i class="fas fa-exclamation-triangle me-1"></i>{{ 'USUARIOS.MODAL_DELETE.WARNING_MSG' | translate }}
+    </p>
+  </div>
+</tm-modal>

@@ -1,0 +1,169 @@
+@if (!mostrarCheckoutMp() && !pagamentoSucesso()) {
+  <div class="card tm-card border-0 shadow-sm p-3 p-sm-4 p-md-5">
+    <div class="d-flex align-items-center justify-content-between mb-4 mb-md-5">
+      <div>
+        <h3 class="h4 fw-bold mb-2 custom-dark-text d-flex align-items-center flex-wrap">
+          <i class="fas fa-wallet text-primary me-3 fs-3"></i>{{ 'ASSINATURA.RENOVACAO.TITLE' | translate }}
+        </h3>
+        <p class="text-muted small mb-0 custom-dark-text">
+          {{ 'ASSINATURA.RENOVACAO.SUBTITLE' | translate }}
+        </p>
+      </div>
+    </div>
+
+    <div class="row g-4 g-xl-5 align-items-stretch">
+      <!-- Coluna da Esquerda: Seleção de Plano -->
+      <div class="col-12 col-xl-7 col-xxl-8 d-flex flex-column justify-content-between mb-4 mb-xl-0">
+        <div>
+          <label class="form-label small fw-bold text-muted text-uppercase tracking-wider mb-3 custom-dark-text d-block">
+            {{ 'ASSINATURA.RENOVACAO.SELECT_PLAN_LABEL' | translate }}
+          </label>
+
+          <div class="row g-3 g-md-4">
+            @for (plano of planosDisponiveis(); track plano.id || plano.nome) {
+              <div [class]="planosDisponiveis().length > 1 ? 'col-12 col-md-6' : 'col-12'">
+                <div
+                  class="renew-card-option p-3 p-sm-4 rounded-3 d-flex flex-column justify-content-between shadow-sm h-100"
+                  [class.active]="planoSelecionado()?.nome === plano.nome"
+                  (click)="selecionarPlano.emit(plano)"
+                >
+                  <div>
+                    <!-- Header do Card: Ícone e Título do Plano -->
+                    <div class="d-flex align-items-center mb-3">
+                      <div class="icon-circle me-3 bg-primary-subtle text-primary rounded-circle p-2 d-flex align-items-center justify-content-center flex-shrink-0">
+                        <i class="fas fa-gem fs-5"></i>
+                      </div>
+                      <h4 class="h5 fw-bold mb-0 text-primary-emphasis custom-dark-text text-wrap text-break">
+                        {{ plano.nome }}
+                      </h4>
+                    </div>
+
+                    <div class="mb-4 pb-2 border-bottom border-opacity-10 d-flex align-items-baseline flex-wrap">
+                      <span class="fs-2 fw-bold text-primary me-2 text-nowrap">
+                        {{ formatarMoeda(plano.valor) }}
+                      </span>
+                      <span class="text-muted custom-dark-text fw-medium">{{ 'ASSINATURA.RENOVACAO.PER_MONTH' | translate }}</span>
+                    </div>
+
+                    <!-- Limites do Plano com Ícones Alinhados (fa-fw) -->
+                    <ul class="list-unstyled text-muted custom-dark-text mb-4 space-y-2">
+                      <li class="d-flex align-items-center mb-2.5">
+                        <div class="icon-fixed-width me-3 d-flex justify-content-center align-items-center flex-shrink-0">
+                          <i class="fas fa-user-tie fa-fw text-success fs-6"></i>
+                        </div>
+                        <span class="text-wrap text-break">
+                          {{ 'ASSINATURA.RENOVACAO.UP_TO' | translate }} <strong class="custom-dark-text">{{ plano.limiteProfissionais }}</strong> {{ 'ASSINATURA.RENOVACAO.PROFESSIONALS_LABEL' | translate }}
+                        </span>
+                      </li>
+                      <li class="d-flex align-items-center mb-2.5">
+                        <div class="icon-fixed-width me-3 d-flex justify-content-center align-items-center flex-shrink-0">
+                          <i class="fas fa-users fa-fw text-warning fs-6"></i>
+                        </div>
+                        <span class="text-wrap text-break">
+                          {{ 'ASSINATURA.RENOVACAO.UP_TO' | translate }} <strong class="custom-dark-text">{{ plano.limiteClientes }}</strong> {{ 'ASSINATURA.RENOVACAO.CLIENTS_LABEL' | translate }}
+                        </span>
+                      </li>
+                      <li class="d-flex align-items-center">
+                        <div class="icon-fixed-width me-3 d-flex justify-content-center align-items-center flex-shrink-0">
+                          <i class="fas fa-star fa-fw text-info fs-6"></i>
+                        </div>
+                        <span class="text-wrap text-break">
+                          {{ 'ASSINATURA.RENOVACAO.UP_TO' | translate }} <strong class="custom-dark-text">{{ plano.limiteClientesAssinantes }}</strong> {{ 'ASSINATURA.RENOVACAO.SUBSCRIBED_CLIENTS_LABEL' | translate }}
+                        </span>
+                      </li>
+                    </ul>
+                  </div>
+
+                  <button
+                    type="button"
+                    class="btn w-100 py-2.5 mt-2 fw-semibold"
+                    [class.btn-primary]="planoSelecionado()?.nome === plano.nome"
+                    [class.btn-outline-primary]="planoSelecionado()?.nome !== plano.nome"
+                  >
+                    {{ planoSelecionado()?.nome === plano.nome ? ('ASSINATURA.RENOVACAO.PLAN_SELECTED' | translate) : ('ASSINATURA.RENOVACAO.CHOOSE_PLAN' | translate) }}
+                  </button>
+                </div>
+              </div>
+            } @empty {
+              <div class="col-12">
+                <div class="p-4 text-center text-muted border rounded custom-dark-text">
+                  {{ 'ASSINATURA.RENOVACAO.LOADING_PLANS' | translate }}
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+      </div>
+
+      <!-- Coluna da Direita: Resumo e Checkout -->
+      <div class="col-12 col-xl-5 col-xxl-4">
+        <div class="summary-box p-3 p-sm-4 rounded-3 h-100 d-flex flex-column justify-content-between">
+          <div>
+            <label class="form-label small fw-bold text-muted text-uppercase tracking-wider mb-4 custom-dark-text d-block border-bottom pb-2">
+              {{ 'ASSINATURA.RENOVACAO.SUMMARY_TITLE' | translate }}
+            </label>
+
+            <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-1">
+              <span class="text-muted custom-dark-text">{{ 'ASSINATURA.RENOVACAO.PLAN_LABEL' | translate }}</span>
+              <strong class="text-primary-emphasis fs-6 custom-dark-text text-break">
+                {{ planoSelecionado()?.nome || ('ASSINATURA.RENOVACAO.NONE' | translate) }}
+              </strong>
+            </div>
+
+            <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-1">
+              <span class="text-muted custom-dark-text">{{ 'ASSINATURA.RENOVACAO.PERIOD_LABEL' | translate }}</span>
+              <strong class="text-primary-emphasis fs-6 custom-dark-text">
+                {{ 'ASSINATURA.RENOVACAO.PERIOD_VALUE' | translate }}
+              </strong>
+            </div>
+
+            <hr class="my-4 opacity-25" />
+
+            <div class="mb-4 py-3 px-2 text-center rounded bg-primary-subtle text-primary-emphasis">
+              <span class="small text-muted custom-dark-text d-block mb-1 font-uppercase tracking-wider fw-semibold">{{ 'ASSINATURA.RENOVACAO.TOTAL_PIX_LABEL' | translate }}</span>
+              <h2 class="display-6 fw-bold text-primary mb-0 text-wrap text-break">
+                {{ valorTotalFormatado() }}
+              </h2>
+            </div>
+          </div>
+
+          <button
+            class="btn btn-primary w-100 py-3 shadow fw-bold fs-6 mt-3"
+            (click)="iniciarCheckout.emit()"
+            [disabled]="!planoSelecionado() || valorTotal() === 0"
+          >
+            <i class="fas fa-qrcode me-2"></i>{{ 'ASSINATURA.RENOVACAO.GO_TO_PIX_BTN' | translate }}
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+}
+
+@if (mostrarCheckoutMp() && !pagamentoSucesso()) {
+  <app-tm-mercado-pago-pix
+    [meses]="1"
+    [valorTotal]="valorTotal()"
+    [nomePlano]="planoSelecionado()?.nome || ''"
+    (pagamentoConfirmado)="confirmarPagamento.emit()"
+    (fechar)="fecharCheckout.emit()"
+  >
+  </app-tm-mercado-pago-pix>
+}
+
+@if (pagamentoSucesso()) {
+  <div
+    class="card tm-card border-0 shadow-sm p-4 p-md-5 text-center py-5 animate__animated animate__fadeIn"
+  >
+    <div class="mb-4">
+      <i class="fas fa-check-circle text-success status-icon-lg fs-1"></i>
+    </div>
+    <h3 class="fw-bold text-success mb-2">{{ 'ASSINATURA.RENOVACAO.SUCCESS_TITLE' | translate }}</h3>
+    <p class="text-muted custom-dark-text mb-4">
+      {{ 'ASSINATURA.RENOVACAO.SUCCESS_MSG_1' | translate }} <strong>{{ nomePlanoAtual() }}</strong> {{ 'ASSINATURA.RENOVACAO.SUCCESS_MSG_2' | translate }}
+    </p>
+    <button class="btn btn-success px-5 py-2.5" (click)="fecharSucesso.emit()">
+      {{ 'ASSINATURA.RENOVACAO.START_USING' | translate }}
+    </button>
+  </div>
+}

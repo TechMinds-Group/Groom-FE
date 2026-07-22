@@ -1,0 +1,60 @@
+<div class="container mt-5">
+  @if (usuario(); as user) {
+    <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between mb-4 gap-3">
+      <div class="d-flex align-items-center gap-3">
+        <button (click)="voltar()" class="btn btn-light shadow-sm rounded-circle p-0 d-flex align-items-center justify-content-center btn-voltar" [title]="'USUARIOS.DETAILS.BACK' | translate">
+          <i class="fas fa-arrow-left text-muted"></i>
+        </button>
+
+        <div>
+          <h2 class="h4 mb-0 fw-bold custom-dark-text d-flex align-items-center gap-2">
+            {{ user.nome }}
+          </h2>
+          <span class="text-muted small custom-dark-text">{{ 'USUARIOS.DETAILS.TITLE' | translate }}</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="row g-4 mb-5">
+      <div class="col-lg-8 col-12">
+        <app-gestao-usuario-detalhes-geral [usuario]="user" />
+      </div>
+
+      <div class="col-lg-4 col-12">
+        <app-gestao-usuario-detalhes-acoes
+          [usuario]="user"
+          [isAdmin]="isAdmin()"
+          [currentUserId]="currentUserId() ?? null"
+          (editar)="abrirEdicao()"
+          (alterarSenha)="abrirAlterarSenha()"
+          (excluir)="excluir()" />
+      </div>
+    </div>
+  } @else {
+    <div class="text-center py-5">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Carregando...</span>
+      </div>
+      <p class="text-muted mt-3">Carregando informações do usuário...</p>
+    </div>
+  }
+</div>
+
+<app-usuario-modal-editar
+  [(show)]="showEditModal"
+  [usuario]="usuario()"
+  [perfilOptions]="perfilOptions()"
+  (confirm)="salvarEdicao($event)"
+/>
+
+<app-usuario-modal-alterar-senha
+  [(show)]="showChangePasswordModal"
+  [isAdmin]="isAdmin()"
+  (confirm)="salvarSenha($event)"
+/>
+
+<app-usuario-modal-excluir
+  [(show)]="showDeleteConfirmModal"
+  [nomeUsuario]="usuario()?.nome || ''"
+  (confirm)="confirmarExcluir()"
+/>

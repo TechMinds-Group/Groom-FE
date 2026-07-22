@@ -1,0 +1,15 @@
+<div class="card border-0 shadow-sm p-4 actions-card custom-dark-card">
+  <h4 class="h5 fw-bold mb-4 custom-dark-text">
+    <i class="fas fa-sliders-h me-2 text-primary"></i>Ações Rápidas
+  </h4>
+
+  <div class="d-grid gap-3">
+    <button (click)="editar.emit()" class="btn btn-primary py-2.5 fw-bold w-100 transition-all custom-action-btn">
+      <i class="fas fa-edit me-2"></i>Editar
+    </button>
+
+    <button (click)="excluir.emit()" class="btn btn-outline-danger py-2.5 fw-bold w-100 transition-all custom-action-btn">
+      <i class="fas fa-trash-can me-2"></i>Excluir
+    </button>
+  </div>
+</div>

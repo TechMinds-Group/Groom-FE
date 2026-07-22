@@ -1,0 +1,13 @@
+<div class="d-flex h-100 overflow-hidden main-layout-container">
+  <app-sidebar class="d-none d-lg-block" (logout)="handleLogout()" (themeToggle)="handleThemeToggle()"></app-sidebar>
+
+  <main class="flex-grow-1 overflow-auto position-relative main-content">
+    <router-outlet></router-outlet>
+  </main>
+
+  <tm-bottom-nav 
+    class="d-lg-none" 
+    [items]="mobileMenuItems()"
+    (itemClick)="handleLogout()" 
+  ></tm-bottom-nav>
+</div>

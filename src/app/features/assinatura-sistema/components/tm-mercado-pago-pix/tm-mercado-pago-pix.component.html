@@ -1,0 +1,177 @@
+<div class="mercado-pago-brick-wrapper p-4 rounded shadow-sm">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h4 class="mb-0 fw-bold custom-dark-text">
+      <i class="fas fa-wallet text-primary me-2"></i>
+      {{ 'ASSINATURA.PIX_MODAL.TITLE' | translate }}
+    </h4>
+    <button class="btn btn-close custom-close-btn" (click)="fechar.emit()" [disabled]="pagando()"></button>
+  </div>
+
+  <div class="alert alert-info border-0 rounded mb-3 py-2 text-center pix-info-alert" role="alert">
+    <span>
+      {{ 'ASSINATURA.PIX_MODAL.HIRING_TEXT' | translate }}
+      <strong>{{ meses() }} {{ meses() === 1 ? ('ASSINATURA.PIX_MODAL.MONTH_SINGULAR' | translate) : ('ASSINATURA.PIX_MODAL.MONTH_PLURAL' | translate) }}</strong> {{ 'ASSINATURA.PIX_MODAL.FOR_TEXT' | translate }}
+      <strong>{{ valorTotalFormatado() }}</strong>.
+    </span>
+  </div>
+
+  @if (erroMsg()) {
+    <div class="alert alert-danger border-0 rounded mb-3" role="alert">
+      <i class="fas fa-exclamation-triangle me-2"></i>{{ erroMsg() }}
+    </div>
+  }
+
+  <!-- Passo 1: Formulário de dados do pagador com o componente tm-text -->
+  @if (exibirFormulario() && !pagando()) {
+    <div class="payer-form-step my-3">
+      <div class="mb-3">
+        <h6 class="fw-bold custom-dark-text mb-1">
+          <i class="fas fa-user-shield text-primary me-2"></i>
+          {{ 'ASSINATURA.PIX_MODAL.PAYER_INFO_TITLE' | translate }}
+        </h6>
+        <p class="small text-muted custom-dark-text mb-3">
+          {{ 'ASSINATURA.PIX_MODAL.PAYER_INFO_SUBTITLE' | translate }}
+        </p>
+      </div>
+
+      <form [formGroup]="payerForm" (ngSubmit)="submeterFormulario()">
+        <div class="row g-3">
+          <div class="col-md-6">
+            <tm-text
+              formControlName="firstName"
+              [label]="'ASSINATURA.PIX_MODAL.FIRST_NAME_LABEL' | translate"
+              [placeholder]="'ASSINATURA.PIX_MODAL.FIRST_NAME_PLACEHOLDER' | translate"
+              [control]="payerForm.get('firstName')"
+              [maxlength]="50"
+              class="custom-dark-text"
+            ></tm-text>
+          </div>
+
+          <div class="col-md-6">
+            <tm-text
+              formControlName="lastName"
+              [label]="'ASSINATURA.PIX_MODAL.LAST_NAME_LABEL' | translate"
+              [placeholder]="'ASSINATURA.PIX_MODAL.LAST_NAME_PLACEHOLDER' | translate"
+              [control]="payerForm.get('lastName')"
+              [maxlength]="50"
+              class="custom-dark-text"
+            ></tm-text>
+          </div>
+
+          <div class="col-md-6">
+            <tm-text
+              formControlName="email"
+              type="email"
+              [label]="'ASSINATURA.PIX_MODAL.EMAIL_LABEL' | translate"
+              [placeholder]="'ASSINATURA.PIX_MODAL.EMAIL_PLACEHOLDER' | translate"
+              [control]="payerForm.get('email')"
+              [maxlength]="100"
+              (focusout)="validarEmailNoBlur()"
+              class="custom-dark-text"
+            ></tm-text>
+          </div>
+
+          <div class="col-md-6">
+            <tm-text
+              formControlName="cpf"
+              mask="cpf"
+              [label]="'ASSINATURA.PIX_MODAL.CPF_LABEL' | translate"
+              [placeholder]="'ASSINATURA.PIX_MODAL.CPF_PLACEHOLDER' | translate"
+              [control]="payerForm.get('cpf')"
+              [maxlength]="14"
+              (focusout)="validarCpfNoBlur()"
+              class="custom-dark-text"
+            ></tm-text>
+          </div>
+        </div>
+
+        <div class="mt-4 text-end">
+          <button
+            type="submit"
+            class="btn btn-primary px-4 py-2.5 fw-bold shadow-sm"
+            [disabled]="pagando()"
+          >
+            <i class="fas fa-qrcode me-2"></i>
+            {{ 'ASSINATURA.PIX_MODAL.GENERATE_PIX_BTN' | translate }}
+          </button>
+        </div>
+      </form>
+    </div>
+  }
+
+  @if (pagando()) {
+    <div class="d-flex flex-column align-items-center justify-content-center py-5">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">...</span>
+      </div>
+      <p class="text-muted custom-dark-text mt-3 mb-0">{{ 'ASSINATURA.PIX_MODAL.GENERATING_QR' | translate }}</p>
+    </div>
+  }
+
+  @if (pixExpirado()) {
+    <div class="alert alert-warning border-0 rounded text-center p-4 my-3 shadow-sm">
+      <i class="fas fa-clock-rotate-left fs-1 text-warning mb-3 d-block"></i>
+      <h5 class="fw-bold mb-2 custom-dark-text">{{ 'ASSINATURA.PIX_MODAL.EXPIRED_TITLE' | translate }}</h5>
+      <p class="small text-muted custom-dark-text mb-4">
+        {{ 'ASSINATURA.PIX_MODAL.EXPIRED_MSG' | translate }}
+      </p>
+      <button class="btn btn-primary px-4 py-2.5 fw-bold shadow-sm" (click)="forcarGerarNovoPix()">
+        <i class="fas fa-rotate-right me-2"></i>{{ 'ASSINATURA.PIX_MODAL.GENERATE_NEW_BTN' | translate }}
+      </button>
+    </div>
+  }
+
+  <!-- Passo 2: QR Code gerado -->
+  @if (qrCodeBase64() && !pixExpirado() && !exibirFormulario()) {
+    <div class="text-center mt-3">
+      <!-- Contador Regressivo dos 15 minutos -->
+      <div class="d-inline-flex align-items-center bg-warning-subtle text-warning-emphasis px-3 py-1.5 rounded-pill mb-3 border border-warning-subtle">
+        <i class="fas fa-clock me-2"></i>
+        <span class="small fw-bold">
+          {{ 'ASSINATURA.PIX_MODAL.EXPIRES_IN' | translate }} <span class="font-monospace fs-6 ms-1">{{ tempoRestanteFormatado() }}</span>
+        </span>
+      </div>
+
+      <div class="mb-3 text-success fw-bold">
+        <i class="fas fa-check-circle me-1"></i> {{ 'ASSINATURA.PIX_MODAL.SUCCESS_QR' | translate }}
+      </div>
+      
+      <div class="d-flex justify-content-center mb-3">
+        <div class="p-3 bg-white rounded shadow-sm border qr-code-container">
+          <img [src]="'data:image/png;base64,' + qrCodeBase64()" alt="QR Code Pix" class="img-fluid qr-code-img">
+        </div>
+      </div>
+
+      <p class="text-muted custom-dark-text small mb-4">
+        {{ 'ASSINATURA.PIX_MODAL.PIX_INSTRUCTIONS' | translate }}
+      </p>
+
+      <div class="mb-4 text-start">
+        <label class="form-label small fw-bold text-muted custom-dark-text text-uppercase mb-2">{{ 'ASSINATURA.PIX_MODAL.COPY_LABEL' | translate }}</label>
+        <div class="input-group">
+          <input type="text" class="form-control pix-code-input custom-dark-text" [value]="qrCode()" readonly #pixInput>
+          <button class="btn btn-primary" (click)="copiarPix(pixInput.value)">
+            <i class="fas me-1" [class.fa-copy]="!copiado()" [class.fa-check]="copiado()"></i>
+            {{ copiado() ? ('ASSINATURA.PIX_MODAL.COPIED_BTN' | translate) : ('ASSINATURA.PIX_MODAL.COPY_BTN' | translate) }}
+          </button>
+        </div>
+      </div>
+
+      <div class="d-flex align-items-center justify-content-center py-2 text-primary mb-3">
+        <div class="spinner-border spinner-border-sm me-2" role="status"></div>
+        <span class="small fw-semibold custom-dark-text">{{ 'ASSINATURA.PIX_MODAL.WAITING_PAYMENT' | translate }}</span>
+      </div>
+
+      <div class="pt-2 border-top">
+        <button
+          type="button"
+          class="btn btn-outline-secondary btn-sm rounded-pill px-3 py-1.5 fw-semibold"
+          (click)="regerarComNovosDados()"
+        >
+          <i class="fas fa-user-edit me-1"></i>
+          {{ 'ASSINATURA.PIX_MODAL.REGERAR_BTN' | translate }}
+        </button>
+      </div>
+    </div>
+  }
+</div>

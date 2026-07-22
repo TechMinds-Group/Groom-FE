@@ -1,0 +1,13 @@
+.tm-card {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  background-color: var(--tm-surface-color, #ffffff);
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05) !important;
+  }
+}
+
+.fs-7 {
+  font-size: 0.85rem;
+}

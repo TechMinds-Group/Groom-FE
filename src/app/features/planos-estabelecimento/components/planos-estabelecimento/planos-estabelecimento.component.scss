@@ -1,0 +1,81 @@
+
+
+.extra-small {
+  font-size: 0.75rem;
+}
+
+.descricao-cell {
+  max-width: 250px;
+}
+
+.status-toggle-btn {
+  border-radius: 12px;
+  border: 1px solid transparent;
+  font-size: 0.95rem;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  
+  &.status-ativo {
+    background-color: #d1e7dd;
+    color: #0f5132;
+    border-color: #badbcc;
+    
+    &:hover {
+      background-color: #c1d7cd;
+    }
+  }
+  
+  &.status-inativo {
+    background-color: #f8d7da;
+    color: #842029;
+    border-color: #f5c2c7;
+    
+    &:hover {
+      background-color: #e8c7ca;
+    }
+  }
+}
+
+:host-context([data-theme='dark']) {
+  .status-toggle-btn {
+    &.status-ativo {
+      background-color: rgba(25, 135, 84, 0.2);
+      color: #75b798;
+      border-color: rgba(25, 135, 84, 0.3);
+      
+      &:hover {
+        background-color: rgba(25, 135, 84, 0.3);
+      }
+    }
+    
+    &.status-inativo {
+      background-color: rgba(220, 53, 69, 0.2);
+      color: #ea868f;
+      border-color: rgba(220, 53, 69, 0.3);
+      
+      &:hover {
+        background-color: rgba(220, 53, 69, 0.3);
+      }
+    }
+  }
+
+  .custom-dark-text {
+    color: #ffffff !important;
+  }
+  
+  tm-modal {
+    ::ng-deep .form-label {
+      color: #ffffff !important;
+    }
+  }
+}
+
+.hover-text-danger {
+  transition: color 0.15s ease;
+  &:hover {
+    color: #dc3545 !important;
+  }
+}
+
+.cursor-pointer {
+  cursor: pointer;
+}

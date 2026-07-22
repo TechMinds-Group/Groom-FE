@@ -1,0 +1,43 @@
+<div class="container mt-5">
+  <div class="row mb-4">
+    <div class="col-12">
+      <h1 class="h2 text-primary fw-bold mb-2 custom-dark-text">
+        <i class="fas fa-credit-card me-2"></i>{{ 'ASSINATURA.HEADER_TITLE' | translate }}
+      </h1>
+      <p class="text-muted custom-dark-text">
+        {{ 'ASSINATURA.HEADER_SUBTITLE' | translate }}
+      </p>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-lg-6 mb-4">
+      <app-plano-atual [plano]="planoGroom()" />
+    </div>
+
+    <div class="col-lg-6 mb-4">
+      <app-uso-licenca
+        [plano]="planoGroom()"
+        [pctProfissionais]="pctProfissionais()"
+        [pctClientes]="pctClientes()"
+        [pctClientesAssinantes]="pctClientesAssinantes()"
+      />
+    </div>
+
+    <div class="col-12 mb-4">
+      <app-renovacao-pagamento
+        [planosDisponiveis]="planosDisponiveis()"
+        [planoSelecionado]="planoSelecionado()"
+        [valorTotal]="valorTotal()"
+        [nomePlanoAtual]="planoGroom().nome"
+        [mostrarCheckoutMp]="mostrarCheckoutMp()"
+        [pagamentoSucesso]="pagamentoSucesso()"
+        (selecionarPlano)="aoSelecionarPlano($event)"
+        (iniciarCheckout)="aoIniciarCheckout()"
+        (confirmarPagamento)="aoConfirmarPagamento()"
+        (fecharCheckout)="aoFecharCheckout()"
+        (fecharSucesso)="aoFecharSucesso()"
+      />
+    </div>
+  </div>
+</div>

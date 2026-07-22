@@ -1,0 +1,41 @@
+<div class="card tm-card border-0 shadow-sm h-100 p-4">
+  <h3 class="h5 fw-bold mb-4 custom-dark-text">
+    <i class="fas fa-chart-line text-primary me-2"></i>{{ 'ASSINATURA.USO_LICENCA.TITLE' | translate }}
+  </h3>
+
+  <div class="mb-4">
+    <div class="d-flex justify-content-between mb-1">
+      <span class="custom-dark-text">{{ 'ASSINATURA.USO_LICENCA.PROFESSIONALS' | translate }}</span>
+      <span class="custom-dark-text fw-bold">
+        {{ plano().usoProfissionais }} / {{ plano().limiteProfissionais }}
+      </span>
+    </div>
+    <div class="progress progress-uso">
+      <div class="progress-bar bg-info" role="progressbar" [style.width.%]="pctProfissionais()"></div>
+    </div>
+  </div>
+
+  <div class="mb-4">
+    <div class="d-flex justify-content-between mb-1">
+      <span class="custom-dark-text">{{ 'ASSINATURA.USO_LICENCA.CLIENTS' | translate }}</span>
+      <span class="custom-dark-text fw-bold">
+        {{ plano().usoClientes }} / {{ plano().limiteClientes }}
+      </span>
+    </div>
+    <div class="progress progress-uso">
+      <div class="progress-bar bg-warning" role="progressbar" [style.width.%]="pctClientes()"></div>
+    </div>
+  </div>
+
+  <div class="mb-3">
+    <div class="d-flex justify-content-between mb-1">
+      <span class="custom-dark-text">{{ 'ASSINATURA.USO_LICENCA.SUBSCRIBED_CLIENTS' | translate }}</span>
+      <span class="custom-dark-text fw-bold">
+        {{ plano().usoClientesAssinantes }} / {{ plano().limiteClientesAssinantes }}
+      </span>
+    </div>
+    <div class="progress progress-uso">
+      <div class="progress-bar bg-success" role="progressbar" [style.width.%]="pctClientesAssinantes()"></div>
+    </div>
+  </div>
+</div>

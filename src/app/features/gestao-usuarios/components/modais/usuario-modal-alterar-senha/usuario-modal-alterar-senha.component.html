@@ -1,0 +1,70 @@
+<tm-modal
+  [title]="'USUARIOS.MODAL_PASSWORD.TITLE' | translate"
+  [confirmLabel]="'USUARIOS.MODAL_PASSWORD.SAVE' | translate"
+  [cancelLabel]="'USUARIOS.MODAL_PASSWORD.CANCEL' | translate"
+  [show]="show()"
+  (showChange)="show.set($event)"
+  (confirm)="salvar()"
+  (cancel)="fechar()"
+  confirmClass="btn-warning"
+  icon="fas fa-key"
+  size="md"
+>
+  <form [formGroup]="changePasswordForm" class="p-1 text-start">
+    @if (!changePasswordForm.get('forgotPassword')?.value) {
+      <div class="mb-3">
+        <tm-text
+          formControlName="currentPassword"
+          [label]="'USUARIOS.MODAL_PASSWORD.CURRENT_LABEL' | translate"
+          type="password"
+          class="custom-dark-text"
+        ></tm-text>
+      </div>
+    }
+
+    <div class="mb-3">
+      <tm-text
+        formControlName="newPassword"
+        [label]="'USUARIOS.MODAL_PASSWORD.NEW_LABEL' | translate"
+        type="password"
+        class="custom-dark-text"
+      ></tm-text>
+    </div>
+
+    <div class="mb-3">
+      <tm-text
+        formControlName="confirmPassword"
+        [label]="'USUARIOS.MODAL_PASSWORD.CONFIRM_LABEL' | translate"
+        type="password"
+        class="custom-dark-text"
+      ></tm-text>
+      @if (
+        changePasswordForm.get('confirmPassword')?.touched &&
+        changePasswordForm.get('confirmPassword')?.invalid
+      ) {
+        <div class="text-danger extra-small mt-1">
+          @if (changePasswordForm.get('confirmPassword')?.errors?.['required']) {
+            Confirmação de senha é obrigatória.
+          } @else if (changePasswordForm.get('confirmPassword')?.errors?.['mismatch']) {
+            As senhas não coincidem.
+          }
+        </div>
+      }
+    </div>
+
+    @if (isAdmin()) {
+      <div class="mb-3 form-check">
+        <input
+          type="checkbox"
+          class="form-check-input"
+          id="forgotPassword"
+          formControlName="forgotPassword"
+          (change)="onForgotPasswordToggle()"
+        />
+        <label class="form-check-label small fw-semibold text-muted custom-dark-text" for="forgotPassword">
+          {{ 'USUARIOS.MODAL_PASSWORD.FORGOT_LABEL' | translate }}
+        </label>
+      </div>
+    }
+  </form>
+</tm-modal>

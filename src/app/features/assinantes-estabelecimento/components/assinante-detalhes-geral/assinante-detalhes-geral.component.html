@@ -1,0 +1,53 @@
+<div class="card border-0 shadow-sm p-4 h-100 details-card custom-dark-card">
+  <div class="d-flex align-items-center gap-3 border-bottom pb-4 mb-4">
+    <div class="avatar-circle bg-primary-subtle text-primary d-flex align-items-center justify-content-center">
+      <i class="fas fa-user fs-3"></i>
+    </div>
+    <div>
+      <h2 class="h3 fw-bold mb-1 custom-dark-text">{{ assinante().clienteNome }}</h2>
+      <p class="text-muted mb-0 custom-dark-text">{{ assinante().clienteEmail || assinante().telefone }}</p>
+    </div>
+  </div>
+
+  <div class="row g-4">
+    <div class="col-sm-6 col-12">
+      <label class="form-label small fw-bold text-muted text-uppercase tracking-wider">Status</label>
+      <div class="mt-1">
+        @if (assinante().status | statusAssinanteBadge; as badge) {
+          <span class="badge border px-3 py-1.5 rounded-pill fw-semibold" [ngClass]="badge.badgeClass">
+            <i [class]="badge.iconClass" class="me-1"></i>{{ badge.label }}
+          </span>
+        }
+      </div>
+    </div>
+
+    <div class="col-sm-6 col-12">
+      <label class="form-label small fw-bold text-muted text-uppercase tracking-wider">Plano</label>
+      <div class="mt-1">
+        <span class="badge border px-3 py-1.5 rounded-pill fw-semibold bg-primary-subtle text-primary border-primary-subtle">
+          <i class="fas fa-crown me-1"></i>{{ assinante().clubeNome }}
+        </span>
+        <span class="d-block small text-muted mt-1 custom-dark-text">R$ {{ assinante().valorAssinatura.toFixed(2).replace('.', ',') }}/mês</span>
+      </div>
+    </div>
+
+    <div class="col-sm-6 col-12">
+      <label class="form-label small fw-bold text-muted text-uppercase tracking-wider">Início da Assinatura</label>
+      <p class="fw-semibold mb-0 custom-dark-text">{{ helper.formatarData(assinante().dataInicio) }}</p>
+    </div>
+
+    <div class="col-sm-6 col-12">
+      <label class="form-label small fw-bold text-muted text-uppercase tracking-wider">Renova em</label>
+      <p class="fw-semibold mb-0 custom-dark-text">{{ helper.formatarData(assinante().dataRenovacao) }}</p>
+    </div>
+
+    <div class="col-12">
+      <div class="border-top pt-3 mt-2">
+        <label class="form-label small fw-bold text-muted text-uppercase tracking-wider">
+          <i class="fas fa-coins me-1 text-primary"></i>LTV (Valor Gerado)
+        </label>
+        <h3 class="fw-bold mb-0 custom-dark-text">R$ {{ assinante().receitaGeradaLtv.toFixed(2).replace('.', ',') }}</h3>
+      </div>
+    </div>
+  </div>
+</div>

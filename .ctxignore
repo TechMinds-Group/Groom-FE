@@ -1,0 +1,15 @@
+# Pastas de dependências e build
+node_modules
+dist
+build
+bin
+obj
+.git
+
+# Arquivos de log e cache
+*.log
+.DS_Store
+.cache
+
+# Pastas de testes (se você não quiser que o contexto da IA foque neles agora)
+tests/

@@ -1,0 +1,50 @@
+<div class="container mt-5">
+  <div class="row mb-4 align-items-center">
+    <div class="col-12">
+      <h1 class="h2 fw-bold mb-2 custom-dark-text">
+        <i class="fas fa-users-cog me-2"></i>Assinantes
+      </h1>
+      <p class="text-muted custom-dark-text">
+        Gerencie os clientes vinculados aos seus planos, acompanhe datas de renovação e status das assinaturas.
+      </p>
+    </div>
+  </div>
+
+  <div class="mb-5">
+    <tm-table
+      [cols]="cols()"
+      [data]="assinantesService.assinantes()"
+      [paginated]="true"
+      [pageSize]="tamanhoPagina()"
+      (pageSizeChange)="tamanhoPagina.set($event)"
+      [showControls]="true"
+      searchPlaceholder="Buscar por nome, email ou clube..."
+      (rowClick)="verDetalhes($event)"
+    ></tm-table>
+  </div>
+</div>
+
+<ng-template #clienteTemplate let-item>
+  <div class="d-flex flex-column text-start">
+    <strong class="fw-bold custom-dark-text">{{ item.clienteNome }}</strong>
+    <span class="text-muted small custom-dark-text">{{ item.clienteEmail }}</span>
+  </div>
+</ng-template>
+
+<ng-template #planoTemplate let-item>
+  <div class="d-flex align-items-center gap-1 flex-wrap">
+    <span class="badge border px-2.5 py-1 rounded-pill small fw-semibold bg-primary-subtle text-primary border-primary-subtle">
+      <i class="fas fa-crown me-1"></i>{{ item.clubeNome }}
+    </span>
+  </div>
+</ng-template>
+
+<ng-template #statusTemplate let-item>
+  <div class="d-flex align-items-center gap-2">
+    @if (item.status | statusAssinanteBadge; as badge) {
+      <span class="badge border px-2.5 py-1 rounded-pill small fw-semibold" [ngClass]="badge.badgeClass">
+        <i [class]="badge.iconClass" class="me-1"></i>{{ badge.label }}
+      </span>
+    }
+  </div>
+</ng-template>

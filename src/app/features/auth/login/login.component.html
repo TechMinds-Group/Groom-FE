@@ -1,0 +1,90 @@
+<div class="login-container">
+  <div class="login-card">
+    @if (!isForceChangePassword()) {
+      <div class="login-header">
+        <h1>Bem-vindo ao Groom</h1>
+        <p>Faça login para acessar o sistema.</p>
+      </div>
+    } @else {
+      <div class="login-header">
+        <h1>Troca Obrigatória</h1>
+        <p>Por favor, cadastre sua nova senha de acesso.</p>
+      </div>
+    }
+
+    @if (errorMessage()) {
+      <div class="error-banner">
+        {{ errorMessage() }}
+      </div>
+    }
+
+    @if (!isForceChangePassword()) {
+      <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="login-form">
+        <div class="form-group">
+          <tm-text
+            formControlName="email"
+            label="E-mail"
+            placeholder="exemplo@groom.com.br"
+            [control]="loginForm.get('email')">
+          </tm-text>
+        </div>
+
+        <div class="form-group">
+          <tm-text
+            formControlName="password"
+            label="Senha"
+            type="password"
+            placeholder="Sua senha"
+            [control]="loginForm.get('password')">
+          </tm-text>
+        </div>
+
+        <div class="form-actions">
+          <label class="remember-me">
+            <input type="checkbox" formControlName="rememberMe">
+            <span>Manter conectado</span>
+          </label>
+          <a href="#" class="forgot-password">Esqueceu a senha?</a>
+        </div>
+
+        <button type="submit" class="btn-primary" [disabled]="isLoading()">
+          @if (isLoading()) {
+            <span>Entrando...</span>
+          } @else {
+            <span>Entrar</span>
+          }
+        </button>
+      </form>
+    } @else {
+      <form [formGroup]="newPasswordForm" (ngSubmit)="onSubmitNewPassword()" class="login-form">
+        <div class="form-group">
+          <tm-text
+            formControlName="newPassword"
+            label="Nova Senha"
+            type="password"
+            placeholder="Digite no mínimo 6 caracteres"
+            [control]="newPasswordForm.get('newPassword')">
+          </tm-text>
+        </div>
+
+        <div class="form-group">
+          <tm-text
+            formControlName="confirmPassword"
+            label="Confirme a Nova Senha"
+            type="password"
+            placeholder="Digite a mesma senha"
+            [control]="newPasswordForm.get('confirmPassword')">
+          </tm-text>
+        </div>
+
+        <button type="submit" class="btn-primary" [disabled]="isLoading()">
+          @if (isLoading()) {
+            <span>Alterando...</span>
+          } @else {
+            <span>Salvar e Acessar</span>
+          }
+        </button>
+      </form>
+    }
+  </div>
+</div>

@@ -1,0 +1,23 @@
+.tm-card {
+  container-type: inline-size;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.08) !important;
+  }
+}
+
+.price-amount {
+  font-size: clamp(1.4rem, 9.5cqw, 2.25rem);
+  font-weight: 800;
+  line-height: 1.1;
+  white-space: nowrap;
+  letter-spacing: -0.02em;
+}
+
+:host-context([data-theme='dark']) {
+  .custom-dark-text {
+    color: #ffffff !important;
+  }
+}

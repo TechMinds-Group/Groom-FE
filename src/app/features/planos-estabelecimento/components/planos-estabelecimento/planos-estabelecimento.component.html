@@ -1,0 +1,65 @@
+<div class="container mt-5">
+  <div class="row mb-4 align-items-center">
+    <div class="col-lg-8 col-12">
+      <h1 class="h2 text-primary fw-bold mb-2 custom-dark-text"><i class="fas fa-award me-2"></i>Planos de Serviço</h1>
+      <p class="text-muted custom-dark-text">
+        Crie, edite e personalize os planos de serviço da sua empresa.
+      </p>
+    </div>
+    <div class="col-lg-4 col-12 mt-3 mt-lg-0 d-grid d-lg-flex justify-content-lg-end">
+      <button (click)="abrirNovo()" class="btn btn-primary px-4 py-2 shadow-sm fw-semibold">
+        <i class="fas fa-plus me-2"></i>Cadastrar
+      </button>
+    </div>
+  </div>
+
+  <div class="mb-5">
+    <tm-table
+      [cols]="cols()"
+      [data]="clubes()"
+      [paginated]="true"
+      [pageSize]="tamanhoPagina()"
+      (pageSizeChange)="tamanhoPagina.set($event)"
+      [showControls]="true"
+      (rowClick)="verDetalhes($event)"
+    ></tm-table>
+  </div>
+</div>
+
+<app-plano-modal-editar
+  [(show)]="showFormModal"
+  [plano]="null"
+  [opcoesBeneficios]="opcoesBeneficios()"
+  (confirm)="salvar($event)"
+  (cancel)="showFormModal.set(false)"
+  (addBeneficio)="adicionarNovoBeneficio($event)"
+></app-plano-modal-editar>
+
+<ng-template #nomeTemplate let-item>
+  <div class="d-flex flex-column text-start">
+    <strong class="fw-bold custom-dark-text">{{ item.nome }}</strong>
+    <span class="text-muted small custom-dark-text text-truncate descricao-cell" [title]="item.descricao">{{ item.descricao || 'Sem descrição' }}</span>
+  </div>
+</ng-template>
+
+<ng-template #precoTemplate let-item>
+  <div class="text-start">
+    <span class="fw-semibold text-primary">R$ {{ item.preco.toFixed(2).replace('.', ',') }}</span>
+  </div>
+</ng-template>
+
+<ng-template #frequenciaTemplate let-item>
+  <div class="text-start">
+    <span class="custom-dark-text">{{ item.frequencia | frequenciaPlano }}</span>
+  </div>
+</ng-template>
+
+<ng-template #statusTemplate let-item>
+  <div class="text-start">
+    @if (item.status | statusPlano; as badge) {
+      <span class="badge border px-2.5 py-1 rounded-pill small fw-semibold" [ngClass]="badge.badgeClass">
+        <i [class]="badge.iconClass" class="me-1"></i>{{ badge.label }}
+      </span>
+    }
+  </div>
+</ng-template>

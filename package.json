@@ -1,0 +1,58 @@
+{
+  "name": "groom-fe",
+  "version": "0.0.0",
+  "scripts": {
+    "ng": "ng",
+    "start": "ng serve",
+    "prebuild": "node scripts/set-env.mjs",
+    "build": "ng build",
+    "watch": "ng build --watch --configuration development"
+  },
+  "private": true,
+  "packageManager": "npm@11.6.2",
+  "dependencies": {
+    "@angular/animations": "^19.0.0",
+    "@angular/cdk": "^19.0.0",
+    "@angular/common": "^19.0.0",
+    "@angular/compiler": "^19.0.0",
+    "@angular/core": "^19.0.0",
+    "@angular/forms": "^19.0.0",
+    "@angular/material": "^19.0.0",
+    "@angular/platform-browser": "^19.0.0",
+    "@angular/platform-browser-dynamic": "^19.0.0",
+    "@angular/router": "^19.0.0",
+    "@fortawesome/fontawesome-free": "^6.6.0",
+    "@mercadopago/sdk-js": "^0.0.3",
+    "@techminds-group/tm-angular-lib": "^0.0.7",
+    "angular-calendar": "^0.31.1",
+    "bootstrap": "^5.3.3",
+    "calendar-utils": "^0.11.0",
+    "chart.js": "^4.5.1",
+    "date-fns": "^4.1.0",
+    "ng2-charts": "^8.0.0",
+    "rxjs": "~7.8.0",
+    "tslib": "^2.3.0",
+    "zone.js": "~0.15.0"
+  },
+  "overrides": {
+    "rxjs": "$rxjs",
+    "@techminds-group/tm-angular-lib": {
+      "@angular/cdk": "$@angular/cdk",
+      "@angular/common": "$@angular/common",
+      "@angular/core": "$@angular/core",
+      "@angular/forms": "$@angular/forms"
+    },
+    "tar": "^7.5.20",
+    "glob": "^13.0.6"
+  },
+  "devDependencies": {
+    "@angular/build": "^19.0.0",
+    "@angular/cli": "^19.0.0",
+    "@angular/compiler-cli": "^19.0.0",
+    "@types/node": "^25.5.2",
+    "lean-ctx-client": "^0.1.0",
+    "lean-ctx-sdk": "^0.3.0",
+    "prettier": "^3.8.1",
+    "typescript": "~5.6.2"
+  }
+}

@@ -1,0 +1,17 @@
+:host-context([data-theme='dark']) {
+  .custom-dark-card {
+    background-color: #161b22 !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  }
+
+  .custom-dark-text {
+    color: #ffffff !important;
+  }
+}
+
+@media (max-width: 991.98px) {
+  .custom-action-btn {
+    padding-top: 0.65rem !important;
+    padding-bottom: 0.65rem !important;
+  }
+}

@@ -1,0 +1,54 @@
+@use 'styles/theme';
+@use "angular-calendar/scss/angular-calendar" as *;
+
+/* Global styles */
+@import 'bootstrap/dist/css/bootstrap.min.css';
+@import '@fortawesome/fontawesome-free/css/all.min.css';
+@import '@angular/material/prebuilt-themes/indigo-pink.css';
+@import '@angular/cdk/overlay-prebuilt.css';
+
+html, body { height: 100%; }
+body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+
+/* Override to fix sidebar toggle button focus ring overlap on collapse */
+.collapse-toggle-btn:focus {
+  box-shadow: none !important;
+  border-color: transparent !important;
+}
+
+.sidebar.collapsed .logo-wrapper {
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+/* Force library sidebar to collapse properly (fixes library 100% !important bug) */
+body.sidebar-collapsed tm-sidebar {
+  width: 70px !important;
+  min-width: 70px !important;
+}
+
+body.sidebar-collapsed tm-sidebar .sidebar {
+  width: 70px !important;
+}
+
+/* Remove blue shadow from active sidebar menu items */
+.nav-link.active, .btn-toggle-nav .nav-link.active {
+  box-shadow: none !important;
+}
+
+/* Ensure CDK Overlays are always on top of the drawer and modal */
+.cdk-overlay-container {
+  z-index: 3000 !important;
+}
+
+/* Ensure Toast notification container is always on top of modals and drawers */
+.toast-container {
+  z-index: 3100 !important;
+}
+
+/* Dynamic customizable badge utilizing color-mix */
+.custom-badge-color {
+  background-color: color-mix(in srgb, var(--badge-color) 10%, transparent) !important;
+  color: var(--badge-color) !important;
+  border-color: color-mix(in srgb, var(--badge-color) 15%, transparent) !important;
+}

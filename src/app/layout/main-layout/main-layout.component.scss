@@ -1,0 +1,33 @@
+:host {
+  display: block;
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+}
+
+main.main-content {
+  background-color: var(--tm-bg-color);
+  padding: 0 1.5rem;
+  transition: padding-bottom 0.2s;
+}
+
+/* Responsive adjustments */
+@media (max-width: 991.98px) {
+  app-sidebar {
+    display: none !important;
+  }
+
+  tm-bottom-nav {
+    display: block !important;
+  }
+
+  main.main-content {
+    padding-bottom: 80px; // Altura da tm-bottom-nav + respiro
+  }
+}
+
+@media (min-width: 992px) {
+  tm-bottom-nav {
+    display: none !important;
+  }
+}

@@ -1,0 +1,80 @@
+.calendario-page-container {
+  padding: 1.5rem;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+
+  .calendario-wrapper {
+    flex: 1;
+    min-height: 0;
+    
+    // O tm-calendar cuida do scroll interno se necessário.
+    // Usamos um wrapper flexível para ocupar o remanescente da tela.
+    display: flex;
+    flex-direction: column;
+
+    tm-calendar {
+      flex: 1;
+      display: block;
+    }
+  }
+
+  .log-container {
+    min-height: 100px;
+  }
+
+  .calendario-header {
+    h2 {
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: var(--text-color, #333);
+      margin: 0;
+    }
+  }
+}
+
+/* Ajustes Específicos para o Modo Escuro na Gaveta */
+:host-context([data-theme='dark']) ::ng-deep {
+  tm-drawer {
+    /* Títulos das Seções (Informações do Cliente, Detalhes, Horário) */
+    h6.text-secondary {
+      color: #ffffff !important;
+    }
+
+    /* Textos secundários, ícones (user, whatsapp) e botão cancelar */
+    .text-muted, 
+    .btn-link.text-muted {
+      color: #ffffff !important;
+    }
+
+    /* Labels dentro do componente tm-select (Serviço Desejado, Profissional Responsável) */
+    tm-select label, 
+    tm-select .form-label {
+      color: #ffffff !important;
+    }
+  }
+
+  /* Date Selection Card Dark Mode adjustments */
+  .date-selection-card {
+    background-color: rgba(255, 255, 255, 0.03) !important;
+    border-color: rgba(255, 255, 255, 0.08) !important;
+  }
+  
+  .icon-shape {
+    background-color: rgba(37, 99, 235, 0.15) !important; /* Tailwind blue-600 with opacity */
+  }
+
+  .duration-text {
+    color: #1a1a1a !important; /* Cinza quase preto */
+  }
+}
+
+/* Light Mode Styles for Date Selection Card */
+.date-selection-card {
+  background-color: var(--tm-surface-color, #ffffff);
+  border: 1px solid var(--tm-border-color, #e2e8f0);
+}
+
+.icon-shape {
+  background-color: rgba(37, 99, 235, 0.08); /* Light blue background for light mode */
+}

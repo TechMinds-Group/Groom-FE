@@ -1,0 +1,105 @@
+.extra-small {
+  font-size: 0.75rem;
+}
+
+.status-toggle-btn {
+  border-radius: 12px;
+  border: 1px solid transparent;
+  font-size: 0.95rem;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  
+  &.status-ativo {
+    background-color: #d1e7dd;
+    color: #0f5132;
+    border-color: #badbcc;
+    
+    &:hover {
+      background-color: #c1d7cd;
+    }
+  }
+  
+  &.status-inativo {
+    background-color: #f8d7da;
+    color: #842029;
+    border-color: #f5c2c7;
+    
+    &:hover {
+      background-color: #e8c7ca;
+    }
+  }
+}
+
+:host-context([data-theme='dark']) {
+  .status-toggle-btn {
+    &.status-ativo {
+      background-color: rgba(25, 135, 84, 0.2);
+      color: #75b798;
+      border-color: rgba(25, 135, 84, 0.3);
+      
+      &:hover {
+        background-color: rgba(25, 135, 84, 0.3);
+      }
+    }
+    
+    &.status-inativo {
+      background-color: rgba(220, 53, 69, 0.2);
+      color: #ea868f;
+      border-color: rgba(220, 53, 69, 0.3);
+      
+      &:hover {
+        background-color: rgba(220, 53, 69, 0.3);
+      }
+    }
+  }
+
+  .custom-dark-text {
+    color: #ffffff !important;
+  }
+  
+  tm-modal {
+    ::ng-deep .form-label {
+      color: #ffffff !important;
+    }
+  }
+}
+
+@media (max-width: 991.98px) {
+  ::ng-deep .btn {
+    width: 100% !important;
+    display: block !important;
+    padding-top: 0.65rem !important;
+    padding-bottom: 0.65rem !important;
+  }
+
+  // Corrige os botões dentro das linhas dos cards do modo mobile do tm-table
+  ::ng-deep .tm-table-card .card-row:has(.btn) {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    
+    .card-label {
+      margin-bottom: 0.5rem;
+    }
+    
+    .card-value {
+      text-align: left !important;
+      width: 100% !important;
+      
+      div {
+        flex-direction: column !important;
+        align-items: stretch !important;
+        width: 100% !important;
+      }
+    }
+  }
+
+  ::ng-deep .modal-premium-footer {
+    flex-direction: column !important;
+    
+    .btn {
+      margin-bottom: 0.5rem;
+      &:last-child {
+        margin-bottom: 0;
+      }
+    }
+  }
+}

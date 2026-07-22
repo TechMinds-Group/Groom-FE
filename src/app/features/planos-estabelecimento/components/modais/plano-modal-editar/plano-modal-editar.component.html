@@ -1,0 +1,106 @@
+<app-modal-form-base
+  [title]="(plano() ? 'Editar Plano' : 'Cadastrar Plano')"
+  [confirmLabel]="(plano() ? 'Salvar' : 'Cadastrar')"
+  cancelLabel="Cancelar"
+  [(show)]="show"
+  (confirm)="salvar()"
+  (cancel)="fechar()"
+  confirmClass="btn-primary"
+  icon="fas fa-award"
+  size="md"
+>
+  <form [formGroup]="editForm">
+    <div class="mb-3">
+      <tm-text
+        formControlName="nome"
+        label="Nome do Plano"
+        placeholder="Ex: Cabelo + Barba VIP"
+        class="custom-dark-text"
+      ></tm-text>
+      @if (editForm.get('nome')?.touched && editForm.get('nome')?.invalid) {
+        <div class="text-danger extra-small mt-1">Nome é obrigatório (máx. 50 caracteres).</div>
+      }
+    </div>
+
+    <div class="row mb-3 align-items-start">
+      <div class="col-lg-6 col-12 mb-3 mb-lg-0">
+        <tm-text
+          formControlName="preco"
+          type="text"
+          mask="currency"
+          [maxlength]="14"
+          label="Preço do Plano (R$)"
+          placeholder="R$ 0,00"
+          class="custom-dark-text"
+        ></tm-text>
+        @if (editForm.get('preco')?.touched && editForm.get('preco')?.invalid) {
+          <div class="text-danger extra-small mt-1">Preço válido é obrigatório.</div>
+        }
+      </div>
+      <div class="col-lg-6 col-12 mt-3 mt-lg-0">
+        <tm-select
+          formControlName="frequencia"
+          [label]="'Frequência de Cobrança'"
+          [options]="frequenciaOptions"
+          class="custom-dark-text"
+        ></tm-select>
+      </div>
+    </div>
+
+    <div class="mb-3">
+      <tm-text
+        formControlName="descricao"
+        label="Descrição do Plano (Opcional)"
+        placeholder="Descreva o que o plano oferece..."
+        [textarea]="true"
+        [rows]="2"
+        class="custom-dark-text"
+      ></tm-text>
+      @if (editForm.get('descricao')?.touched && editForm.get('descricao')?.hasError('maxlength')) {
+        <div class="text-danger extra-small mt-1">A descrição deve ter no máximo 200 caracteres.</div>
+      }
+    </div>
+
+    <div class="mb-3">
+      <tm-select
+        formControlName="beneficios"
+        [label]="'Benefícios Inclusos'"
+        [options]="opcoesBeneficios()"
+        [multiple]="true"
+        [searchable]="true"
+        [addTag]="true"
+        addTagLabel="Criar benefício:"
+        placeholder="Selecione ou digite para adicionar"
+        (addTagEvent)="adicionarNovoBeneficio($event)"
+        class="custom-dark-text"
+      ></tm-select>
+      @if (editForm.get('beneficios')?.touched && editForm.get('beneficios')?.invalid) {
+        <div class="text-danger extra-small mt-1">Adicione pelo menos um benefício. (Máx 70 caracteres)</div>
+      }
+    </div>
+
+    @if (plano()) {
+      <div class="mb-2">
+        <label class="form-label fw-semibold text-muted small custom-dark-text">Status do Plano</label>
+        <div class="d-flex gap-2">
+          <button
+            type="button"
+            class="btn flex-fill py-2 fw-semibold status-toggle-btn d-flex align-items-center justify-content-center gap-2"
+            [class.status-ativo]="status() === 'Ativo'"
+            (click)="status.set('Ativo')"
+          >
+            <i class="fas fa-check-circle fs-6"></i> Plano Ativo
+          </button>
+          <button
+            type="button"
+            class="btn flex-fill py-2 fw-semibold status-toggle-btn d-flex align-items-center justify-content-center gap-2"
+            [class.status-inativo]="status() === 'Inativo'"
+            (click)="status.set('Inativo')"
+          >
+            <i class="fas fa-minus-circle fs-6"></i> Plano Inativo
+          </button>
+        </div>
+      </div>
+    }
+  </form>
+</app-modal-form-base>

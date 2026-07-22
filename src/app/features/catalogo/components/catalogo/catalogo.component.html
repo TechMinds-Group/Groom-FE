@@ -1,0 +1,120 @@
+<div class="container mt-5">
+  <div class="row mb-4 align-items-center">
+    <div class="col-lg-8 col-12">
+      <h1 class="h2 text-primary fw-bold mb-2 custom-dark-text">
+        <i class="fas fa-list me-2"></i>Catálogo de Serviços
+      </h1>
+      <p class="text-muted custom-dark-text">
+        Cadastre os serviços oferecidos pelo seu estabelecimento.
+      </p>
+    </div>
+    <div class="col-lg-4 col-12 mt-3 mt-lg-0 d-grid d-lg-flex justify-content-lg-end">
+      <button (click)="abrirNovo()" class="btn btn-primary px-4 py-2 shadow-sm fw-semibold">
+        <i class="fas fa-plus me-2"></i>Cadastrar
+      </button>
+    </div>
+  </div>
+
+  <div class="mb-5">
+    <tm-table
+      [cols]="cols()"
+      [data]="catalogoService.servicos()"
+      [paginated]="true"
+      [pageSize]="tamanhoPagina()"
+      (pageSizeChange)="tamanhoPagina.set($event)"
+      [showControls]="true"
+      (rowClick)="verDetalhes($event)"
+    ></tm-table>
+  </div>
+</div>
+
+<tm-modal
+  title="Cadastrar Serviço"
+  confirmLabel="Cadastrar"
+  cancelLabel="Cancelar"
+  [show]="showFormModal()"
+  (showChange)="showFormModal.set($event)"
+  (confirm)="salvar()"
+  (cancel)="showFormModal.set(false)"
+  confirmClass="btn-primary"
+  icon="fas fa-list"
+  size="md"
+>
+  <form [formGroup]="servicoForm" class="p-1 text-start">
+    <div class="mb-3">
+      <tm-text
+        formControlName="nome"
+        label="Nome do Serviço"
+        placeholder="Ex: Corte de Cabelo"
+        class="custom-dark-text"
+      ></tm-text>
+      @if (servicoForm.get('nome')?.touched && servicoForm.get('nome')?.invalid) {
+        <div class="text-danger extra-small mt-1">Nome é obrigatório (máx. 60 caracteres).</div>
+      }
+    </div>
+
+    <div class="mb-3">
+      <tm-text
+        formControlName="preco"
+        type="text"
+        mask="currency"
+        [maxlength]="14"
+        label="Preço (R$)"
+        placeholder="R$ 0,00"
+        class="custom-dark-text"
+      ></tm-text>
+      @if (servicoForm.get('preco')?.touched && servicoForm.get('preco')?.invalid) {
+        <div class="text-danger extra-small mt-1">Preço válido é obrigatório.</div>
+      }
+    </div>
+
+    <div class="mb-3">
+      <tm-text
+        formControlName="duracao"
+        type="number"
+        label="Duração (minutos)"
+        placeholder="Ex: 30"
+        class="custom-dark-text"
+      ></tm-text>
+      @if (servicoForm.get('duracao')?.touched && servicoForm.get('duracao')?.invalid) {
+        <div class="text-danger extra-small mt-1">Duração é obrigatória.</div>
+      }
+    </div>
+  </form>
+</tm-modal>
+
+<ng-template #servicoTemplate let-item>
+  <div class="d-flex flex-column text-start">
+    <strong class="fw-bold custom-dark-text">{{ item.nome }}</strong>
+    <span class="text-muted small custom-dark-text">{{ item.descricao || 'Sem descrição' }}</span>
+  </div>
+</ng-template>
+
+<ng-template #precoTemplate let-item>
+  <div class="text-start">
+    <span class="fw-semibold text-primary">R$ {{ item.preco.toFixed(2).replace('.', ',') }}</span>
+  </div>
+</ng-template>
+
+<ng-template #duracaoTemplate let-item>
+  <div class="text-start">
+    <span class="custom-dark-text">{{ item.duracao }} min</span>
+  </div>
+</ng-template>
+
+<ng-template #statusTemplate let-item>
+  <div class="d-flex align-items-center gap-2">
+    @switch (item.status) {
+      @case ('Ativo') {
+        <span class="badge bg-success-subtle text-success border border-success-subtle px-2.5 py-1 rounded-pill small fw-semibold">
+          <i class="fas fa-check-circle me-1"></i>Ativo
+        </span>
+      }
+      @case ('Inativo') {
+        <span class="badge bg-danger-subtle text-danger border border-danger-subtle px-2.5 py-1 rounded-pill small fw-semibold">
+          <i class="fas fa-times-circle me-1"></i>Inativo
+        </span>
+      }
+    }
+  </div>
+</ng-template>
