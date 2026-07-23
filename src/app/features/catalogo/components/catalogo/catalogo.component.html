@@ -76,9 +76,7 @@
         placeholder="Ex: 30"
         class="custom-dark-text"
       ></tm-text>
-      @if (servicoForm.get('duracao')?.touched && servicoForm.get('duracao')?.invalid) {
-        <div class="text-danger extra-small mt-1">Duração é obrigatória.</div>
-      }
+
     </div>
   </form>
 </tm-modal>
@@ -98,7 +96,7 @@
 
 <ng-template #duracaoTemplate let-item>
   <div class="text-start">
-    <span class="custom-dark-text">{{ item.duracao }} min</span>
+    <span class="custom-dark-text">{{ item.duracao ? item.duracao + ' min' : '-' }}</span>
   </div>
 </ng-template>
 

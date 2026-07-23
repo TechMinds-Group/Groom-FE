@@ -30,11 +30,12 @@ export class PlanoDetalhesComponent implements OnInit {
   protected readonly showDeleteModal = signal<boolean>(false);
   protected readonly opcoesBeneficios = signal<{ value: string; label: string }[]>([]);
 
-  ngOnInit(): void {
+  async ngOnInit(): Promise<void> {
     const id = this.route.snapshot.paramMap.get('id');
     if (id) {
-      this.carregarClube(id);
+      await this.carregarClube(id);
     }
+    await this.carregarBeneficiosGlobais();
   }
 
   voltar(): void {
@@ -96,6 +97,15 @@ export class PlanoDetalhesComponent implements OnInit {
     } catch (err) {
       console.error('Erro ao carregar plano:', err);
       this.router.navigate(['/servicos/planos-estabelecimento']);
+    }
+  }
+
+  private async carregarBeneficiosGlobais(): Promise<void> {
+    try {
+      const beneficios = await firstValueFrom(this.beneficiosService.getBeneficios());
+      this.opcoesBeneficios.set(beneficios.map((b: string) => ({ value: b, label: b })));
+    } catch {
+      this.opcoesBeneficios.set([]);
     }
   }
 }

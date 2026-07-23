@@ -1,13 +1,13 @@
 <tm-modal
-  title="Editar Assinante"
-  confirmLabel="Salvar"
+  [title]="assinante() ? 'Editar Assinante' : 'Cadastrar Assinante'"
+  [confirmLabel]="assinante() ? 'Salvar' : 'Cadastrar'"
   cancelLabel="Cancelar"
   [show]="show()"
   (showChange)="show.set($event)"
   (confirm)="salvar()"
   (cancel)="fechar()"
   confirmClass="btn-primary"
-  icon="fas fa-edit"
+  [icon]="assinante() ? 'fas fa-edit' : 'fas fa-user-plus'"
   size="md"
 >
   <form [formGroup]="editForm" class="p-1 text-start">

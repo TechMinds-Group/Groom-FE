@@ -44,7 +44,7 @@ export class CatalogoComponent implements OnInit, AfterViewInit {
   protected readonly servicoForm: FormGroup = this.fb.group({
     nome: ['', [Validators.required, Validators.maxLength(60)]],
     preco: ['', [Validators.required]],
-    duracao: ['', [Validators.required]],
+    duracao: [''],
   });
 
   ngAfterViewInit(): void {
@@ -79,7 +79,7 @@ export class CatalogoComponent implements OnInit, AfterViewInit {
     const dadosEnvio = {
       nome: formVal.nome,
       preco: this.parseCurrency(formVal.preco),
-      duracao: Number(formVal.duracao),
+      duracao: formVal.duracao ? Number(formVal.duracao) : null,
       status: 'Ativo',
     };
 

@@ -18,7 +18,7 @@ import { ServicoCatalogo } from '../../../../../core/models/catalogo/servico.mod
 export interface ServicoEdicaoPayload {
   nome: string;
   preco: number;
-  duracao: number;
+  duracao?: number | null;
   status: string;
 }
 
@@ -42,7 +42,7 @@ export class CatalogoModalEditarComponent {
   protected readonly editForm: FormGroup = this.fb.group({
     nome: ['', [Validators.required, Validators.maxLength(60)]],
     preco: ['', [Validators.required]],
-    duracao: ['', [Validators.required]],
+    duracao: [''],
     status: ['Ativo', [Validators.required]],
   });
 
@@ -70,7 +70,7 @@ export class CatalogoModalEditarComponent {
     this.confirm.emit({
       nome: val.nome,
       preco: Number(val.preco),
-      duracao: Number(val.duracao),
+      duracao: val.duracao ? Number(val.duracao) : null,
       status: val.status,
     });
   }

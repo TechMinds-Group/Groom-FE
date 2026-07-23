@@ -40,15 +40,25 @@ export class AssinanteModalEditarComponent {
 
   constructor() {
     effect(() => {
-      if (this.show() && this.assinante()) {
-        const a = this.assinante()!;
-        this.editForm.patchValue({
-          clienteNome: a.clienteNome,
-          celular: a.telefone,
-          clienteEmail: a.clienteEmail,
-          clubeId: '',
-          dataInicio: a.dataInicio,
-        });
+      if (this.show()) {
+        const a = this.assinante();
+        if (a) {
+          this.editForm.patchValue({
+            clienteNome: a.clienteNome,
+            celular: a.telefone,
+            clienteEmail: a.clienteEmail,
+            clubeId: '',
+            dataInicio: a.dataInicio,
+          });
+        } else {
+          this.editForm.reset({
+            clienteNome: '',
+            celular: '',
+            clienteEmail: '',
+            clubeId: '',
+            dataInicio: new Date().toISOString().substring(0, 10),
+          });
+        }
       }
     });
   }

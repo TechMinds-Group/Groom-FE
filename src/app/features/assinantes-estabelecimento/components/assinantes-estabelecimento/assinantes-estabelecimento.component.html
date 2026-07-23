@@ -1,12 +1,17 @@
 <div class="container mt-5">
   <div class="row mb-4 align-items-center">
-    <div class="col-12">
+    <div class="col-md-8 col-12">
       <h1 class="h2 fw-bold mb-2 custom-dark-text">
         <i class="fas fa-users-cog me-2"></i>Assinantes
       </h1>
       <p class="text-muted custom-dark-text">
         Gerencie os clientes vinculados aos seus planos, acompanhe datas de renovação e status das assinaturas.
       </p>
+    </div>
+    <div class="col-md-4 col-12 text-md-end text-start mt-3 mt-md-0">
+      <button (click)="abrirNovo()" class="btn btn-primary px-4 py-2.5 fw-bold shadow-sm transition-all custom-action-btn">
+        <i class="fas fa-user-plus me-2"></i>Cadastrar
+      </button>
     </div>
   </div>
 
@@ -23,6 +28,14 @@
     ></tm-table>
   </div>
 </div>
+
+<app-assinante-modal-editar
+  [(show)]="showFormModal"
+  [assinante]="null"
+  [clubeOptions]="clubeOptions()"
+  (confirm)="salvar($event)"
+  (cancel)="showFormModal.set(false)"
+></app-assinante-modal-editar>
 
 <ng-template #clienteTemplate let-item>
   <div class="d-flex flex-column text-start">

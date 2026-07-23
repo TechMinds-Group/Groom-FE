@@ -26,7 +26,7 @@
               <div class="d-flex align-items-center mb-2 text-muted fw-semibold small custom-dark-text">
                 <i class="fas fa-clock me-2 text-primary"></i> Duração
               </div>
-              <h3 class="fw-bold mb-0">{{ s.duracao }} min</h3>
+              <h3 class="fw-bold mb-0">{{ s.duracao ? s.duracao + ' min' : '-' }}</h3>
             </div>
           </div>
           <div class="col-12 col-md-4">
