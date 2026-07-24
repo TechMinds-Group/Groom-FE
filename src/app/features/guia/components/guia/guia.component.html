@@ -1,0 +1,164 @@
+<div class="container-fluid mt-4 px-4">
+  <div class="row mb-4 align-items-center">
+    <div class="col-12">
+      <h1 class="h2 text-primary fw-bold mb-1 custom-dark-text">
+        <i class="fas fa-book me-2"></i>Guia do Sistema
+      </h1>
+      <p class="text-muted custom-dark-text">
+        Histórico de versões, novidades e guia de uso do Groom.
+      </p>
+    </div>
+  </div>
+
+  <div class="card tm-card border-0 shadow-sm rounded-4 mb-4">
+    <div class="card-body p-4">
+      <div class="row align-items-center g-3">
+        <div class="col-12 col-md d-flex align-items-center gap-3">
+          <div class="version-badge-lg">
+            <i class="fas fa-tag me-1"></i>V {{ versaoSelecionada().versao }}
+          </div>
+          <span class="text-muted custom-dark-text">{{ versaoSelecionada().data }}</span>
+        </div>
+
+        <div class="col-12 col-md-auto">
+          <div class="dropdown d-grid d-md-block">
+            <button
+              class="btn btn-outline-secondary dropdown-toggle d-flex align-items-center gap-2 rounded-3 w-100"
+              type="button"
+              data-bs-toggle="dropdown"
+              aria-expanded="false"
+            >
+              <i class="fas fa-clock-rotate"></i>
+              Outras versões
+            </button>
+        <ul class="dropdown-menu dropdown-menu-end shadow-lg rounded-3 p-2 version-dropdown">
+          @for (v of versoes; track v.versao) {
+            <li>
+              <button
+                class="dropdown-item rounded-2 d-flex align-items-center gap-2 py-2"
+                [class.active]="v.versao === versaoSelecionada().versao"
+                (click)="selecionarVersao(v)"
+              >
+                <i class="fas fa-tag fa-fw" [class.text-warning]="v.versao === versaoSelecionada().versao"></i>
+                <span class="fw-semibold">V {{ v.versao }}</span>
+                <span class="text-muted small ms-auto">{{ v.data }}</span>
+              </button>
+            </li>
+          }
+        </ul>
+      </div>
+    </div>
+    </div>
+  </div>
+</div>
+
+  @if (versaoSelecionada(); as v) {
+    @if (v.novidades && v.novidades.length > 0) {
+      <div class="row g-4 mb-4">
+        <div class="col-12">
+          <h3 class="fw-bold custom-dark-text mb-3">
+            <i class="fas fa-sparkles text-success me-2"></i>Novidades
+          </h3>
+          <div class="row g-3">
+            @for (item of v.novidades; track item.titulo) {
+              <div class="col-12 col-md-6 col-lg-4">
+                <div class="card tm-card border-0 shadow-sm rounded-4 h-100">
+                  <div class="card-body p-4 d-flex gap-3">
+                    <div class="icon-circle bg-success-subtle text-success flex-shrink-0">
+                      <i [class]="item.icone"></i>
+                    </div>
+                    <div>
+                      <h6 class="fw-bold custom-dark-text mb-1">{{ item.titulo }}</h6>
+                      <p class="text-muted small mb-0">{{ item.descricao }}</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+      </div>
+    }
+
+    @if (v.mudancas && v.mudancas.length > 0) {
+      <div class="row g-4 mb-4">
+        <div class="col-12">
+          <h3 class="fw-bold custom-dark-text mb-3">
+            <i class="fas fa-arrow-right text-primary me-2"></i>Mudanças
+          </h3>
+          <div class="row g-3">
+            @for (item of v.mudancas; track item.titulo) {
+              <div class="col-12 col-md-6">
+                <div class="card tm-card border-0 shadow-sm rounded-4 h-100">
+                  <div class="card-body p-4 d-flex gap-3">
+                    <div class="icon-circle bg-primary-subtle text-primary flex-shrink-0">
+                      <i [class]="item.icone"></i>
+                    </div>
+                    <div>
+                      <h6 class="fw-bold custom-dark-text mb-1">{{ item.titulo }}</h6>
+                      <p class="text-muted small mb-0">{{ item.descricao }}</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+      </div>
+    }
+
+    @if (v.removidos && v.removidos.length > 0) {
+      <div class="row g-4 mb-4">
+        <div class="col-12">
+          <h3 class="fw-bold custom-dark-text mb-3">
+            <i class="fas fa-trash text-danger me-2"></i>O que deixou de ter
+          </h3>
+          <div class="row g-3">
+            @for (item of v.removidos; track item.titulo) {
+              <div class="col-12 col-md-6">
+                <div class="card tm-card border-0 shadow-sm rounded-4 h-100">
+                  <div class="card-body p-4 d-flex gap-3">
+                    <div class="icon-circle bg-danger-subtle text-danger flex-shrink-0">
+                      <i [class]="item.icone"></i>
+                    </div>
+                    <div>
+                      <h6 class="fw-bold custom-dark-text mb-1">{{ item.titulo }}</h6>
+                      <p class="text-muted small mb-0">{{ item.descricao }}</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+      </div>
+    }
+
+    @if (v.topicos && v.topicos.length > 0) {
+      <div class="row g-4 mb-4">
+        <div class="col-12">
+          <h3 class="fw-bold custom-dark-text mb-3">
+            <i class="fas fa-compass text-warning me-2"></i>Como usar
+          </h3>
+          <div class="row g-3">
+            @for (item of v.topicos; track item.titulo) {
+              <div class="col-12 col-md-6">
+                <div class="card tm-card border-0 shadow-sm rounded-4 h-100">
+                  <div class="card-body p-4 d-flex gap-3">
+                    <div class="icon-circle bg-warning-subtle text-warning flex-shrink-0">
+                      <i [class]="item.icone"></i>
+                    </div>
+                    <div>
+                      <h6 class="fw-bold custom-dark-text mb-1">{{ item.titulo }}</h6>
+                      <p class="text-muted small mb-0">{{ item.descricao }}</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+      </div>
+    }
+  }
+</div>

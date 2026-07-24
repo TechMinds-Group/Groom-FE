@@ -111,6 +111,11 @@ export const routes: Routes = [
           ).then((m) => m.AssinaturaSistemaComponent),
       },
       {
+        path: 'guia',
+        loadComponent: () =>
+          import('./features/guia/components/guia/guia.component').then((m) => m.GuiaComponent),
+      },
+      {
         path: 'users',
         redirectTo: 'gestao/gestao-usuarios',
         pathMatch: 'full',

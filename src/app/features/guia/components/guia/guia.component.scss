@@ -1,0 +1,40 @@
+:host {
+  display: block;
+  width: 100%;
+}
+
+:host-context([data-theme='dark']) {
+  .tm-card p,
+  .tm-card .text-muted,
+  .tm-card .custom-dark-text {
+    color: #ffffff !important;
+  }
+}
+
+.version-badge-lg {
+  display: inline-flex;
+  align-items: center;
+  background-color: var(--tm-surface-color);
+  color: var(--tm-text-primary);
+  padding: 0.5rem 1.25rem;
+  border-radius: 50px;
+  font-weight: 700;
+  font-size: 1.1rem;
+  border: 1px solid var(--tm-border-color);
+}
+
+.icon-circle {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+}
+
+.version-dropdown {
+  max-height: 320px;
+  overflow-y: auto;
+  min-width: 240px;
+}
