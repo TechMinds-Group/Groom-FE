@@ -1,5 +1,10 @@
 <div class="d-flex h-100 overflow-hidden main-layout-container">
-  <app-sidebar class="d-none d-lg-block" (logout)="handleLogout()" (themeToggle)="handleThemeToggle()"></app-sidebar>
+  <div class="sidebar-column d-none d-lg-flex flex-column">
+    <app-sidebar (logout)="handleLogout()" (themeToggle)="handleThemeToggle()"></app-sidebar>
+    <a class="version-badge" routerLink="/guia" title="Guia do Sistema">
+      <i class="fas fa-tag me-1"></i>V 1.0.0
+    </a>
+  </div>
 
   <main class="flex-grow-1 overflow-auto position-relative main-content">
     <router-outlet></router-outlet>
@@ -8,6 +13,8 @@
   <tm-bottom-nav 
     class="d-lg-none" 
     [items]="mobileMenuItems()"
-    (itemClick)="handleLogout()" 
+    (itemClick)="handleMobileItemClick($event)"
   ></tm-bottom-nav>
 </div>
+
+<app-sidebar-modal-idioma [(show)]="showIdiomaModal" />

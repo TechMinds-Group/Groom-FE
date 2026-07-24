@@ -11,10 +11,7 @@
   --tm-warning-text: #000000;
   --tm-brand-yellow: #ffee00;
 
-  /* Global Sidebar Overrides to match reference */
-  --tm-sidebar-bg: #1a2233;
   --tm-sidebar-primary: var(--tm-primary);
-  --tm-sidebar-icon-color: #ffee00;
 
   --tm-info: #0dcaf0;
 
@@ -58,6 +55,17 @@
   --tm-table-pagination-active-text: #ffffff;
 }
 
+/* Light mode sidebar — slightly lighter than dark mode */
+tm-sidebar, .sidebar-column {
+  --tm-sidebar-bg: #222d40 !important;
+  --tm-sidebar-text: #ffffff !important;
+  --tm-sidebar-text-muted: #94a3b8 !important;
+  --tm-sidebar-icon-color: #ffee00 !important;
+  --tm-sidebar-active-bg: #2a364a !important;
+  --tm-sidebar-active-text: #ffffff !important;
+  --tm-sidebar-border: rgba(255, 255, 255, 0.1) !important;
+}
+
 [data-theme='dark'] {
   --tm-bg-color: #0b0f1a;
   --tm-surface-color: #161b22;
@@ -76,6 +84,18 @@
 
   --tm-table-header-bg: var(--tm-input-bg);
   --tm-table-header-border: rgba(255, 255, 255, 0.08);
+
+}
+
+[data-theme='dark'] tm-sidebar,
+[data-theme='dark'] .sidebar-column {
+  --tm-sidebar-bg: #1a2233 !important;
+  --tm-sidebar-text: #ffffff !important;
+  --tm-sidebar-text-muted: #94a3b8 !important;
+  --tm-sidebar-icon-color: #ffee00 !important;
+  --tm-sidebar-active-bg: #242f45 !important;
+  --tm-sidebar-active-text: #ffffff !important;
+  --tm-sidebar-border: rgba(255, 255, 255, 0.1) !important;
 }
 
 .bg-success-subtle {
