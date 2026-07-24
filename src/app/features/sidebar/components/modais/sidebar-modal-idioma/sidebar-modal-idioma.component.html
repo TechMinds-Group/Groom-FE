@@ -1,21 +1,23 @@
 <tm-modal
-  title="Selecionar Idioma"
-  confirmLabel=""
-  cancelLabel="Fechar"
+  [title]="'LINGUAGEM.TITLE' | translate"
+  [confirmLabel]="'LINGUAGEM.CONFIRM' | translate"
+  [cancelLabel]="'LINGUAGEM.CANCEL' | translate"
   [(show)]="show"
   icon="fas fa-globe"
+  (confirm)="confirmar()"
+  (cancel)="cancelar()"
 >
   <div class="d-flex flex-column gap-2 px-1 py-2">
     @for (item of idiomas; track item.code) {
       <button
         class="btn d-flex align-items-center gap-3 px-4 py-3 rounded-4 border text-start"
-        [class.btn-selected]="item.code === currentLang()"
-        [class.btn-outline-secondary]="item.code !== currentLang()"
+        [class.btn-selected]="item.code === selectedLang()"
+        [class.btn-outline-secondary]="item.code !== selectedLang()"
         (click)="selecionarIdioma(item.code)"
       >
         <img [src]="item.flagSrc" alt="" class="flag-icon">
         <span class="fw-semibold flex-grow-1">{{ item.label }}</span>
-        @if (item.code === currentLang()) {
+        @if (item.code === selectedLang()) {
           <i class="fas fa-check-circle text-success fs-5"></i>
         }
       </button>

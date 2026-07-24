@@ -155,4 +155,9 @@ export const enUS: TranslationSchema = {
       WAITING_PAYMENT: 'Waiting for payment confirmation...',
     },
   },
+  LINGUAGEM: {
+    TITLE: 'Select Language',
+    CONFIRM: 'Confirm',
+    CANCEL: 'Close',
+  },
 };

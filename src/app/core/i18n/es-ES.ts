@@ -155,4 +155,9 @@ export const esES: TranslationSchema = {
       WAITING_PAYMENT: 'Esperando confirmación del pago...',
     },
   },
+  LINGUAGEM: {
+    TITLE: 'Seleccionar Idioma',
+    CONFIRM: 'Confirmar',
+    CANCEL: 'Cerrar',
+  },
 };

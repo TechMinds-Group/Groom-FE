@@ -153,4 +153,9 @@ export const ptBR = {
       WAITING_PAYMENT: 'Aguardando confirmação do pagamento...',
     },
   },
+  LINGUAGEM: {
+    TITLE: 'Selecionar Idioma',
+    CONFIRM: 'Confirmar',
+    CANCEL: 'Fechar',
+  },
 };

@@ -1,12 +1,13 @@
-import { ChangeDetectionStrategy, Component, model, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, model, signal, effect, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TmModalComponent } from '@techminds-group/tm-angular-lib';
+import { TranslatePipe } from '../../../../../shared/pipes/translate.pipe';
 import { LanguageService, SupportedLanguage } from '../../../../../core/services/language.service';
 
 @Component({
   selector: 'app-sidebar-modal-idioma',
   standalone: true,
-  imports: [CommonModule, TmModalComponent],
+  imports: [CommonModule, TmModalComponent, TranslatePipe],
   templateUrl: './sidebar-modal-idioma.component.html',
   styleUrl: './sidebar-modal-idioma.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -18,6 +19,16 @@ export class SidebarModalIdiomaComponent {
 
   protected readonly currentLang = this.languageService.currentLang;
 
+  protected readonly selectedLang = signal<SupportedLanguage>(this.languageService.currentLang());
+
+  constructor() {
+    effect(() => {
+      if (this.show()) {
+        this.selectedLang.set(this.languageService.currentLang());
+      }
+    });
+  }
+
   protected readonly idiomas: { code: SupportedLanguage; label: string; flagSrc: string }[] = [
     { code: 'pt-BR', label: 'Português', flagSrc: 'languages/Flag_of_Brazil.svg' },
     { code: 'en-US', label: 'English', flagSrc: 'languages/Flag_of_the_United_States.svg' },
@@ -25,7 +36,15 @@ export class SidebarModalIdiomaComponent {
   ];
 
   protected selecionarIdioma(code: SupportedLanguage): void {
-    this.languageService.setLanguage(code);
+    this.selectedLang.set(code);
+  }
+
+  protected confirmar(): void {
+    this.languageService.setLanguage(this.selectedLang());
+    this.show.set(false);
+  }
+
+  protected cancelar(): void {
     this.show.set(false);
   }
 }
