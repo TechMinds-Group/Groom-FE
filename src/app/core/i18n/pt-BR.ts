@@ -61,6 +61,15 @@ export const ptBR = {
       BLOCKED: 'Bloqueado',
     },
   },
+  GUIA: {
+    TITLE: 'Guia do Sistema',
+    SUBTITLE: 'Tudo que você precisa saber para usar o Groom.',
+    VERSAO: 'Versão',
+    NOVIDADES: 'Novidades',
+    MUDANCAS: 'Mudanças',
+    REMOVIDOS: 'O que deixou de ter',
+    COMO_USAR: 'Como usar',
+  },
   ASSINATURA: {
     HEADER_TITLE: 'Minha Assinatura',
     HEADER_SUBTITLE: 'Gerencie sua licença de uso do sistema Groom, visualize faturas e limites da sua conta.',
@@ -74,10 +83,12 @@ export const ptBR = {
       BILLING_CYCLE: 'Ciclo de Cobrança',
       DAYS_REMAINING: 'Dias Restantes',
       DAYS_SUFFIX: 'dias',
+      INDETERMINATE: 'Indeterminado',
     },
     USO_LICENCA: {
       TITLE: 'Uso da Licença',
       SUBTITLE: 'Acompanhe a utilização dos recursos contratados do seu plano.',
+      PROFESSIONALS_INFO: 'A licença permite até 5 usuários de cada nível (5 administradores, 5 profissionais, etc.).',
       PROFESSIONALS: 'Profissionais Cadastrados',
       CLIENTS: 'Clientes na Base',
       SUBSCRIBED_CLIENTS: 'Clientes Assinantes',

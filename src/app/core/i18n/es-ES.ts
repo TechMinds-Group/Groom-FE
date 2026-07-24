@@ -63,6 +63,15 @@ export const esES: TranslationSchema = {
       BLOCKED: 'Bloqueado',
     },
   },
+  GUIA: {
+    TITLE: 'Guía del Sistema',
+    SUBTITLE: 'Todo lo que necesitas saber para usar Groom.',
+    VERSAO: 'Versión',
+    NOVIDADES: 'Novedades',
+    MUDANCAS: 'Cambios',
+    REMOVIDOS: 'Lo que dejó de tener',
+    COMO_USAR: 'Cómo usar',
+  },
   ASSINATURA: {
     HEADER_TITLE: 'Mi Suscripción',
     HEADER_SUBTITLE: 'Administre su licencia de uso del sistema Groom, consulte facturas y límites de su cuenta.',
@@ -76,10 +85,12 @@ export const esES: TranslationSchema = {
       BILLING_CYCLE: 'Ciclo de Facturación',
       DAYS_REMAINING: 'Días Restantes',
       DAYS_SUFFIX: 'días',
+      INDETERMINATE: 'Indeterminado',
     },
     USO_LICENCA: {
       TITLE: 'Uso de Licencia',
       SUBTITLE: 'Siga el uso de los recursos contratados de su plan.',
+      PROFESSIONALS_INFO: 'La licencia permite hasta 5 usuarios por nivel (5 administradores, 5 profesionales, etc.).',
       PROFESSIONALS: 'Profesionales Registrados',
       CLIENTS: 'Clientes en la Base',
       SUBSCRIBED_CLIENTS: 'Clientes Suscriptores',
