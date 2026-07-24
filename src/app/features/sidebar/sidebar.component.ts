@@ -1,15 +1,16 @@
-import { ChangeDetectionStrategy, Component, output, signal, inject, computed } from '@angular/core';
+import { ChangeDetectionStrategy, Component, output, signal, inject, computed, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TmSidebarComponent, MenuItem, ProfileMenuItem, SidebarUser } from '@techminds-group/tm-angular-lib';
 import { ThemeService } from '../../core/services/theme.service';
 import { AuthService } from '../../core/services/auth.service';
 import { LanguageService } from '../../core/services/language.service';
 import { ALL_SIDEBAR_MENU_ITEMS, VISIBLE_SIDEBAR_MENUS, PROFILE_MENU_ITEMS } from '../../core/config/menu.config';
+import { SidebarModalIdiomaComponent } from './components/modais/sidebar-modal-idioma/sidebar-modal-idioma.component';
 
 @Component({
   selector: 'app-sidebar',
   standalone: true,
-  imports: [CommonModule, TmSidebarComponent],
+  imports: [CommonModule, TmSidebarComponent, SidebarModalIdiomaComponent],
   templateUrl: './sidebar.component.html',
   styleUrl: './sidebar.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -20,6 +21,8 @@ export class SidebarComponent {
   private languageService = inject(LanguageService);
   protected isCollapsed = signal(false);
   protected avatarColor = signal('0D8ABC');
+  protected showIdiomaModal = signal(false);
+  @ViewChild(TmSidebarComponent) sidebar!: TmSidebarComponent;
 
   protected readonly menuItems = computed<MenuItem[]>(() => {
     return ALL_SIDEBAR_MENU_ITEMS.filter(item =>
@@ -61,10 +64,12 @@ export class SidebarComponent {
   handleThemeToggle(): void {
     this.themeService.toggleTheme();
     this.themeToggle.emit();
+    this.sidebar.isProfileOpen.set(false);
   }
 
-  handleLanguageChange(langCode: string): void {
-    this.languageService.setLanguage(langCode);
+  handleLanguageChange(_langCode: string): void {
+    this.showIdiomaModal.set(true);
+    this.sidebar.isProfileOpen.set(false);
   }
 
   handleItemClick(item: MenuItem): void {
