@@ -19,25 +19,26 @@
       <app-uso-licenca
         [plano]="planoGroom()"
         [pctProfissionais]="pctProfissionais()"
-        [pctClientes]="pctClientes()"
         [pctClientesAssinantes]="pctClientesAssinantes()"
       />
     </div>
 
-    <div class="col-12 mb-4">
-      <app-renovacao-pagamento
-        [planosDisponiveis]="planosDisponiveis()"
-        [planoSelecionado]="planoSelecionado()"
-        [valorTotal]="valorTotal()"
-        [nomePlanoAtual]="planoGroom().nome"
-        [mostrarCheckoutMp]="mostrarCheckoutMp()"
-        [pagamentoSucesso]="pagamentoSucesso()"
-        (selecionarPlano)="aoSelecionarPlano($event)"
-        (iniciarCheckout)="aoIniciarCheckout()"
-        (confirmarPagamento)="aoConfirmarPagamento()"
-        (fecharCheckout)="aoFecharCheckout()"
-        (fecharSucesso)="aoFecharSucesso()"
-      />
-    </div>
+    @if (false) {
+      <div class="col-12 mb-4">
+        <app-renovacao-pagamento
+          [planosDisponiveis]="planosDisponiveis()"
+          [planoSelecionado]="planoSelecionado()"
+          [valorTotal]="valorTotal()"
+          [nomePlanoAtual]="planoGroom().nome"
+          [mostrarCheckoutMp]="mostrarCheckoutMp()"
+          [pagamentoSucesso]="pagamentoSucesso()"
+          (selecionarPlano)="aoSelecionarPlano($event)"
+          (iniciarCheckout)="aoIniciarCheckout()"
+          (confirmarPagamento)="aoConfirmarPagamento()"
+          (fecharCheckout)="aoFecharCheckout()"
+          (fecharSucesso)="aoFecharSucesso()"
+        />
+      </div>
+    }
   </div>
 </div>

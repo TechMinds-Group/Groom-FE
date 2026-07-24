@@ -32,8 +32,8 @@ export const ALL_SIDEBAR_MENU_ITEMS: MenuItem[] = [
     label: 'Serviços',
     icon: 'fas fa-cut',
     subItems: [
-      { label: 'Planos', icon: 'fas fa-award', route: '/servicos/planos-estabelecimento' },
       { label: 'Catálogo', icon: 'fas fa-list', route: '/servicos/catalogo' },
+      { label: 'Planos', icon: 'fas fa-award', route: '/servicos/planos-estabelecimento' },
     ],
   },
   {
@@ -55,7 +55,7 @@ export const VISIBLE_SIDEBAR_MENUS: string[] = ['Dashboard', 'Clientes', 'Servi�
  */
 export const PROFILE_MENU_ITEMS: ProfileMenuItem[] = [
   { label: 'Gestão de Usuários', icon: 'fas fa-users', route: '/users' },
-  { label: 'Minha Assinatura', icon: 'fas fa-credit-card', route: '/assinatura', hidden: true },
+  { label: 'Minha Assinatura', icon: 'fas fa-credit-card', route: '/assinatura' },
   { label: 'Idioma', icon: 'fas fa-globe', action: 'language' },
   { label: 'Modo de Tela', icon: 'fas fa-moon', action: 'theme-toggle' },
 ];

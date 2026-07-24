@@ -6,9 +6,9 @@ import {
   inject,
   OnInit,
 } from '@angular/core';
-import { AssinaturaSistemaService } from '../../../../core/services/assinatura-sistema.service';
 import { PlanoAssinatura } from '../../../../core/models/assinatura-sistema/plano-assinatura.model';
 import { LanguageService } from '../../../../core/services/language.service';
+import { AssinaturaSistemaService } from '../../../../core/services/assinatura-sistema.service';
 import { TranslatePipe } from '../../../../shared/pipes/translate.pipe';
 import { PlanoGroomEstado } from '../../models/plano-groom-estado.model';
 import { StatusAssinatura } from '../../enums/status-assinatura.enum';
@@ -16,11 +16,6 @@ import { PlanoAtualComponent } from '../plano-atual/plano-atual.component';
 import { UsoLicencaComponent } from '../uso-licenca/uso-licenca.component';
 import { RenovacaoPagamentoComponent } from '../renovacao-pagamento/renovacao-pagamento.component';
 
-/**
- * Orquestrador da tela de assinatura do sistema Groom.
- * Centraliza o estado da assinatura atual e a contratação fixa de 1 mês.
- * Suporta internacionalização completa via TranslatePipe e LanguageService.
- */
 @Component({
   selector: 'app-assinatura-sistema',
   standalone: true,
@@ -68,11 +63,6 @@ export class AssinaturaSistemaComponent implements OnInit {
     return e.limiteProfissionais > 0 ? (e.usoProfissionais / e.limiteProfissionais) * 100 : 0;
   });
 
-  protected readonly pctClientes = computed<number>(() => {
-    const e = this.planoGroom();
-    return e.limiteClientes > 0 ? (e.usoClientes / e.limiteClientes) * 100 : 0;
-  });
-
   protected readonly pctClientesAssinantes = computed<number>(() => {
     const e = this.planoGroom();
     return e.limiteClientesAssinantes > 0
@@ -85,9 +75,6 @@ export class AssinaturaSistemaComponent implements OnInit {
     this.carregarPlanosDisponiveis();
   }
 
-  /**
-   * Consulta os dados da assinatura ativa do estabelecimento.
-   */
   private carregarPlanoAtual(): void {
     this.assinaturaService.getPlanoAtual().subscribe({
       next: (plano: PlanoAssinatura) => {
@@ -111,7 +98,6 @@ export class AssinaturaSistemaComponent implements OnInit {
           usoClientesAssinantes: plano.usoClientesAssinantes ?? 0,
         });
 
-        // Se a lista de planos ainda não tiver sido carregada, define plano selecionado inicial
         if (!this.planoSelecionado()) {
           this.planoSelecionado.set(plano);
         }
@@ -119,9 +105,6 @@ export class AssinaturaSistemaComponent implements OnInit {
     });
   }
 
-  /**
-   * Busca a lista completa de todos os planos disponíveis cadastrados no banco de dados.
-   */
   private carregarPlanosDisponiveis(): void {
     this.assinaturaService.getPlanosDisponiveis().subscribe({
       next: (planos: PlanoAssinatura[]) => {
@@ -132,10 +115,9 @@ export class AssinaturaSistemaComponent implements OnInit {
         }
       },
       error: () => {
-        const loadingText = this.languageService.translate('ASSINATURA.LOADING');
-        if (this.planosDisponiveis().length === 0 && this.planoGroom().nome !== loadingText) {
+        if (this.planosDisponiveis().length === 0) {
           const e = this.planoGroom();
-          const fallbackPlano: PlanoAssinatura = {
+          const fallback: PlanoAssinatura = {
             id: '1',
             nome: e.nome,
             valor: e.valor,
@@ -148,8 +130,8 @@ export class AssinaturaSistemaComponent implements OnInit {
             usoClientes: e.usoClientes,
             usoClientesAssinantes: e.usoClientesAssinantes,
           };
-          this.planosDisponiveis.set([fallbackPlano]);
-          this.planoSelecionado.set(fallbackPlano);
+          this.planosDisponiveis.set([fallback]);
+          this.planoSelecionado.set(fallback);
         }
       },
     });
@@ -159,9 +141,6 @@ export class AssinaturaSistemaComponent implements OnInit {
     this.planoSelecionado.set(plano);
   }
 
-  /**
-   * Trata o retorno positivo de pagamento efetuado.
-   */
   protected aoConfirmarPagamento(): void {
     this.pagamentoSucesso.set(true);
     this.mostrarCheckoutMp.set(false);

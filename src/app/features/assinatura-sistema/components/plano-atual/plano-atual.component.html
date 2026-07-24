@@ -31,6 +31,8 @@
     @if (plano().status === StatusAssinatura.Ativo && plano().validoAte) {
       {{ 'ASSINATURA.PLANO_ATUAL.VALID_UNTIL' | translate }}: <strong>{{ plano().validoAte }}</strong> ({{ 'ASSINATURA.PLANO_ATUAL.DAYS_REMAINING' | translate }}:
       {{ plano().diasRestantes }} {{ 'ASSINATURA.PLANO_ATUAL.DAYS_SUFFIX' | translate }}).
+    } @else if (plano().status === StatusAssinatura.Ativo && !plano().validoAte) {
+      {{ 'ASSINATURA.PLANO_ATUAL.VALID_UNTIL' | translate }}: <strong>{{ 'ASSINATURA.PLANO_ATUAL.INDETERMINATE' | translate }}</strong>.
     } @else {
       {{ 'ASSINATURA.PLANO_ATUAL.STATUS_PREFIX' | translate }} {{ 'USUARIOS.STATUS.INACTIVE' | translate | lowercase }}.
     }
