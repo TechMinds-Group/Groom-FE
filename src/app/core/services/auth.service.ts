@@ -41,7 +41,7 @@ export class AuthService {
   login(request: LoginRequest, rememberMe = false): Observable<any> {
     // useCookies=true is MANDATORY to get HttpOnly cookies instead of Bearer tokens.
     // useSessionCookies determines if the cookie is persistent (Remember Me) or expires when browser closes.
-    return this.http.post<any>(`${this.apiUrl}?useCookies=true&useSessionCookies=${rememberMe}`, request, {
+    return this.http.post<any>(`${this.apiUrl}?useCookies=true&useSessionCookies=${!rememberMe}`, request, {
       withCredentials: true // Crucial for receiving and sending secure cookies
     }).pipe(
       switchMap(() => this.getMe()),
