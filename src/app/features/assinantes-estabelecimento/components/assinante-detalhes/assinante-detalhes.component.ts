@@ -4,6 +4,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { TmTableComponent, TableColumn, TmSelectOption } from '@techminds-group/tm-angular-lib';
 import { AssinantesService, ClienteAssinante } from '../../../../core/services/assinantes.service';
 import { ClubesService } from '../../../../core/services/clubes.service';
+import { CompartilharService } from '../../../../core/services/compartilhar.service';
 import { AssinanteDetalhesGeralComponent } from '../assinante-detalhes-geral/assinante-detalhes-geral.component';
 import { AssinanteDetalhesAcoesComponent } from '../assinante-detalhes-acoes/assinante-detalhes-acoes.component';
 import { AssinanteModalEditarComponent, AssinanteEdicaoPayload } from '../modais/assinante-modal-editar/assinante-modal-editar.component';
@@ -32,10 +33,14 @@ export class AssinanteDetalhesComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly assinantesService = inject(AssinantesService);
   private readonly clubesService = inject(ClubesService);
+  private readonly compartilharService = inject(CompartilharService);
 
   protected readonly assinante = signal<AssinanteDetalhes | null>(null);
   protected readonly showEditModal = signal<boolean>(false);
   protected readonly showDeleteConfirmModal = signal<boolean>(false);
+  protected readonly linkUrl = signal<string | null>(null);
+  protected readonly linkExpiresAt = signal<string | null>(null);
+  protected readonly gerandoLink = signal<boolean>(false);
 
   protected readonly cols = signal<TableColumn<PagamentoAssinante>[]>([
     { header: 'Data', key: 'data', width: '25%' },
@@ -84,6 +89,38 @@ export class AssinanteDetalhesComponent implements OnInit {
 
   excluir(): void {
     this.showDeleteConfirmModal.set(true);
+  }
+
+  async gerarLink(): Promise<void> {
+    const a = this.assinante();
+    if (!a) return;
+
+    this.gerandoLink.set(true);
+    try {
+      const response = await this.compartilharService.gerarLink(a.id).toPromise();
+      if (response) {
+        const baseUrl = window.location.origin;
+        this.linkUrl.set(`${baseUrl}${response.url}`);
+        this.linkExpiresAt.set(response.expiresAt);
+      }
+    } catch {
+      this.linkUrl.set(null);
+      this.linkExpiresAt.set(null);
+    } finally {
+      this.gerandoLink.set(false);
+    }
+  }
+
+  copiarLink(): void {
+    const url = this.linkUrl();
+    if (url) {
+      navigator.clipboard.writeText(url);
+    }
+  }
+
+  fecharLinkModal(): void {
+    this.linkUrl.set(null);
+    this.linkExpiresAt.set(null);
   }
 
   async confirmarExcluir(): Promise<void> {

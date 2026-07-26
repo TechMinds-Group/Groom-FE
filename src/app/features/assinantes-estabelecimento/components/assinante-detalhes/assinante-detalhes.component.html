@@ -24,6 +24,7 @@
         <app-assinante-detalhes-acoes
           (editar)="abrirEdicao()"
           (excluir)="excluir()"
+          (gerarLink)="gerarLink()"
         />
       </div>
     </div>
@@ -64,3 +65,30 @@
   [nomeAssinante]="assinante()?.clienteNome || ''"
   (confirm)="confirmarExcluir()"
 />
+
+@if (linkUrl(); as url) {
+  <div class="modal-backdrop fade show"></div>
+  <div class="modal fade show d-block" tabindex="-1" (click)="fecharLinkModal()">
+    <div class="modal-dialog modal-dialog-centered" (click)="$event.stopPropagation()">
+      <div class="modal-content border-0 shadow">
+        <div class="modal-header border-0">
+          <h5 class="modal-title fw-bold">
+            <i class="fas fa-link text-primary me-2"></i>Link Compartilhável
+          </h5>
+          <button type="button" class="btn-close" (click)="fecharLinkModal()"></button>
+        </div>
+        <div class="modal-body">
+          <p class="text-muted small mb-3">
+            Envie este link para o cliente. Ele expira em {{ (linkExpiresAt() | date:'dd/MM/yyyy') || linkExpiresAt() }}.
+          </p>
+          <div class="input-group">
+            <input #linkInput type="text" class="form-control" [value]="url" readonly (click)="linkInput.select()" />
+            <button class="btn btn-primary" (click)="copiarLink()">
+              <i class="fas fa-copy me-1"></i>Copiar
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+}

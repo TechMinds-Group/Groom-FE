@@ -116,6 +116,11 @@ export const routes: Routes = [
           import('./features/guia/components/guia/guia.component').then((m) => m.GuiaComponent),
       },
       {
+        path: 'configuracoes',
+        loadComponent: () =>
+          import('./features/configuracoes/configuracoes.component').then((m) => m.ConfiguracoesComponent),
+      },
+      {
         path: 'users',
         redirectTo: 'gestao/gestao-usuarios',
         pathMatch: 'full',
@@ -131,6 +136,13 @@ export const routes: Routes = [
     path: 'login',
     loadComponent: () =>
       import('./features/auth/login/login.component').then((m) => m.LoginComponent),
+  },
+  {
+    path: 'visualizar/:token',
+    loadComponent: () =>
+      import('./features/compartilhar/visualizar-assinante/visualizar-assinante.component').then(
+        (m) => m.VisualizarAssinanteComponent,
+      ),
   },
   {
     path: '**',

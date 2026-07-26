@@ -12,4 +12,5 @@ import { CommonModule } from '@angular/common';
 export class AssinanteDetalhesAcoesComponent {
   editar = output<void>();
   excluir = output<void>();
+  gerarLink = output<void>();
 }
