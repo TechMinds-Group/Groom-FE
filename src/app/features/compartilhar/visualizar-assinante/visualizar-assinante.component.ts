@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
 import { TmTableComponent, TableColumn } from '@techminds-group/tm-angular-lib';
@@ -44,6 +44,11 @@ interface PagamentoVisualizacao {
                   <span class="badge bg-primary bg-opacity-10 text-primary px-3 py-2 rounded-pill">
                     <i class="fas fa-eye me-1"></i>Visualização de Cliente
                   </span>
+                  @if (diasLinkRestantes(); as d) {
+                    <span class="badge bg-info bg-opacity-10 text-info px-3 py-2 rounded-pill ms-2">
+                      <i class="fas fa-clock me-1"></i>Link válido por mais {{ d }} {{ d === 1 ? 'dia' : 'dias' }}
+                    </span>
+                  }
                 </div>
 
                 <div class="card border-0 shadow-sm p-4 mb-4">
@@ -150,6 +155,14 @@ export class VisualizarAssinanteComponent implements OnInit {
   protected readonly carregando = signal(true);
   protected readonly erro = signal<string | null>(null);
   protected readonly pagamentos = signal<PagamentoVisualizacao[]>([]);
+
+  protected readonly diasLinkRestantes = computed<number | null>(() => {
+    const expiresAt = this.assinante()?.expiresAt;
+    if (!expiresAt) return null;
+    const diff = new Date(expiresAt).getTime() - Date.now();
+    if (diff <= 0) return null;
+    return Math.ceil(diff / (1000 * 60 * 60 * 24));
+  });
 
   protected readonly cols = signal<TableColumn<PagamentoVisualizacao>[]>([
     { header: 'Data', key: 'data', width: '25%' },

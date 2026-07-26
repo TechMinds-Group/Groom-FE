@@ -24,6 +24,7 @@ export class MainLayoutComponent {
   private languageService = inject(LanguageService);
   private router = inject(Router);
   protected showIdiomaModal = signal(false);
+  protected sidebarCollapsed = signal(false);
 
   // --- Mobile Menu Configuration dynamically computed from the central menu.config ---
   protected readonly mobileMenuItems = computed<MenuItem[]>(() => {

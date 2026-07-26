@@ -13,6 +13,7 @@ export interface AssinantePublico {
   dataFim: string;
   status: string;
   diasRestantes: number;
+  expiresAt: string;
 }
 
 export interface GerarLinkResponse {

@@ -5,6 +5,7 @@ import { TmTableComponent, TableColumn, TmSelectOption } from '@techminds-group/
 import { AssinantesService, ClienteAssinante } from '../../../../core/services/assinantes.service';
 import { ClubesService } from '../../../../core/services/clubes.service';
 import { CompartilharService } from '../../../../core/services/compartilhar.service';
+import { TmToastService } from '@techminds-group/tm-angular-lib';
 import { AssinanteDetalhesGeralComponent } from '../assinante-detalhes-geral/assinante-detalhes-geral.component';
 import { AssinanteDetalhesAcoesComponent } from '../assinante-detalhes-acoes/assinante-detalhes-acoes.component';
 import { AssinanteModalEditarComponent, AssinanteEdicaoPayload } from '../modais/assinante-modal-editar/assinante-modal-editar.component';
@@ -34,6 +35,7 @@ export class AssinanteDetalhesComponent implements OnInit {
   private readonly assinantesService = inject(AssinantesService);
   private readonly clubesService = inject(ClubesService);
   private readonly compartilharService = inject(CompartilharService);
+  private readonly toastService = inject(TmToastService);
 
   protected readonly assinante = signal<AssinanteDetalhes | null>(null);
   protected readonly showEditModal = signal<boolean>(false);
@@ -115,6 +117,7 @@ export class AssinanteDetalhesComponent implements OnInit {
     const url = this.linkUrl();
     if (url) {
       navigator.clipboard.writeText(url);
+      this.toastService.success('Link copiado!', 'Sucesso');
     }
   }
 

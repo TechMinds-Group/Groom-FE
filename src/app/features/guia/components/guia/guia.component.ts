@@ -28,6 +28,57 @@ interface Versao {
 export class GuiaComponent {
   protected readonly versoes: Versao[] = [
     {
+      versao: '1.0.1',
+      data: 'Julho 2026',
+      welcome: 'Novidades e melhorias para facilitar o dia a dia da sua barbearia.',
+      novidades: [
+        {
+          icone: 'fas fa-link',
+          titulo: 'Link Compartilhável para Clientes',
+          descricao: 'Gere um link temporário para cada assinante. O cliente pode visualizar seus dados (plano, histórico, dias restantes) sem precisar fazer login. O link expira após o período configurado.',
+        },
+        {
+          icone: 'fas fa-cog',
+          titulo: 'Tela de Configurações',
+          descricao: 'Nova tela para ajustar a validade do link compartilhável (de 1 a 365 dias). Acesse pelo menu "Configurações".',
+        },
+      ],
+      mudancas: [
+        {
+          icone: 'fas fa-bars',
+          titulo: 'Sidebar Responsiva com Collapse',
+          descricao: 'A sidebar agora pode ser recolhida, mostrando apenas os ícones. Ideal para telas menores ou quando você quer mais espaço para o conteúdo principal.',
+        },
+        {
+          icone: 'fas fa-palette',
+          titulo: 'Ajustes de Tema e UI',
+          descricao: 'Correções de cor e alinhamento nos ícones do menu Configurações e no badge de versão para melhor consistência visual entre tema claro e escuro.',
+        },
+      ],
+      topicos: [
+        {
+          icone: 'fas fa-link',
+          titulo: 'Clientes > Compartilhar Link',
+          descricao: 'Nos detalhes do assinante, clique em "Gerar Link" para criar um link temporário. Copie o link e envie ao cliente. O link expira automaticamente com base na configuração de validade.',
+        },
+        {
+          icone: 'fas fa-cog',
+          titulo: 'Configurações > Validade do Link',
+          descricao: 'Acesse o menu "Configurações" para definir por quantos dias o link compartilhável fica ativo (mínimo 1, máximo 365 dias). O padrão é 5 dias.',
+        },
+        {
+          icone: 'fas fa-eye',
+          titulo: 'Visualização Pública do Assinante',
+          descricao: 'Ao acessar o link, o cliente vê seus dados (nome, plano, status, histórico de pagamentos) e quantos dias o link ainda é válido. Nenhuma ação é permitida — apenas consulta.',
+        },
+        {
+          icone: 'fas fa-bars',
+          titulo: 'Sidebar Recolhível',
+          descricao: 'Clique no ícone de hambúrguer no topo da sidebar para recolhê-la. Isso exibe apenas os ícones, dando mais espaço para o conteúdo principal. Clique novamente para expandir.',
+        },
+      ],
+    },
+    {
       versao: '1.0.0',
       data: 'Julho 2026',
       welcome: 'Bem-vindo ao Groom! Esta é a versão inicial do sistema, projetada para ajudar barbearias a gerenciar seus clientes, profissionais e serviços de forma simples e eficiente.',

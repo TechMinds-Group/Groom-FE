@@ -52,6 +52,7 @@ export class SidebarComponent {
 
   logout = output<void>();
   themeToggle = output<void>();
+  collapseChange = output<boolean>();
 
   handleLogout(): void {
     this.logout.emit();
@@ -59,6 +60,7 @@ export class SidebarComponent {
 
   handleToggleCollapse(collapsed: boolean): void {
     this.isCollapsed.set(collapsed);
+    this.collapseChange.emit(collapsed);
   }
 
   handleThemeToggle(): void {

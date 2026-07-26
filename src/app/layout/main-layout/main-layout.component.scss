@@ -9,7 +9,12 @@
   width: var(--sidebar-width, 260px);
   flex-shrink: 0;
   background-color: var(--tm-sidebar-bg, #1a2233);
+  border-right: 1px solid rgba(255, 255, 255, 0.08);
   transition: width var(--sidebar-transition, 0.3s ease);
+
+  &.is-collapsed {
+    width: 70px;
+  }
 }
 
 .version-badge {
@@ -37,10 +42,15 @@
   }
 }
 
+.sidebar-column.is-collapsed .version-badge {
+  padding: 0.625rem 0;
+}
+
 main.main-content {
   background-color: var(--tm-bg-color);
   padding: 0 1.5rem;
   transition: padding-bottom 0.2s;
+  min-height: 100%;
 }
 
 /* Responsive adjustments */
