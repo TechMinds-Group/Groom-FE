@@ -9,6 +9,7 @@ import { firstValueFrom } from 'rxjs';
   selector: 'app-configuracoes',
   standalone: true,
   imports: [CommonModule, FormsModule],
+  styleUrl: './configuracoes.component.scss',
   template: `
     <div class="container mt-5 mb-5">
       <h2 class="h4 fw-bold mb-4 custom-dark-text">
@@ -16,7 +17,7 @@ import { firstValueFrom } from 'rxjs';
       </h2>
 
       <div class="card border-0 shadow-sm p-4 custom-dark-card">
-        <div class="row g-4">
+        <div class="row g-4 custom-dark-text">
           <div class="col-12">
             <label class="form-label fw-semibold">Validade do Link Compartilhável (dias)</label>
             <p class="text-muted small mb-2">
@@ -36,7 +37,7 @@ import { firstValueFrom } from 'rxjs';
           </div>
         </div>
 
-        <div class="mt-4">
+        <div class="mt-4 custom-dark-text">
           <button
             class="btn btn-primary px-4 fw-bold"
             (click)="salvar()"

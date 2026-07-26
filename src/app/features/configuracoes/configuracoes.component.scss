@@ -1,0 +1,30 @@
+:host-context(.tm-dark) {
+  .custom-dark-card {
+    background-color: #1e1e1e !important;
+    border-color: #333 !important;
+  }
+
+  .custom-dark-text {
+    color: #e0e0e0 !important;
+  }
+
+  .custom-dark-text label,
+  .custom-dark-text .form-label {
+    color: #e0e0e0 !important;
+  }
+
+  input.form-control {
+    background-color: #2a2a2a !important;
+    border-color: #444 !important;
+    color: #e0e0e0 !important;
+  }
+
+  input.form-control:focus {
+    border-color: #ffee00 !important;
+    box-shadow: 0 0 0 0.2rem rgba(255, 238, 0, 0.15) !important;
+  }
+
+  .text-muted {
+    color: #aaa !important;
+  }
+}
