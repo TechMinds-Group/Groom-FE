@@ -9,55 +9,8 @@ import { firstValueFrom } from 'rxjs';
   selector: 'app-configuracoes',
   standalone: true,
   imports: [CommonModule, FormsModule],
+  templateUrl: './configuracoes.component.html',
   styleUrl: './configuracoes.component.scss',
-  template: `
-    <div class="container mt-5 mb-5">
-      <h2 class="h4 fw-bold mb-4 custom-dark-text">
-        <i class="fas fa-cog me-2 text-primary"></i>Configurações
-      </h2>
-
-      <div class="card border-0 shadow-sm p-4 custom-dark-card">
-        <div class="row g-4 custom-dark-text">
-          <div class="col-12">
-            <label class="form-label fw-semibold">Validade do Link Compartilhável (dias)</label>
-            <p class="text-muted small mb-2">
-              Define por quantos dias o link gerado para o assinante visualizar seus dados fica ativo.
-            </p>
-            <div class="d-flex align-items-center gap-3">
-              <input
-                type="number"
-                class="form-control"
-                style="max-width: 120px"
-                min="1"
-                max="365"
-                [(ngModel)]="dias"
-              />
-              <span class="text-muted small">dias</span>
-            </div>
-          </div>
-        </div>
-
-        <div class="mt-4 custom-dark-text">
-          <button
-            class="btn btn-primary px-4 fw-bold"
-            (click)="salvar()"
-            [disabled]="salvando()"
-          >
-            @if (salvando()) {
-              <span class="spinner-border spinner-border-sm me-2" role="status"></span>
-            }
-            <i class="fas fa-save me-2"></i>Salvar
-          </button>
-
-          @if (mensagem(); as msg) {
-            <span class="ms-3" [class.text-success]="msg.tipo === 'sucesso'" [class.text-danger]="msg.tipo === 'erro'">
-              {{ msg.texto }}
-            </span>
-          }
-        </div>
-      </div>
-    </div>
-  `,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ConfiguracoesComponent implements OnInit {
