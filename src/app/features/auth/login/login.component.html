@@ -19,12 +19,14 @@
     }
 
     @if (!isForceChangePassword()) {
-      <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="login-form">
+      <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="login-form" autocomplete="on">
         <div class="form-group">
           <tm-text
             formControlName="estabelecimento"
             label="Estabelecimento"
             placeholder="Nome do seu estabelecimento"
+            name="estabelecimento"
+            autocomplete="organization"
             [control]="loginForm.get('estabelecimento')">
           </tm-text>
         </div>
@@ -34,6 +36,8 @@
             formControlName="email"
             label="E-mail"
             placeholder="exemplo@groom.com.br"
+            name="email"
+            autocomplete="username"
             [control]="loginForm.get('email')">
           </tm-text>
         </div>
@@ -44,6 +48,8 @@
             label="Senha"
             type="password"
             placeholder="Sua senha"
+            name="password"
+            autocomplete="current-password"
             [control]="loginForm.get('password')">
           </tm-text>
         </div>

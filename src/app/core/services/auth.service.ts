@@ -56,7 +56,8 @@ export class AuthService {
 
   getMe(): Observable<UserContext> {
     return this.http.get<UserContext>(`${this.baseApiUrl}/me`, {
-      withCredentials: true
+      withCredentials: true,
+      headers: { 'X-Skip-Error-Toast': 'true' }
     }).pipe(
       tap(user => {
         // The API currently doesn't return role in /me, we should ideally fetch it or derive it.
@@ -68,7 +69,8 @@ export class AuthService {
 
   checkAuth(): Observable<any> {
     return this.http.get<any>(`${this.baseApiUrl}/status`, {
-      withCredentials: true
+      withCredentials: true,
+      headers: { 'X-Skip-Error-Toast': 'true' }
     });
   }
 
