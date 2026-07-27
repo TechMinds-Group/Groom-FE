@@ -18,6 +18,7 @@ export class LoginComponent {
   private readonly router = inject(Router);
 
   loginForm = this.fb.group({
+    estabelecimento: ['', [Validators.required]],
     email: ['', [Validators.required, Validators.email]],
     password: ['', [Validators.required, Validators.minLength(4)]],
     rememberMe: [false]
@@ -41,9 +42,9 @@ export class LoginComponent {
     this.isLoading.set(true);
     this.errorMessage.set(null);
 
-    const { email, password, rememberMe } = this.loginForm.value;
+    const { estabelecimento, email, password, rememberMe } = this.loginForm.value;
 
-    this.authService.login({ email: email!, password: password! }, rememberMe!)
+    this.authService.login({ estabelecimento: estabelecimento!, email: email!, password: password! }, rememberMe!)
       .subscribe({
         next: () => {
           this.isLoading.set(false);
@@ -54,8 +55,12 @@ export class LoginComponent {
           if (err.status === 403 && err.error?.requirePasswordChange) {
             this.isForceChangePassword.set(true);
             this.errorMessage.set('Sua senha foi resetada. Por favor, crie uma nova senha para acessar o sistema.');
+          } else if (err.status === 401 && err.error?.Message) {
+            this.errorMessage.set(err.error.Message);
           } else if (err.status === 401) {
-            this.errorMessage.set('E-mail ou senha incorretos.');
+            this.errorMessage.set('Credenciais inválidas.');
+          } else if (err.error?.Message) {
+            this.errorMessage.set(err.error.Message);
           } else {
             this.errorMessage.set('Ocorreu um erro ao tentar fazer login.');
           }

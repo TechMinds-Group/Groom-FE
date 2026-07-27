@@ -5,6 +5,7 @@ import { environment } from '../../../environments/environment';
 
 
 export interface LoginRequest {
+  estabelecimento: string;
   email: string;
   password: string;
   twoFactorCode?: string;
