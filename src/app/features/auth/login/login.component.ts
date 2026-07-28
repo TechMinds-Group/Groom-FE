@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, OnInit } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
@@ -12,7 +12,7 @@ import { CommonModule } from '@angular/common';
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.scss'],
 })
-export class LoginComponent {
+export class LoginComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
@@ -33,6 +33,19 @@ export class LoginComponent {
   errorMessage = signal<string | null>(null);
   isForceChangePassword = signal(false);
 
+  ngOnInit(): void {
+    const rememberMe = localStorage.getItem('login_remember_me') === 'true';
+    if (rememberMe) {
+      const estabelecimento = localStorage.getItem('login_estabelecimento') || '';
+      const email = localStorage.getItem('login_email') || '';
+      this.loginForm.patchValue({
+        rememberMe: true,
+        estabelecimento,
+        email
+      });
+    }
+  }
+
   onSubmit(): void {
     if (this.loginForm.invalid) {
       this.loginForm.markAllAsTouched();
@@ -48,6 +61,15 @@ export class LoginComponent {
       .subscribe({
         next: () => {
           this.isLoading.set(false);
+          if (rememberMe) {
+            localStorage.setItem('login_remember_me', 'true');
+            localStorage.setItem('login_estabelecimento', estabelecimento!);
+            localStorage.setItem('login_email', email!);
+          } else {
+            localStorage.removeItem('login_remember_me');
+            localStorage.removeItem('login_estabelecimento');
+            localStorage.removeItem('login_email');
+          }
           this.router.navigate(['/']); // Redirecionar para dashboard/home
         },
         error: (err) => {
