@@ -1,8 +1,9 @@
-import { ChangeDetectionStrategy, Component, effect, inject, input, model, output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, effect, inject, input, model, output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { TmModalComponent, TmTextComponent, TmSelectComponent, TmSelectOption, TmDateComponent } from '@techminds-group/tm-angular-lib';
 import { AssinanteDetalhes } from '../../../models/assinante-config.model';
+import { ContactPickerService } from '../../../../../core/services/contact-picker.service';
 
 export interface AssinanteEdicaoPayload {
   clienteNome: string;
@@ -22,6 +23,7 @@ export interface AssinanteEdicaoPayload {
 })
 export class AssinanteModalEditarComponent {
   private readonly fb = inject(FormBuilder);
+  private readonly contactPicker = inject(ContactPickerService);
 
   readonly show = model<boolean>(false);
   readonly assinante = input<AssinanteDetalhes | null>(null);
@@ -37,6 +39,8 @@ export class AssinanteModalEditarComponent {
     clubeId: ['', [Validators.required]],
     dataInicio: ['', [Validators.required]],
   });
+
+  protected readonly isContactPickerSupported = computed(() => this.contactPicker.isSupported() && !this.assinante());
 
   constructor() {
     effect(() => {
@@ -60,6 +64,17 @@ export class AssinanteModalEditarComponent {
           });
         }
       }
+    });
+  }
+
+  protected async carregarContato(): Promise<void> {
+    const contact = await this.contactPicker.pickContact();
+    if (!contact) return;
+
+    this.editForm.patchValue({
+      clienteNome: contact.nome,
+      celular: contact.telefone,
+      clienteEmail: contact.email,
     });
   }
 

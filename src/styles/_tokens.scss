@@ -1,6 +1,8 @@
 /* Design Tokens - Groom-FE (Migrated from TM-Angular-Lib) */
 
 :root {
+  color-scheme: light;
+
   /* Brand Colors */
   --tm-primary: #0d6efd;
   --tm-primary-rgb: 13, 110, 253;
@@ -67,6 +69,8 @@ tm-sidebar, .sidebar-column {
 }
 
 [data-theme='dark'] {
+  color-scheme: dark;
+
   --tm-bg-color: #0b0f1a;
   --tm-surface-color: #161b22;
   --tm-text-primary: #f8fafc;

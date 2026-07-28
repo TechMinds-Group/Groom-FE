@@ -11,6 +11,14 @@
   size="md"
 >
   <form [formGroup]="editForm" class="p-1 text-start">
+    @if (isContactPickerSupported()) {
+      <div class="mb-3 text-center">
+        <button type="button" class="btn btn-outline-primary btn-sm w-100" (click)="carregarContato()">
+          <i class="fas fa-address-book me-2"></i>Importar de Contatos
+        </button>
+      </div>
+    }
+
     <div class="mb-3">
       <tm-text formControlName="clienteNome" label="Nome do Cliente" placeholder="Ex: Michel Silva" class="custom-dark-text"></tm-text>
       @if (editForm.get('clienteNome')?.touched && editForm.get('clienteNome')?.invalid) {
