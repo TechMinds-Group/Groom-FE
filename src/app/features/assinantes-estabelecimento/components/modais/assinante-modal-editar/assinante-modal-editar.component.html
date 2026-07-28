@@ -11,11 +11,18 @@
   size="md"
 >
   <form [formGroup]="editForm" class="p-1 text-start">
-    @if (isContactPickerSupported()) {
-      <div class="mb-3 text-center">
-        <button type="button" class="btn btn-outline-primary btn-sm w-100" (click)="carregarContato()">
-          <i class="fas fa-address-book me-2"></i>Importar de Contatos
-        </button>
+    @if (isContactPickerSupported() || showVCardFallback()) {
+      <div class="mb-3 text-center d-lg-none">
+        @if (isContactPickerSupported()) {
+          <button type="button" class="btn btn-primary btn-sm w-100" (click)="carregarContato()">
+            <i class="fas fa-address-book me-2"></i>Importar da Agenda
+          </button>
+        } @else {
+          <label class="btn btn-primary btn-sm w-100">
+            <i class="fas fa-file-import me-2"></i>Importar da Agenda
+            <input type="file" accept=".vcf" hidden (change)="importarVCard($event)" />
+          </label>
+        }
       </div>
     }
 

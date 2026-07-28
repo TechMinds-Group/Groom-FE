@@ -42,6 +42,24 @@ export class AssinanteModalEditarComponent {
 
   protected readonly isContactPickerSupported = computed(() => this.contactPicker.isSupported() && !this.assinante());
 
+  protected readonly showVCardFallback = computed(() => !this.contactPicker.isSupported() && !this.assinante());
+
+  protected async importarVCard(event: Event): Promise<void> {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    if (!file) return;
+
+    const text = await file.text();
+    const contact = this.contactPicker.parseVCard(text);
+    if (!contact) return;
+
+    this.editForm.patchValue({
+      clienteNome: contact.nome,
+      celular: contact.telefone,
+      clienteEmail: contact.email,
+    });
+  }
+
   constructor() {
     effect(() => {
       if (this.show()) {

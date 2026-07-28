@@ -3,3 +3,32 @@
     color: #ffffff !important;
   }
 }
+
+@media (max-width: 991.98px) {
+  ::ng-deep .btn {
+    width: 100% !important;
+    display: block !important;
+    padding-top: 0.65rem !important;
+    padding-bottom: 0.65rem !important;
+  }
+
+  ::ng-deep .tm-table-card .card-row:has(.btn) {
+    flex-direction: column !important;
+    align-items: stretch !important;
+
+    .card-label {
+      margin-bottom: 0.5rem;
+    }
+
+    .card-value {
+      text-align: left !important;
+      width: 100% !important;
+
+      div {
+        flex-direction: column !important;
+        align-items: stretch !important;
+        width: 100% !important;
+      }
+    }
+  }
+}

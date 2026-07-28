@@ -34,6 +34,24 @@ export class ContactPickerService {
     }
   }
 
+  parseVCard(text: string): ContactInfo | null {
+    try {
+      const nameMatch = text.match(/\nFN[:;](.+?)(?:\r?\n|$)/i);
+      if (!nameMatch) return null;
+
+      const telMatch = text.match(/\nTEL(?:[^:]*)[:]?([^\r\n;]+)/i);
+      const emailMatch = text.match(/\nEMAIL(?:[^:]*)[:]?([^\r\n;]+)/i);
+
+      return {
+        nome: nameMatch[1].trim(),
+        telefone: this.formatPhone(telMatch ? telMatch[1].trim() : ''),
+        email: emailMatch ? emailMatch[1].trim() : '',
+      };
+    } catch {
+      return null;
+    }
+  }
+
   private formatPhone(value: string): string {
     const digits = value.replace(/\D/g, '').slice(0, 11);
     if (digits.length < 10) return value;
