@@ -14,9 +14,10 @@ export const ALL_SIDEBAR_MENU_ITEMS: MenuItem[] = [
     ],
   },
   {
-    label: 'Clientes',
+    label: 'Gestão',
     icon: 'fas fa-users',
     subItems: [
+      { label: 'Clientes', icon: 'fas fa-user', route: '/gestao/clientes' },
       { label: 'Assinantes', icon: 'fas fa-user-check', route: '/gestao/assinantes' }
     ],
   },
@@ -52,7 +53,7 @@ export const ALL_SIDEBAR_MENU_ITEMS: MenuItem[] = [
  * Lista de controle centralizada dos menus que devem ser exibidos na sidebar.
  * Apenas os menus cujos 'label' estejam nesta lista serão visíveis.
  */
-export const VISIBLE_SIDEBAR_MENUS: string[] = ['Dashboard', 'Clientes', 'Serviços', 'Configurações'];
+export const VISIBLE_SIDEBAR_MENUS: string[] = ['Dashboard', 'Gestão', 'Serviços', 'Configurações'];
 
 /**
  * Itens do menu do usuário (dropdown no perfil da sidebar).
