@@ -1,25 +1,27 @@
-<div class="container-fluid mt-4 px-4">
+<div class="container mt-5 mb-5">
   <div class="row mb-4 align-items-center">
     <div class="col-12">
-      <h1 class="h2 text-primary fw-bold mb-1 custom-dark-text">
+      <h1 class="h2 text-primary fw-bold mb-2 custom-dark-text">
         <i class="fas fa-book me-2"></i>Guia do Sistema
       </h1>
-      <p class="text-muted custom-dark-text">
-        Histórico de versões, novidades e guia de uso do Groom.
-      </p>
     </div>
   </div>
 
   <div class="card tm-card border-0 shadow-sm rounded-4 mb-4">
     <div class="card-body p-4">
-      <div class="row align-items-center g-3">
-        <div class="col-12 col-md d-flex align-items-center gap-3">
-          <div class="version-badge-lg">
-            <i class="fas fa-tag me-1"></i>V {{ versaoSelecionada().versao }}
+      <div class="row g-3">
+        <div class="col-12 col-md">
+          <div class="position-relative">
+            <i class="fas fa-search position-absolute text-muted" style="top: 12px; left: 14px;"></i>
+            <input
+              type="text"
+              class="form-control rounded-3 ps-5"
+              placeholder="Pesquisar no guia..."
+              [value]="busca()"
+              (input)="buscar($any($event.target).value)"
+            />
           </div>
-          <span class="text-muted custom-dark-text">{{ versaoSelecionada().data }}</span>
         </div>
-
         <div class="col-12 col-md-auto">
           <div class="dropdown d-grid d-md-block">
             <button
@@ -28,115 +30,69 @@
               data-bs-toggle="dropdown"
               aria-expanded="false"
             >
-              <i class="fas fa-clock-rotate"></i>
-              Outras versões
+              <i class="fas fa-tag me-1"></i>
+              {{ versaoSelecionada().versao }}
+              <span class="text-muted small">({{ versaoSelecionada().data }})</span>
             </button>
-        <ul class="dropdown-menu dropdown-menu-end shadow-lg rounded-3 p-2 version-dropdown">
-          @for (v of versoes; track v.versao) {
-            <li>
-              <button
-                class="dropdown-item rounded-2 d-flex align-items-center gap-2 py-2"
-                [class.active]="v.versao === versaoSelecionada().versao"
-                (click)="selecionarVersao(v)"
-              >
-                <i class="fas fa-tag fa-fw" [class.text-warning]="v.versao === versaoSelecionada().versao"></i>
-                <span class="fw-semibold">V {{ v.versao }}</span>
-                <span class="text-muted small ms-auto">{{ v.data }}</span>
-              </button>
-            </li>
-          }
-        </ul>
+            <ul class="dropdown-menu dropdown-menu-end shadow-lg rounded-3 p-2 version-dropdown">
+              @for (v of versoes; track v.versao) {
+                <li>
+                  <button
+                    class="dropdown-item rounded-2 d-flex align-items-center gap-2 py-2"
+                    [class.active]="v.versao === versaoSelecionada().versao"
+                    (click)="selecionarVersao(v); busca.set('')"
+                  >
+                    <i class="fas fa-tag fa-fw" [class.text-warning]="v.versao === versaoSelecionada().versao"></i>
+                    <span class="fw-semibold">V {{ v.versao }}</span>
+                    <span class="text-muted small ms-auto">{{ v.data }}</span>
+                  </button>
+                </li>
+              }
+            </ul>
+          </div>
+        </div>
       </div>
-    </div>
     </div>
   </div>
-</div>
 
-  @if (versaoSelecionada(); as v) {
-    @if (v.novidades && v.novidades.length > 0) {
-      <div class="row g-4 mb-4">
-        <div class="col-12">
-          <h3 class="fw-bold custom-dark-text mb-3">
-            <i class="fas fa-sparkles text-success me-2"></i>Novidades
-          </h3>
-          <div class="row g-3">
-            @for (item of v.novidades; track item.titulo) {
-              <div class="col-12 col-md-6 col-lg-4">
-                <div class="card tm-card border-0 shadow-sm rounded-4 h-100">
-                  <div class="card-body p-4 d-flex gap-3">
-                    <div class="icon-circle bg-success-subtle text-success flex-shrink-0">
-                      <i [class]="item.icone"></i>
-                    </div>
-                    <div>
-                      <h6 class="fw-bold custom-dark-text mb-1">{{ item.titulo }}</h6>
-                      <p class="text-muted small mb-0">{{ item.descricao }}</p>
-                    </div>
+  @if (resultadosBusca().length > 0) {
+    <div class="mb-4">
+      <h3 class="fw-bold custom-dark-text mb-3">
+        <i class="fas fa-search text-primary me-2"></i>Resultados
+      </h3>
+      <div class="row g-3">
+        @for (item of resultadosBusca(); track item.titulo + item.versao) {
+          <div class="col-12">
+            <div class="card tm-card border-0 shadow-sm rounded-4">
+              <div class="card-body p-4 d-flex gap-3 align-items-start">
+                <div class="icon-circle-sm bg-primary-subtle text-primary flex-shrink-0">
+                  <i [class]="item.icone"></i>
+                </div>
+                <div class="flex-grow-1">
+                  <div class="d-flex align-items-center gap-2 mb-1">
+                    <h6 class="fw-bold custom-dark-text mb-0">{{ item.titulo }}</h6>
+                    <span class="badge bg-secondary-subtle text-secondary px-2 py-0.5 fs-8">{{ item.versao }}</span>
+                    <span class="badge bg-info-subtle text-info px-2 py-0.5 fs-8">{{ item.secao }}</span>
                   </div>
+                  <p class="text-muted small mb-0">{{ item.descricao }}</p>
                 </div>
               </div>
-            }
+            </div>
           </div>
-        </div>
+        }
       </div>
-    }
+    </div>
+  } @else if (busca() && resultadosBusca().length === 0) {
+    <div class="text-center py-5 text-muted">
+      <i class="fas fa-search fs-1 mb-3 d-block"></i>
+      <p>Nenhum resultado encontrado para "{{ busca() }}".</p>
+    </div>
+  }
 
-    @if (v.mudancas && v.mudancas.length > 0) {
-      <div class="row g-4 mb-4">
-        <div class="col-12">
-          <h3 class="fw-bold custom-dark-text mb-3">
-            <i class="fas fa-arrow-right text-primary me-2"></i>Mudanças
-          </h3>
-          <div class="row g-3">
-            @for (item of v.mudancas; track item.titulo) {
-              <div class="col-12 col-md-6">
-                <div class="card tm-card border-0 shadow-sm rounded-4 h-100">
-                  <div class="card-body p-4 d-flex gap-3">
-                    <div class="icon-circle bg-primary-subtle text-primary flex-shrink-0">
-                      <i [class]="item.icone"></i>
-                    </div>
-                    <div>
-                      <h6 class="fw-bold custom-dark-text mb-1">{{ item.titulo }}</h6>
-                      <p class="text-muted small mb-0">{{ item.descricao }}</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            }
-          </div>
-        </div>
-      </div>
-    }
-
-    @if (v.removidos && v.removidos.length > 0) {
-      <div class="row g-4 mb-4">
-        <div class="col-12">
-          <h3 class="fw-bold custom-dark-text mb-3">
-            <i class="fas fa-trash text-danger me-2"></i>O que deixou de ter
-          </h3>
-          <div class="row g-3">
-            @for (item of v.removidos; track item.titulo) {
-              <div class="col-12 col-md-6">
-                <div class="card tm-card border-0 shadow-sm rounded-4 h-100">
-                  <div class="card-body p-4 d-flex gap-3">
-                    <div class="icon-circle bg-danger-subtle text-danger flex-shrink-0">
-                      <i [class]="item.icone"></i>
-                    </div>
-                    <div>
-                      <h6 class="fw-bold custom-dark-text mb-1">{{ item.titulo }}</h6>
-                      <p class="text-muted small mb-0">{{ item.descricao }}</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            }
-          </div>
-        </div>
-      </div>
-    }
-
-    @if (v.topicos && v.topicos.length > 0) {
-      <div class="row g-4 mb-4">
-        <div class="col-12">
+  @if (!busca()) {
+    @if (versaoSelecionada(); as v) {
+      @if (v.topicos && v.topicos.length > 0) {
+        <div class="mb-4">
           <h3 class="fw-bold custom-dark-text mb-3">
             <i class="fas fa-compass text-warning me-2"></i>Como usar
           </h3>
@@ -158,7 +114,77 @@
             }
           </div>
         </div>
-      </div>
+      }
+
+      <details class="card tm-card border-0 shadow-sm rounded-4 mb-4">
+        <summary class="card-body p-4 fw-semibold custom-dark-text" style="cursor: pointer;">
+          <i class="fas fa-sparkles text-success me-2"></i>O que mudou na versão {{ v.versao }}
+        </summary>
+        <div class="px-4 pb-4">
+          @if (v.novidades && v.novidades.length > 0) {
+            <h6 class="fw-bold text-success mb-3 mt-2">
+              <i class="fas fa-plus-circle me-1"></i>Novidades
+            </h6>
+            <div class="row g-3 mb-4">
+              @for (item of v.novidades; track item.titulo) {
+                <div class="col-12">
+                  <div class="d-flex gap-3">
+                    <div class="icon-circle-sm bg-success-subtle text-success flex-shrink-0">
+                      <i [class]="item.icone"></i>
+                    </div>
+                    <div>
+                      <span class="fw-semibold custom-dark-text">{{ item.titulo }}</span>
+                      <p class="text-muted small mb-0">{{ item.descricao }}</p>
+                    </div>
+                  </div>
+                </div>
+              }
+            </div>
+          }
+
+          @if (v.mudancas && v.mudancas.length > 0) {
+            <h6 class="fw-bold text-primary mb-3">
+              <i class="fas fa-arrow-right me-1"></i>Melhorias
+            </h6>
+            <div class="row g-3 mb-4">
+              @for (item of v.mudancas; track item.titulo) {
+                <div class="col-12">
+                  <div class="d-flex gap-3">
+                    <div class="icon-circle-sm bg-primary-subtle text-primary flex-shrink-0">
+                      <i [class]="item.icone"></i>
+                    </div>
+                    <div>
+                      <span class="fw-semibold custom-dark-text">{{ item.titulo }}</span>
+                      <p class="text-muted small mb-0">{{ item.descricao }}</p>
+                    </div>
+                  </div>
+                </div>
+              }
+            </div>
+          }
+
+          @if (v.removidos && v.removidos.length > 0) {
+            <h6 class="fw-bold text-danger mb-3">
+              <i class="fas fa-minus-circle me-1"></i>O que deixou de ter
+            </h6>
+            <div class="row g-3">
+              @for (item of v.removidos; track item.titulo) {
+                <div class="col-12">
+                  <div class="d-flex gap-3">
+                    <div class="icon-circle-sm bg-danger-subtle text-danger flex-shrink-0">
+                      <i [class]="item.icone"></i>
+                    </div>
+                    <div>
+                      <span class="fw-semibold custom-dark-text">{{ item.titulo }}</span>
+                      <p class="text-muted small mb-0">{{ item.descricao }}</p>
+                    </div>
+                  </div>
+                </div>
+              }
+            </div>
+          }
+        </div>
+      </details>
     }
   }
 </div>

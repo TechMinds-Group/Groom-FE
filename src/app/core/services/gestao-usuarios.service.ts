@@ -16,32 +16,32 @@ export class GestaoUsuariosService {
   readonly usuarios = this._usuarios.asReadonly();
 
   async carregarUsuarios(): Promise<void> {
-    const data = await firstValueFrom(this.http.get<Usuario[]>(this.apiUrl));
+    const data = await firstValueFrom(this.http.get<Usuario[]>(this.apiUrl, { withCredentials: true }));
     this._usuarios.set(data);
   }
 
   async carregarNiveis(): Promise<NivelAcesso[]> {
-    return await firstValueFrom(this.http.get<NivelAcesso[]>(`${this.apiUrl}/niveis`));
+    return await firstValueFrom(this.http.get<NivelAcesso[]>(`${this.apiUrl}/niveis`, { withCredentials: true }));
   }
 
   async adicionar(usuario: any): Promise<void> {
-    await firstValueFrom(this.http.post(this.apiUrl, usuario));
+    await firstValueFrom(this.http.post(this.apiUrl, usuario, { withCredentials: true }));
     await this.carregarUsuarios();
   }
 
   async atualizar(id: string, dados: any): Promise<void> {
-    await firstValueFrom(this.http.put(`${this.apiUrl}/${id}`, { id, ...dados }));
+    await firstValueFrom(this.http.put(`${this.apiUrl}/${id}`, { id, ...dados }, { withCredentials: true }));
     await this.carregarUsuarios();
   }
 
   async remover(id: string): Promise<void> {
-    await firstValueFrom(this.http.delete(`${this.apiUrl}/${id}`));
+    await firstValueFrom(this.http.delete(`${this.apiUrl}/${id}`, { withCredentials: true }));
     await this.carregarUsuarios();
   }
 
   async resetarSenha(id: string): Promise<string> {
     const res = await firstValueFrom(
-      this.http.post<{ tempPassword: string }>(`${this.apiUrl}/${id}/reset-password`, {}),
+      this.http.post<{ tempPassword: string }>(`${this.apiUrl}/${id}/reset-password`, {}, { withCredentials: true }),
     );
     return res.tempPassword;
   }
@@ -53,13 +53,14 @@ export class GestaoUsuariosService {
     await firstValueFrom(
       this.http.put<void>(`${this.apiUrl}/${id}/change-password`, dados, {
         headers: { 'X-Skip-Error-Toast': 'true' },
+        withCredentials: true,
       }),
     );
   }
 
   async atualizarPlanoAssinatura(id: string, planoAssinatura: string | null): Promise<void> {
     await firstValueFrom(
-      this.http.put(`${this.apiUrl}/${id}/plano-assinatura`, { planoAssinatura }),
+      this.http.put(`${this.apiUrl}/${id}/plano-assinatura`, { planoAssinatura }, { withCredentials: true }),
     );
     await this.carregarUsuarios();
   }

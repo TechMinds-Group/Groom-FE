@@ -15,22 +15,22 @@ export class CatalogoService {
   readonly servicos = this._servicos.asReadonly();
 
   async carregarServicos(): Promise<void> {
-    const data = await firstValueFrom(this.http.get<ServicoCatalogo[]>(this.apiUrl));
+    const data = await firstValueFrom(this.http.get<ServicoCatalogo[]>(this.apiUrl, { withCredentials: true }));
     this._servicos.set(data);
   }
 
   async adicionar(servico: any): Promise<void> {
-    await firstValueFrom(this.http.post(this.apiUrl, servico));
+    await firstValueFrom(this.http.post(this.apiUrl, servico, { withCredentials: true }));
     await this.carregarServicos();
   }
 
   async atualizar(id: string, dados: any): Promise<void> {
-    await firstValueFrom(this.http.put(`${this.apiUrl}/${id}`, { id, ...dados }));
+    await firstValueFrom(this.http.put(`${this.apiUrl}/${id}`, { id, ...dados }, { withCredentials: true }));
     await this.carregarServicos();
   }
 
   async remover(id: string): Promise<void> {
-    await firstValueFrom(this.http.delete(`${this.apiUrl}/${id}`));
+    await firstValueFrom(this.http.delete(`${this.apiUrl}/${id}`, { withCredentials: true }));
     await this.carregarServicos();
   }
 }

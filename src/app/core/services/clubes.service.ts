@@ -25,25 +25,25 @@ export class ClubesService {
   readonly clubes = this._clubes.asReadonly();
 
   carregarClubes(): Observable<ClubeConfig[]> {
-    return this.http.get<ClubeConfig[]>(this.apiUrl).pipe(
+    return this.http.get<ClubeConfig[]>(this.apiUrl, { withCredentials: true }).pipe(
       tap((planos) => this._clubes.set(planos))
     );
   }
 
   adicionar(clube: Omit<ClubeConfig, 'id' | 'totalAssinantes'>): Observable<void> {
-    return this.http.post<void>(this.apiUrl, clube).pipe(
+    return this.http.post<void>(this.apiUrl, clube, { withCredentials: true }).pipe(
       tap(() => this.carregarClubes().subscribe())
     );
   }
 
   atualizar(id: string, dadosAtualizados: Partial<Omit<ClubeConfig, 'id' | 'totalAssinantes'>>): Observable<void> {
-    return this.http.put<void>(`${this.apiUrl}/${id}`, { id, ...dadosAtualizados }).pipe(
+    return this.http.put<void>(`${this.apiUrl}/${id}`, { id, ...dadosAtualizados }, { withCredentials: true }).pipe(
       tap(() => this.carregarClubes().subscribe())
     );
   }
 
   excluir(id: string): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/${id}`).pipe(
+    return this.http.delete<void>(`${this.apiUrl}/${id}`, { withCredentials: true }).pipe(
       tap(() => this.carregarClubes().subscribe())
     );
   }
