@@ -36,62 +36,6 @@ interface ResultadoBusca {
 export class GuiaComponent {
   protected readonly versoes: Versao[] = [
     {
-      versao: '1.2.0',
-      data: 'Julho 2026',
-      welcome: 'Agora você pode atender seus clientes pelo WhatsApp direto do Groom!',
-      novidades: [
-        {
-          icone: 'fab fa-whatsapp',
-          titulo: 'Atendimento pelo WhatsApp',
-          descricao: 'Conecte seu WhatsApp e seus clientes serão atendidos automaticamente com um menu de opções: agendar horário, consultar o plano ou falar com você.',
-        },
-        {
-          icone: 'fas fa-shield-alt',
-          titulo: 'Modo Teste',
-          descricao: 'Teste o atendimento automático com até 3 números antes de liberar para todos os seus clientes.',
-        },
-        {
-          icone: 'fas fa-comment-dots',
-          titulo: 'Mensagem de Boas-Vindas',
-          descricao: 'Personalize a mensagem que o cliente recebe quando inicia o atendimento.',
-        },
-      ],
-      mudancas: [
-        {
-          icone: 'fab fa-whatsapp',
-          titulo: 'Tela do WhatsApp Organizada',
-          descricao: 'A página de configuração do WhatsApp ficou mais fácil de usar: primeiro você conecta, depois ajusta as opções.',
-        },
-        {
-          icone: 'fas fa-palette',
-          titulo: 'Modo Escuro Aprimorado',
-          descricao: 'Alertas e mensagens agora estão mais visíveis no modo escuro.',
-        },
-        {
-          icone: 'fas fa-shield-halved',
-          titulo: 'Segurança Reforçada',
-          descricao: 'Senha mínima aumentada para 8 caracteres e outras melhorias de segurança.',
-        },
-      ],
-      topicos: [
-        {
-          icone: 'fab fa-whatsapp',
-          titulo: 'Como conectar o WhatsApp',
-          descricao: 'Vá em "Configurações > WhatsApp", clique em "Conectar WhatsApp" e escaneie o QR Code com o celular (WhatsApp > Aparelhos conectados > Conectar um dispositivo).',
-        },
-        {
-          icone: 'fas fa-flask',
-          titulo: 'Como testar antes de liberar',
-          descricao: 'Nas configurações do WhatsApp, ative o "Modo Teste" e digite os números que deseja testar. Com ele ativo, só esses números receberão respostas automáticas.',
-        },
-        {
-          icone: 'fas fa-robot',
-          titulo: 'Como funciona o atendimento',
-          descricao: 'Quando um cliente manda mensagem, ele recebe um menu com 4 opções: Agendar, Consultar Plano, Falar com Você ou Encerrar. Se a resposta não for reconhecida, o sistema pergunta novamente até 3 vezes.',
-        },
-      ],
-    },
-    {
       versao: '1.1.0',
       data: 'Julho 2026',
       welcome: 'Novidades e melhorias para facilitar o dia a dia da sua barbearia.',
