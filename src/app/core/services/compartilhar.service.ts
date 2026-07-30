@@ -34,6 +34,6 @@ export class CompartilharService {
   }
 
   gerarLink(assinanteId: string): Observable<GerarLinkResponse> {
-    return this.http.post<GerarLinkResponse>(`${this.apiUrl}/assinantes-estabelecimento/${assinanteId}/gerar-link`, {});
+    return this.http.post<GerarLinkResponse>(`${this.apiUrl}/assinantes-estabelecimento/${assinanteId}/gerar-link`, {}, { withCredentials: true });
   }
 }

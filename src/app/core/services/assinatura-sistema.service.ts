@@ -35,7 +35,7 @@ export class AssinaturaSistemaService {
   }
 
   public getPlanoByNome(nome: string): Observable<PlanoAssinatura> {
-    return this.http.get<PlanoAssinatura>(`${this.apiUrl}/${nome}`, { withCredentials: true });
+    return this.http.get<PlanoAssinatura>(`${this.apiUrl}/${encodeURIComponent(nome)}`, { withCredentials: true });
   }
 
   public gerarPixAssinatura(

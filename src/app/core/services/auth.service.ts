@@ -50,7 +50,7 @@ export class AuthService {
       switchMap(() => this.getMe()),
       tap(user => {
         if (user && user.tenantId) {
-          localStorage.setItem('tenant_id', user.tenantId);
+          sessionStorage.setItem('tenant_id', user.tenantId);
         }
       })
     );
@@ -91,7 +91,7 @@ export class AuthService {
       withCredentials: true
     }).pipe(
       tap(() => {
-        localStorage.removeItem('tenant_id');
+        sessionStorage.removeItem('tenant_id');
         this._currentUser.set(null);
         this._logout$.next();
       })

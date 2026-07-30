@@ -20,12 +20,12 @@ export class LoginComponent implements OnInit {
   loginForm = this.fb.group({
     estabelecimento: ['', [Validators.required]],
     email: ['', [Validators.required, Validators.email]],
-    password: ['', [Validators.required, Validators.minLength(4)]],
+    password: ['', [Validators.required, Validators.minLength(8)]],
     rememberMe: [false]
   });
 
   newPasswordForm = this.fb.group({
-    newPassword: ['', [Validators.required, Validators.minLength(6)]],
+    newPassword: ['', [Validators.required, Validators.minLength(8)]],
     confirmPassword: ['', [Validators.required]]
   });
 
@@ -34,10 +34,10 @@ export class LoginComponent implements OnInit {
   isForceChangePassword = signal(false);
 
   ngOnInit(): void {
-    const rememberMe = localStorage.getItem('login_remember_me') === 'true';
+    const rememberMe = sessionStorage.getItem('login_remember_me') === 'true';
     if (rememberMe) {
-      const estabelecimento = localStorage.getItem('login_estabelecimento') || '';
-      const email = localStorage.getItem('login_email') || '';
+      const estabelecimento = sessionStorage.getItem('login_estabelecimento') || '';
+      const email = sessionStorage.getItem('login_email') || '';
       this.loginForm.patchValue({
         rememberMe: true,
         estabelecimento,
@@ -62,13 +62,13 @@ export class LoginComponent implements OnInit {
         next: () => {
           this.isLoading.set(false);
           if (rememberMe) {
-            localStorage.setItem('login_remember_me', 'true');
-            localStorage.setItem('login_estabelecimento', estabelecimento!);
-            localStorage.setItem('login_email', email!);
+            sessionStorage.setItem('login_remember_me', 'true');
+            sessionStorage.setItem('login_estabelecimento', estabelecimento!);
+            sessionStorage.setItem('login_email', email!);
           } else {
-            localStorage.removeItem('login_remember_me');
-            localStorage.removeItem('login_estabelecimento');
-            localStorage.removeItem('login_email');
+            sessionStorage.removeItem('login_remember_me');
+            sessionStorage.removeItem('login_estabelecimento');
+            sessionStorage.removeItem('login_email');
           }
           this.router.navigate(['/']); // Redirecionar para dashboard/home
         },
