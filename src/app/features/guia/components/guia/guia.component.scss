@@ -3,12 +3,8 @@
   width: 100%;
 }
 
-:host-context([data-theme='dark']) {
-  .tm-card p,
-  .tm-card .text-muted,
-  .tm-card .custom-dark-text {
-    color: #ffffff !important;
-  }
+.fs-8 {
+  font-size: 0.75rem;
 }
 
 .version-badge-lg {
@@ -33,8 +29,119 @@
   font-size: 1.1rem;
 }
 
+.icon-circle-sm {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.85rem;
+  flex-shrink: 0;
+}
+
 .version-dropdown {
   max-height: 320px;
   overflow-y: auto;
   min-width: 240px;
+}
+
+:host-context([data-theme='dark']) {
+  h1.text-primary,
+  h1.text-primary i {
+    color: #ffffff !important;
+  }
+
+  .tm-card p,
+  .tm-card .text-muted,
+  .tm-card .custom-dark-text {
+    color: var(--tm-text-primary) !important;
+  }
+
+  input.form-control {
+    background-color: var(--tm-surface-color);
+    color: var(--tm-text-primary);
+    border-color: var(--tm-border-color);
+
+    &::placeholder {
+      color: var(--tm-text-secondary);
+    }
+  }
+
+  .fa-search {
+    color: var(--tm-text-secondary) !important;
+  }
+
+  .dropdown-menu {
+    background-color: var(--tm-surface-color);
+    border-color: var(--tm-border-color);
+  }
+
+  .dropdown-item {
+    color: var(--tm-text-primary);
+
+    &:hover {
+      background-color: var(--tm-hover-bg);
+    }
+
+    &.active {
+      background-color: rgba(255, 193, 7, 0.15);
+    }
+  }
+
+  .btn-outline-secondary {
+    color: var(--tm-text-primary);
+    border-color: var(--tm-border-color);
+
+    &:hover {
+      background-color: var(--tm-hover-bg);
+      color: var(--tm-text-primary);
+    }
+  }
+
+  .bg-secondary-subtle {
+    background-color: rgba(255, 255, 255, 0.08) !important;
+  }
+  .text-secondary {
+    color: var(--tm-text-secondary) !important;
+  }
+
+  .bg-info-subtle {
+    background-color: rgba(13, 202, 240, 0.12) !important;
+  }
+  .text-info {
+    color: #5dd4f3 !important;
+  }
+
+  .bg-success-subtle {
+    background-color: rgba(3, 218, 198, 0.12) !important;
+  }
+  .text-success {
+    color: var(--tm-success) !important;
+  }
+
+  .bg-warning-subtle {
+    background-color: rgba(255, 193, 7, 0.12) !important;
+  }
+  .text-warning {
+    color: #ffc107 !important;
+  }
+
+  .bg-primary-subtle {
+    background-color: rgba(13, 110, 253, 0.12) !important;
+  }
+  .text-primary {
+    color: #6ea8fe !important;
+  }
+
+  .bg-danger-subtle {
+    background-color: rgba(207, 102, 121, 0.12) !important;
+  }
+  .text-danger {
+    color: #ea868f !important;
+  }
+
+  details.card summary {
+    color: var(--tm-text-primary);
+  }
 }

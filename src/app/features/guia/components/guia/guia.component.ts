@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 interface Topico {
@@ -17,6 +17,14 @@ interface Versao {
   removidos?: Topico[];
 }
 
+interface ResultadoBusca {
+  icone: string;
+  titulo: string;
+  descricao: string;
+  versao: string;
+  secao: string;
+}
+
 @Component({
   selector: 'app-guia',
   standalone: true,
@@ -28,7 +36,63 @@ interface Versao {
 export class GuiaComponent {
   protected readonly versoes: Versao[] = [
     {
-      versao: '1.0.1',
+      versao: '1.2.0',
+      data: 'Julho 2026',
+      welcome: 'Agora você pode atender seus clientes pelo WhatsApp direto do Groom!',
+      novidades: [
+        {
+          icone: 'fab fa-whatsapp',
+          titulo: 'Atendimento pelo WhatsApp',
+          descricao: 'Conecte seu WhatsApp e seus clientes serão atendidos automaticamente com um menu de opções: agendar horário, consultar o plano ou falar com você.',
+        },
+        {
+          icone: 'fas fa-shield-alt',
+          titulo: 'Modo Teste',
+          descricao: 'Teste o atendimento automático com até 3 números antes de liberar para todos os seus clientes.',
+        },
+        {
+          icone: 'fas fa-comment-dots',
+          titulo: 'Mensagem de Boas-Vindas',
+          descricao: 'Personalize a mensagem que o cliente recebe quando inicia o atendimento.',
+        },
+      ],
+      mudancas: [
+        {
+          icone: 'fab fa-whatsapp',
+          titulo: 'Tela do WhatsApp Organizada',
+          descricao: 'A página de configuração do WhatsApp ficou mais fácil de usar: primeiro você conecta, depois ajusta as opções.',
+        },
+        {
+          icone: 'fas fa-palette',
+          titulo: 'Modo Escuro Aprimorado',
+          descricao: 'Alertas e mensagens agora estão mais visíveis no modo escuro.',
+        },
+        {
+          icone: 'fas fa-shield-halved',
+          titulo: 'Segurança Reforçada',
+          descricao: 'Senha mínima aumentada para 8 caracteres e outras melhorias de segurança.',
+        },
+      ],
+      topicos: [
+        {
+          icone: 'fab fa-whatsapp',
+          titulo: 'Como conectar o WhatsApp',
+          descricao: 'Vá em "Configurações > WhatsApp", clique em "Conectar WhatsApp" e escaneie o QR Code com o celular (WhatsApp > Aparelhos conectados > Conectar um dispositivo).',
+        },
+        {
+          icone: 'fas fa-flask',
+          titulo: 'Como testar antes de liberar',
+          descricao: 'Nas configurações do WhatsApp, ative o "Modo Teste" e digite os números que deseja testar. Com ele ativo, só esses números receberão respostas automáticas.',
+        },
+        {
+          icone: 'fas fa-robot',
+          titulo: 'Como funciona o atendimento',
+          descricao: 'Quando um cliente manda mensagem, ele recebe um menu com 4 opções: Agendar, Consultar Plano, Falar com Você ou Encerrar. Se a resposta não for reconhecida, o sistema pergunta novamente até 3 vezes.',
+        },
+      ],
+    },
+    {
+      versao: '1.1.0',
       data: 'Julho 2026',
       welcome: 'Novidades e melhorias para facilitar o dia a dia da sua barbearia.',
       novidades: [
@@ -135,8 +199,49 @@ export class GuiaComponent {
   ];
 
   protected readonly versaoSelecionada = signal<Versao>(this.versoes[0]);
+  protected readonly busca = signal('');
+
+  protected readonly resultadosBusca = computed(() => {
+    const q = this.busca().toLowerCase().trim();
+    if (!q) return [];
+
+    const resultados: ResultadoBusca[] = [];
+
+    for (const v of this.versoes) {
+      const secoes: { itens: Topico[] | undefined; nome: string }[] = [
+        { itens: v.topicos, nome: 'Como usar' },
+        { itens: v.novidades, nome: 'Novidades' },
+        { itens: v.mudancas, nome: 'Melhorias' },
+        { itens: v.removidos, nome: 'O que deixou de ter' },
+      ];
+
+      for (const secao of secoes) {
+        if (!secao.itens) continue;
+        for (const item of secao.itens) {
+          if (
+            item.titulo.toLowerCase().includes(q) ||
+            item.descricao.toLowerCase().includes(q)
+          ) {
+            resultados.push({
+              icone: item.icone,
+              titulo: item.titulo,
+              descricao: item.descricao,
+              versao: `V ${v.versao}`,
+              secao: secao.nome,
+            });
+          }
+        }
+      }
+    }
+
+    return resultados;
+  });
 
   protected selecionarVersao(v: Versao): void {
     this.versaoSelecionada.set(v);
+  }
+
+  protected buscar(texto: string): void {
+    this.busca.set(texto);
   }
 }
