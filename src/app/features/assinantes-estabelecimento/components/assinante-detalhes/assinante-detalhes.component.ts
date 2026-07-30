@@ -197,7 +197,7 @@ export class AssinanteDetalhesComponent implements OnInit {
         historicoPagamentos: pagamentos,
       });
     } catch (err) {
-      console.error('Erro ao carregar assinante:', err);
+      console.error('Erro ao carregar assinante');
       this.router.navigate(['/gestao/assinantes']);
     }
   }

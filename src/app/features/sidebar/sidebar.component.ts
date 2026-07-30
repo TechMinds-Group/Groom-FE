@@ -75,6 +75,5 @@ export class SidebarComponent {
   }
 
   handleItemClick(item: MenuItem): void {
-    console.log('Item clicked:', item);
   }
 }

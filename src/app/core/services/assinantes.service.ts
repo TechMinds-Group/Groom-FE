@@ -36,7 +36,7 @@ export class AssinantesService {
   }
 
   async carregarAssinantes(): Promise<void> {
-    const data = await firstValueFrom(this.http.get<ClienteAssinante[]>(this.apiUrl));
+    const data = await firstValueFrom(this.http.get<ClienteAssinante[]>(this.apiUrl, { withCredentials: true }));
     const normalizedData = data.map((a) => ({
       ...a,
       dataInicio: this.normalizeDate(a.dataInicio),
@@ -46,7 +46,7 @@ export class AssinantesService {
   }
 
   async carregarAssinantePorId(id: string): Promise<ClienteAssinante> {
-    const data = await firstValueFrom(this.http.get<ClienteAssinante>(`${this.apiUrl}/${id}`));
+    const data = await firstValueFrom(this.http.get<ClienteAssinante>(`${this.apiUrl}/${id}`, { withCredentials: true }));
     return {
       ...data,
       dataInicio: this.normalizeDate(data.dataInicio),
@@ -61,7 +61,7 @@ export class AssinantesService {
       celular: dados.celular,
       clubeId: dados.clubeId,
       dataInicio: dados.dataInicio,
-    }));
+    }, { withCredentials: true }));
     await this.carregarAssinantes();
     this.clubesService.atualizarContadorAssinantes(dados.clubeId, 1);
   }
@@ -75,7 +75,7 @@ export class AssinantesService {
       celular: dados.celular || antigo?.celular,
       clubeId: dados.clubeId || antigo?.clubeId,
       dataInicio: dados.dataInicio || antigo?.dataInicio,
-    }));
+    }, { withCredentials: true }));
     await this.carregarAssinantes();
     if (antigo && dados.clubeId && dados.clubeId !== antigo.clubeId) {
       this.clubesService.atualizarContadorAssinantes(antigo.clubeId, -1);
@@ -85,7 +85,7 @@ export class AssinantesService {
 
   async excluir(id: string): Promise<void> {
     const antigo = this._assinantes().find((a) => a.id === id);
-    await firstValueFrom(this.http.delete<void>(`${this.apiUrl}/${id}`));
+    await firstValueFrom(this.http.delete<void>(`${this.apiUrl}/${id}`, { withCredentials: true }));
     await this.carregarAssinantes();
     if (antigo) {
       this.clubesService.atualizarContadorAssinantes(antigo.clubeId, -1);

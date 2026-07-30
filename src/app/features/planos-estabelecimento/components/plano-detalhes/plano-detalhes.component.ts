@@ -58,7 +58,7 @@ export class PlanoDetalhesComponent implements OnInit {
       this.showFormModal.set(false);
       await this.carregarClube(id);
     } catch (err) {
-      console.error('Erro ao salvar plano:', err);
+      console.error('Erro ao salvar plano');
     }
   }
 
@@ -70,7 +70,7 @@ export class PlanoDetalhesComponent implements OnInit {
         this.showDeleteModal.set(false);
         this.voltar();
       } catch (err) {
-        console.error('Erro ao excluir plano:', err);
+        console.error('Erro ao excluir plano');
       }
     }
   }
@@ -95,7 +95,7 @@ export class PlanoDetalhesComponent implements OnInit {
         this.router.navigate(['/servicos/planos-estabelecimento']);
       }
     } catch (err) {
-      console.error('Erro ao carregar plano:', err);
+      console.error('Erro ao carregar plano');
       this.router.navigate(['/servicos/planos-estabelecimento']);
     }
   }
