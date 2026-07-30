@@ -1,0 +1,26 @@
+export interface WhatsAppInstanceStatus {
+  instanceName: string;
+  status: 'connected' | 'disconnected' | 'connecting' | 'error';
+  qrCode?: string;
+}
+
+export interface WhatsAppQrResponse {
+  base64?: string;
+  code?: string;
+  status?: string;
+  [key: string]: unknown;
+}
+
+export interface WhatsAppStatusResponse {
+  instanceName: string;
+  state: 'open' | 'close' | 'connecting';
+  status: string;
+  [key: string]: unknown;
+}
+
+export interface WhatsAppTenantConfig {
+  schedulingLink: string | null;
+  welcomeMessage: string | null;
+  testMode: boolean;
+  testNumbers: string | null;
+}

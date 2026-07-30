@@ -1,0 +1,85 @@
+.qr-code-img {
+  max-width: 280px;
+  background-color: #ffffff;
+  border-radius: var(--tm-border-radius);
+}
+
+.perfil-img {
+  width: 36px;
+  height: 36px;
+  object-fit: cover;
+}
+
+.avatar-placeholder {
+  width: 36px;
+  height: 36px;
+}
+
+.dispositivos-table {
+  background-color: transparent !important;
+  --bs-table-bg: transparent !important;
+
+  thead, tbody, tr, th, td {
+    background-color: transparent !important;
+    --bs-table-bg: transparent !important;
+  }
+
+  tbody tr {
+    transition: background-color 0.15s ease;
+
+    &:hover {
+      background-color: var(--tm-hover-bg) !important;
+    }
+  }
+}
+
+:host-context([data-theme='dark']) {
+  .custom-dark-card {
+    background-color: var(--tm-surface-color) !important;
+    border: 1px solid var(--tm-border-color) !important;
+  }
+
+  .custom-dark-text {
+    color: var(--tm-text-primary) !important;
+  }
+
+  .form-check-label,
+  .form-label {
+    color: var(--tm-text-primary) !important;
+  }
+
+  tm-text {
+    ::ng-deep .form-label {
+      color: var(--tm-text-primary) !important;
+    }
+
+    ::ng-deep input,
+    ::ng-deep textarea {
+      color: var(--tm-text-primary) !important;
+    }
+  }
+
+  .form-text,
+  .text-muted {
+    color: var(--tm-text-secondary) !important;
+  }
+
+  .dispositivos-table {
+    thead tr {
+      border-bottom: 1px solid var(--tm-border-color);
+    }
+
+    tbody tr {
+      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+
+      &:hover {
+        background-color: var(--tm-hover-bg) !important;
+      }
+    }
+
+    td, th {
+      color: var(--tm-text-primary) !important;
+    }
+  }
+
+}

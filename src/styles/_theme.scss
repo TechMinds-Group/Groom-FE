@@ -33,4 +33,32 @@ body {
   body .text-muted.custom-dark-text {
     color: var(--tm-text-primary) !important;
   }
+
+  .alert-warning {
+    background-color: rgba(255, 193, 7, 0.1) !important;
+    color: var(--tm-text-primary) !important;
+    border-color: rgba(255, 193, 7, 0.2) !important;
+    i { color: #ffc107 !important; }
+  }
+
+  .alert-success {
+    background-color: rgba(3, 218, 198, 0.1) !important;
+    color: var(--tm-success) !important;
+    border-color: rgba(3, 218, 198, 0.2) !important;
+    i, span { color: var(--tm-success) !important; }
+  }
+
+  .alert-danger {
+    background-color: rgba(207, 102, 121, 0.1) !important;
+    color: var(--tm-text-primary) !important;
+    border-color: rgba(207, 102, 121, 0.2) !important;
+    i { color: #ef5350 !important; }
+  }
+
+  .alert-info {
+    background-color: rgba(13, 202, 240, 0.1) !important;
+    color: var(--tm-text-primary) !important;
+    border-color: rgba(13, 202, 240, 0.2) !important;
+    i { color: #0dcaf0 !important; }
+  }
 }
