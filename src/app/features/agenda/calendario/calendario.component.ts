@@ -13,6 +13,7 @@ import {
 } from '@techminds-group/tm-angular-lib';
 import { CalendarEvent, CalendarView } from 'angular-calendar';
 import { AgendaService } from '../data-access/agenda.service';
+import { AuthService } from '../../../core/services/auth.service';
 import { addMinutes, setHours, setMinutes } from 'date-fns';
 
 interface ServicoValue {
@@ -42,6 +43,7 @@ interface ServicoValue {
 })
 export class CalendarioComponent implements OnInit {
   private agendaService = inject(AgendaService);
+  private authService = inject(AuthService);
   private fb = inject(FormBuilder);
   
   CalendarView = CalendarView;
@@ -50,6 +52,11 @@ export class CalendarioComponent implements OnInit {
   selectedDate = signal<Date | null>(null);
   editingAgendamentoId = signal<string | null>(null);
   showDeleteModal = signal(false);
+
+  readonly agendamentosFiltrados = this.agendaService.getAgendamentosFiltrados(this.authService.currentUser());
+  readonly tituloAgenda = computed(() =>
+    this.authService.hasAdminRole() ? 'Agenda Completa' : 'Minha Agenda',
+  );
 
   agendaForm!: FormGroup;
 
@@ -84,7 +91,7 @@ export class CalendarioComponent implements OnInit {
   }
   
   events = computed<CalendarEvent[]>(() => 
-    this.agendaService.agendamentos().map(a => ({
+    this.agendamentosFiltrados().map(a => ({
       id: a.id,
       start: a.dataInicio,
       end: a.dataFim,

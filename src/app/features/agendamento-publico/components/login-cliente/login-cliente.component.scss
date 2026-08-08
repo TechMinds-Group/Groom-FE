@@ -1,0 +1,38 @@
+.agendamento-login {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  background: var(--bs-body-bg);
+
+  &__card {
+    width: 100%;
+    max-width: 420px;
+    padding: 2rem;
+    border-radius: 1rem;
+    background: var(--bs-body-bg);
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+  }
+
+  &__titulo {
+    font-size: 1.5rem;
+    font-weight: 600;
+  }
+
+  &__divisor {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin: 1.25rem 0;
+    color: var(--bs-secondary-color);
+
+    &::before,
+    &::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--bs-border-color);
+    }
+  }
+}

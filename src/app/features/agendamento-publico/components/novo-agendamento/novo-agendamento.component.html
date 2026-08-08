@@ -1,0 +1,57 @@
+<div class="agendamento-wizard">
+  <div class="agendamento-wizard__card">
+    @if (agendamentoConfirmado(); as agendamento) {
+      <app-confirmacao [agendamento]="agendamento" (voltarInicio)="reiniciar()" />
+    } @else {
+      <div class="d-flex align-items-center justify-content-between mb-4">
+        <button type="button" class="btn btn-outline-secondary btn-sm" (click)="voltar()" [disabled]="passo() === 1">
+          <i class="fas fa-arrow-left me-1"></i>
+          Voltar
+        </button>
+        <div class="agendamento-wizard__progresso">Passo {{ passo() }} de 4</div>
+      </div>
+
+      <mat-progress-bar mode="determinate" [value]="(passo() / 4) * 100" class="mb-4"></mat-progress-bar>
+
+      @if (errorMessage()) {
+        <div class="alert alert-danger py-2">{{ errorMessage() }}</div>
+      }
+
+      @if (isLoading()) {
+        <div class="text-center py-5">
+          <div class="spinner-border text-primary"></div>
+        </div>
+      } @else {
+        @switch (passo()) {
+          @case (1) {
+            <app-passo-profissional [profissionais]="profissionais()" (selecionado)="selecionarProfissional($event)" />
+          }
+          @case (2) {
+            <app-passo-servico [servicos]="servicos()" (selecionado)="selecionarServico($event)" />
+          }
+          @case (3) {
+            <app-passo-data-horario
+              [servico]="servicoSelecionado()"
+              [horarios]="horarios()"
+              [dataSelecionada]="dataSelecionada()"
+              [horarioSelecionado]="horarioSelecionado()"
+              [isLoading]="isLoading()"
+              (dataSelecionadaChange)="selecionarData($event)"
+              (horarioSelecionadoChange)="selecionarHorario($event)"
+            />
+          }
+          @case (4) {
+            <app-passo-resumo
+              [profissional]="profissionalSelecionado()"
+              [servico]="servicoSelecionado()"
+              [data]="dataSelecionada()"
+              [horario]="horarioSelecionado()"
+              [isLoading]="isLoading()"
+              (confirmar)="confirmar()"
+            />
+          }
+        }
+      }
+    }
+  </div>
+</div>

@@ -19,6 +19,7 @@ export interface UserContext {
   email: string;
   tenantId: string;
   role?: string;
+  roles?: string[];
   roleColor?: string;
   roleIconClass?: string;
 }
@@ -33,6 +34,21 @@ export class AuthService {
   public readonly currentUser = this._currentUser.asReadonly();
   public readonly isAdmin = computed(() => this._currentUser()?.role === 'Administrador');
   public readonly currentUserId = computed(() => this._currentUser()?.id);
+
+  /** Verifica se o usuário possui o perfil de Administrador em qualquer nível (primário ou secundário). */
+  public readonly hasAdminRole = computed(() => this._currentUser()?.roles?.includes('Administrador') ?? false);
+
+  /** Verifica se o usuário possui o perfil de Profissional em qualquer nível (primário ou secundário). */
+  public readonly isProfissional = computed(() => this._currentUser()?.roles?.includes('Profissional') ?? false);
+
+  /** Verifica se o usuário é APENAS Profissional (contratado) — sem perfil Administrador em nenhum nível. */
+  public readonly isOnlyProfissional = computed(() => {
+    const roles = this._currentUser()?.roles ?? [];
+    return roles.includes('Profissional') && !roles.includes('Administrador');
+  });
+
+  /** Admin (mesmo que também seja Profissional) vê todos os agendamentos; Profissional-only vê apenas os seus. */
+  public readonly seeAllAgendamentos = computed(() => this.hasAdminRole());
 
   /** Emite quando o logout é realizado com sucesso. */
   private readonly _logout$ = new Subject<void>();

@@ -5,7 +5,7 @@ import { RouterLink, RouterOutlet } from '@angular/router';
 import { SidebarComponent } from '../../features/sidebar/sidebar.component';
 import { ThemeService } from '../../core/services/theme.service';
 import { TmBottomNavComponent, MenuItem } from '@techminds-group/tm-angular-lib';
-import { ALL_SIDEBAR_MENU_ITEMS, VISIBLE_SIDEBAR_MENUS, PROFILE_MENU_ITEMS } from '../../core/config/menu.config';
+import { ALL_SIDEBAR_MENU_ITEMS, VISIBLE_SIDEBAR_MENUS, PROFILE_MENU_ITEMS, filterMenuByRoles } from '../../core/config/menu.config';
 import { AuthService } from '../../core/services/auth.service';
 import { LanguageService } from '../../core/services/language.service';
 import { Router } from '@angular/router';
@@ -28,8 +28,12 @@ export class MainLayoutComponent {
 
   // --- Mobile Menu Configuration dynamically computed from the central menu.config ---
   protected readonly mobileMenuItems = computed<MenuItem[]>(() => {
-    const sidebarItems = ALL_SIDEBAR_MENU_ITEMS.filter(item =>
-      VISIBLE_SIDEBAR_MENUS.includes(item.label)
+    const roles = this.authService.currentUser()?.roles ?? [];
+    const sidebarItems = filterMenuByRoles(
+      ALL_SIDEBAR_MENU_ITEMS.filter(item =>
+        VISIBLE_SIDEBAR_MENUS.includes(item.label)
+      ),
+      roles,
     );
     const profileSubItems: MenuItem[] = PROFILE_MENU_ITEMS
       .filter(p => !p.hidden)

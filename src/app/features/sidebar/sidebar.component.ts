@@ -4,7 +4,7 @@ import { TmSidebarComponent, MenuItem, ProfileMenuItem, SidebarUser } from '@tec
 import { ThemeService } from '../../core/services/theme.service';
 import { AuthService } from '../../core/services/auth.service';
 import { LanguageService } from '../../core/services/language.service';
-import { ALL_SIDEBAR_MENU_ITEMS, VISIBLE_SIDEBAR_MENUS, PROFILE_MENU_ITEMS } from '../../core/config/menu.config';
+import { ALL_SIDEBAR_MENU_ITEMS, VISIBLE_SIDEBAR_MENUS, PROFILE_MENU_ITEMS, filterMenuByRoles } from '../../core/config/menu.config';
 import { SidebarModalIdiomaComponent } from './components/modais/sidebar-modal-idioma/sidebar-modal-idioma.component';
 
 @Component({
@@ -25,8 +25,12 @@ export class SidebarComponent {
   @ViewChild(TmSidebarComponent) sidebar!: TmSidebarComponent;
 
   protected readonly menuItems = computed<MenuItem[]>(() => {
-    return ALL_SIDEBAR_MENU_ITEMS.filter(item =>
-      VISIBLE_SIDEBAR_MENUS.includes(item.label)
+    const roles = this.authService.currentUser()?.roles ?? [];
+    return filterMenuByRoles(
+      ALL_SIDEBAR_MENU_ITEMS.filter(item =>
+        VISIBLE_SIDEBAR_MENUS.includes(item.label)
+      ),
+      roles,
     );
   });
 

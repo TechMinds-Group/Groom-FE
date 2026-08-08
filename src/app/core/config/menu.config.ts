@@ -9,6 +9,7 @@ export const ALL_SIDEBAR_MENU_ITEMS: MenuItem[] = [
   {
     label: 'Agenda',
     icon: 'fas fa-calendar-alt',
+    roles: ['Profissional'],
     subItems: [
       { label: 'Calendário', icon: 'fas fa-calendar-day', route: '/agenda/calendario' },
     ],
@@ -53,7 +54,19 @@ export const ALL_SIDEBAR_MENU_ITEMS: MenuItem[] = [
  * Lista de controle centralizada dos menus que devem ser exibidos na sidebar.
  * Apenas os menus cujos 'label' estejam nesta lista serão visíveis.
  */
-export const VISIBLE_SIDEBAR_MENUS: string[] = ['Dashboard', 'Gestão', 'Serviços', 'Configurações'];
+export const VISIBLE_SIDEBAR_MENUS: string[] = ['Dashboard', 'Agenda', 'Gestão', 'Serviços', 'Configurações'];
+
+/**
+ * Filtra itens de menu pela visibilidade baseada em perfil:
+ * itens com `roles` definido só são exibidos se o usuário tiver um dos perfis (qualquer nível).
+ */
+export function filterMenuByRoles(items: MenuItem[], roles: string[]): MenuItem[] {
+  return items
+    .filter(item => !item.roles || item.roles.some(r => roles.includes(r)))
+    .map(item => item.subItems
+      ? { ...item, subItems: filterMenuByRoles(item.subItems, roles) }
+      : item);
+}
 
 /**
  * Itens do menu do usuário (dropdown no perfil da sidebar).

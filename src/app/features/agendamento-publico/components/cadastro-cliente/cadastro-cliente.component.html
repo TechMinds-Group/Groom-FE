@@ -1,0 +1,79 @@
+<form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
+  <div class="mb-3">
+    <label for="cadastro-nome" class="form-label">Nome completo</label>
+    <input
+      id="cadastro-nome"
+      type="text"
+      class="form-control"
+      formControlName="nome"
+      placeholder="Seu nome"
+    />
+    @if (form.controls.nome.invalid && form.controls.nome.touched) {
+      <div class="text-danger small mt-1">Informe seu nome (mínimo 3 caracteres).</div>
+    }
+  </div>
+
+  <div class="mb-3">
+    <label for="cadastro-email" class="form-label">E-mail</label>
+    <input
+      id="cadastro-email"
+      type="email"
+      class="form-control"
+      formControlName="email"
+      placeholder="voce@email.com"
+    />
+    @if (form.controls.email.invalid && form.controls.email.touched) {
+      <div class="text-danger small mt-1">Informe um e-mail válido.</div>
+    }
+  </div>
+
+  <div class="mb-3">
+    <label for="cadastro-celular" class="form-label">Celular (opcional)</label>
+    <input
+      id="cadastro-celular"
+      type="tel"
+      class="form-control"
+      formControlName="celular"
+      placeholder="(00) 00000-0000"
+    />
+  </div>
+
+  <div class="mb-3">
+    <label for="cadastro-senha" class="form-label">Senha</label>
+    <input
+      id="cadastro-senha"
+      type="password"
+      class="form-control"
+      formControlName="senha"
+      placeholder="Mínimo 8 caracteres"
+    />
+    @if (form.controls.senha.invalid && form.controls.senha.touched) {
+      <div class="text-danger small mt-1">A senha deve ter no mínimo 8 caracteres.</div>
+    }
+  </div>
+
+  <div class="mb-3">
+    <label for="cadastro-confirmar-senha" class="form-label">Confirmar senha</label>
+    <input
+      id="cadastro-confirmar-senha"
+      type="password"
+      class="form-control"
+      formControlName="confirmarSenha"
+      placeholder="Repita a senha"
+    />
+    @if (form.controls.confirmarSenha.invalid && form.controls.confirmarSenha.touched) {
+      <div class="text-danger small mt-1">Confirme a senha.</div>
+    }
+  </div>
+
+  @if (errorMessage()) {
+    <div class="alert alert-danger py-2">{{ errorMessage() }}</div>
+  }
+
+  <button type="submit" class="btn btn-primary w-100" [disabled]="isLoading()">
+    @if (isLoading()) {
+      <span class="spinner-border spinner-border-sm me-2"></span>
+    }
+    Criar conta
+  </button>
+</form>

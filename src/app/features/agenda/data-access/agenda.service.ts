@@ -1,6 +1,7 @@
-import { Injectable, signal, computed } from '@angular/core';
+import { Injectable, signal, computed, Signal } from '@angular/core';
 import { Agendamento } from '../../../core/models/agenda.model';
 import { addHours, startOfDay, addDays } from 'date-fns';
+import { UserContext } from '../../../core/services/auth.service';
 
 @Injectable({
   providedIn: 'root'
@@ -73,6 +74,21 @@ export class AgendaService {
   public agendamentos = computed(() => this._agendamentos());
 
   constructor() { }
+
+  /**
+   * Filtra os agendamentos conforme o perfil multi-nível do usuário logado:
+   * Admin (em qualquer nível) vê todos; profissional sem nível Admin vê apenas os próprios.
+   */
+  getAgendamentosFiltrados(usuarioLogado: UserContext | null): Signal<Agendamento[]> {
+    return computed(() => {
+      const todos = this._agendamentos();
+      const hasAdmin = usuarioLogado?.roles?.includes('Administrador') ?? false;
+      if (hasAdmin || !usuarioLogado) {
+        return todos;
+      }
+      return todos.filter(a => a.profissionalNome === usuarioLogado.nome);
+    });
+  }
 
   addAgendamento(novo: Agendamento) {
     this._agendamentos.update(atual => [...atual, novo]);

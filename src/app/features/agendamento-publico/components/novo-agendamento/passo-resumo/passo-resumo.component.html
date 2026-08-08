@@ -1,0 +1,35 @@
+<h2 class="h5 mb-4">Confirme seu agendamento</h2>
+
+<ul class="list-group mb-4">
+  <li class="list-group-item d-flex justify-content-between">
+    <span class="text-muted">Profissional</span>
+    <span class="fw-semibold">{{ profissional()?.nome }}</span>
+  </li>
+  <li class="list-group-item d-flex justify-content-between">
+    <span class="text-muted">Serviço</span>
+    <span class="fw-semibold">{{ servico()?.nome }}</span>
+  </li>
+  <li class="list-group-item d-flex justify-content-between">
+    <span class="text-muted">Data</span>
+    <span class="fw-semibold">{{ formatarData(data() ?? '') }}</span>
+  </li>
+  <li class="list-group-item d-flex justify-content-between">
+    <span class="text-muted">Horário</span>
+    <span class="fw-semibold">{{ horario() }}h</span>
+  </li>
+  <li class="list-group-item d-flex justify-content-between">
+    <span class="text-muted">Duração</span>
+    <span class="fw-semibold">{{ servico()?.duracao }} min</span>
+  </li>
+  <li class="list-group-item d-flex justify-content-between">
+    <span class="text-muted">Valor</span>
+    <span class="fw-semibold text-primary">{{ formatarPreco(servico()?.preco ?? 0) }}</span>
+  </li>
+</ul>
+
+<button type="button" class="btn btn-primary w-100" (click)="confirmar.emit()" [disabled]="isLoading()">
+  @if (isLoading()) {
+    <span class="spinner-border spinner-border-sm me-2"></span>
+  }
+  Confirmar agendamento
+</button>

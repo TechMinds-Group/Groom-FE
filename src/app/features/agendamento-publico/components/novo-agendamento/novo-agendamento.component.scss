@@ -1,0 +1,22 @@
+.agendamento-wizard {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  background: var(--bs-body-bg);
+
+  &__card {
+    width: 100%;
+    max-width: 480px;
+    padding: 2rem;
+    border-radius: 1rem;
+    background: var(--bs-body-bg);
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+  }
+
+  &__progresso {
+    font-weight: 600;
+    color: var(--bs-secondary-color);
+  }
+}
