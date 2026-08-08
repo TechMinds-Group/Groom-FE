@@ -1,79 +1,28 @@
-import { Injectable, signal, computed, Signal } from '@angular/core';
+import { Injectable, signal, computed, Signal, inject } from '@angular/core';
 import { Agendamento } from '../../../core/models/agenda.model';
-import { addHours, startOfDay, addDays } from 'date-fns';
 import { UserContext } from '../../../core/services/auth.service';
+import { AgendamentosService } from '../../../core/services/agendamentos.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AgendaService {
-  private _agendamentos = signal<Agendamento[]>([
-    {
-      id: '1',
-      clienteNome: 'Michel Gomes',
-      clienteTelefone: '11999999999',
-      servicoNome: 'Corte de Cabelo Premium',
-      profissionalNome: 'Alexandre',
-      dataInicio: addHours(startOfDay(new Date()), 9),
-      dataFim: addHours(startOfDay(new Date()), 10),
-      status: 'confirmado',
-      preco: 100,
-      corPrimaria: '#0d6efd'
-    },
-    {
-      id: '2',
-      clienteNome: 'João Silva',
-      clienteTelefone: '11888888888',
-      servicoNome: 'Barba Completa',
-      profissionalNome: 'Mariana',
-      dataInicio: addHours(startOfDay(new Date()), 11),
-      dataFim: addHours(startOfDay(new Date()), 11.5),
-      status: 'pendente',
-      preco: 60,
-      corPrimaria: '#dc3545'
-    },
-    {
-      id: '3',
-      clienteNome: 'Ana Souza',
-      clienteTelefone: '11777777777',
-      servicoNome: 'Grooming Completo',
-      profissionalNome: 'Alexandre',
-      dataInicio: addHours(startOfDay(addDays(new Date(), 1)), 14),
-      dataFim: addHours(startOfDay(addDays(new Date(), 1)), 16),
-      status: 'confirmado',
-      preco: 250,
-      corPrimaria: '#198754'
-    },
-    {
-      id: '4',
-      clienteNome: 'Luizinho (Kids)',
-      clienteTelefone: '11666666666',
-      servicoNome: 'Corte Kids',
-      profissionalNome: 'Mariana',
-      dataInicio: addHours(startOfDay(new Date()), 14),
-      dataFim: addHours(startOfDay(new Date()), 14.75),
-      status: 'confirmado',
-      preco: 80,
-      corPrimaria: '#6f42c1'
-    },
-    {
-      id: '5',
-      clienteNome: 'Fernanda Lima',
-      clienteTelefone: '11555555555',
-      servicoNome: 'Tintura',
-      profissionalNome: 'Roberto',
-      dataInicio: addHours(startOfDay(new Date()), 16),
-      dataFim: addHours(startOfDay(new Date()), 17.5),
-      status: 'confirmado',
-      preco: 150,
-      corPrimaria: '#fd7e14'
-    }
-  ]);
+  private readonly agendamentosService = inject(AgendamentosService);
+  private _agendamentos = signal<Agendamento[]>([]);
 
   // Expondo o sinal como readonly para seguir boas práticas de Signal-based state management
   public agendamentos = computed(() => this._agendamentos());
 
   constructor() { }
+
+  /**
+   * Carrega os agendamentos reais da API. Requer perfil de Administrador ou Profissional.
+   * Quando profissionalId é informado, busca apenas os agendamentos daquele profissional.
+   */
+  async carregarAgendamentos(profissionalId?: string): Promise<void> {
+    await this.agendamentosService.carregarAgendamentos(profissionalId);
+    this._agendamentos.set(this.agendamentosService.agendamentos());
+  }
 
   /**
    * Filtra os agendamentos conforme o perfil multi-nível do usuário logado:

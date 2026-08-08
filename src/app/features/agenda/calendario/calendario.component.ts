@@ -78,6 +78,13 @@ export class CalendarioComponent implements OnInit {
 
   ngOnInit() {
     this.initForm();
+    this.carregarAgendamentos();
+  }
+
+  private async carregarAgendamentos(): Promise<void> {
+    const usuario = this.authService.currentUser();
+    const ehAdmin = this.authService.hasAdminRole();
+    await this.agendaService.carregarAgendamentos(ehAdmin ? undefined : usuario?.id);
   }
 
   private initForm() {
