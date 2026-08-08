@@ -33,6 +33,13 @@ export const routes: Routes = [
         ],
       },
       {
+        path: 'agendamento-estabelecimento',
+        loadComponent: () =>
+          import(
+            './features/agendamento-estabelecimento/components/agendamento-estabelecimento/agendamento-estabelecimento.component'
+          ).then((m) => m.AgendamentoEstabelecimentoComponent),
+      },
+      {
         path: 'gestao',
         children: [
           {

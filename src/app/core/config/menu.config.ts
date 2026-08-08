@@ -15,6 +15,17 @@ export const ALL_SIDEBAR_MENU_ITEMS: MenuItem[] = [
     ],
   },
   {
+    label: 'Agendamento',
+    icon: 'fas fa-calendar-check',
+    subItems: [
+      {
+        label: 'Link do Cliente',
+        icon: 'fas fa-link',
+        route: '/agendamento-estabelecimento',
+      },
+    ],
+  },
+  {
     label: 'Gestão',
     icon: 'fas fa-users',
     subItems: [
@@ -54,7 +65,7 @@ export const ALL_SIDEBAR_MENU_ITEMS: MenuItem[] = [
  * Lista de controle centralizada dos menus que devem ser exibidos na sidebar.
  * Apenas os menus cujos 'label' estejam nesta lista serão visíveis.
  */
-export const VISIBLE_SIDEBAR_MENUS: string[] = ['Dashboard', 'Agenda', 'Gestão', 'Serviços', 'Configurações'];
+export const VISIBLE_SIDEBAR_MENUS: string[] = ['Dashboard', 'Agenda', 'Agendamento', 'Gestão', 'Serviços', 'Configurações'];
 
 /**
  * Filtra itens de menu pela visibilidade baseada em perfil:
