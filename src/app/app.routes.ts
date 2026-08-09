@@ -30,6 +30,13 @@ export const routes: Routes = [
                 (c) => c.CalendarioComponent,
               ),
           },
+          {
+            path: 'disponibilidade',
+            loadComponent: () =>
+              import(
+                './features/disponibilidade/components/disponibilidade/disponibilidade.component'
+              ).then((m) => m.DisponibilidadeComponent),
+          },
         ],
       },
       {
