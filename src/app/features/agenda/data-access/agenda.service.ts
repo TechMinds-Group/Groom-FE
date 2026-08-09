@@ -35,7 +35,7 @@ export class AgendaService {
       if (hasAdmin || !usuarioLogado) {
         return todos;
       }
-      return todos.filter(a => a.profissionalNome === usuarioLogado.nome);
+      return todos.filter(a => a.profissionalId === usuarioLogado.id);
     });
   }
 
