@@ -4,7 +4,8 @@ import { firstValueFrom } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { Agendamento } from '../models/agenda.model';
 
-interface AgendamentoApi {
+/** DTO de agendamento retornado pela API (camelCase) — exportado para reuso em mapeamentos de outros services. */
+export interface AgendamentoApi {
   id: string;
   clienteNome: string;
   clienteTelefone?: string;
