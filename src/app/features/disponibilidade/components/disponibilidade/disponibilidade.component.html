@@ -1,0 +1,155 @@
+<div class="container mt-5">
+  <div class="row mb-4 align-items-center">
+    <div class="col-lg-8 col-12">
+      <h1 class="h2 text-primary fw-bold mb-2 custom-dark-text">
+        <i class="fas fa-calendar-check me-2"></i>{{ 'DISPONIBILIDADE.TITLE' | translate }}
+      </h1>
+      <p class="text-muted custom-dark-text">
+        {{ 'DISPONIBILIDADE.SUBTITLE' | translate }}
+      </p>
+    </div>
+    <div class="col-lg-4 col-12 mt-3 mt-lg-0 d-grid d-lg-flex justify-content-lg-end">
+      <button
+        type="button"
+        class="btn btn-primary px-4 py-2 shadow-sm fw-semibold"
+        [disabled]="salvando() || carregando()"
+        (click)="salvar()"
+      >
+        <i class="fas fa-save me-2"></i>
+        {{ salvando() ? ('DISPONIBILIDADE.SALVANDO' | translate) : ('DISPONIBILIDADE.SALVAR' | translate) }}
+      </button>
+    </div>
+  </div>
+
+  @if (isAdmin()) {
+    <div class="card shadow-sm border-0 mb-4">
+      <div class="card-body p-4">
+        <div class="row align-items-center">
+          <div class="col-lg-6 col-12">
+            <tm-select
+              [label]="'DISPONIBILIDADE.PROFISSIONAL_LABEL' | translate"
+              [placeholder]="'DISPONIBILIDADE.PROFISSIONAL_PLACEHOLDER' | translate"
+              [options]="profissionalOptions()"
+              [value]="profissionalAlvo()"
+              (valueChange)="onProfissionalChange($event)"
+              [searchable]="true"
+              icon="fas fa-user-md"
+              class="custom-dark-text"
+            ></tm-select>
+          </div>
+          @if (profissionalOptions().length === 0) {
+            <div class="col-12 mt-2">
+              <span class="text-muted small custom-dark-text">
+                {{ 'DISPONIBILIDADE.SEM_PROFISSIONAIS' | translate }}
+              </span>
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+  }
+
+  @if (carregando()) {
+    <div class="d-flex justify-content-center align-items-center py-5">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">{{ 'DISPONIBILIDADE.CARREGANDO' | translate }}</span>
+      </div>
+    </div>
+  } @else {
+    <form [formGroup]="form" class="row g-4">
+      <div class="col-lg-7 col-12">
+        <div class="card shadow-sm border-0 h-100">
+          <div class="card-header bg-transparent border-0 pt-4 px-4">
+            <h2 class="h5 fw-bold text-primary mb-0 custom-dark-text">
+              <i class="fas fa-clock me-2"></i>{{ 'DISPONIBILIDADE.SECTION_DIAS' | translate }}
+            </h2>
+          </div>
+          <div class="card-body pt-0 px-4 pb-4" formArrayName="dias">
+            @for (diaConfig of diasSemanaConfig; track diaConfig.diaSemana; let i = $index) {
+              <div class="dia-card border rounded-3 p-3 mb-3" [formGroup]="diaGrupo(i)">
+                <div class="d-flex flex-wrap align-items-start gap-2">
+                  <label class="form-check form-switch mb-0 d-flex align-items-center gap-2">
+                    <input
+                      class="form-check-input"
+                      type="checkbox"
+                      formControlName="trabalhaHoje"
+                      role="switch"
+                    />
+                    <span class="form-check-label fw-semibold custom-dark-text">
+                      {{ traduzir(diaConfig.i18nKey) }}
+                    </span>
+                  </label>
+                  <div class="flex-grow-1" formArrayName="intervalos">
+                    @for (intervalo of intervalos(i); track $index; let j = $index) {
+                      <div class="d-flex flex-wrap align-items-center gap-2 mb-2" [formGroup]="intervalo">
+                        <tm-time
+                          formControlName="horaInicio"
+                          [label]="'DISPONIBILIDADE.LABEL_HORA_INICIO' | translate"
+                          class="custom-dark-text"
+                        ></tm-time>
+                        <span class="text-muted fw-bold">—</span>
+                        <tm-time
+                          formControlName="horaFim"
+                          [label]="'DISPONIBILIDADE.LABEL_HORA_FIM' | translate"
+                          class="custom-dark-text"
+                        ></tm-time>
+                        <button
+                          type="button"
+                          class="btn btn-outline-danger btn-sm"
+                          [attr.aria-label]="'DISPONIBILIDADE.REMOVER_INTERVALO' | translate"
+                          (click)="removerIntervalo(i, j)"
+                        >
+                          <i class="fas fa-minus"></i>
+                        </button>
+                        @if (intervalo.errors?.['intervaloInvalido']) {
+                          <span class="text-danger small w-100">
+                            {{ 'DISPONIBILIDADE.INTERVALO_INVALIDO' | translate }}
+                          </span>
+                        }
+                      </div>
+                    }
+                    <button
+                      type="button"
+                      class="btn btn-sm btn-outline-primary"
+                      (click)="adicionarIntervalo(i)"
+                    >
+                      <i class="fas fa-plus me-1"></i>{{ 'DISPONIBILIDADE.ADICIONAR_INTERVALO' | translate }}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+      </div>
+
+      <div class="col-lg-5 col-12">
+        <div class="card shadow-sm border-0 h-100">
+          <div class="card-header bg-transparent border-0 pt-4 px-4">
+            <h2 class="h5 fw-bold text-primary mb-0 custom-dark-text">
+              <i class="fas fa-scissors me-2"></i>{{ 'DISPONIBILIDADE.SECTION_SERVICOS' | translate }}
+            </h2>
+          </div>
+          <div class="card-body pt-0 px-4 pb-4">
+            <tm-select
+              [label]="'DISPONIBILIDADE.SELECIONAR_SERVICOS' | translate"
+              [placeholder]="'DISPONIBILIDADE.SELECIONAR_SERVICOS' | translate"
+              [options]="servicoOptions()"
+              [multiple]="true"
+              [value]="servicosSelecionados()"
+              (valueChange)="onServicosChange($event)"
+              [searchable]="true"
+              icon="fas fa-check-square"
+              class="custom-dark-text"
+            ></tm-select>
+            @if (servicoOptions().length === 0) {
+              <p class="text-muted small mt-2 mb-0 custom-dark-text">
+                {{ 'DISPONIBILIDADE.SEM_SERVICOS' | translate }}
+              </p>
+            }
+          </div>
+        </div>
+      </div>
+    </form>
+  }
+</div>

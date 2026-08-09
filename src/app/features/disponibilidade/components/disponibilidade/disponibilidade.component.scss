@@ -1,0 +1,8 @@
+.dia-card {
+  background: var(--tm-surface-color, #ffffff);
+  transition: box-shadow 0.2s ease;
+
+  &:hover {
+    box-shadow: 0 0 0 1px rgba(var(--tm-primary-rgb, 13, 110, 253), 0.25);
+  }
+}
