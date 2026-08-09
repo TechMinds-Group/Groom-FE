@@ -152,6 +152,7 @@ export class CalendarioComponent implements OnInit {
       clienteNome: raw.clienteNome,
       clienteTelefone: raw.clienteTelefone,
       servicoNome: raw.servico.nome,
+      profissionalId: '',
       profissionalNome: raw.profissional,
       dataInicio,
       dataFim,

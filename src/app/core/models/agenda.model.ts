@@ -5,6 +5,7 @@ export interface Agendamento {
   clienteNome: string;
   clienteTelefone: string;
   servicoNome: string;
+  profissionalId: string;
   profissionalNome: string;
   dataInicio: Date;
   dataFim: Date;

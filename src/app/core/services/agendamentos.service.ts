@@ -30,12 +30,14 @@ function normalizarStatus(status: string): Agendamento['status'] {
   return 'confirmado';
 }
 
-function mapearAgendamento(api: AgendamentoApi): Agendamento {
+/** Mapeia o DTO da API para o modelo de domínio Agendamento (reutilizado por outros services). */
+export function mapearAgendamento(api: AgendamentoApi): Agendamento {
   return {
     id: api.id,
     clienteNome: api.clienteNome,
     clienteTelefone: api.clienteTelefone ?? '',
     servicoNome: api.servicoNome,
+    profissionalId: api.profissionalId,
     profissionalNome: api.profissionalNome,
     dataInicio: new Date(api.dataInicio),
     dataFim: new Date(api.dataFim),
