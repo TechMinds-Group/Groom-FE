@@ -152,4 +152,11 @@
       </div>
     </form>
   }
+
+  <app-disponibilidade-conflitos
+    [show]="showConflitosModal()"
+    (showChange)="showConflitosModal.set($event)"
+    [conflitos]="conflitos()"
+    (fechar)="showConflitosModal.set(false)"
+  ></app-disponibilidade-conflitos>
 </div>

@@ -23,6 +23,7 @@ import { DisponibilidadeService } from '../../../../core/services/disponibilidad
 import { GestaoUsuariosService } from '../../../../core/services/gestao-usuarios.service';
 import { LanguageService } from '../../../../core/services/language.service';
 import { DIAS_SEMANA_FORM, INTERVALO_PADRAO } from '../../models/disponibilidade-form.config.model';
+import { DisponibilidadeConflitosComponent } from '../modais/disponibilidade-conflitos/disponibilidade-conflitos.component';
 
 /** Valida que o horário final seja maior que o inicial no grupo do intervalo. */
 function validarIntervaloHoras(grupo: AbstractControl): ValidationErrors | null {
@@ -43,6 +44,7 @@ function validarIntervaloHoras(grupo: AbstractControl): ValidationErrors | null 
     TranslatePipe,
     TmSelectComponent,
     TmTimeComponent,
+    DisponibilidadeConflitosComponent,
   ],
   templateUrl: './disponibilidade.component.html',
   styleUrl: './disponibilidade.component.scss',
@@ -66,6 +68,7 @@ export class DisponibilidadeComponent implements OnInit {
   protected readonly servicosSelecionados = signal<string[]>([]);
   /** Agendamentos que ficaram fora da nova disponibilidade (D-06 — o save não é bloqueado). */
   protected readonly conflitos = signal<Agendamento[]>([]);
+  protected readonly showConflitosModal = signal(false);
 
   protected readonly isAdmin = this.authService.hasAdminRole;
 
@@ -179,8 +182,9 @@ export class DisponibilidadeComponent implements OnInit {
         this.montarPayload(profissionalId),
       );
       if (resultado.conflitos.length > 0) {
-        // D-06: avisa, não bloqueia — o save já foi persistido; modal integrado no fluxo (Task 2).
+        // D-06: avisa, não bloqueia — o save já foi persistido; abre o modal informativo.
         this.conflitos.set(resultado.conflitos);
+        this.showConflitosModal.set(true);
       } else {
         this.toastService.success(this.languageService.translate('DISPONIBILIDADE.TOAST_SUCESSO'));
       }
