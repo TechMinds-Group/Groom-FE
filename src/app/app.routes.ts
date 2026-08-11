@@ -34,6 +34,13 @@ export const routes: Routes = [
         path: 'gestao',
         children: [
           {
+            path: 'clientes',
+            loadComponent: () =>
+              import('./features/clientes/components/clientes/clientes.component').then(
+                (m) => m.ClientesComponent,
+              ),
+          },
+          {
             path: 'assinantes',
             loadComponent: () =>
               import('./features/assinantes-estabelecimento/components/assinantes-estabelecimento/assinantes-estabelecimento.component').then(

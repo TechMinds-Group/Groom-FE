@@ -1,0 +1,49 @@
+<tm-modal
+  [title]="cliente() ? 'Editar Cliente' : 'Cadastrar Cliente'"
+  [confirmLabel]="cliente() ? 'Salvar' : 'Cadastrar'"
+  cancelLabel="Cancelar"
+  [show]="show()"
+  (showChange)="show.set($event)"
+  (confirm)="salvar()"
+  (cancel)="fechar()"
+  confirmClass="btn-primary"
+  [icon]="cliente() ? 'fas fa-edit' : 'fas fa-user-plus'"
+  size="md"
+>
+  <form [formGroup]="editForm" class="p-1 text-start">
+    <div class="mb-3">
+      <tm-text formControlName="nome" label="Nome do Cliente" placeholder="Ex: Michel Silva" class="custom-dark-text"></tm-text>
+      @if (editForm.get('nome')?.touched && editForm.get('nome')?.invalid) {
+        <div class="text-danger extra-small mt-1">Nome é obrigatório.</div>
+      }
+    </div>
+
+    <div class="mb-3">
+      <tm-text formControlName="celular" label="Celular do Cliente *" placeholder="Ex: (11) 98888-7777" mask="phone" [maxlength]="15" class="custom-dark-text"></tm-text>
+      @if (editForm.get('celular')?.touched && editForm.get('celular')?.invalid) {
+        <div class="text-danger extra-small mt-1">Celular válido é obrigatório no formato (XX) XXXXX-XXXX.</div>
+      }
+    </div>
+
+    <div class="mb-3">
+      <tm-text formControlName="email" label="E-mail do Cliente (Opcional)" placeholder="exemplo@email.com" type="email" class="custom-dark-text"></tm-text>
+      @if (editForm.get('email')?.touched && editForm.get('email')?.hasError('email')) {
+        <div class="text-danger extra-small mt-1">Insira um e-mail válido.</div>
+      }
+    </div>
+
+    <div class="mb-3">
+      <tm-text formControlName="cpf" label="CPF (Opcional)" placeholder="000.000.000-00" mask="cpf" [maxlength]="14" class="custom-dark-text"></tm-text>
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label small fw-bold text-muted text-uppercase tracking-wider mb-2 custom-dark-text">Data de Nascimento (Opcional)</label>
+      <input type="date" formControlName="dataNascimento" class="form-control" />
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label small fw-bold text-muted text-uppercase tracking-wider mb-2 custom-dark-text">Observações (Opcional)</label>
+      <textarea formControlName="observacoes" class="form-control" rows="3" maxlength="500" placeholder="Observações sobre o cliente..."></textarea>
+    </div>
+  </form>
+</tm-modal>
