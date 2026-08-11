@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, ElementRef, effect, inject, OnDestroy, OnInit, signal, viewChild } from '@angular/core';
+import { ChangeDetectionStrategy, Component, effect, ElementRef, inject, OnDestroy, OnInit, signal, viewChild } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { TmButtonComponent, TmTextComponent } from '@techminds-group/tm-angular-lib';
@@ -23,8 +23,10 @@ export class LoginClienteComponent implements OnInit, OnDestroy {
   private readonly authClienteHelper = inject(AuthClienteHelperService);
   private readonly googleOAuthCliente = inject(GoogleOAuthClienteService);
 
-  /** Aplica o tema do dispositivo (claro/escuro) na tela pública. */
   private readonly temaPublico = inject(TemaPublicoService);
+
+  /** Tema ativo (claro/escuro) para exibir o ícone sol/lua correspondente. */
+  readonly temaAtivo = this.temaPublico.tema;
 
   private readonly googleButton = viewChild<ElementRef<HTMLDivElement>>('googleButton');
 
@@ -35,6 +37,7 @@ export class LoginClienteComponent implements OnInit, OnDestroy {
   readonly form = this.fb.group({
     email: ['', [Validators.required, Validators.email]],
     senha: ['', [Validators.required]],
+    rememberMe: [false],
   });
 
   constructor() {
@@ -50,9 +53,13 @@ export class LoginClienteComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.authClienteHelper.restaurarSessao();
-    if (this.agendamentoPublicoService.getToken()) {
-      this.router.navigate(['/agendamento', this.agendamentoPublicoService.estabelecimento() ?? '', 'novo']);
-      return;
+    void this.verificarSessao();
+  }
+
+  private async verificarSessao(): Promise<void> {
+    const cliente = await this.agendamentoPublicoService.getMe();
+    if (cliente) {
+      await this.router.navigate(['/agendamento', this.agendamentoPublicoService.estabelecimento() ?? '', 'novo']);
     }
   }
 
@@ -65,6 +72,11 @@ export class LoginClienteComponent implements OnInit, OnDestroy {
     this.errorMessage.set(null);
   }
 
+  /** Alterna entre tema claro e escuro na tela pública. */
+  alternarTema(): void {
+    this.temaPublico.alternarTema();
+  }
+
   async onLogin(): Promise<void> {
     if (this.form.invalid) {
       this.form.markAllAsTouched();
@@ -75,10 +87,9 @@ export class LoginClienteComponent implements OnInit, OnDestroy {
     this.errorMessage.set(null);
 
     try {
-      const { email, senha } = this.form.value;
-      const result = await this.agendamentoPublicoService.login({ email: email!, senha: senha! });
-      this.authClienteHelper.iniciarSessao(result.cliente, result.token);
-      this.router.navigate(['/agendamento', this.agendamentoPublicoService.estabelecimento() ?? '', 'novo']);
+      const { email, senha, rememberMe } = this.form.value;
+      await this.agendamentoPublicoService.login({ email: email!, senha: senha! }, rememberMe ?? false);
+      await this.router.navigate(['/agendamento', this.agendamentoPublicoService.estabelecimento() ?? '', 'novo']);
     } catch (err) {
       this.errorMessage.set(this.extrairMensagemErro(err));
     } finally {
@@ -91,9 +102,8 @@ export class LoginClienteComponent implements OnInit, OnDestroy {
     this.errorMessage.set(null);
 
     try {
-      const result = await this.agendamentoPublicoService.loginGoogle(idToken);
-      this.authClienteHelper.iniciarSessao(result.cliente, result.token);
-      this.router.navigate(['/agendamento', this.agendamentoPublicoService.estabelecimento() ?? '', 'novo']);
+      await this.agendamentoPublicoService.loginGoogle(idToken);
+      await this.router.navigate(['/agendamento', this.agendamentoPublicoService.estabelecimento() ?? '', 'novo']);
     } catch (err) {
       this.errorMessage.set(this.extrairMensagemErro(err));
     } finally {
@@ -102,7 +112,7 @@ export class LoginClienteComponent implements OnInit, OnDestroy {
   }
 
   onCadastrado(): void {
-    this.router.navigate(['/agendamento', this.agendamentoPublicoService.estabelecimento() ?? '', 'novo']);
+    void this.router.navigate(['/agendamento', this.agendamentoPublicoService.estabelecimento() ?? '', 'novo']);
   }
 
   private extrairMensagemErro(err: unknown): string {

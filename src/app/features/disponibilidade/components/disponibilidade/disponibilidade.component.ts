@@ -25,14 +25,30 @@ import { LanguageService } from '../../../../core/services/language.service';
 import { DIAS_SEMANA_FORM, INTERVALO_PADRAO } from '../../models/disponibilidade-form.config.model';
 import { DisponibilidadeConflitosComponent } from '../modais/disponibilidade-conflitos/disponibilidade-conflitos.component';
 
-/** Valida que o horário final seja maior que o inicial no grupo do intervalo. */
-function validarIntervaloHoras(grupo: AbstractControl): ValidationErrors | null {
-  const inicio = grupo.get('horaInicio')?.value as string | null;
-  const fim = grupo.get('horaFim')?.value as string | null;
-  if (!inicio || !fim) {
+/** Converte "H:mm" ou "HH:mm" para minutos do dia; retorna null se o valor for inválido. */
+function toMinutos(valor: string | null): number | null {
+  if (!valor) {
     return null;
   }
-  return fim <= inicio ? { intervaloInvalido: true } : null;
+  const partes = valor.split(':').map(Number);
+  if (partes.length !== 2 || partes.some((p) => Number.isNaN(p))) {
+    return null;
+  }
+  const [hora, minuto] = partes;
+  if (hora < 0 || hora > 23 || minuto < 0 || minuto > 59) {
+    return null;
+  }
+  return hora * 60 + minuto;
+}
+
+/** Valida que o horário final seja maior que o inicial (formato 24h, com ou sem zero à esquerda). */
+function validarIntervaloHoras(grupo: AbstractControl): ValidationErrors | null {
+  const minutosInicio = toMinutos(grupo.get('horaInicio')?.value as string | null);
+  const minutosFim = toMinutos(grupo.get('horaFim')?.value as string | null);
+  if (minutosInicio === null || minutosFim === null) {
+    return null;
+  }
+  return minutosFim <= minutosInicio ? { intervaloInvalido: true } : null;
 }
 
 @Component({
@@ -134,6 +150,19 @@ export class DisponibilidadeComponent implements OnInit {
     (this.diaGrupo(indexDia).get('intervalos') as FormArray).removeAt(indexIntervalo);
   }
 
+  /**
+   * Liga/desliga o atendimento no dia. Ao ativar sem nenhum horário definido,
+   * adiciona automaticamente o horário padrão para o dia não ser salvo "vazio".
+   */
+  protected onTrabalhaHojeChange(indexDia: number, event: Event): void {
+    const ativo = (event.target as HTMLInputElement).checked;
+    const grupo = this.diaGrupo(indexDia);
+    grupo.patchValue({ trabalhaHoje: ativo });
+    if (ativo && (grupo.get('intervalos') as FormArray).length === 0) {
+      this.adicionarIntervalo(indexDia);
+    }
+  }
+
   protected onProfissionalChange(valor: unknown): void {
     if (typeof valor === 'string' && valor) {
       this.profissionalAlvo.set(valor);
@@ -171,7 +200,7 @@ export class DisponibilidadeComponent implements OnInit {
     }
     if (this.form.invalid) {
       this.form.markAllAsTouched();
-      this.toastService.error(this.languageService.translate('DISPONIBILIDADE.INTERVALO_INVALIDO'));
+      this.toastService.error(this.languageService.translate('DISPONIBILIDADE.HORARIO_INVALIDO'));
       return;
     }
 
@@ -232,6 +261,10 @@ export class DisponibilidadeComponent implements OnInit {
           ),
         );
       }
+      // Dia marcado como trabalhado sem nenhum horário (estado antigo/quebrado): sugere o horário padrão.
+      if ((registro?.trabalhaHoje ?? false) && intervalos.length === 0) {
+        intervalos.push(this.criarIntervaloForm());
+      }
     }
     this.servicosSelecionados.set(dados.servicoIds);
   }
@@ -262,11 +295,13 @@ export class DisponibilidadeComponent implements OnInit {
     };
   }
 
-  /** Normaliza o valor do tm-time para "HH:mm" (o componente devolve hora como string da lib). */
+  /** Normaliza o valor do tm-time para "HH:mm" (o componente devolve hora como string da lib; a API retorna "HH:mm:ss"). */
   private normalizarHora(valor: string | Date | null): string {
-    if (typeof valor === 'string' && /^\d{1,2}:\d{2}$/.test(valor)) {
-      const [hora, minuto] = valor.split(':');
-      return `${hora.padStart(2, '0')}:${minuto}`;
+    if (typeof valor === 'string') {
+      const match = /^(\d{1,2}):(\d{2})(?::\d{2})?$/.exec(valor);
+      if (match) {
+        return `${match[1].padStart(2, '0')}:${match[2]}`;
+      }
     }
     if (valor instanceof Date && !Number.isNaN(valor.getTime())) {
       const hora = String(valor.getHours()).padStart(2, '0');

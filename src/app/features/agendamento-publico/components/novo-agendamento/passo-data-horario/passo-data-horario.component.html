@@ -1,22 +1,64 @@
-<h2 class="h5 mb-4">Escolha data e horário</h2>
+<h2 class="agendamento-passo__titulo">Escolha data e horário</h2>
 
-<div class="mb-3">
-  <label for="passo-data" class="form-label">Data</label>
-  <input
-    id="passo-data"
-    type="date"
-    class="form-control"
-    [value]="dataSelecionada() ?? ''"
-    [min]="hoje"
-    (change)="onDataChange($event)"
-  />
-</div>
+@if (diasDisponiveis().length === 0) {
+  <div class="agendamento-calendario__vazio mb-4">
+    <i class="fa-regular fa-calendar-xmark me-2"></i>
+    Este profissional ainda não configurou dias disponíveis para agendamento.
+  </div>
+} @else {
+  <div class="agendamento-calendario mb-4">
+    <div class="agendamento-calendario__header">
+      <button
+        type="button"
+        class="agendamento-calendario__nav"
+        [disabled]="mesAnteriorBloqueado()"
+        (click)="navegarMes(-1)"
+        [attr.aria-label]="'Mês anterior'"
+      >
+        <i class="fa-solid fa-chevron-left"></i>
+      </button>
+      <span class="agendamento-calendario__mes">{{ tituloMes() }}</span>
+      <button
+        type="button"
+        class="agendamento-calendario__nav"
+        (click)="navegarMes(1)"
+        [attr.aria-label]="'Próximo mês'"
+      >
+        <i class="fa-solid fa-chevron-right"></i>
+      </button>
+    </div>
+
+    <div class="agendamento-calendario__grid">
+      @for (rotulo of diasSemanaRotulo; track rotulo) {
+        <span class="agendamento-calendario__dia-semana">{{ rotulo }}</span>
+      }
+      @for (dia of diasCalendario(); track $index) {
+        @if (dia.vazio) {
+          <span class="agendamento-calendario__celula agendamento-calendario__celula--vazio"></span>
+        } @else {
+          <button
+            type="button"
+            class="agendamento-calendario__celula"
+            [class.agendamento-calendario__celula--disabled]="!dia.habilitado"
+            [class.agendamento-calendario__celula--selected]="dia.selecionado"
+            [class.agendamento-calendario__celula--hoje]="dia.hoje"
+            [disabled]="!dia.habilitado"
+            (click)="selecionarDia(dia)"
+          >
+            {{ dia.date.getDate() }}
+          </button>
+        }
+      }
+    </div>
+  </div>
+}
 
 @if (dataSelecionada()) {
-  <div class="mb-2">
-    <span class="fw-semibold">Horários</span>
+  <div class="agendamento-horarios__cabecalho mb-2">
+    <span class="fw-semibold">Horários disponíveis</span>
     @if (horarioSelecionado(); as horario) {
-      <span class="text-muted small ms-2">
+      <span class="agendamento-horarios__fim">
+        <i class="fa-regular fa-clock"></i>
         Término às {{ calcularFim(horario) }}
       </span>
     }
@@ -39,11 +81,16 @@
           [disabled]="!horario.disponivel"
           (click)="onHorarioChange(horario)"
         >
+          @if (horario.disponivel) {
+            <i class="fa-regular fa-clock agendamento-horarios__slot-icone"></i>
+          } @else {
+            <i class="fa-solid fa-ban agendamento-horarios__slot-icone"></i>
+          }
           {{ horario.hora }}
         </button>
       }
     </div>
   }
 } @else {
-  <p class="text-muted">Selecione uma data para ver os horários disponíveis.</p>
+  <p class="text-muted mb-0">Selecione uma data para ver os horários disponíveis.</p>
 }

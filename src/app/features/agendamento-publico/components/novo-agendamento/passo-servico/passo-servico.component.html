@@ -1,21 +1,26 @@
-<h2 class="h5 mb-4">Escolha o serviço</h2>
+<h2 class="agendamento-passo__titulo">Escolha o serviço</h2>
 
 @if (servicos().length === 0) {
   <p class="text-muted mb-0">Nenhum serviço disponível para este profissional.</p>
 } @else {
-  <div class="list-group">
+  <div class="agendamento-servicos">
     @for (servico of servicos(); track servico.id) {
       <button
         type="button"
-        class="list-group-item list-group-item-action d-flex align-items-center gap-3"
+        class="agendamento-servicos__card"
         (click)="selecionado.emit(servico)"
       >
-        <div>
-          <div class="fw-semibold">{{ servico.nome }}</div>
-          <small class="text-muted">{{ servico.duracao }} min</small>
-        </div>
-        <span class="ms-auto fw-semibold text-primary">{{ formatarPreco(servico.preco) }}</span>
-        <i class="fas fa-chevron-right text-muted"></i>
+        <span class="agendamento-servicos__icone">
+          <i class="fa-solid fa-scissors"></i>
+        </span>
+        <span class="agendamento-servicos__info">
+          <span class="agendamento-servicos__nome">{{ servico.nome }}</span>
+          <span class="agendamento-servicos__duracao">
+            <i class="fa-regular fa-clock"></i> {{ servico.duracao }} min
+          </span>
+        </span>
+        <span class="agendamento-servicos__preco">{{ formatarPreco(servico.preco) }}</span>
+        <i class="fa-solid fa-chevron-right agendamento-servicos__seta"></i>
       </button>
     }
   </div>

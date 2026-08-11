@@ -1,9 +1,11 @@
 import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
+import { TmButtonComponent } from '@techminds-group/tm-angular-lib';
 import { ProfissionalDisponivel, ServicoDisponivel } from '../../../../../core/models/agendamento-publico/agendamento-publico.model';
 
 @Component({
   selector: 'app-passo-resumo',
   standalone: true,
+  imports: [TmButtonComponent],
   templateUrl: './passo-resumo.component.html',
   styleUrl: './passo-resumo.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

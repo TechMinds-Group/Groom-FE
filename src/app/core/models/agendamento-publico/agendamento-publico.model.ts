@@ -28,6 +28,18 @@ export interface HorarioDisponivel {
   disponivel: boolean;
 }
 
+export interface IntervaloDisponivelPublico {
+  horaInicio: string;
+  horaFim: string;
+}
+
+/** Dia da semana configurado pelo profissional (0 = Domingo ... 6 = Sábado). */
+export interface DiaDisponivelPublico {
+  diaSemana: number;
+  trabalhaHoje: boolean;
+  intervalos: IntervaloDisponivelPublico[];
+}
+
 export interface CriarAgendamentoPayload {
   profissionalId: string;
   servicoId: string;

@@ -1,0 +1,176 @@
+.agendamento-passo {
+  &__titulo {
+    margin: 0 0 1.25rem;
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: var(--tm-text-primary);
+  }
+}
+
+.agendamento-servicos {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+
+  &__card {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 0.9rem;
+    padding: 0.9rem 1.1rem;
+    border: 1px solid var(--tm-border-color);
+    border-radius: 14px;
+    background: var(--tm-surface-color);
+    text-align: left;
+    transition: all 0.2s ease;
+
+    &:hover {
+      border-color: var(--tm-primary);
+      background: var(--tm-hover-bg);
+      transform: translateY(-1px);
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--tm-primary);
+      outline-offset: 2px;
+    }
+  }
+
+  &__icone {
+    flex-shrink: 0;
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 12px;
+    background: var(--tm-hover-bg);
+    color: var(--tm-primary);
+    font-size: 1.1rem;
+  }
+
+  &__info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+    min-width: 0;
+  }
+
+  &__nome {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--tm-text-primary);
+    overflow-wrap: break-word;
+    word-break: break-word;
+  }
+
+  &__duracao {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-size: 0.78rem;
+    color: var(--tm-text-secondary);
+
+    i {
+      font-size: 0.75rem;
+    }
+  }
+
+  &__preco {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--tm-primary);
+    white-space: nowrap;
+  }
+
+  &__seta {
+    color: var(--tm-text-secondary);
+    font-size: 0.8rem;
+    transition: transform 0.2s ease;
+  }
+
+  &__card:hover &__seta {
+    color: var(--tm-primary);
+    transform: translateX(2px);
+  }
+}
+
+:host-context([data-theme='dark']) {
+  .text-muted {
+    color: var(--tm-text-secondary) !important;
+  }
+}
+
+/* md ou menor — cards maiores e mais fáceis de tocar */
+@media (max-width: 991.98px) {
+  .agendamento-passo__titulo {
+    font-size: 1.3rem;
+  }
+
+  .agendamento-servicos {
+    gap: 1rem;
+
+    &__card {
+      padding: 1.1rem 1.15rem;
+    }
+
+    &__icone {
+      width: 48px;
+      height: 48px;
+      font-size: 1.2rem;
+    }
+
+    &__nome {
+      font-size: 1.05rem;
+    }
+
+    &__duracao {
+      font-size: 0.85rem;
+
+      i {
+        font-size: 0.8rem;
+      }
+    }
+
+    &__preco {
+      font-size: 1.05rem;
+    }
+
+    &__seta {
+      font-size: 1rem;
+    }
+  }
+}
+
+/* xs — cards full-touch em telas muito pequenas */
+@media (max-width: 575.98px) {
+  .agendamento-servicos {
+    gap: 0.875rem;
+
+    &__card {
+      padding: 1rem 1rem;
+      gap: 0.75rem;
+    }
+
+    &__icone {
+      width: 44px;
+      height: 44px;
+      font-size: 1.15rem;
+      border-radius: 10px;
+    }
+
+    &__nome {
+      font-size: 1rem;
+    }
+
+    &__duracao {
+      font-size: 0.82rem;
+    }
+
+    &__preco {
+      font-size: 1rem;
+      flex-shrink: 0;
+    }
+  }
+}

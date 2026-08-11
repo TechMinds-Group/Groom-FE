@@ -1,9 +1,11 @@
 import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
+import { TmButtonComponent } from '@techminds-group/tm-angular-lib';
 import { AgendamentoPublico } from '../../../../../core/models/agendamento-publico/agendamento-publico.model';
 
 @Component({
   selector: 'app-confirmacao',
   standalone: true,
+  imports: [TmButtonComponent],
   templateUrl: './confirmacao.component.html',
   styleUrl: './confirmacao.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

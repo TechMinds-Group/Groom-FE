@@ -1,20 +1,20 @@
-<h2 class="h5 mb-4">Escolha o profissional</h2>
+<h2 class="agendamento-passo__titulo">Escolha o profissional</h2>
 
 @if (profissionais().length === 0) {
   <p class="text-muted mb-0">Nenhum profissional disponível no momento.</p>
 } @else {
-  <div class="list-group">
+  <div class="agendamento-profissionais">
     @for (profissional of profissionais(); track profissional.id) {
       <button
         type="button"
-        class="list-group-item list-group-item-action d-flex align-items-center gap-3"
+        class="agendamento-profissionais__card"
         (click)="selecionado.emit(profissional)"
       >
-        <span class="agendamento-profissional__avatar">
-          <i class="fas fa-user"></i>
+        <span class="agendamento-profissionais__avatar">
+          {{ inicial(profissional.nome) }}
         </span>
-        <span class="fw-semibold">{{ profissional.nome }}</span>
-        <i class="fas fa-chevron-right ms-auto text-muted"></i>
+        <span class="agendamento-profissionais__nome">{{ profissional.nome }}</span>
+        <i class="fa-solid fa-chevron-right agendamento-profissionais__seta"></i>
       </button>
     }
   </div>

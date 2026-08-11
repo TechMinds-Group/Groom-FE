@@ -10,6 +10,15 @@ interface GoogleAccountsId {
   renderButton: (parent: Element, options: { theme: string; size: string; width: number; text: string; shape: string }) => void;
 }
 
+/** Namespace exposto pelo script GIS: google.accounts.id. */
+type GoogleAccountsApi = {
+  accounts?: {
+    id?: GoogleAccountsId;
+  };
+};
+
+const SCRIPT_ID = 'groom-gsi-client';
+
 /** Carrega o Google Identity Services e disponibiliza o idToken do cliente Google (login social). */
 @Injectable({
   providedIn: 'root',
@@ -25,27 +34,63 @@ export class GoogleOAuthClienteService {
       return;
     }
 
-    const google = (window as unknown as { google?: { accounts?: GoogleAccountsId } }).google;
-    if (google?.accounts) {
+    if (this.apiDisponivel()) {
       this.renderButton(clientId, container, onToken);
       return;
     }
 
+    const existingScript = document.getElementById(SCRIPT_ID);
+    if (existingScript) {
+      this.aguardarApi(() => this.renderButton(clientId, container, onToken));
+      return;
+    }
+
     const script = document.createElement('script');
+    script.id = SCRIPT_ID;
     script.src = 'https://accounts.google.com/gsi/client';
     script.async = true;
     script.defer = true;
-    script.onload = () => this.renderButton(clientId, container, onToken);
+    script.onload = () => this.aguardarApi(() => this.renderButton(clientId, container, onToken));
     document.head.appendChild(script);
   }
 
+  private apiDisponivel(): boolean {
+    return typeof this.getGoogle().accounts?.id?.initialize === 'function';
+  }
+
+  private getGoogle(): GoogleAccountsApi {
+    return (window as unknown as { google?: GoogleAccountsApi }).google ?? {};
+  }
+
+  /** O script GIS pode carregar antes de expor `google.accounts.id`; aguarda até 5s com retry. */
+  private aguardarApi(callback: () => void): void {
+    const tentativas = 25;
+    let contador = 0;
+
+    const verificar = (): void => {
+      if (this.apiDisponivel()) {
+        callback();
+        return;
+      }
+      contador += 1;
+      if (contador < tentativas) {
+        setTimeout(verificar, 200);
+      }
+    };
+
+    verificar();
+  }
+
   private renderButton(clientId: string, container: Element, onToken: (idToken: string) => void): void {
-    const google = (window as unknown as { google: { accounts: GoogleAccountsId } }).google;
-    google.accounts.initialize({
+    const id = this.getGoogle().accounts?.id;
+    if (!id) {
+      return;
+    }
+    id.initialize({
       client_id: clientId,
       callback: (response: GoogleCredentialResponse) => onToken(response.credential),
     });
-    google.accounts.renderButton(container, {
+    id.renderButton(container, {
       theme: 'outline',
       size: 'large',
       width: 300,

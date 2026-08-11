@@ -1,12 +1,13 @@
 import { ChangeDetectionStrategy, Component, inject, output, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { TmButtonComponent, TmTextComponent } from '@techminds-group/tm-angular-lib';
 import { AgendamentoPublicoService } from '../../../../core/services/agendamento-publico.service';
 import { AuthClienteHelperService } from '../../services/auth-cliente-helper.service';
 
 @Component({
   selector: 'app-cadastro-cliente',
   standalone: true,
-  imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule, TmTextComponent, TmButtonComponent],
   templateUrl: './cadastro-cliente.component.html',
   styleUrl: './cadastro-cliente.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -17,6 +18,7 @@ export class CadastroClienteComponent {
   private readonly authClienteHelper = inject(AuthClienteHelperService);
 
   readonly cadastrado = output<void>();
+  readonly voltarLogin = output<void>();
 
   readonly form = this.fb.group({
     nome: ['', [Validators.required, Validators.minLength(3)]],
@@ -24,6 +26,7 @@ export class CadastroClienteComponent {
     celular: [''],
     senha: ['', [Validators.required, Validators.minLength(8)]],
     confirmarSenha: ['', [Validators.required]],
+    rememberMe: [false],
   });
 
   readonly isLoading = signal(false);
@@ -35,7 +38,7 @@ export class CadastroClienteComponent {
       return;
     }
 
-    const { nome, email, celular, senha, confirmarSenha } = this.form.value;
+    const { nome, email, celular, senha, confirmarSenha, rememberMe } = this.form.value;
     if (senha !== confirmarSenha) {
       this.errorMessage.set('As senhas não coincidem.');
       return;
@@ -45,13 +48,12 @@ export class CadastroClienteComponent {
     this.errorMessage.set(null);
 
     try {
-      const result = await this.agendamentoPublicoService.cadastro({
+      await this.agendamentoPublicoService.cadastro({
         nome: nome!,
         email: email!,
         senha: senha!,
         celular: celular || undefined,
-      });
-      this.authClienteHelper.iniciarSessao(result.cliente, result.token);
+      }, rememberMe ?? false);
       this.cadastrado.emit();
     } catch (err) {
       this.errorMessage.set(this.extrairMensagemErro(err));

@@ -11,4 +11,8 @@ import { ProfissionalDisponivel } from '../../../../../core/models/agendamento-p
 export class PassoProfissionalComponent {
   readonly profissionais = input.required<ProfissionalDisponivel[]>();
   readonly selecionado = output<ProfissionalDisponivel>();
+
+  inicial(nome: string): string {
+    return nome.trim().charAt(0).toUpperCase();
+  }
 }

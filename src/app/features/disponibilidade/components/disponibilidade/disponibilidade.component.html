@@ -22,7 +22,7 @@
   </div>
 
   @if (isAdmin()) {
-    <div class="card shadow-sm border-0 mb-4">
+    <div class="card shadow-sm border-0 mb-4 custom-dark-card">
       <div class="card-body p-4">
         <div class="row align-items-center">
           <div class="col-lg-6 col-12">
@@ -58,7 +58,7 @@
   } @else {
     <form [formGroup]="form" class="row g-4">
       <div class="col-lg-7 col-12">
-        <div class="card shadow-sm border-0 h-100">
+        <div class="card shadow-sm border-0 h-100 custom-dark-card">
           <div class="card-header bg-transparent border-0 pt-4 px-4">
             <h2 class="h5 fw-bold text-primary mb-0 custom-dark-text">
               <i class="fas fa-clock me-2"></i>{{ 'DISPONIBILIDADE.SECTION_DIAS' | translate }}
@@ -74,6 +74,7 @@
                       type="checkbox"
                       formControlName="trabalhaHoje"
                       role="switch"
+                      (change)="onTrabalhaHojeChange(i, $event)"
                     />
                     <span class="form-check-label fw-semibold custom-dark-text">
                       {{ traduzir(diaConfig.i18nKey) }}
@@ -96,14 +97,14 @@
                         <button
                           type="button"
                           class="btn btn-outline-danger btn-sm"
-                          [attr.aria-label]="'DISPONIBILIDADE.REMOVER_INTERVALO' | translate"
+                          [attr.aria-label]="'DISPONIBILIDADE.REMOVER_HORARIO' | translate"
                           (click)="removerIntervalo(i, j)"
                         >
                           <i class="fas fa-minus"></i>
                         </button>
                         @if (intervalo.errors?.['intervaloInvalido']) {
                           <span class="text-danger small w-100">
-                            {{ 'DISPONIBILIDADE.INTERVALO_INVALIDO' | translate }}
+                            {{ 'DISPONIBILIDADE.HORARIO_INVALIDO' | translate }}
                           </span>
                         }
                       </div>
@@ -113,7 +114,7 @@
                       class="btn btn-sm btn-outline-primary"
                       (click)="adicionarIntervalo(i)"
                     >
-                      <i class="fas fa-plus me-1"></i>{{ 'DISPONIBILIDADE.ADICIONAR_INTERVALO' | translate }}
+                      <i class="fas fa-plus me-1"></i>{{ 'DISPONIBILIDADE.ADICIONAR_HORARIO' | translate }}
                     </button>
                   </div>
                 </div>
@@ -124,7 +125,7 @@
       </div>
 
       <div class="col-lg-5 col-12">
-        <div class="card shadow-sm border-0 h-100">
+        <div class="card shadow-sm border-0 h-100 custom-dark-card">
           <div class="card-header bg-transparent border-0 pt-4 px-4">
             <h2 class="h5 fw-bold text-primary mb-0 custom-dark-text">
               <i class="fas fa-scissors me-2"></i>{{ 'DISPONIBILIDADE.SECTION_SERVICOS' | translate }}

@@ -6,3 +6,17 @@
     background: rgba(var(--tm-primary-rgb, 13, 110, 253), 0.04);
   }
 }
+
+:host-context([data-theme='dark']) {
+  .conflito-item {
+    border-bottom-color: rgba(255, 255, 255, 0.08);
+
+    &:hover {
+      background: rgba(var(--tm-primary-rgb, 13, 110, 253), 0.12);
+    }
+  }
+
+  .custom-dark-text {
+    color: #ffffff !important;
+  }
+}
