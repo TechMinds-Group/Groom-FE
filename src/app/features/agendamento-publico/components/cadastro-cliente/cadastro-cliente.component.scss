@@ -1,0 +1,53 @@
+::ng-deep .cadastro-cliente__submit .btn {
+  height: 48px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  border-radius: 12px;
+  background: linear-gradient(135deg, var(--tm-primary), color-mix(in srgb, var(--tm-primary) 60%, #6610f2));
+  border: none;
+  box-shadow: 0 8px 20px -6px rgba(13, 110, 253, 0.5);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+  &:hover:not(:disabled) {
+    transform: translateY(-1px);
+    box-shadow: 0 12px 24px -6px rgba(13, 110, 253, 0.6);
+  }
+}
+
+.cadastro-cliente__login-link {
+  margin-top: 1.25rem;
+  text-align: center;
+  font-size: 0.875rem;
+  color: var(--tm-text-secondary);
+}
+
+.cadastro-cliente__login-link-btn {
+  padding: 0;
+  border: none;
+  background: none;
+  font-weight: 700;
+  color: var(--tm-primary);
+  cursor: pointer;
+
+  &:hover {
+    text-decoration: underline;
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--tm-primary);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+}
+
+:host-context([data-theme='dark']) {
+  .text-muted {
+    color: var(--tm-text-secondary) !important;
+  }
+
+  .alert-danger {
+    background-color: rgba(207, 102, 121, 0.1);
+    color: #cf6679;
+    border-color: rgba(207, 102, 121, 0.2);
+  }
+}

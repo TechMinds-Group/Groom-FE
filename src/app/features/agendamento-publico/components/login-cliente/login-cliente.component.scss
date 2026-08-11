@@ -1,0 +1,150 @@
+.agendamento-login {
+  position: relative;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  background:
+    radial-gradient(ellipse at top left, rgba(13, 110, 253, 0.08), transparent 55%),
+    radial-gradient(ellipse at bottom right, rgba(13, 110, 253, 0.05), transparent 55%),
+    var(--tm-bg-color);
+
+  .text-muted {
+    color: var(--tm-text-secondary) !important;
+  }
+
+  &__card {
+    width: 100%;
+    max-width: 440px;
+    padding: 2.5rem;
+    border: 1px solid var(--tm-border-color);
+    border-radius: 20px;
+    background: var(--tm-surface-color);
+    box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.2);
+
+    ::ng-deep .form-label {
+      color: var(--tm-text-primary) !important;
+    }
+
+    ::ng-deep .agendamento-login__submit .btn {
+      height: 48px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      border-radius: 12px;
+      background: linear-gradient(135deg, var(--tm-primary), color-mix(in srgb, var(--tm-primary) 60%, #6610f2));
+      border: none;
+      box-shadow: 0 8px 20px -6px rgba(13, 110, 253, 0.5);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+      &:hover:not(:disabled) {
+        transform: translateY(-1px);
+        box-shadow: 0 12px 24px -6px rgba(13, 110, 253, 0.6);
+      }
+    }
+  }
+
+  &__tema {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    z-index: 5;
+    width: 2.5rem;
+    height: 2.5rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--tm-border-color);
+    border-radius: 12px;
+    background: var(--tm-surface-color);
+    color: var(--tm-text-secondary);
+    font-size: 1.05rem;
+    line-height: 1;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+
+    &:hover,
+    &:focus-visible {
+      border-color: color-mix(in srgb, var(--tm-primary) 40%, var(--tm-border-color));
+      background: color-mix(in srgb, var(--tm-primary) 6%, var(--tm-surface-color));
+      color: var(--tm-primary);
+      outline: none;
+    }
+
+    &:active {
+      transform: translateY(1px);
+    }
+  }
+
+  &__toggle {
+    display: none;
+  }
+
+  &__cadastro-link {
+    margin-top: 1.25rem;
+    text-align: center;
+    font-size: 0.875rem;
+    color: var(--tm-text-secondary);
+  }
+
+  &__cadastro-link-btn {
+    padding: 0;
+    border: none;
+    background: none;
+    font-weight: 700;
+    color: var(--tm-primary);
+    cursor: pointer;
+
+    &:hover {
+      text-decoration: underline;
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--tm-primary);
+      outline-offset: 2px;
+      border-radius: 4px;
+    }
+  }
+
+  &__divisor {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin: 1.5rem 0;
+    color: var(--tm-text-secondary);
+    font-size: 0.8rem;
+
+    &::before,
+    &::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--tm-border-color);
+    }
+  }
+}
+
+:host-context([data-theme='dark']) {
+  .agendamento-login {
+    background:
+      radial-gradient(ellipse at top left, rgba(13, 110, 253, 0.12), transparent 55%),
+      radial-gradient(ellipse at bottom right, rgba(13, 110, 253, 0.08), transparent 55%),
+      var(--tm-bg-color);
+
+    .text-muted {
+      color: var(--tm-text-secondary) !important;
+    }
+
+    .alert-danger {
+      background-color: rgba(207, 102, 121, 0.1);
+      color: #cf6679;
+      border-color: rgba(207, 102, 121, 0.2);
+    }
+  }
+}
+
+@media (max-width: 575.98px) {
+  .agendamento-login__card {
+    padding: 1.75rem 1.25rem;
+  }
+}

@@ -1,0 +1,76 @@
+<form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
+  <div class="mb-3">
+    <tm-text
+      formControlName="nome"
+      [control]="form.controls.nome"
+      label="Nome completo"
+      icon="fa-solid fa-user text-muted"
+      placeholder="Seu nome"
+    ></tm-text>
+  </div>
+
+  <div class="mb-3">
+    <tm-text
+      formControlName="email"
+      [control]="form.controls.email"
+      label="E-mail"
+      type="email"
+      icon="fa-solid fa-envelope text-muted"
+      placeholder="voce@email.com"
+    ></tm-text>
+  </div>
+
+  <div class="mb-3">
+    <tm-text
+      formControlName="celular"
+      [control]="form.controls.celular"
+      label="Celular (opcional)"
+      mask="phone"
+      icon="fa-solid fa-phone text-muted"
+      placeholder="(00) 00000-0000"
+    ></tm-text>
+  </div>
+
+  <div class="mb-3">
+    <tm-text
+      formControlName="senha"
+      [control]="form.controls.senha"
+      label="Senha"
+      type="password"
+      icon="fa-solid fa-lock text-muted"
+      placeholder="Mínimo 8 caracteres"
+    ></tm-text>
+  </div>
+
+  <div class="mb-3">
+    <tm-text
+      formControlName="confirmarSenha"
+      [control]="form.controls.confirmarSenha"
+      label="Confirmar senha"
+      type="password"
+      icon="fa-solid fa-lock text-muted"
+      placeholder="Repita a senha"
+    ></tm-text>
+  </div>
+
+  @if (errorMessage()) {
+    <div class="alert alert-danger py-2">{{ errorMessage() }}</div>
+  }
+
+  <tm-button
+    type="submit"
+    variant="primary"
+    [isFullWidth]="true"
+    label="Criar conta"
+    icon="fa-solid fa-user-plus me-2"
+    [loading]="isLoading()"
+    class="cadastro-cliente__submit"
+  ></tm-button>
+
+  <p class="cadastro-cliente__login-link mb-0">
+    Já tem uma conta?
+    <button type="button" class="cadastro-cliente__login-link-btn" (click)="voltarLogin.emit()">
+      Entrar
+    </button>
+  </p>
+</form>

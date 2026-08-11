@@ -1,0 +1,95 @@
+.agendamento-confirmacao {
+  &__icone {
+    width: 72px;
+    height: 72px;
+    margin-inline: auto;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, var(--tm-success), color-mix(in srgb, var(--tm-success) 60%, #028d6c));
+    color: var(--tm-white);
+    font-size: 1.8rem;
+    box-shadow: 0 12px 28px -8px rgba(25, 135, 84, 0.5);
+    animation: agendamento-confirmacao-pop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  &__subtitulo {
+    font-size: 0.9rem;
+    color: var(--tm-text-secondary);
+  }
+
+  &__card {
+    padding: 1rem 1.25rem;
+    border: 1px solid var(--tm-border-color);
+    border-radius: 16px;
+    background: var(--tm-surface-color);
+  }
+
+  &__linha {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.35rem 0;
+
+    & + & {
+      border-top: 1px solid var(--tm-border-color);
+      margin-top: 0.35rem;
+      padding-top: 0.7rem;
+    }
+  }
+
+  &__rotulo {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.85rem;
+    color: var(--tm-text-secondary);
+
+    i {
+      width: 16px;
+      font-size: 0.8rem;
+      text-align: center;
+      color: var(--tm-success);
+    }
+  }
+
+  &__valor {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--tm-text-primary);
+    text-align: right;
+    word-break: break-word;
+  }
+
+  &__linha--total {
+    .agendamento-confirmacao__rotulo {
+      font-weight: 700;
+      color: var(--tm-text-primary);
+    }
+  }
+
+  &__total {
+    font-size: 1.15rem;
+    font-weight: 800;
+    color: var(--tm-success);
+  }
+}
+
+@keyframes agendamento-confirmacao-pop {
+  0% {
+    transform: scale(0.5);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+:host-context([data-theme='dark']) {
+  .text-muted {
+    color: var(--tm-text-secondary) !important;
+  }
+}

@@ -78,3 +78,100 @@
 .icon-shape {
   background-color: rgba(37, 99, 235, 0.08); /* Light blue background for light mode */
 }
+
+/* =====================================================================
+   Responsividade Mobile — Calendário Mensal (≤ md Bootstrap / < 992px)
+   Compacta o cal-month-view para caber em telas pequenas sem scroll horizontal.
+   ===================================================================== */
+@media (max-width: 991.98px) {
+  :host ::ng-deep {
+    /* Container do calendário sem padding horizontal excessivo */
+    .tm-calendar-container {
+      padding: 0;
+    }
+
+    /* Cabeçalho de controles — reduz espaçamento vertical entre as 3 fileiras empilhadas */
+    .tm-calendar-container > .row {
+      margin-bottom: 0.5rem !important;
+      --bs-gutter-y: 0.5rem;
+    }
+
+    /* Botões de navegação (chevron / Hoje) e view switcher — compactos */
+    .tm-calendar-container > .row .btn-group .btn {
+      padding: 0.3rem 0.7rem !important;
+      font-size: 0.8rem !important;
+    }
+
+    /* Badges de data (dia da semana / mês / ano) — compactas */
+    .tm-calendar-container > .row .badge {
+      font-size: 0.72rem !important;
+      padding: 0.3rem 0.6rem !important;
+      white-space: nowrap;
+    }
+
+    /* Região de filtros — margem inferior reduzida */
+    .tm-calendar-container > .mb-4 {
+      margin-bottom: 0.5rem !important;
+    }
+
+    /* Cabeçalho dos dias da semana — fonte menor e padding reduzido */
+    .cal-month-view .cal-header {
+      font-size: 0.6rem !important;
+      padding: 6px 0 !important;
+      letter-spacing: 0;
+    }
+
+    /* Células dos dias — altura mínima reduzida */
+    .cal-month-view .cal-day-cell {
+      min-height: 48px !important;
+    }
+
+    /* Número do dia — fonte menor */
+    .cal-month-view .cal-day-number {
+      font-size: 0.75rem !important;
+      margin-top: 2px !important;
+      margin-right: 4px !important;
+      float: right;
+    }
+
+    /* Eventos no modo mês — compactos, sem padding lateral */
+    .cal-month-view .cal-events {
+      margin: 0 2px 2px !important;
+    }
+
+    .cal-month-view .cal-event-title {
+      font-size: 0.6rem !important;
+    }
+
+    /* Evento individual — altura mínima e padding reduzido */
+    .cal-event {
+      padding: 1px 4px !important;
+      font-size: 0.6rem !important;
+      border-left-width: 2px !important;
+    }
+
+    /* Badge "mais X eventos" — menor */
+    .cal-month-view .cal-open-day-events {
+      font-size: 0.7rem !important;
+    }
+
+    /* View de Dia em mobile — garantir scroll vertical e altura mínima adequada
+       (cabeçalho compactado libera mais altura para o calendário) */
+    .cal-day-view {
+      min-height: calc(100vh - 170px);
+      overflow-y: auto;
+    }
+
+    /* Hora na view de dia — fonte legível mas compacta */
+    .cal-day-view .cal-time {
+      font-size: 0.7rem !important;
+      width: 44px !important;
+    }
+
+    /* Segmentos de hora — altura maior para facilitar toque (já definido pela lib, reforço) */
+    .cal-day-view .cal-hour-segment {
+      height: 50px !important;
+    }
+  }
+}
+

@@ -1,0 +1,27 @@
+<h2 class="agendamento-passo__titulo">Escolha o serviço</h2>
+
+@if (servicos().length === 0) {
+  <p class="text-muted mb-0">Nenhum serviço disponível para este profissional.</p>
+} @else {
+  <div class="agendamento-servicos">
+    @for (servico of servicos(); track servico.id) {
+      <button
+        type="button"
+        class="agendamento-servicos__card"
+        (click)="selecionado.emit(servico)"
+      >
+        <span class="agendamento-servicos__icone">
+          <i class="fa-solid fa-scissors"></i>
+        </span>
+        <span class="agendamento-servicos__info">
+          <span class="agendamento-servicos__nome">{{ servico.nome }}</span>
+          <span class="agendamento-servicos__duracao">
+            <i class="fa-regular fa-clock"></i> {{ servico.duracao }} min
+          </span>
+        </span>
+        <span class="agendamento-servicos__preco">{{ formatarPreco(servico.preco) }}</span>
+        <i class="fa-solid fa-chevron-right agendamento-servicos__seta"></i>
+      </button>
+    }
+  </div>
+}

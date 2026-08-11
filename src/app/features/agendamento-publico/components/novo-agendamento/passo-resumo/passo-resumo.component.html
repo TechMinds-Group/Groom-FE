@@ -1,0 +1,53 @@
+<h2 class="agendamento-passo__titulo">Confirme seu agendamento</h2>
+
+<div class="agendamento-resumo">
+  <div class="agendamento-resumo__bloco">
+    <div class="agendamento-resumo__linha">
+      <span class="agendamento-resumo__rotulo">
+        <i class="fa-solid fa-user"></i> Profissional
+      </span>
+      <span class="agendamento-resumo__valor">{{ profissional()?.nome }}</span>
+    </div>
+    <div class="agendamento-resumo__linha">
+      <span class="agendamento-resumo__rotulo">
+        <i class="fa-solid fa-scissors"></i> Serviço
+      </span>
+      <span class="agendamento-resumo__valor">{{ servico()?.nome }}</span>
+    </div>
+  </div>
+
+  <div class="agendamento-resumo__bloco">
+    <div class="agendamento-resumo__linha">
+      <span class="agendamento-resumo__rotulo">
+        <i class="fa-solid fa-calendar-days"></i> Data
+      </span>
+      <span class="agendamento-resumo__valor">{{ formatarData(data() ?? '') }}</span>
+    </div>
+    <div class="agendamento-resumo__linha">
+      <span class="agendamento-resumo__rotulo">
+        <i class="fa-regular fa-clock"></i> Horário
+      </span>
+      <span class="agendamento-resumo__valor">{{ horario() }}h</span>
+    </div>
+    <div class="agendamento-resumo__linha">
+      <span class="agendamento-resumo__rotulo">
+        <i class="fa-solid fa-hourglass-half"></i> Duração
+      </span>
+      <span class="agendamento-resumo__valor">{{ servico()?.duracao }} min</span>
+    </div>
+  </div>
+
+  <div class="agendamento-resumo__total">
+    <span class="agendamento-resumo__total-rotulo">Total a pagar</span>
+    <span class="agendamento-resumo__total-valor">{{ formatarPreco(servico()?.preco ?? 0) }}</span>
+  </div>
+</div>
+
+<tm-button
+  variant="primary"
+  [isFullWidth]="true"
+  label="Confirmar agendamento"
+  icon="fa-solid fa-calendar-check me-2"
+  [loading]="isLoading()"
+  (onClick)="confirmar.emit()"
+></tm-button>

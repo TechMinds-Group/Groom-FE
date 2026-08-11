@@ -1,0 +1,42 @@
+<div class="text-center">
+  <div class="agendamento-confirmacao__icone mb-3">
+    <i class="fas fa-check"></i>
+  </div>
+  <h2 class="h4 mb-1">Agendamento confirmado!</h2>
+  <p class="agendamento-confirmacao__subtitulo mb-4">
+    Tudo certo! Enviamos os detalhes para você. Nos vemos lá!
+  </p>
+
+  <div class="agendamento-confirmacao__card text-start mb-4">
+    <div class="agendamento-confirmacao__linha">
+      <span class="agendamento-confirmacao__rotulo">
+        <i class="fa-solid fa-user"></i> Profissional
+      </span>
+      <span class="agendamento-confirmacao__valor">{{ agendamento().profissionalNome }}</span>
+    </div>
+    <div class="agendamento-confirmacao__linha">
+      <span class="agendamento-confirmacao__rotulo">
+        <i class="fa-solid fa-scissors"></i> Serviço
+      </span>
+      <span class="agendamento-confirmacao__valor">{{ agendamento().servicoNome }}</span>
+    </div>
+    <div class="agendamento-confirmacao__linha">
+      <span class="agendamento-confirmacao__rotulo">
+        <i class="fa-solid fa-calendar-days"></i> Data
+      </span>
+      <span class="agendamento-confirmacao__valor">{{ formatarData(agendamento().dataInicio) }}</span>
+    </div>
+    <div class="agendamento-confirmacao__linha agendamento-confirmacao__linha--total">
+      <span class="agendamento-confirmacao__rotulo">Total</span>
+      <span class="agendamento-confirmacao__total">{{ formatarPreco(agendamento().servicoPreco) }}</span>
+    </div>
+  </div>
+
+  <tm-button
+    variant="outline-primary"
+    [isFullWidth]="true"
+    label="Fazer novo agendamento"
+    icon="fa-solid fa-calendar-plus me-2"
+    (onClick)="voltarInicio.emit()"
+  ></tm-button>
+</div>

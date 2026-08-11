@@ -1,5 +1,7 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './core/guards/auth.guard';
+import { clienteAuthGuard } from './core/guards/cliente-auth.guard';
+import { tenantResolver } from './core/services/tenant-resolver.service';
 import { MainLayoutComponent } from './layout/main-layout/main-layout.component';
 
 export const routes: Routes = [
@@ -28,7 +30,21 @@ export const routes: Routes = [
                 (c) => c.CalendarioComponent,
               ),
           },
+          {
+            path: 'disponibilidade',
+            loadComponent: () =>
+              import(
+                './features/disponibilidade/components/disponibilidade/disponibilidade.component'
+              ).then((m) => m.DisponibilidadeComponent),
+          },
         ],
+      },
+      {
+        path: 'agendamento-estabelecimento',
+        loadComponent: () =>
+          import(
+            './features/agendamento-estabelecimento/components/agendamento-estabelecimento/agendamento-estabelecimento.component'
+          ).then((m) => m.AgendamentoEstabelecimentoComponent),
       },
       {
         path: 'gestao',
@@ -155,6 +171,27 @@ export const routes: Routes = [
     path: 'login',
     loadComponent: () =>
       import('./features/auth/login/login.component').then((m) => m.LoginComponent),
+  },
+  {
+    path: 'agendamento/:estabelecimento',
+    resolve: { tenant: tenantResolver },
+    children: [
+      {
+        path: 'login',
+        loadComponent: () =>
+          import('./features/agendamento-publico/components/login-cliente/login-cliente.component').then(
+            (m) => m.LoginClienteComponent,
+          ),
+      },
+      {
+        path: 'novo',
+        canActivate: [clienteAuthGuard],
+        loadComponent: () =>
+          import('./features/agendamento-publico/components/novo-agendamento/novo-agendamento.component').then(
+            (m) => m.NovoAgendamentoComponent,
+          ),
+      },
+    ],
   },
   {
     path: 'visualizar/:token',
