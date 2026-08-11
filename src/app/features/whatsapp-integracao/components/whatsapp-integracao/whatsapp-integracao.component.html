@@ -1,0 +1,239 @@
+<div class="container mt-5 mb-5">
+  <div class="row mb-4">
+    <div class="col-12">
+      <h1 class="h2 text-primary fw-bold mb-2 custom-dark-text">
+        <i class="fab fa-whatsapp me-2"></i>WhatsApp
+      </h1>
+      <p class="text-muted custom-dark-text">
+        Conecte o WhatsApp da sua barbearia para atendimento automático.
+      </p>
+    </div>
+  </div>
+
+  @if (carregando()) {
+    <div class="text-center py-5">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Carregando...</span>
+      </div>
+      <p class="mt-2 text-muted">Verificando status da conexão...</p>
+    </div>
+  } @else {
+    <!-- CONEXÃO -->
+    <div class="card border-0 shadow-sm p-4 custom-dark-card mb-4">
+      <div class="row align-items-center mb-3">
+        <div class="col-12 col-md-auto mb-2 mb-md-0">
+          <div class="d-flex align-items-center gap-2">
+            <i class="fas fa-circle fs-6" [class.text-success]="conectado()" [class.text-danger]="!conectado()"></i>
+            <h5 class="fw-bold mb-0 custom-dark-text">
+              {{ conectado() ? 'Conectado' : 'Desconectado' }}
+            </h5>
+          </div>
+        </div>
+        @if (!conectado()) {
+          <div class="col-12 col-md-auto">
+            <button
+              class="btn btn-success px-4 py-2 fw-bold w-100"
+              (click)="conectar()"
+              [disabled]="conectando()"
+            >
+              @if (conectando()) {
+                <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+              }
+              <i class="fab fa-whatsapp me-2"></i>
+              {{ qrCodeBase64() ? 'Gerar novo QR Code' : 'Conectar WhatsApp' }}
+            </button>
+          </div>
+        }
+      </div>
+
+      @if (qrCodeBase64(); as qr) {
+        <div class="text-center py-3">
+          <img
+            [src]="qr.startsWith('data:') ? qr : 'data:image/png;base64,' + qr"
+            alt="QR Code WhatsApp"
+            class="img-fluid border rounded p-2 qr-code-img"
+          />
+          <p class="text-muted small mt-3 mb-0">
+            Abra o <strong>WhatsApp</strong> no seu celular, vá em <strong>Aparelhos conectados</strong> e toque em <strong>Conectar um dispositivo</strong>.
+          </p>
+        </div>
+      }
+
+      @if (erro(); as msg) {
+        <div class="alert alert-danger d-flex align-items-center gap-2 mt-2" role="alert">
+          <i class="fas fa-exclamation-circle"></i>
+          <span>{{ msg }}</span>
+        </div>
+      }
+
+      @if (conectado()) {
+        <div class="alert alert-success d-flex align-items-center gap-2 mt-2" role="alert">
+          <i class="fas fa-check-circle"></i>
+          <span class="fw-semibold custom-dark-text">{{ statusTexto() }}</span>
+        </div>
+
+        @if (dispositivos().length > 0) {
+          <hr class="my-3" />
+          <div class="d-flex align-items-center gap-2 mb-2">
+            <i class="fas fa-mobile-alt text-success"></i>
+            <span class="fw-semibold small custom-dark-text">Dispositivo Conectado</span>
+          </div>
+          @for (dev of dispositivos(); track dev.id) {
+            <div class="d-flex align-items-center gap-3 py-2">
+              @if (dev.profilePicUrl) {
+                <img
+                  [src]="dev.profilePicUrl"
+                  alt="Foto"
+                  class="rounded-circle perfil-img"
+                />
+              } @else {
+                <div class="rounded-circle bg-success-subtle d-flex align-items-center justify-content-center avatar-placeholder">
+                  <i class="fab fa-whatsapp text-success"></i>
+                </div>
+              }
+              <div>
+                <div class="fw-semibold custom-dark-text">{{ dev.profileName || 'WhatsApp' }}</div>
+                <div class="text-muted small custom-dark-text">
+                  {{ formatarNumero(dev.ownerJid) }}
+                  <span class="mx-1">•</span>
+                  {{ dev.createdAt | date:'dd/MM/yyyy' }}
+                </div>
+              </div>
+            </div>
+          }
+        }
+      }
+    </div>
+
+    <!-- CONFIGURAÇÕES -->
+    <div class="card border-0 shadow-sm p-4 custom-dark-card mb-4">
+      <div class="d-flex align-items-center gap-2 mb-4">
+        <i class="fas fa-cog text-success"></i>
+        <h5 class="fw-bold mb-0 custom-dark-text">Configurações de Atendimento</h5>
+      </div>
+
+      <form [formGroup]="form">
+        <div class="mb-3">
+          <tm-text
+            formControlName="welcomeMessage"
+            [textarea]="true"
+            [rows]="5"
+            label="Mensagem de Boas-Vindas"
+            placeholder="Digite a mensagem de boas-vindas que será enviada automaticamente..."
+            icon="fas fa-comment-dots"
+          ></tm-text>
+          <div class="form-text">
+            Use <code>{{ '{' }}nome{{ '}' }}</code> para incluir o nome do cliente. Se deixar vazio, será usada a mensagem padrão do sistema.
+          </div>
+        </div>
+
+        <div class="mb-3">
+          <tm-text
+            formControlName="schedulingLink"
+            type="text"
+            label="Link de Agendamento"
+            placeholder="https://exemplo.com/agendar"
+            icon="fas fa-link"
+          ></tm-text>
+          <div class="form-text">Cole o link do seu sistema de agendamento. Cliente que escolher a opção "Agendar" será direcionado para este link.</div>
+        </div>
+
+        <hr class="my-4" />
+
+        <div class="form-check form-switch mb-3">
+          <input
+            class="form-check-input"
+            type="checkbox"
+            role="switch"
+            id="testMode"
+            formControlName="testMode"
+          />
+          <label class="form-check-label" for="testMode">
+            <i class="fas fa-flask me-1"></i>Modo Teste
+          </label>
+          <div class="form-text">Quando ativo, apenas os números abaixo serão atendidos automaticamente.</div>
+        </div>
+
+        @if (form.get('testMode')?.value) {
+          <div class="row g-3 mb-3">
+            <div class="col-md-4">
+              <tm-text
+                formControlName="testNumber1"
+                label="Número 1 (teste)"
+                placeholder="(11) 99999-9999"
+                mask="phone"
+                [maxlength]="15"
+                icon="fas fa-phone"
+              ></tm-text>
+            </div>
+            <div class="col-md-4">
+              <tm-text
+                formControlName="testNumber2"
+                label="Número 2 (teste)"
+                placeholder="(11) 99999-9999"
+                mask="phone"
+                [maxlength]="15"
+                icon="fas fa-phone"
+              ></tm-text>
+            </div>
+            <div class="col-md-4">
+              <tm-text
+                formControlName="testNumber3"
+                label="Número 3 (teste)"
+                placeholder="(11) 99999-9999"
+                mask="phone"
+                [maxlength]="15"
+                icon="fas fa-phone"
+              ></tm-text>
+            </div>
+          </div>
+        }
+
+        @if (configMensagem(); as msg) {
+          <div
+            class="alert d-flex align-items-center gap-2 mt-2"
+            [class.alert-success]="!msg.startsWith('Erro')"
+            [class.alert-danger]="msg.startsWith('Erro')"
+            role="alert"
+          >
+            <i class="fas" [class.fa-check-circle]="!msg.startsWith('Erro')" [class.fa-exclamation-circle]="msg.startsWith('Erro')"></i>
+            <span>{{ msg }}</span>
+          </div>
+        }
+
+        <button
+          class="btn btn-primary px-4 fw-bold"
+          (click)="salvarConfig()"
+          [disabled]="configSalvando()"
+        >
+          @if (configSalvando()) {
+            <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+          }
+          <i class="fas fa-save me-2"></i>
+          Salvar Configurações
+        </button>
+      </form>
+    </div>
+
+    <!-- COMO FUNCIONA -->
+    <details class="card border-0 shadow-sm p-4 custom-dark-card">
+      <summary class="fw-semibold custom-dark-text" style="cursor: pointer;">
+        <i class="fas fa-info-circle text-info me-2"></i>Como funciona?
+      </summary>
+      <ol class="mb-0 ps-3 mt-3 custom-dark-text">
+        <li class="mb-1">Abra o <strong>WhatsApp</strong> no seu celular.</li>
+        <li class="mb-1">Toque nos <strong>três pontinhos</strong> (ou engrenagem) e vá em <strong>"Aparelhos conectados"</strong>.</li>
+        <li class="mb-1">Toque em <strong>"Conectar um dispositivo"</strong>.</li>
+        <li class="mb-1">Aponte a câmera do celular para o <strong>QR Code</strong> que aparece na tela acima.</li>
+        <li class="mb-1">Pronto! Após conectar, seus clientes serão atendidos automaticamente.</li>
+      </ol>
+      <div class="alert alert-warning d-flex align-items-center gap-2 mt-3 mb-0" role="alert">
+        <i class="fas fa-exclamation-triangle"></i>
+        <span>
+          Se você já usa outro sistema de mensagens automáticas no WhatsApp,
+          <strong>desconecte-o antes</strong> de conectar o Groom.
+        </span>
+      </div>
+    </details>
+  }
+</div>

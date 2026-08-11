@@ -117,8 +117,20 @@ export const routes: Routes = [
       },
       {
         path: 'configuracoes',
-        loadComponent: () =>
-          import('./features/configuracoes/configuracoes.component').then((m) => m.ConfiguracoesComponent),
+        children: [
+          {
+            path: '',
+            loadComponent: () =>
+              import('./features/configuracoes/configuracoes.component').then((m) => m.ConfiguracoesComponent),
+          },
+          {
+            path: 'whatsapp',
+            loadComponent: () =>
+              import('./features/whatsapp-integracao/components/whatsapp-integracao/whatsapp-integracao.component').then(
+                (m) => m.WhatsappIntegracaoComponent,
+              ),
+          },
+        ],
       },
       {
         path: 'users',
