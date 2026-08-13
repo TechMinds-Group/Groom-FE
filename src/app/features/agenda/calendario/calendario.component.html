@@ -1,14 +1,18 @@
-<div class="container-fluid py-2 py-lg-4">
+<div class="container-fluid px-1 px-sm-3 py-2 py-lg-4">
   <div class="d-flex align-items-center justify-content-between mb-2 mb-lg-3">
-    <h2 class="h5 mb-0">{{ tituloAgenda() }}</h2>
+    <h2 class="h6 h5-md fw-bold mb-0 text-truncate">{{ tituloAgenda() }}</h2>
   </div>
   <tm-calendar
     [(view)]="currentView"
     [viewDate]="viewDate()"
     [events]="events()"
     [showViewSwitcher]="true"
+    [dayStartHour]="dayStartHour()"
+    [dayEndHour]="dayEndHour()"
     (viewDateChange)="onDateChange($event)"
     (viewChange)="onViewChange($event)"
+    (dayClicked)="onDayClicked($event)"
+    (eventClicked)="onEventClicked($event)"
   >
     <div filters>
       <div class="d-flex gap-2">
@@ -20,4 +24,12 @@
       </div>
     </div>
   </tm-calendar>
+
+  <app-agenda-modal-dia
+    [(show)]="showModalDia"
+    [dataSelecionada]="dataSelecionadaModal()"
+    [agendamentos]="agendamentosFiltrados()"
+    (mudancaAgendamento)="carregarAgendamentos()"
+  ></app-agenda-modal-dia>
 </div>
+

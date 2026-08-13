@@ -1,17 +1,19 @@
-import { ChangeDetectionStrategy, Component, effect, ElementRef, inject, OnDestroy, OnInit, signal, viewChild } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, effect, ElementRef, inject, OnDestroy, OnInit, signal, viewChild } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { TmButtonComponent, TmTextComponent } from '@techminds-group/tm-angular-lib';
 import { AgendamentoPublicoService } from '../../../../core/services/agendamento-publico.service';
+import { EstabelecimentoInfo, EstabelecimentoService } from '../../../../core/services/estabelecimento.service';
 import { AuthClienteHelperService } from '../../services/auth-cliente-helper.service';
 import { GoogleOAuthClienteService } from '../../services/google-oauth-cliente.service';
 import { TemaPublicoService } from '../../services/tema-publico.service';
 import { CadastroClienteComponent } from '../cadastro-cliente/cadastro-cliente.component';
+import { AppFooterComponent } from '../../../../shared/components/footer/app-footer.component';
 
 @Component({
   selector: 'app-login-cliente',
   standalone: true,
-  imports: [ReactiveFormsModule, TmTextComponent, TmButtonComponent, CadastroClienteComponent],
+  imports: [ReactiveFormsModule, TmTextComponent, TmButtonComponent, CadastroClienteComponent, AppFooterComponent],
   templateUrl: './login-cliente.component.html',
   styleUrl: './login-cliente.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -20,6 +22,7 @@ export class LoginClienteComponent implements OnInit, OnDestroy {
   private readonly fb = inject(FormBuilder);
   private readonly router = inject(Router);
   private readonly agendamentoPublicoService = inject(AgendamentoPublicoService);
+  private readonly estabelecimentoService = inject(EstabelecimentoService);
   private readonly authClienteHelper = inject(AuthClienteHelperService);
   private readonly googleOAuthCliente = inject(GoogleOAuthClienteService);
 
@@ -27,6 +30,12 @@ export class LoginClienteComponent implements OnInit, OnDestroy {
 
   /** Tema ativo (claro/escuro) para exibir o ícone sol/lua correspondente. */
   readonly temaAtivo = this.temaPublico.tema;
+
+  /** Dados da marca/identidade do estabelecimento */
+  readonly estabelecimentoInfo = signal<EstabelecimentoInfo | null>(null);
+
+  /** Logo com URL absoluta da API (imagens são servidas em /uploads). */
+  readonly logoUrlExibicao = computed(() => this.estabelecimentoService.resolverUrl(this.estabelecimentoInfo()?.logoUrl));
 
   private readonly googleButton = viewChild<ElementRef<HTMLDivElement>>('googleButton');
 
@@ -54,6 +63,19 @@ export class LoginClienteComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.authClienteHelper.restaurarSessao();
     void this.verificarSessao();
+    void this.carregarInfoEstabelecimento();
+  }
+
+  private async carregarInfoEstabelecimento(): Promise<void> {
+    const slug = this.agendamentoPublicoService.estabelecimento();
+    if (slug) {
+      try {
+        const info = await this.estabelecimentoService.carregarInfoPublico(slug);
+        this.estabelecimentoInfo.set(info);
+      } catch {
+        // Fallback gracioso
+      }
+    }
   }
 
   private async verificarSessao(): Promise<void> {

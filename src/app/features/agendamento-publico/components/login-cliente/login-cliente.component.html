@@ -1,83 +1,114 @@
-<div class="agendamento-login">
-  <button
-    type="button"
-    class="agendamento-login__tema"
-    (click)="alternarTema()"
-    [attr.aria-label]="temaAtivo() === 'dark' ? 'Ativar tema claro' : 'Ativar tema escuro'"
-    title="Alternar tema"
-  >
-    @if (temaAtivo() === 'dark') {
-      <i class="fa-solid fa-sun"></i>
-    } @else {
-      <i class="fa-solid fa-moon"></i>
-    }
-  </button>
-  <div class="agendamento-login__card">
-    @if (aba() === 'login') {
-      <form [formGroup]="form" (ngSubmit)="onLogin()" novalidate>
-        <div class="mb-3">
-          <tm-text
-            formControlName="email"
-            [control]="form.controls.email"
-            label="E-mail"
-            type="email"
-            icon="fa-solid fa-envelope text-muted"
-            placeholder="voce@email.com"
-            autocomplete="email"
-          ></tm-text>
-        </div>
-
-        <div class="mb-3">
-          <tm-text
-            formControlName="senha"
-            [control]="form.controls.senha"
-            label="Senha"
-            type="password"
-            icon="fa-solid fa-lock text-muted"
-            placeholder="Sua senha"
-            autocomplete="current-password"
-          ></tm-text>
-        </div>
-
-        <div class="form-check mb-3">
-          <input
-            class="form-check-input"
-            type="checkbox"
-            formControlName="rememberMe"
-            id="rememberMe"
-          />
-          <label class="form-check-label" for="rememberMe">Manter conectado</label>
-        </div>
-
-        @if (errorMessage()) {
-          <div class="alert alert-danger py-2">{{ errorMessage() }}</div>
+<div class="agendamento-login-page">
+  <div class="agendamento-login">
+    <div class="agendamento-login__container">
+    <!-- Card de Login / Cadastro -->
+    <div class="agendamento-login__card">
+      <button
+        type="button"
+        class="agendamento-login__tema"
+        (click)="alternarTema()"
+        [attr.aria-label]="temaAtivo() === 'dark' ? 'Ativar tema claro' : 'Ativar tema escuro'"
+        title="Alternar tema"
+      >
+        @if (temaAtivo() === 'dark') {
+          <i class="fa-solid fa-sun"></i>
+        } @else {
+          <i class="fa-solid fa-moon"></i>
         }
+      </button>
 
-        <tm-button
-          type="submit"
-          variant="primary"
-          [isFullWidth]="true"
-          label="Entrar"
-          icon="fa-solid fa-right-to-bracket me-2"
-          [loading]="isLoading()"
-          class="agendamento-login__submit"
-        ></tm-button>
-      </form>
-
-      <div class="agendamento-login__divisor">
-        <span>ou continue com</span>
+      <!-- Header do Estabelecimento com Logo Redonda no Canto e Nome ao Lado -->
+      <div class="agendamento-login__brand-header mb-4">
+        <div
+          class="agendamento-login__logo-avatar"
+          [style.backgroundImage]="logoUrlExibicao() ? 'url(' + logoUrlExibicao() + ')' : 'none'"
+        >
+          @if (!logoUrlExibicao()) {
+            <i class="fa-solid fa-scissors"></i>
+          }
+        </div>
+        <div class="agendamento-login__brand-text">
+          <h1 class="agendamento-login__nome-estabelecimento mb-0">
+            {{ estabelecimentoInfo()?.nome || 'Agendamento Online' }}
+          </h1>
+          @if (estabelecimentoInfo()?.descricao) {
+            <p class="agendamento-login__descricao-estabelecimento mb-0">{{ estabelecimentoInfo()?.descricao }}</p>
+          }
+          @if (estabelecimentoInfo()?.telefone) {
+            <span class="agendamento-login__telefone-text">
+              <i class="fa-solid fa-phone me-1"></i>{{ estabelecimentoInfo()?.telefone }}
+            </span>
+          }
+        </div>
       </div>
+      @if (aba() === 'login') {
+        <form [formGroup]="form" (ngSubmit)="onLogin()" novalidate>
+          <div class="mb-3">
+            <tm-text
+              formControlName="email"
+              [control]="form.controls.email"
+              label="E-mail"
+              type="email"
+              icon="fa-solid fa-envelope"
+              placeholder="voce@email.com"
+              autocomplete="email"
+            ></tm-text>
+          </div>
 
-      <div #googleButton class="d-flex justify-content-center"></div>
+          <div class="mb-3">
+            <tm-text
+              formControlName="senha"
+              [control]="form.controls.senha"
+              label="Senha"
+              type="password"
+              icon="fa-solid fa-lock"
+              placeholder="Sua senha"
+              autocomplete="current-password"
+            ></tm-text>
+          </div>
 
-      <p class="agendamento-login__cadastro-link mb-0">
-        Não tem uma conta?
-        <button type="button" class="agendamento-login__cadastro-link-btn" (click)="setAba('cadastro')">
-          Cadastre-se
-        </button>
-      </p>
-    } @else {
-      <app-cadastro-cliente (cadastrado)="onCadastrado()" (voltarLogin)="setAba('login')" />
-    }
+          <div class="form-check mb-3">
+            <input
+              class="form-check-input"
+              type="checkbox"
+              formControlName="rememberMe"
+              id="rememberMe"
+            />
+            <label class="form-check-label" for="rememberMe">Manter conectado</label>
+          </div>
+
+          @if (errorMessage()) {
+            <div class="alert alert-danger py-2">{{ errorMessage() }}</div>
+          }
+
+          <tm-button
+            type="submit"
+            variant="primary"
+            [isFullWidth]="true"
+            label="Entrar"
+            icon="fa-solid fa-right-to-bracket me-2"
+            [loading]="isLoading()"
+            class="agendamento-login__submit"
+          ></tm-button>
+        </form>
+
+        <div class="agendamento-login__divisor">
+          <span>ou continue com</span>
+        </div>
+
+        <div #googleButton class="d-flex justify-content-center"></div>
+
+        <p class="agendamento-login__cadastro-link mb-0">
+          Não tem uma conta?
+          <button type="button" class="agendamento-login__cadastro-link-btn" (click)="setAba('cadastro')">
+            Cadastre-se
+          </button>
+        </p>
+      } @else {
+        <app-cadastro-cliente (cadastrado)="onCadastrado()" (voltarLogin)="setAba('login')" />
+      }
+      </div>
+    </div>
   </div>
+  <app-footer></app-footer>
 </div>

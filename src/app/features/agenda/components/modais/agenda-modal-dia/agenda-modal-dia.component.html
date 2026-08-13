@@ -1,0 +1,210 @@
+<tm-modal
+  [show]="show()"
+  [title]="('AGENDA_MODAL.TITLE' | translate) + ' - ' + formatData(dataSelecionada())"
+  [size]="'lg'"
+  [showFooter]="false"
+  (showChange)="show.set($event)"
+>
+  <div class="agenda-modal-content">
+    @if (!exibeForm()) {
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h6 class="mb-0 tm-text-muted fw-semibold">
+          Agendamentos ({{ agendamentosDoDia().length }})
+        </h6>
+        <tm-button
+          variant="primary"
+          size="sm"
+          icon="fas fa-plus"
+          [isFullWidth]="false"
+          [label]="'AGENDA_MODAL.BTN_NOVO' | translate"
+          (onClick)="abrirNovoForm()"
+        ></tm-button>
+      </div>
+
+      @if (agendamentosDoDia().length === 0) {
+        <div class="empty-state text-center py-4 text-muted custom-dark-text rounded-3">
+          <i class="far fa-calendar-times fs-3 mb-2 d-block tm-text-muted opacity-50"></i>
+          {{ 'AGENDA_MODAL.NO_EVENTS' | translate }}
+        </div>
+      } @else {
+        <div class="list-group list-group-flush gap-2">
+          @for (item of agendamentosDoDia(); track item.id) {
+            <div class="list-group-item agendamento-item border rounded-3 p-3 d-flex justify-content-between align-items-center flex-wrap gap-2">
+              <div class="d-flex align-items-center gap-3">
+                <div class="time-badge px-3 py-2 fw-bold rounded-2 text-center">
+                  {{ formatHora(item.dataInicio) }}
+                </div>
+                <div>
+                  <div class="fw-bold custom-dark-text">{{ item.clienteNome }}</div>
+                  <div class="text-muted custom-dark-text small">
+                    <i class="fas fa-cut me-1"></i>{{ item.servicoNome }}
+                    <span class="ms-2"><i class="fas fa-phone-alt me-1"></i>{{ item.clienteTelefone }}</span>
+                  </div>
+                  @if (item.observacoes) {
+                    <div class="text-muted custom-dark-text small fst-italic mt-1">"{{ item.observacoes }}"</div>
+                  }
+                </div>
+              </div>
+
+              <div class="d-flex align-items-center gap-2">
+                <span
+                  class="badge px-3 py-2 rounded-pill text-white fw-semibold"
+                  [style.background-color]="coresStatus[item.status]"
+                >
+                  {{ statusTraduzidoKey(item.status) | translate }}
+                </span>
+
+                @if (item.status !== 'cancelado') {
+                  <tm-button
+                    variant="outline-secondary"
+                    size="sm"
+                    icon="fas fa-pencil-alt"
+                    [isFullWidth]="false"
+                    (onClick)="abrirEdicao(item)"
+                  ></tm-button>
+                  <tm-button
+                    variant="outline-danger"
+                    size="sm"
+                    icon="fas fa-trash-alt"
+                    [isFullWidth]="false"
+                    (onClick)="confirmarCancelar(item)"
+                  ></tm-button>
+                }
+              </div>
+            </div>
+          }
+        </div>
+      }
+    } @else {
+      <!-- Formulário de Criação / Edição -->
+      <div class="form-panel border-0 p-3 rounded-3">
+        <h6 class="fw-bold mb-3 custom-dark-text">
+          {{ (agendamentoEditando() ? 'AGENDA_MODAL.FORM.TITLE_EDIT' : 'AGENDA_MODAL.FORM.TITLE_NEW') | translate }}
+        </h6>
+
+        <form [formGroup]="form" (ngSubmit)="salvarAgendamento()">
+          @if (!agendamentoEditando()) {
+            <div class="row g-3 mb-3">
+              <div class="col-md-6">
+                <tm-text
+                  formControlName="clienteNome"
+                  class="custom-dark-text"
+                  [label]="'AGENDA_MODAL.FORM.CLIENTE_NOME' | translate"
+                  [placeholder]="'AGENDA_MODAL.FORM.CLIENTE_NOME_PLACEHOLDER' | translate"
+                  icon="fas fa-user"
+                ></tm-text>
+              </div>
+              <div class="col-md-6">
+                <tm-text
+                  formControlName="clienteTelefone"
+                  class="custom-dark-text"
+                  [label]="'AGENDA_MODAL.FORM.CLIENTE_TELEFONE' | translate"
+                  [placeholder]="'AGENDA_MODAL.FORM.CLIENTE_TELEFONE_PLACEHOLDER' | translate"
+                  icon="fas fa-phone-alt"
+                ></tm-text>
+              </div>
+            </div>
+          }
+
+          <div class="row g-3 mb-3">
+            <div class="col-md-6">
+              <label class="form-label fw-medium">{{ 'AGENDA_MODAL.FORM.SERVICO' | translate }} *</label>
+              <tm-select
+                [options]="servicoOptions()"
+                [value]="form.get('servicoId')?.value"
+                [placeholder]="'AGENDA_MODAL.FORM.SERVICO_PLACEHOLDER' | translate"
+                (valueChange)="form.patchValue({ servicoId: $event })"
+              ></tm-select>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-medium">{{ 'AGENDA_MODAL.FORM.HORA_INICIO' | translate }} *</label>
+              <tm-time
+                [value]="form.get('horaInicio')?.value"
+                (valueChange)="form.patchValue({ horaInicio: $event })"
+              ></tm-time>
+            </div>
+          </div>
+
+          @if (agendamentoEditando()) {
+            <div class="mb-3">
+              <label class="form-label fw-medium">{{ 'AGENDA_MODAL.FORM.STATUS_DECISAO' | translate }}</label>
+              <tm-select
+                [options]="statusDecisionOptions"
+                [value]="form.get('statusDecisao')?.value"
+                (valueChange)="form.patchValue({ statusDecisao: $event })"
+              ></tm-select>
+            </div>
+          }
+
+          <div class="mb-3">
+            <tm-text
+              formControlName="observacoes"
+              class="custom-dark-text"
+              [label]="'AGENDA_MODAL.FORM.OBSERVACOES' | translate"
+              [placeholder]="'AGENDA_MODAL.FORM.OBSERVACOES_PLACEHOLDER' | translate"
+              [textarea]="true"
+              [rows]="2"
+            ></tm-text>
+          </div>
+
+          <div class="d-flex justify-content-end gap-2 mt-4">
+            <tm-button
+              variant="outline-secondary"
+              [isFullWidth]="false"
+              [label]="'AGENDA_MODAL.FORM.CANCELAR' | translate"
+              [disabled]="salvando()"
+              (onClick)="fecharForm()"
+            ></tm-button>
+
+            <tm-button
+              type="submit"
+              variant="primary"
+              [isFullWidth]="false"
+              [label]="'AGENDA_MODAL.FORM.SALVAR' | translate"
+              [loading]="salvando()"
+            ></tm-button>
+          </div>
+        </form>
+      </div>
+    }
+  </div>
+</tm-modal>
+
+<!-- Modal de Confirmação de Cancelamento -->
+<tm-modal
+  [show]="showCancelModal()"
+  [title]="'AGENDA_MODAL.CANCEL_MODAL.TITLE' | translate"
+  [size]="'sm'"
+  (showChange)="showCancelModal.set($event)"
+>
+  <div class="text-center py-2">
+    <p>
+      {{ 'AGENDA_MODAL.CANCEL_MODAL.CONFIRM_MSG' | translate }}
+      <strong>{{ agendamentoCancelando()?.clienteNome }}</strong>?
+    </p>
+
+    <div class="alert alert-warning small py-2 mb-3">
+      <i class="fas fa-exclamation-triangle me-1"></i>
+      {{ 'AGENDA_MODAL.CANCEL_MODAL.WARNING_MSG' | translate }}
+    </div>
+
+    <div class="d-flex justify-content-center gap-2">
+      <tm-button
+        variant="outline-secondary"
+        size="sm"
+        [isFullWidth]="false"
+        [label]="'AGENDA_MODAL.CANCEL_MODAL.CANCEL_BTN' | translate"
+        (onClick)="showCancelModal.set(false)"
+      ></tm-button>
+
+      <tm-button
+        variant="danger"
+        size="sm"
+        [isFullWidth]="false"
+        [label]="'AGENDA_MODAL.CANCEL_MODAL.CONFIRM_BTN' | translate"
+        [loading]="salvando()"
+        (onClick)="executarCancelamento()"
+      ></tm-button>
+    </div>
+  </div>
+</tm-modal>

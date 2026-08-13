@@ -1,0 +1,37 @@
+.agenda-modal-content {
+  min-height: 250px;
+
+  .time-badge {
+    min-width: 65px;
+    background-color: var(--tm-input-bg);
+    color: var(--tm-text-primary);
+    border: 1px solid var(--tm-border-color);
+  }
+
+  .empty-state {
+    background-color: var(--tm-input-bg);
+    border: 1px dashed var(--tm-border-color);
+  }
+
+  .agendamento-item {
+    background-color: transparent !important;
+    border-color: var(--tm-border-color) !important;
+    color: var(--tm-text-primary);
+  }
+
+  .form-panel {
+    background-color: var(--tm-input-bg);
+  }
+}
+
+:host-context([data-theme='dark']) {
+  .custom-dark-text {
+    color: #ffffff !important;
+  }
+
+  tm-modal {
+    ::ng-deep .form-label {
+      color: #ffffff !important;
+    }
+  }
+}

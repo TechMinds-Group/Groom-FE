@@ -10,10 +10,10 @@ import { TxKey } from '../../core/i18n/i18n.types';
 export class TranslatePipe implements PipeTransform {
   private readonly languageService = inject(LanguageService);
 
-  transform(key: TxKey): string {
+  transform(key: TxKey | string | null | undefined): string {
     if (!key) {
       return '';
     }
-    return this.languageService.translate(key);
+    return this.languageService.translate(key as TxKey);
   }
 }

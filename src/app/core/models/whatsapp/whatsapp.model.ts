@@ -24,3 +24,10 @@ export interface WhatsAppTenantConfig {
   testMode: boolean;
   testNumbers: string | null;
 }
+
+export interface ProfissionalWhatsAppConfig {
+  id?: string;
+  profissionalId: string;
+  numero: string | null;
+  profissionalNome?: string;
+}

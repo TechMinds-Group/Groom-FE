@@ -1,5 +1,6 @@
-<div class="agendamento-wizard">
-  @if (agendamentoConfirmado(); as agendamento) {
+<div class="agendamento-wizard-page">
+  <div class="agendamento-wizard">
+    @if (agendamentoConfirmado(); as agendamento) {
     <div class="agendamento-wizard__card agendamento-wizard__card--centered">
       <app-confirmacao [agendamento]="agendamento" (voltarInicio)="reiniciar()" />
     </div>
@@ -7,14 +8,16 @@
     <div class="agendamento-wizard__card">
       <header class="agendamento-wizard__header">
         <div class="agendamento-wizard__header-info">
-          <div class="agendamento-wizard__logo">
-            <i class="fa-solid fa-scissors"></i>
+          <div class="agendamento-wizard__logo" [style.backgroundImage]="logoUrlExibicao() ? 'url(' + logoUrlExibicao() + ')' : 'none'" [class.agendamento-wizard__logo--has-image]="!!logoUrlExibicao()">
+            @if (!logoUrlExibicao()) {
+              <i class="fa-solid fa-scissors"></i>
+            }
           </div>
           <div class="agendamento-wizard__header-textos">
-            <p class="agendamento-wizard__eyebrow mb-1">Agendamento online</p>
+            <p class="agendamento-wizard__eyebrow mb-1">{{ estabelecimentoInfo()?.nome || 'Agendamento online' }}</p>
             <h1 class="agendamento-wizard__titulo">Agende seu horário</h1>
             <p class="agendamento-wizard__subtitulo mb-0">
-              Escolha o profissional, o serviço e o melhor horário para você.
+              {{ estabelecimentoInfo()?.descricao || 'Escolha o profissional, o serviço e o melhor horário para você.' }}
             </p>
           </div>
         </div>
@@ -160,5 +163,7 @@
         </aside>
       </div>
     </div>
-  }
+    }
+  </div>
+  <app-footer></app-footer>
 </div>

@@ -5,6 +5,7 @@ import { RouterLink, RouterOutlet } from '@angular/router';
 import { SidebarComponent } from '../../features/sidebar/sidebar.component';
 import { ThemeService } from '../../core/services/theme.service';
 import { TmBottomNavComponent, MenuItem } from '@techminds-group/tm-angular-lib';
+import { AppFooterComponent } from '../../shared/components/footer/app-footer.component';
 import { ALL_SIDEBAR_MENU_ITEMS, VISIBLE_SIDEBAR_MENUS, PROFILE_MENU_ITEMS, filterMenuByRoles } from '../../core/config/menu.config';
 import { AuthService } from '../../core/services/auth.service';
 import { LanguageService } from '../../core/services/language.service';
@@ -13,7 +14,7 @@ import { Router } from '@angular/router';
 @Component({
   selector: 'app-main-layout',
   standalone: true,
-  imports: [CommonModule, RouterLink, RouterOutlet, SidebarComponent, TmBottomNavComponent, SidebarModalIdiomaComponent],
+  imports: [CommonModule, RouterLink, RouterOutlet, SidebarComponent, TmBottomNavComponent, SidebarModalIdiomaComponent, AppFooterComponent],
   templateUrl: './main-layout.component.html',
   styleUrl: './main-layout.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

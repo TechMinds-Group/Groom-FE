@@ -4,11 +4,12 @@ import { Router } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
 import { TmTextComponent } from '@techminds-group/tm-angular-lib';
 import { CommonModule } from '@angular/common';
+import { AppFooterComponent } from '../../../shared/components/footer/app-footer.component';
 
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, TmTextComponent],
+  imports: [CommonModule, ReactiveFormsModule, TmTextComponent, AppFooterComponent],
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.scss'],
 })

@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, Component, computed, inject, OnDestroy, OnInit
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { Router } from '@angular/router';
 import { AgendamentoPublicoService } from '../../../../core/services/agendamento-publico.service';
+import { EstabelecimentoInfo, EstabelecimentoService } from '../../../../core/services/estabelecimento.service';
 import { AgendamentoPublico, HorarioDisponivel, ProfissionalDisponivel, ServicoDisponivel } from '../../../../core/models/agendamento-publico/agendamento-publico.model';
 import { AGENDAMENTO_PUBLICO_CONFIG } from '../../models/agendamento-publico.config';
 import { TemaPublicoService } from '../../services/tema-publico.service';
@@ -10,6 +11,7 @@ import { PassoServicoComponent } from './passo-servico/passo-servico.component';
 import { PassoDataHorarioComponent } from './passo-data-horario/passo-data-horario.component';
 import { PassoResumoComponent } from './passo-resumo/passo-resumo.component';
 import { ConfirmacaoComponent } from './confirmacao/confirmacao.component';
+import { AppFooterComponent } from '../../../../shared/components/footer/app-footer.component';
 
 @Component({
   selector: 'app-novo-agendamento',
@@ -21,6 +23,7 @@ import { ConfirmacaoComponent } from './confirmacao/confirmacao.component';
     PassoDataHorarioComponent,
     PassoResumoComponent,
     ConfirmacaoComponent,
+    AppFooterComponent,
   ],
   templateUrl: './novo-agendamento.component.html',
   styleUrl: './novo-agendamento.component.scss',
@@ -28,6 +31,7 @@ import { ConfirmacaoComponent } from './confirmacao/confirmacao.component';
 })
 export class NovoAgendamentoComponent implements OnInit, OnDestroy {
   private readonly agendamentoPublicoService = inject(AgendamentoPublicoService);
+  private readonly estabelecimentoService = inject(EstabelecimentoService);
   private readonly router = inject(Router);
 
   /** Aplica o tema do dispositivo (claro/escuro) na tela pública. */
@@ -35,6 +39,12 @@ export class NovoAgendamentoComponent implements OnInit, OnDestroy {
 
   /** Tema ativo (claro/escuro) para exibir o ícone sol/lua correspondente. */
   readonly temaAtivo = this.temaPublico.tema;
+
+  /** Dados do perfil/identidade do estabelecimento */
+  readonly estabelecimentoInfo = signal<EstabelecimentoInfo | null>(null);
+
+  /** Logo com URL absoluta da API (imagens são servidas em /uploads). */
+  readonly logoUrlExibicao = computed(() => this.estabelecimentoService.resolverUrl(this.estabelecimentoInfo()?.logoUrl));
 
   readonly config = AGENDAMENTO_PUBLICO_CONFIG;
 
@@ -75,7 +85,19 @@ export class NovoAgendamentoComponent implements OnInit, OnDestroy {
   }
 
   async ngOnInit(): Promise<void> {
-    await this.carregarProfissionais();
+    await Promise.all([this.carregarProfissionais(), this.carregarInfoEstabelecimento()]);
+  }
+
+  private async carregarInfoEstabelecimento(): Promise<void> {
+    const slug = this.agendamentoPublicoService.estabelecimento();
+    if (slug) {
+      try {
+        const info = await this.estabelecimentoService.carregarInfoPublico(slug);
+        this.estabelecimentoInfo.set(info);
+      } catch {
+        // Fallback gracioso
+      }
+    }
   }
 
   ngOnDestroy(): void {
@@ -177,8 +199,15 @@ export class NovoAgendamentoComponent implements OnInit, OnDestroy {
       });
       this.agendamentoConfirmado.set(agendamento);
       this.passo.set(5);
-    } catch {
-      this.errorMessage.set('Não foi possível concluir o agendamento. Tente novamente.');
+    } catch (err: any) {
+      const code = err?.error?.code ?? err?.error?.Code;
+      if (code === 'Agendamento.ProfissionalSemWhatsApp' || err?.error?.message?.includes('WhatsApp')) {
+        this.errorMessage.set('Este profissional ainda não cadastrou um número de WhatsApp para confirmação de agendamentos. Escolha outro profissional ou solicite o cadastro à barbearia.');
+      } else if (code === 'Agendamento.CelularObrigatorio' || err?.error?.message?.includes('celular')) {
+        this.errorMessage.set('Seu cadastro precisa ter um celular válido para finalizar o agendamento.');
+      } else {
+        this.errorMessage.set('Não foi possível concluir o agendamento. Tente novamente.');
+      }
     } finally {
       this.isLoading.set(false);
     }

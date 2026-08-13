@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
 import { TmTableComponent, TableColumn } from '@techminds-group/tm-angular-lib';
 import { CompartilharService, AssinantePublico } from '../../../core/services/compartilhar.service';
+import { AppFooterComponent } from '../../../shared/components/footer/app-footer.component';
 
 interface PagamentoVisualizacao {
   id: string;
@@ -15,7 +16,7 @@ interface PagamentoVisualizacao {
 @Component({
   selector: 'app-visualizar-assinante',
   standalone: true,
-  imports: [CommonModule, TmTableComponent],
+  imports: [CommonModule, TmTableComponent, AppFooterComponent],
   template: `
     <div class="public-view">
       <div class="container py-5">
@@ -131,12 +132,18 @@ interface PagamentoVisualizacao {
           }
         }
       </div>
+      <app-footer></app-footer>
     </div>
   `,
   styles: [`
     .public-view {
       min-height: 100vh;
       background-color: #f8f9fa;
+      display: flex;
+      flex-direction: column;
+    }
+    .public-view > .container {
+      flex-grow: 1;
     }
     .avatar-circle {
       width: 56px;

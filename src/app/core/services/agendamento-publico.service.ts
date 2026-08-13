@@ -20,7 +20,7 @@ export class AgendamentoPublicoService {
 
   private readonly _estabelecimento = signal<string | null>(null);
   readonly estabelecimento = this._estabelecimento.asReadonly();
-  private readonly _clienteLogado = signal<{ id: string; nome: string; email: string } | null>(null);
+  private readonly _clienteLogado = signal<{ id: string; nome: string; email: string; celular?: string } | null>(null);
   readonly clienteLogado = this._clienteLogado.asReadonly();
 
   setEstabelecimento(estabelecimento: string): void {
@@ -36,7 +36,7 @@ export class AgendamentoPublicoService {
     const result = await firstValueFrom(
       this.http.post<LoginClienteResult>(`${this.baseUrl}/cadastro?rememberMe=${rememberMe}`, dados, { withCredentials: true })
     );
-    this._clienteLogado.set({ id: result.cliente.id, nome: result.cliente.nome, email: result.cliente.email });
+    this._clienteLogado.set({ id: result.cliente.id, nome: result.cliente.nome, email: result.cliente.email, celular: result.cliente.celular });
     return result;
   }
 
@@ -44,7 +44,7 @@ export class AgendamentoPublicoService {
     const result = await firstValueFrom(
       this.http.post<LoginClienteResult>(`${this.baseUrl}/login?rememberMe=${rememberMe}`, dados, { withCredentials: true })
     );
-    this._clienteLogado.set({ id: result.cliente.id, nome: result.cliente.nome, email: result.cliente.email });
+    this._clienteLogado.set({ id: result.cliente.id, nome: result.cliente.nome, email: result.cliente.email, celular: result.cliente.celular });
     return result;
   }
 
@@ -52,20 +52,34 @@ export class AgendamentoPublicoService {
     const result = await firstValueFrom(
       this.http.post<LoginClienteResult>(`${this.baseUrl}/login/google?rememberMe=${rememberMe}`, { idToken }, { withCredentials: true })
     );
-    this._clienteLogado.set({ id: result.cliente.id, nome: result.cliente.nome, email: result.cliente.email });
+    this._clienteLogado.set({ id: result.cliente.id, nome: result.cliente.nome, email: result.cliente.email, celular: result.cliente.celular });
     return result;
   }
 
-  async getMe(): Promise<{ id: string; nome: string; email: string } | null> {
+  async getMe(): Promise<{ id: string; nome: string; email: string; celular?: string } | null> {
     try {
+      const headers = new HttpHeaders({ 'X-Skip-Error-Toast': 'true' });
       const data = await firstValueFrom(
-        this.http.get<{ id: string; nome: string; email: string }>(`${this.baseUrl}/me`, { withCredentials: true })
+        this.http.get<{ id: string; nome: string; email: string; celular?: string }>(`${this.baseUrl}/me`, {
+          withCredentials: true,
+          headers,
+        })
       );
       this._clienteLogado.set(data);
       return data;
     } catch {
       this._clienteLogado.set(null);
       return null;
+    }
+  }
+
+  async atualizarCelular(celular: string): Promise<void> {
+    await firstValueFrom(
+      this.http.put<void>(`${this.baseUrl}/me/celular`, { celular }, { withCredentials: true })
+    );
+    const atual = this._clienteLogado();
+    if (atual) {
+      this._clienteLogado.set({ ...atual, celular });
     }
   }
 

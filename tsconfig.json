@@ -17,7 +17,7 @@
     "baseUrl": "./",
     "paths": {
       "@techminds-group/tm-angular-lib": [
-        "../../TM-Angular-Library-Workspace/TM-Angular-Library/projects/tm-angular-lib/src/public-api.ts"
+        "../../TM-Angular-Lib/TM-Angular-Library/projects/tm-angular-lib/src/public-api.ts"
       ]
     }
   },

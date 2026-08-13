@@ -23,7 +23,7 @@ export class CadastroClienteComponent {
   readonly form = this.fb.group({
     nome: ['', [Validators.required, Validators.minLength(3)]],
     email: ['', [Validators.required, Validators.email]],
-    celular: [''],
+    celular: ['', [Validators.required, Validators.minLength(10)]],
     senha: ['', [Validators.required, Validators.minLength(8)]],
     confirmarSenha: ['', [Validators.required]],
     rememberMe: [false],
@@ -52,7 +52,7 @@ export class CadastroClienteComponent {
         nome: nome!,
         email: email!,
         senha: senha!,
-        celular: celular || undefined,
+        celular: celular!,
       }, rememberMe ?? false);
       this.cadastrado.emit();
     } catch (err) {

@@ -35,7 +35,17 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
         }
       }
 
-      if (!req.headers.has('X-Skip-Error-Toast')) {
+      const isPublicOrAuthCheck =
+        req.url.endsWith('/me') ||
+        req.url.includes('/login') ||
+        req.url.includes('/cadastro') ||
+        req.url.includes('/publico/');
+
+      const shouldSkipToast =
+        req.headers.has('X-Skip-Error-Toast') ||
+        (error.status === 401 && isPublicOrAuthCheck);
+
+      if (!shouldSkipToast) {
         toastService.error(errorMessage, errorTitle);
       }
 

@@ -126,11 +126,11 @@ export class LanguageService {
   translate(key: TxKey | string): string {
     const dict = this.dictionary();
     const keys = key.split('.');
-    let result: unknown = dict;
+    let result: any = dict;
 
     for (const k of keys) {
-      if (result && typeof result === 'object' && k in (result as Record<string, unknown>)) {
-        result = (result as Record<string, unknown>)[k];
+      if (result && typeof result === 'object' && k in result) {
+        result = result[k];
       } else {
         return key;
       }

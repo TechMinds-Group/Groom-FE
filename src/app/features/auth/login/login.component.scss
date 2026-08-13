@@ -1,8 +1,15 @@
+.login-page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
 .login-container {
+  flex-grow: 1;
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: 100vh;
+  min-height: 0;
   background-color: var(--tm-bg-color, #0f172a);
   padding: 1rem;
 }

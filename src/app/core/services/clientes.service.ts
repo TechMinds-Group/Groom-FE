@@ -57,4 +57,10 @@ export class ClientesService {
     );
     await this.carregarClientes();
   }
+
+  async atualizarCelularMeuPerfil(celular: string): Promise<void> {
+    await firstValueFrom(
+      this.http.put<void>(`${this.apiUrl}/me/celular`, { celular }, { withCredentials: true })
+    );
+  }
 }

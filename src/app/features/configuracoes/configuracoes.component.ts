@@ -31,7 +31,7 @@ export class ConfiguracoesComponent implements OnInit {
     }
   }
 
-  async salvar(): Promise<void> {
+  protected async salvar(): Promise<void> {
     this.salvando.set(true);
     this.mensagem.set(null);
     try {

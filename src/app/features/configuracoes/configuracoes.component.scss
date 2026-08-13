@@ -23,3 +23,15 @@
     }
   }
 }
+
+.btn-action-responsive {
+  width: 100% !important;
+  display: block !important;
+  text-align: center;
+
+  @media (min-width: 992px) {
+    width: auto !important;
+    display: inline-block !important;
+  }
+}
+

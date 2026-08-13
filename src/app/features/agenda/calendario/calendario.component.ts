@@ -13,20 +13,20 @@ import { TmCalendarComponent } from '@techminds-group/tm-angular-lib';
 import { CalendarEvent, CalendarView } from 'angular-calendar';
 import { AgendaService } from '../data-access/agenda.service';
 import { AuthService } from '../../../core/services/auth.service';
+import { AgendaModalDiaComponent } from '../components/modais/agenda-modal-dia/agenda-modal-dia.component';
+
+import { EstabelecimentoService } from '../../../core/services/estabelecimento.service';
 
 /** Breakpoint Bootstrap md — abaixo disso usa View Dia para melhor legibilidade em mobile. */
 const MOBILE_BREAKPOINT = 992;
 
 /**
- * Calendário view-only da agenda interna.
- * Em dispositivos móveis (< md Bootstrap / < 992px), inicia em View Dia para melhor legibilidade.
- * View-only: a criação de agendamentos acontece pelo fluxo público (agendamento-publico)
- * ou pelo backend — o drawer local de criação manual foi removido (RF-20 sem ruído de mocks).
+ * Calendário da agenda interna com modal de gestão de agendamentos por dia (RF-31/D-12/D-13).
  */
 @Component({
   selector: 'app-calendario',
   standalone: true,
-  imports: [CommonModule, TmCalendarComponent],
+  imports: [CommonModule, TmCalendarComponent, AgendaModalDiaComponent],
   templateUrl: './calendario.component.html',
   styleUrl: './calendario.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -34,6 +34,7 @@ const MOBILE_BREAKPOINT = 992;
 export class CalendarioComponent implements OnInit, OnDestroy {
   private readonly agendaService = inject(AgendaService);
   private readonly authService = inject(AuthService);
+  private readonly estabelecimentoService = inject(EstabelecimentoService);
   private readonly platformId = inject(PLATFORM_ID);
 
   CalendarView = CalendarView;
@@ -45,6 +46,10 @@ export class CalendarioComponent implements OnInit, OnDestroy {
   /** Indica se o dispositivo atual é mobile (< md Bootstrap). */
   readonly isMobile = signal(this.checkIsMobile());
 
+  /** Estado do Modal de Gestão do Dia */
+  protected readonly showModalDia = signal(false);
+  protected readonly dataSelecionadaModal = signal<Date | null>(null);
+
   readonly agendamentosFiltrados = this.agendaService.getAgendamentosFiltrados(this.authService.currentUser());
   readonly tituloAgenda = computed(() =>
     this.authService.hasAdminRole() ? 'Agenda Completa' : 'Minha Agenda',
@@ -55,10 +60,24 @@ export class CalendarioComponent implements OnInit, OnDestroy {
     this.authService.hasAdminRole() ? 'Todos os agendamentos' : 'Somente os meus',
   );
 
+  /** Horário inicial e final exibidos na visão de Dia, baseados no horário de funcionamento do estabelecimento. */
+  readonly dayStartHour = computed(() => {
+    const diaSemana = this.viewDate().getDay();
+    const config = this.estabelecimentoService.getHorarioDia(diaSemana);
+    return config.dayStartHour;
+  });
+
+  readonly dayEndHour = computed(() => {
+    const diaSemana = this.viewDate().getDay();
+    const config = this.estabelecimentoService.getHorarioDia(diaSemana);
+    return config.dayEndHour;
+  });
+
   private resizeHandler?: () => void;
 
   ngOnInit() {
     this.carregarAgendamentos();
+    this.estabelecimentoService.carregarHorarios();
     this.setupResizeListener();
   }
 
@@ -69,7 +88,7 @@ export class CalendarioComponent implements OnInit, OnDestroy {
   }
 
   /** Carrega os agendamentos reais da API aplicando o filtro por perfil (RF-20). */
-  private async carregarAgendamentos(): Promise<void> {
+  protected async carregarAgendamentos(): Promise<void> {
     const usuario = this.authService.currentUser();
     const ehAdmin = this.authService.hasAdminRole();
     await this.agendaService.carregarAgendamentos(ehAdmin ? undefined : usuario?.id);
@@ -104,17 +123,20 @@ export class CalendarioComponent implements OnInit, OnDestroy {
   }
 
   events = computed<CalendarEvent[]>(() =>
-    this.agendamentosFiltrados().map(a => ({
-      id: a.id,
-      start: a.dataInicio,
-      end: a.dataFim,
-      title: `${a.clienteNome} - ${a.servicoNome} (${a.profissionalNome})`,
-      color: {
-        primary: a.corPrimaria || '#0d6efd',
-        secondary: a.corPrimaria || '#0d6efd'
-      },
-      meta: a
-    }))
+    this.agendamentosFiltrados().map(a => {
+      const primeiroNome = a.clienteNome ? a.clienteNome.trim().split(' ')[0] : '';
+      return {
+        id: a.id,
+        start: a.dataInicio,
+        end: a.dataFim,
+        title: primeiroNome,
+        color: {
+          primary: a.corPrimaria || '#0d6efd',
+          secondary: a.corPrimaria || '#0d6efd'
+        },
+        meta: a
+      };
+    })
   );
 
   onDateChange(date: Date) {
@@ -123,5 +145,17 @@ export class CalendarioComponent implements OnInit, OnDestroy {
 
   onViewChange(view: CalendarView | string) {
     this.currentView.set(view as CalendarView);
+  }
+
+  onDayClicked(date: Date) {
+    this.dataSelecionadaModal.set(date);
+    this.showModalDia.set(true);
+  }
+
+  onEventClicked(event: CalendarEvent) {
+    if (event.start) {
+      this.dataSelecionadaModal.set(event.start);
+      this.showModalDia.set(true);
+    }
   }
 }

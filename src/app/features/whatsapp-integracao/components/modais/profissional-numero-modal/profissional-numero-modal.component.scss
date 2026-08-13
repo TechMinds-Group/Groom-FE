@@ -1,0 +1,17 @@
+.custom-dark-input {
+  background-color: var(--bs-body-bg);
+  color: var(--bs-body-color);
+  border-color: var(--bs-border-color);
+
+  &:focus {
+    border-color: var(--bs-primary);
+  }
+}
+
+.custom-dark-text {
+  color: var(--bs-body-color);
+}
+
+.custom-dark-muted {
+  color: var(--bs-secondary-color);
+}

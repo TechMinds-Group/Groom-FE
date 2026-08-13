@@ -6,8 +6,12 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { interval, firstValueFrom } from 'rxjs';
 import { TmTextComponent } from '@techminds-group/tm-angular-lib';
 import { environment } from '../../../../../environments/environment';
-import { WhatsAppTenantConfig } from '../../../../core/models/whatsapp/whatsapp.model';
+import { ProfissionalWhatsAppConfig, WhatsAppTenantConfig } from '../../../../core/models/whatsapp/whatsapp.model';
 import { WhatsAppService } from '../../../../core/services/whatsapp.service';
+import { WhatsAppProfissionalService } from '../../../../core/services/whatsapp-profissional.service';
+import { ProfissionalNumeroModalComponent } from '../modais/profissional-numero-modal/profissional-numero-modal.component';
+
+import { Router, RouterModule } from '@angular/router';
 
 interface QrCodeData {
   base64?: string;
@@ -39,7 +43,7 @@ type InstancesResponse = DispositivoWhatsApp[];
 @Component({
   selector: 'app-whatsapp-integracao',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, TmTextComponent],
+  imports: [CommonModule, ReactiveFormsModule, RouterModule, TmTextComponent, ProfissionalNumeroModalComponent],
   templateUrl: './whatsapp-integracao.component.html',
   styleUrl: './whatsapp-integracao.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -47,9 +51,11 @@ type InstancesResponse = DispositivoWhatsApp[];
 export class WhatsappIntegracaoComponent implements OnInit {
   private readonly http = inject(HttpClient);
   private readonly whatsAppService = inject(WhatsAppService);
+  private readonly whatsAppProfissionalService = inject(WhatsAppProfissionalService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly fb = inject(FormBuilder);
   private readonly cdr = inject(ChangeDetectorRef);
+  private readonly router = inject(Router);
   private readonly apiUrl = `${environment.apiUrl}/api/whatsapp`;
 
   protected readonly form: FormGroup = this.fb.group({
@@ -71,11 +77,33 @@ export class WhatsappIntegracaoComponent implements OnInit {
   protected readonly configSalvando = signal(false);
   protected readonly configMensagem = signal<string | null>(null);
 
+  /** Sinais para controle de expansão dos blocos colapsáveis */
+  protected readonly blocoConexaoExpandido = signal(true);
+  protected readonly blocoConfigExpandido = signal(true);
+  protected readonly blocoProfissionaisExpandido = signal(true);
+  protected readonly blocoAjudaExpandido = signal(false);
+
+  protected toggleBlocoConexao(): void { this.blocoConexaoExpandido.update(v => !v); }
+  protected toggleBlocoConfig(): void { this.blocoConfigExpandido.update(v => !v); }
+  protected toggleBlocoProfissionais(): void { this.blocoProfissionaisExpandido.update(v => !v); }
+  protected toggleBlocoAjuda(): void { this.blocoAjudaExpandido.update(v => !v); }
+
+  protected voltar(): void {
+    this.router.navigate(['/configuracoes']);
+  }
+
+  protected readonly profissionaisWhatsApp = signal<ProfissionalWhatsAppConfig[]>([]);
+  protected readonly profissionaisSemNumero = signal<ProfissionalWhatsAppConfig[]>([]);
+  protected readonly modalAberto = signal(false);
+  protected readonly configParaEditar = signal<ProfissionalWhatsAppConfig | null>(null);
+  protected readonly toastMensagem = signal<{ texto: string; erro: boolean } | null>(null);
+
   async ngOnInit(): Promise<void> {
     await Promise.all([
       this.verificarStatus(),
       this.carregarDispositivos(),
       this.carregarConfig(),
+      this.carregarProfissionais(),
     ]);
   }
 
@@ -105,7 +133,7 @@ export class WhatsappIntegracaoComponent implements OnInit {
     }
   }
 
-  private async carregarConfig(): Promise<void> {
+  protected async carregarConfig(): Promise<void> {
     try {
       const config = await this.whatsAppService.getConfig();
       const numeros = (config.testNumbers ?? '').split(',').map((n: string) => n.trim()).filter((n: string) => n);
@@ -231,5 +259,78 @@ export class WhatsappIntegracaoComponent implements OnInit {
       return `+55 (${ddd}) ${part1}-${part2}`;
     }
     return cleaned;
+  }
+
+  protected async carregarProfissionais(): Promise<void> {
+    try {
+      const list = await firstValueFrom(this.whatsAppProfissionalService.getNumerosProfissionais());
+      this.profissionaisWhatsApp.set(list);
+      this.profissionaisSemNumero.set(list.filter((p) => !p.numero));
+      this.cdr.markForCheck();
+    } catch {
+      this.profissionaisWhatsApp.set([]);
+      this.profissionaisSemNumero.set([]);
+      this.cdr.markForCheck();
+    }
+  }
+
+  protected abrirModalNovo(): void {
+    this.configParaEditar.set(null);
+    this.modalAberto.set(true);
+  }
+
+  protected abrirModalEditar(config: ProfissionalWhatsAppConfig): void {
+    this.configParaEditar.set(config);
+    this.modalAberto.set(true);
+  }
+
+  protected fecharModal(): void {
+    this.modalAberto.set(false);
+    this.configParaEditar.set(null);
+  }
+
+  protected async salvarNumeroProfissional(event: { profissionalId: string; numero: string }): Promise<void> {
+    try {
+      await firstValueFrom(this.whatsAppProfissionalService.salvarNumero(event.profissionalId, event.numero));
+      this.fecharModal();
+      this.toastMensagem.set({ texto: 'Número de WhatsApp salvo com sucesso!', erro: false });
+      await this.carregarProfissionais();
+    } catch {
+      this.toastMensagem.set({ texto: 'Erro ao salvar o número de WhatsApp.', erro: true });
+    }
+  }
+
+  protected async removerNumeroProfissional(config: ProfissionalWhatsAppConfig): Promise<void> {
+    if (!confirm(`Deseja realmente remover o número de WhatsApp do profissional ${config.profissionalNome}?`)) {
+      return;
+    }
+
+    try {
+      await firstValueFrom(this.whatsAppProfissionalService.removerNumero(config.profissionalId));
+      this.toastMensagem.set({ texto: 'Número de WhatsApp removido com sucesso!', erro: false });
+      await this.carregarProfissionais();
+    } catch {
+      this.toastMensagem.set({ texto: 'Erro ao remover o número de WhatsApp.', erro: true });
+    }
+  }
+
+  protected formatarTelefoneExibicao(numero: string | null): string {
+    if (!numero) return 'Não cadastrado';
+    const digits = numero.replace(/\D/g, '');
+    if (digits.length === 11) {
+      return `(${digits.slice(0, 2)}) ${digits.slice(2, 7)}-${digits.slice(7)}`;
+    }
+    if (digits.length === 10) {
+      return `(${digits.slice(0, 2)}) ${digits.slice(2, 6)}-${digits.slice(6)}`;
+    }
+    if (digits.length === 13 && digits.startsWith('55')) {
+      const ddd = digits.slice(2, 4);
+      const rest = digits.slice(4);
+      if (rest.length === 9) {
+        return `+55 (${ddd}) ${rest.slice(0, 5)}-${rest.slice(5)}`;
+      }
+      return `+55 (${ddd}) ${rest.slice(0, 4)}-${rest.slice(4)}`;
+    }
+    return numero;
   }
 }

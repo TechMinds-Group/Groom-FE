@@ -147,6 +147,13 @@ export const routes: Routes = [
               import('./features/configuracoes/configuracoes.component').then((m) => m.ConfiguracoesComponent),
           },
           {
+            path: 'estabelecimento',
+            loadComponent: () =>
+              import(
+                './features/configuracoes/components/estabelecimento-config/estabelecimento-config.component'
+              ).then((m) => m.EstabelecimentoConfigComponent),
+          },
+          {
             path: 'whatsapp',
             loadComponent: () =>
               import('./features/whatsapp-integracao/components/whatsapp-integracao/whatsapp-integracao.component').then(

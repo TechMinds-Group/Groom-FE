@@ -1,10 +1,17 @@
+.agendamento-login-page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
 .agendamento-login {
   position: relative;
-  min-height: 100vh;
+  flex-grow: 1;
+  min-height: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 1rem;
+  padding: 0.25rem;
   background:
     radial-gradient(ellipse at top left, rgba(13, 110, 253, 0.08), transparent 55%),
     radial-gradient(ellipse at bottom right, rgba(13, 110, 253, 0.05), transparent 55%),
@@ -14,17 +21,87 @@
     color: var(--tm-text-secondary) !important;
   }
 
-  &__card {
+  &__container {
     width: 100%;
-    max-width: 440px;
-    padding: 2.5rem;
+    max-width: 430px;
+    margin: 0.125rem auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  &__brand-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding-bottom: 0.75rem;
+    padding-right: 2.5rem;
+    border-bottom: 1px solid color-mix(in srgb, var(--tm-border-color) 60%, transparent);
+  }
+
+  &__logo-avatar {
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    background-color: var(--tm-primary, #0d6efd);
+    background-size: cover;
+    background-position: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.35rem;
+    color: #ffffff !important;
+    border: 2px solid color-mix(in srgb, var(--tm-primary) 30%, transparent);
+    box-shadow: 0 4px 12px rgba(13, 110, 253, 0.25);
+    flex-shrink: 0;
+  }
+
+  &__brand-text {
+    flex: 1;
+    min-width: 0;
+  }
+
+  &__nome-estabelecimento {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--tm-text-primary);
+    line-height: 1.2;
+  }
+
+  &__descricao-estabelecimento {
+    font-size: 0.8rem;
+    color: var(--tm-text-secondary);
+    line-height: 1.25;
+    margin-top: 0.2rem;
+  }
+
+  &__telefone-text {
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--tm-primary);
+    display: inline-block;
+    margin-top: 0.15rem;
+  }
+
+  &__card {
+    position: relative;
+    width: 100%;
+    padding: 1.25rem 1.5rem;
     border: 1px solid var(--tm-border-color);
     border-radius: 20px;
     background: var(--tm-surface-color);
-    box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 20px 50px -10px rgba(0, 0, 0, 0.18);
 
     ::ng-deep .form-label {
       color: var(--tm-text-primary) !important;
+    }
+
+    ::ng-deep .input-wrapper,
+    ::ng-deep .icon-section {
+      i,
+      .text-muted {
+        color: var(--tm-text-secondary, #64748b) !important;
+      }
     }
 
     ::ng-deep .agendamento-login__submit .btn {
@@ -46,19 +123,19 @@
 
   &__tema {
     position: absolute;
-    top: 1rem;
-    right: 1rem;
+    top: 1.25rem;
+    right: 1.25rem;
     z-index: 5;
-    width: 2.5rem;
-    height: 2.5rem;
+    width: 2.25rem;
+    height: 2.25rem;
     display: inline-flex;
     align-items: center;
     justify-content: center;
     border: 1px solid var(--tm-border-color);
-    border-radius: 12px;
-    background: var(--tm-surface-color);
+    border-radius: 10px;
+    background: color-mix(in srgb, var(--tm-surface-color) 80%, transparent);
     color: var(--tm-text-secondary);
-    font-size: 1.05rem;
+    font-size: 1rem;
     line-height: 1;
     cursor: pointer;
     transition: all 0.2s ease-in-out;
@@ -66,7 +143,7 @@
     &:hover,
     &:focus-visible {
       border-color: color-mix(in srgb, var(--tm-primary) 40%, var(--tm-border-color));
-      background: color-mix(in srgb, var(--tm-primary) 6%, var(--tm-surface-color));
+      background: color-mix(in srgb, var(--tm-primary) 10%, var(--tm-surface-color));
       color: var(--tm-primary);
       outline: none;
     }
@@ -132,7 +209,15 @@
       var(--tm-bg-color);
 
     .text-muted {
-      color: var(--tm-text-secondary) !important;
+      color: var(--tm-text-secondary, #94a3b8) !important;
+    }
+
+    ::ng-deep .input-wrapper,
+    ::ng-deep .icon-section {
+      i,
+      .text-muted {
+        color: #94a3b8 !important;
+      }
     }
 
     .alert-danger {
@@ -145,6 +230,6 @@
 
 @media (max-width: 575.98px) {
   .agendamento-login__card {
-    padding: 1.75rem 1.25rem;
+    padding: 1.25rem 1rem;
   }
 }

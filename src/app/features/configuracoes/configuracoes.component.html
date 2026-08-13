@@ -28,9 +28,9 @@
       </div>
     </div>
 
-    <div class="mt-4 d-flex align-items-center gap-3">
+    <div class="mt-4 d-flex flex-column flex-lg-row align-items-lg-center gap-3">
       <button
-        class="btn btn-primary px-4 fw-bold"
+        class="btn btn-primary px-4 fw-bold btn-action-responsive"
         (click)="salvar()"
         [disabled]="salvando()"
       >
@@ -41,10 +41,26 @@
       </button>
 
       @if (mensagem(); as msg) {
-        <span class="ms-3" [class.text-success]="msg.tipo === 'sucesso'" [class.text-danger]="msg.tipo === 'erro'">
+        <span class="ms-lg-3" [class.text-success]="msg.tipo === 'sucesso'" [class.text-danger]="msg.tipo === 'erro'">
           {{ msg.texto }}
         </span>
       }
+    </div>
+  </div>
+
+  <div class="card border-0 shadow-sm p-4 mt-4 custom-dark-card">
+    <div class="row g-4">
+      <div class="col-12">
+        <h5 class="fw-semibold custom-dark-text">
+          <i class="fas fa-store me-2"></i>Configurações do Estabelecimento
+        </h5>
+        <p class="text-muted small mb-3 custom-dark-text">
+          Configure os horários de funcionamento, expedientes e intervalos da sua barbearia para sincronização com a agenda.
+        </p>
+        <a routerLink="/configuracoes/estabelecimento" class="btn btn-primary px-4 fw-bold btn-action-responsive">
+          <i class="fas fa-store me-2"></i>Gerenciar Estabelecimento
+        </a>
+      </div>
     </div>
   </div>
 
@@ -57,7 +73,7 @@
         <p class="text-muted small mb-2 custom-dark-text">
           Conecte o WhatsApp da sua barbearia para atendimento automático com botões interativos.
         </p>
-        <a routerLink="/configuracoes/whatsapp" class="btn btn-success px-4 fw-bold">
+        <a routerLink="/configuracoes/whatsapp" class="btn btn-success px-4 fw-bold btn-action-responsive">
           <i class="fab fa-whatsapp me-2"></i>Gerenciar Conexão
         </a>
       </div>

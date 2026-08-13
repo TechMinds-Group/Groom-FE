@@ -21,13 +21,15 @@ export interface AgendamentoApi {
   observacoes?: string;
 }
 
-const STATUS_VALIDOS = ['pendente', 'confirmado', 'concluido', 'no-show'] as const;
+const STATUS_VALIDOS = ['pendente', 'agendado', 'confirmado', 'recusado', 'concluido', 'no-show'] as const;
 type StatusValido = (typeof STATUS_VALIDOS)[number];
 
 function normalizarStatus(status: string): Agendamento['status'] {
-  if ((STATUS_VALIDOS as readonly string[]).includes(status)) {
-    return status as StatusValido;
+  const statusLower = status?.toLowerCase() ?? '';
+  if ((STATUS_VALIDOS as readonly string[]).includes(statusLower)) {
+    return statusLower as StatusValido;
   }
+  // Fallback para status desconhecido/legado do servidor
   return 'confirmado';
 }
 
@@ -64,5 +66,40 @@ export class AgendamentosService {
       this.http.get<AgendamentoApi[]>(`${this.apiUrl}${params}`, { withCredentials: true })
     );
     this._agendamentos.set(data.map(mapearAgendamento));
+  }
+
+  async criarManual(dados: {
+    clienteNome: string;
+    clienteTelefone: string;
+    profissionalId: string;
+    servicoId: string;
+    dataInicio: string;
+    observacoes?: string;
+  }): Promise<Agendamento> {
+    const data = await firstValueFrom(
+      this.http.post<AgendamentoApi>(this.apiUrl, dados, { withCredentials: true })
+    );
+    return mapearAgendamento(data);
+  }
+
+  async editarManual(
+    id: string,
+    dados: {
+      servicoId: string;
+      dataInicio: string;
+      status: 'confirmado' | 'recusado';
+      observacoes?: string;
+    }
+  ): Promise<Agendamento> {
+    const data = await firstValueFrom(
+      this.http.put<AgendamentoApi>(`${this.apiUrl}/${id}`, dados, { withCredentials: true })
+    );
+    return mapearAgendamento(data);
+  }
+
+  async cancelar(id: string, motivo?: string): Promise<void> {
+    await firstValueFrom(
+      this.http.put(`${this.apiUrl}/${id}/cancelar`, { motivo }, { withCredentials: true })
+    );
   }
 }
