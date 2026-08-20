@@ -7,18 +7,254 @@
   }
 }
 
+.btn-voltar {
+  width: 40px;
+  height: 40px;
+  min-width: 40px;
+  min-height: 40px;
+  max-width: 40px;
+  max-height: 40px;
+  border-radius: 50% !important;
+  flex-shrink: 0 !important;
+  aspect-ratio: 1 / 1 !important;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background-color: #e9ecef !important;
+    transform: translateX(-2px);
+  }
+}
+
+.avatar-circle {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+}
+
+.avatar-circle-icon {
+  width: 48px !important;
+  height: 48px !important;
+  min-width: 48px !important;
+  min-height: 48px !important;
+  max-width: 48px !important;
+  max-height: 48px !important;
+  border-radius: 50% !important;
+  flex-shrink: 0 !important;
+  aspect-ratio: 1 / 1 !important;
+}
+
+.avatar-circle-lg {
+  width: 64px !important;
+  height: 64px !important;
+  min-width: 64px !important;
+  min-height: 64px !important;
+  max-width: 64px !important;
+  max-height: 64px !important;
+  border-radius: 50% !important;
+  flex-shrink: 0 !important;
+  aspect-ratio: 1 / 1 !important;
+}
+
+.min-w-0 {
+  min-width: 0;
+}
+
+.horario-header {
+  height: 24px;
+  margin-bottom: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.transition-hover {
+  transition: transform 0.15s ease, background-color 0.15s ease;
+  &:hover {
+    transform: translateY(-1px);
+  }
+}
+
+.btn-action-responsive {
+  width: 100% !important;
+  display: block !important;
+  text-align: center;
+
+  @media (min-width: 1200px) {
+    width: auto !important;
+    display: inline-block !important;
+  }
+}
+
+/* Alinha a coluna do intervalo com a linha de abertura/fechamento (mesmo espaçamento da tela de Configurações). */
+.intervalo-col-padding {
+  padding-top: 15.5px;
+}
+
+/* O tm-time da lib tem min-width fixo de 120px; aqui o par abertura/fechamento fica dentro de col-xl-7
+   e precisa poder encolher para não vazar da tela em resoluções intermediárias (1200–1400px). */
+tm-time {
+  ::ng-deep .tm-time-container {
+    min-width: 0;
+  }
+}
+
+/* Em resoluções menores que xl o par de tm-time dentro de col-lg-7 fica estreito demais para o
+   valor "HH:MM" caber — reduz fonte, ícone e paddings para exibir o horário. */
+@media (max-width: 1399.98px) {
+  tm-time {
+    ::ng-deep .icon-section {
+      padding-left: 0.75rem !important;
+
+      i {
+        font-size: 0.875rem !important;
+      }
+    }
+
+    ::ng-deep .custom-input {
+      padding: 0.5rem 0.6rem 0.5rem 0.4rem !important;
+      font-size: 0.8rem !important;
+    }
+
+    ::ng-deep .input-wrapper {
+      min-height: 44px;
+    }
+  }
+}
+
+/* Telas muito pequenas: compactação extra. */
+@media (max-width: 575.98px) {
+  tm-time {
+    ::ng-deep .icon-section {
+      padding-left: 0.5rem !important;
+
+      i {
+        font-size: 0.75rem !important;
+      }
+    }
+
+    ::ng-deep .custom-input {
+      padding: 0.4rem 0.45rem 0.4rem 0.35rem !important;
+      font-size: 0.75rem !important;
+    }
+
+    ::ng-deep .input-wrapper {
+      min-height: 40px;
+    }
+  }
+}
+
 :host-context([data-theme='dark']) {
+  .btn-voltar {
+    background-color: #21262d !important;
+    border-color: rgba(255, 255, 255, 0.1) !important;
+
+    i {
+      color: #c9d1d9 !important;
+    }
+
+    &:hover {
+      background-color: #30363d !important;
+    }
+  }
+
   .custom-dark-card {
     background-color: #161b22 !important;
     border: 1px solid rgba(255, 255, 255, 0.08) !important;
   }
 
   .dia-card {
-    background-color: #161b22 !important;
-    border-color: rgba(255, 255, 255, 0.08) !important;
+    background-color: #1c2128 !important;
+    border-color: rgba(255, 255, 255, 0.1) !important;
   }
 
   .custom-dark-text {
     color: #ffffff !important;
+  }
+
+  .text-muted {
+    color: #8b949e !important;
+  }
+
+  .form-check-input {
+    background-color: #30363d !important;
+    border: 1px solid rgba(255, 255, 255, 0.35) !important;
+
+    &:checked {
+      background-color: #0d6efd !important;
+      border-color: #0d6efd !important;
+    }
+
+    &:focus {
+      border-color: #0d6efd !important;
+      box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25) !important;
+    }
+  }
+
+  .btn-outline-secondary {
+    color: #e6edf3 !important;
+    border-color: rgba(255, 255, 255, 0.2) !important;
+    background-color: transparent !important;
+
+    &:hover {
+      background-color: #21262d !important;
+      border-color: rgba(255, 255, 255, 0.3) !important;
+      color: #ffffff !important;
+    }
+  }
+
+  .border-top,
+  .border-bottom,
+  .border-secondary-subtle {
+    border-color: rgba(255, 255, 255, 0.1) !important;
+  }
+
+  tm-time {
+    ::ng-deep .form-label,
+    ::ng-deep label,
+    ::ng-deep .text-muted {
+      color: #ffffff !important;
+    }
+
+    ::ng-deep .input-wrapper {
+      background-color: #0d1117 !important;
+      border-color: rgba(255, 255, 255, 0.25) !important;
+    }
+
+    ::ng-deep .custom-input {
+      color: #ffffff !important;
+    }
+  }
+}
+
+@media (max-width: 575.98px) {
+  .btn-voltar {
+    width: 36px !important;
+    height: 36px !important;
+    min-width: 36px !important;
+    min-height: 36px !important;
+    max-width: 36px !important;
+    max-height: 36px !important;
+  }
+
+  .avatar-circle-icon {
+    width: 40px !important;
+    height: 40px !important;
+    min-width: 40px !important;
+    min-height: 40px !important;
+    max-width: 40px !important;
+    max-height: 40px !important;
+  }
+
+  .avatar-circle-lg {
+    width: 52px !important;
+    height: 52px !important;
+    min-width: 52px !important;
+    min-height: 52px !important;
+    max-width: 52px !important;
+    max-height: 52px !important;
+  }
+
+  .dia-card {
+    padding: 0.85rem !important;
   }
 }

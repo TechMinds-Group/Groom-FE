@@ -4,21 +4,28 @@ import {
   ChangeDetectionStrategy,
   inject,
   computed,
+  effect,
   OnInit,
   OnDestroy,
   PLATFORM_ID
 } from '@angular/core';
 import { isPlatformBrowser, CommonModule } from '@angular/common';
-import { TmCalendarComponent } from '@techminds-group/tm-angular-lib';
+import { TmCalendarComponent, TmSelectComponent, TmSelectOption } from '@techminds-group/tm-angular-lib';
 import { CalendarEvent, CalendarView } from 'angular-calendar';
 import { AgendaService } from '../data-access/agenda.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { AgendaModalDiaComponent } from '../components/modais/agenda-modal-dia/agenda-modal-dia.component';
+import { CORES_STATUS, agendamentoParaDateLocal } from '../../../core/models/agenda.model';
 
 import { EstabelecimentoService } from '../../../core/services/estabelecimento.service';
 
 /** Breakpoint Bootstrap md — abaixo disso usa View Dia para melhor legibilidade em mobile. */
 const MOBILE_BREAKPOINT = 992;
+
+/** Intervalo de recarga automática da página da agenda. */
+const REFRESH_INTERVAL_MS = 60_000;
+
+export type FiltroStatus = 'todos' | 'confirmado' | 'aguardando' | 'recusado';
 
 /**
  * Calendário da agenda interna com modal de gestão de agendamentos por dia (RF-31/D-12/D-13).
@@ -26,7 +33,7 @@ const MOBILE_BREAKPOINT = 992;
 @Component({
   selector: 'app-calendario',
   standalone: true,
-  imports: [CommonModule, TmCalendarComponent, AgendaModalDiaComponent],
+  imports: [CommonModule, TmCalendarComponent, AgendaModalDiaComponent, TmSelectComponent],
   templateUrl: './calendario.component.html',
   styleUrl: './calendario.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -49,16 +56,47 @@ export class CalendarioComponent implements OnInit, OnDestroy {
   /** Estado do Modal de Gestão do Dia */
   protected readonly showModalDia = signal(false);
   protected readonly dataSelecionadaModal = signal<Date | null>(null);
+  /** Estado do filtro de agendamento por status (Todos, Confirmado, Aguardando, Recusado/Cancelado). */
+  protected readonly filtroStatus = signal<FiltroStatus>('todos');
 
-  readonly agendamentosFiltrados = this.agendaService.getAgendamentosFiltrados(this.authService.currentUser());
+  protected readonly opcoesFiltroStatus: TmSelectOption<FiltroStatus>[] = [
+    { value: 'todos', label: 'Todos os agendamentos' },
+    { value: 'confirmado', label: 'Confirmados' },
+    { value: 'aguardando', label: 'Aguardando confirmação' },
+    { value: 'recusado', label: 'Recusados / Cancelados' },
+  ];
+
+  protected onFiltroChange(val: unknown): void {
+    if (val && typeof val === 'string') {
+      this.filtroStatus.set(val as FiltroStatus);
+    }
+  }
+
+  private readonly todosAgendamentos = this.agendaService.getAgendamentosFiltrados(this.authService.currentUser());
+
+  readonly agendamentosFiltrados = computed(() => {
+    const todos = this.todosAgendamentos();
+    const filtro = this.filtroStatus();
+
+    if (filtro === 'confirmado') {
+      return todos.filter((a) => a.status === 'confirmado' || a.status === 'concluido');
+    }
+    if (filtro === 'aguardando') {
+      return todos.filter((a) => a.status === 'pendente' || a.status === 'agendado');
+    }
+    if (filtro === 'recusado') {
+      return todos.filter((a) => a.status === 'recusado' || a.status === 'cancelado' || a.status === 'no-show');
+    }
+    return todos;
+  });
+
   readonly tituloAgenda = computed(() =>
     this.authService.hasAdminRole() ? 'Agenda Completa' : 'Minha Agenda',
   );
 
-  // Filtro multi-nível (RF-20): Admin vê todos os agendamentos; Profissional-only vê apenas os seus.
-  readonly filtroAtivo = computed(() =>
-    this.authService.hasAdminRole() ? 'Todos os agendamentos' : 'Somente os meus',
-  );
+  protected setFiltroStatus(status: FiltroStatus): void {
+    this.filtroStatus.set(status);
+  }
 
   /** Horário inicial e final exibidos na visão de Dia, baseados no horário de funcionamento do estabelecimento. */
   readonly dayStartHour = computed(() => {
@@ -75,17 +113,51 @@ export class CalendarioComponent implements OnInit, OnDestroy {
 
   private resizeHandler?: () => void;
 
+  /** Timer de recarga automática da página da agenda. */
+  private refreshTimer?: number;
+
   ngOnInit() {
     this.carregarAgendamentos();
     this.estabelecimentoService.carregarHorarios();
     this.setupResizeListener();
+    this.setupRefreshTimer();
+    this.setupVisibilityRefresh();
   }
 
   ngOnDestroy() {
     if (this.resizeHandler && isPlatformBrowser(this.platformId)) {
       window.removeEventListener('resize', this.resizeHandler);
     }
+    if (this.visibilityHandler && isPlatformBrowser(this.platformId)) {
+      document.removeEventListener('visibilitychange', this.visibilityHandler);
+    }
+    if (this.refreshTimer) {
+      clearInterval(this.refreshTimer);
+    }
   }
+
+  /** Atualiza os agendamentos a cada 1 minuto sem recarregar a página — busca os dados na API
+   *  e re-renderiza o calendário no lugar (ex.: criação, confirmação, cancelamento). */
+  private setupRefreshTimer(): void {
+    if (!isPlatformBrowser(this.platformId)) return;
+    this.refreshTimer = window.setInterval(() => {
+      void this.carregarAgendamentos();
+    }, REFRESH_INTERVAL_MS);
+  }
+
+  /** Atualiza os agendamentos ao voltar para a aba — o cliente pode ter agendado pelo WhatsApp
+   *  ou pelo link público enquanto a aba ficou em segundo plano (navegador pausa timers e
+   *  eventos de abas em background). */
+  private setupVisibilityRefresh(): void {
+    if (!isPlatformBrowser(this.platformId)) return;
+    document.addEventListener('visibilitychange', this.visibilityHandler);
+  }
+
+  private readonly visibilityHandler = (): void => {
+    if (document.visibilityState === 'visible') {
+      void this.carregarAgendamentos();
+    }
+  };
 
   /** Carrega os agendamentos reais da API aplicando o filtro por perfil (RF-20). */
   protected async carregarAgendamentos(): Promise<void> {
@@ -125,14 +197,17 @@ export class CalendarioComponent implements OnInit, OnDestroy {
   events = computed<CalendarEvent[]>(() =>
     this.agendamentosFiltrados().map(a => {
       const primeiroNome = a.clienteNome ? a.clienteNome.trim().split(' ')[0] : '';
+      const cor = CORES_STATUS[a.status];
+      const inicio = agendamentoParaDateLocal(a.dataInicio);
+      const fim = agendamentoParaDateLocal(a.dataFim);
       return {
         id: a.id,
-        start: a.dataInicio,
-        end: a.dataFim,
+        start: inicio,
+        end: fim,
         title: primeiroNome,
         color: {
-          primary: a.corPrimaria || '#0d6efd',
-          secondary: a.corPrimaria || '#0d6efd'
+          primary: cor,
+          secondary: cor
         },
         meta: a
       };

@@ -16,6 +16,10 @@ export class PassoResumoComponent {
   readonly data = input<string | null>(null);
   readonly horario = input<string | null>(null);
   readonly isLoading = input(false);
+  /** Nome do plano quando o agendamento é via assinatura (incluso no plano). */
+  readonly planoNome = input<string | null>(null);
+  /** Duração em minutos quando o agendamento é via plano. */
+  readonly duracao = input<number | null>(null);
 
   readonly confirmar = output<void>();
 

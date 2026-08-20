@@ -3,7 +3,9 @@ import { PerfilBadgeConfig } from '../models/perfil-badge-config.model';
 import { StatusBadgeConfig } from '../models/status-badge-config.model';
 import { STATUS_CONFIGS } from '../models/status-configs.model';
 
-@Injectable()
+@Injectable({
+  providedIn: 'root',
+})
 export class GestaoUsuariosHelperService {
   getPerfilBadgeConfig(perfil: string, corHex?: string, iconeClass?: string): PerfilBadgeConfig {
     const label = perfil || 'Desconhecido';

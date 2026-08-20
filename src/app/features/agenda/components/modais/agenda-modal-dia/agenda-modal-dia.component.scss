@@ -1,37 +1,218 @@
 .agenda-modal-content {
   min-height: 250px;
-
-  .time-badge {
-    min-width: 65px;
-    background-color: var(--tm-input-bg);
-    color: var(--tm-text-primary);
-    border: 1px solid var(--tm-border-color);
-  }
+  max-width: 100%;
+  overflow-x: hidden;
+  word-break: break-word;
+  overflow-wrap: anywhere;
 
   .empty-state {
     background-color: var(--tm-input-bg);
     border: 1px dashed var(--tm-border-color);
+
+    .empty-icon {
+      width: 56px;
+      height: 56px;
+      border-radius: 16px;
+      background: rgba(var(--tm-primary-rgb, 13, 110, 253), 0.1);
+      color: var(--tm-primary, #0d6efd);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.4rem;
+    }
   }
 
   .agendamento-item {
-    background-color: transparent !important;
-    border-color: var(--tm-border-color) !important;
+    background-color: var(--tm-input-bg);
+    border: 1px solid var(--tm-border-color);
     color: var(--tm-text-primary);
+    cursor: pointer;
+    max-width: 100%;
+    word-break: break-word;
+    overflow-wrap: anywhere;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+
+    &:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+      border-color: rgba(var(--tm-primary-rgb, 13, 110, 253), 0.5);
+    }
+
+    &.is-cancelado {
+      opacity: 0.55;
+      filter: grayscale(0.4);
+
+      &:hover {
+        transform: none;
+        box-shadow: none;
+        border-color: var(--tm-border-color);
+      }
+    }
   }
 
-  .form-panel {
-    background-color: var(--tm-input-bg);
+  .time-chip {
+    min-width: 72px;
+    background: var(--tm-primary, #0d6efd);
+    border: 1px solid rgba(var(--tm-primary-rgb, 13, 110, 253), 0.15);
+
+    .time-chip-hora {
+      font-size: 0.95rem;
+      color: #ffffff;
+    }
+
+    .time-chip-label {
+      font-size: 0.55rem;
+      letter-spacing: 0.5px;
+      color: rgba(255, 255, 255, 0.85);
+    }
+  }
+
+  /* Botões de decisão dos detalhes: área de toque generosa para evitar clique enganado em mobile */
+  .detalhe-acoes {
+    ::ng-deep tm-button {
+      display: block !important;
+
+      .btn, button {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        width: 100% !important;
+        min-height: 52px;
+        font-size: 1rem;
+        font-weight: 600;
+        padding: 0.75rem 1rem;
+      }
+    }
+
+    /* Confirmar é a ação principal: cresce para ocupar o espaço restante da linha */
+    .acao-confirmar {
+      flex: 1 1 auto;
+    }
+
+    /* Recusar menor que Confirmar: largura fixa reduzida quando há os dois; ocupa a linha toda quando é a única ação */
+    .acao-recusar {
+      flex: 0 0 auto;
+    }
+
+    @media (min-width: 768px) {
+      .acao-recusar {
+        flex: 0 0 140px;
+      }
+    }
+
+    /* Recusar sozinho (sem Confirmar) volta a ocupar a linha toda */
+    .acao-recusar:only-child {
+      flex: 1 1 auto;
+    }
   }
 }
 
+.tracking-wider {
+  letter-spacing: 0.05em;
+}
+
+.custom-dark-card {
+  background-color: #ffffff;
+}
+
 :host-context([data-theme='dark']) {
+  .agendamento-item {
+    background-color: var(--tm-surface-color, #161b22);
+  }
+
+  .custom-dark-card {
+    background-color: #161b22 !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  }
+
   .custom-dark-text {
     color: #ffffff !important;
   }
 
-  tm-modal {
-    ::ng-deep .form-label {
-      color: #ffffff !important;
+  .time-chip {
+    background: rgba(var(--tm-primary-rgb, 13, 110, 253), 0.85);
+
+    .time-chip-hora {
+      color: #ffffff;
+    }
+
+    .time-chip-label {
+      color: rgba(255, 255, 255, 0.9);
+    }
+  }
+}
+
+/* Layout otimizado exclusivamente para celulares e tablets (< md / max-width: 767.98px) */
+@media (max-width: 767.98px) {
+  .agenda-modal-content {
+    min-height: auto;
+  }
+
+  .header-action {
+    width: 100% !important;
+
+    ::ng-deep tm-button {
+      display: block !important;
+      width: 100% !important;
+
+      .btn, button {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        width: 100% !important;
+      }
+    }
+  }
+
+  .agendamento-item {
+    padding: 0.875rem !important;
+
+    .time-chip {
+      min-width: 62px;
+      padding: 0.5rem 0.5rem !important;
+
+      .time-chip-hora {
+        font-size: 0.875rem;
+      }
+
+      .time-chip-label {
+        font-size: 0.5rem;
+      }
+    }
+
+    .agendamento-actions {
+      border-top: 1px dashed var(--tm-border-color, rgba(255, 255, 255, 0.1));
+      @media (min-width: 576px) {
+        border-top: none;
+      }
+    }
+  }
+
+  .form-actions {
+    flex-direction: column-reverse;
+    gap: 0.75rem !important;
+
+    ::ng-deep tm-button {
+      display: block !important;
+      width: 100% !important;
+
+      .btn, button {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        width: 100% !important;
+      }
+    }
+
+    /* Salvar é a ação principal: cresce em relação aos botões secundários */
+    .acao-salvar {
+      flex: 1 1 auto;
+      min-width: 220px;
+    }
+
+    .acao-excluir,
+    .acao-cancelar {
+      flex: 0 0 auto;
     }
   }
 }

@@ -1,0 +1,224 @@
+<div class="container mt-5 mb-5">
+  @if (profissional(); as p) {
+    <!-- Header: botão voltar + título fixo -->
+    <div class="d-flex align-items-center gap-3 mb-4">
+      <button
+        (click)="voltar()"
+        class="btn btn-light shadow-sm rounded-circle p-0 d-flex align-items-center justify-content-center btn-voltar"
+        title="Cancelar edição"
+      >
+        <i class="fas fa-arrow-left text-muted"></i>
+      </button>
+      <div>
+        <h1 class="h2 text-primary fw-bold mb-1 custom-dark-text">Editar Profissional</h1>
+        <p class="text-muted small mb-0 custom-dark-text">
+          Editando: <strong>{{ p.nome }} {{ p.sobrenome }}</strong>
+        </p>
+      </div>
+    </div>
+
+    <div class="row g-4">
+      <div class="col-12">
+        <div class="card border-0 shadow-sm p-4 custom-dark-card">
+          <form [formGroup]="form" (ngSubmit)="salvar()">
+            <div class="row g-3">
+              <!-- Foto de Perfil -->
+              <div class="col-12 mb-2">
+                <label class="form-label fw-semibold custom-dark-text mb-2">Foto de Perfil</label>
+                <div class="d-flex align-items-center gap-3">
+                  <div class="avatar-container position-relative">
+                    @if (fotoVisivel()) {
+                      <img
+                        [src]="fotoVisivel()"
+                        alt="Foto do profissional"
+                        class="rounded-circle border object-fit-cover shadow-sm"
+                        style="width: 80px; height: 80px"
+                      />
+                    } @else {
+                      <div
+                        class="rounded-circle border bg-secondary-subtle d-flex align-items-center justify-content-center text-secondary shadow-sm"
+                        style="width: 80px; height: 80px; font-size: 2rem"
+                      >
+                        <i class="fas fa-user"></i>
+                      </div>
+                    }
+                  </div>
+                  <div>
+                    <input
+                      type="file"
+                      #fileInput
+                      (change)="onFotoSelected($event)"
+                      accept="image/png, image/jpeg, image/webp"
+                      class="d-none"
+                    />
+                    <button
+                      type="button"
+                      class="btn btn-primary border-0 fw-semibold d-inline-flex align-items-center gap-2 px-2 py-1 shadow-sm"
+                      (click)="fileInput.click()"
+                    >
+                      <i class="fas fa-camera"></i>
+                      <span>{{ fotoVisivel() ? 'Alterar foto' : 'Enviar foto' }}</span>
+                    </button>
+                    <div class="small text-muted mt-1 custom-dark-text">
+                      Formatos permitidos: JPG, PNG ou WEBP (máx 5MB).
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Nome -->
+              <div class="col-sm-6 col-12">
+                <tm-text
+                  formControlName="nome"
+                  label="Nome *"
+                  placeholder="Ex: Michel"
+                  class="custom-dark-text"
+                ></tm-text>
+                @if (form.get('nome')?.touched && form.get('nome')?.invalid) {
+                  <div class="text-danger extra-small mt-1">Nome é obrigatório.</div>
+                }
+              </div>
+
+              <!-- Sobrenome -->
+              <div class="col-sm-6 col-12">
+                <tm-text
+                  formControlName="sobrenome"
+                  label="Sobrenome *"
+                  placeholder="Ex: Silva"
+                  class="custom-dark-text"
+                ></tm-text>
+                @if (form.get('sobrenome')?.touched && form.get('sobrenome')?.invalid) {
+                  <div class="text-danger extra-small mt-1">Sobrenome é obrigatório.</div>
+                }
+              </div>
+
+              <!-- E-mail -->
+              <div class="col-sm-6 col-12">
+                <tm-text
+                  formControlName="email"
+                  label="E-mail *"
+                  placeholder="exemplo@email.com"
+                  type="email"
+                  class="custom-dark-text"
+                ></tm-text>
+                @if (form.get('email')?.touched && form.get('email')?.invalid) {
+                  <div class="text-danger extra-small mt-1">Insira um e-mail válido.</div>
+                }
+              </div>
+
+              <!-- WhatsApp / Telefone -->
+              <div class="col-sm-6 col-12">
+                <tm-text
+                  formControlName="numeroWhatsApp"
+                  label="Telefone / WhatsApp *"
+                  placeholder="(11) 98888-7777"
+                  mask="phone"
+                  [maxlength]="15"
+                  class="custom-dark-text"
+                ></tm-text>
+                @if (form.get('numeroWhatsApp')?.touched && form.get('numeroWhatsApp')?.invalid) {
+                  <div class="text-danger extra-small mt-1">
+                    Informe um número de telefone / WhatsApp válido.
+                  </div>
+                }
+              </div>
+
+              <!-- Atuação: serviços prestados -->
+              <div class="col-12">
+                <tm-select
+                  formControlName="servicoIds"
+                  label="Serviços Prestados *"
+                  [options]="servicosOptions()"
+                  [multiple]="true"
+                  [searchable]="true"
+                  placeholder="Selecione os serviços que este profissional realiza"
+                  [darkMode]="themeService.isDarkMode()"
+                  class="custom-dark-text"
+                ></tm-select>
+                <div class="small text-muted mt-1 custom-dark-text">
+                  Apenas serviços do catálogo poderão ser agendados com este profissional.
+                </div>
+                @if (form.get('servicoIds')?.touched && form.get('servicoIds')?.invalid) {
+                  <div class="text-danger extra-small mt-1">Selecione ao menos um serviço.</div>
+                }
+              </div>
+
+              <!-- Atuação: planos do clube -->
+              <div class="col-12">
+                <tm-select
+                  formControlName="planoIds"
+                  label="Planos (Clube)"
+                  [options]="planosOptions()"
+                  [multiple]="true"
+                  [searchable]="true"
+                  placeholder="Selecione os planos atendidos por este profissional"
+                  [darkMode]="themeService.isDarkMode()"
+                  class="custom-dark-text"
+                ></tm-select>
+                <div class="small text-muted mt-1 custom-dark-text">
+                  Clientes com assinatura ativa dos planos selecionados poderão agendar com este
+                  profissional.
+                </div>
+              </div>
+
+              <!-- Status do profissional -->
+              <div class="col-12">
+                <div
+                  class="d-flex align-items-center justify-content-between flex-wrap gap-2 p-3 rounded-3 border border-secondary-subtle"
+                >
+                  <div>
+                    <div class="fw-bold custom-dark-text">Profissional ativo</div>
+                    <div class="small text-muted custom-dark-text">
+                      Profissionais inativos não podem ser selecionados em novos agendamentos.
+                    </div>
+                  </div>
+                  <div class="form-check form-switch mb-0 shrink-0">
+                    <input
+                      class="form-check-input"
+                      type="checkbox"
+                      role="switch"
+                      id="switch-status-profissional"
+                      aria-label="Alternar status do profissional"
+                      [checked]="form.get('status')?.value === 'Ativo'"
+                      (change)="alternarStatus($event)"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Ações -->
+            <div class="d-flex gap-3 mt-4 justify-content-end flex-column flex-sm-row">
+              <button
+                type="button"
+                class="btn btn-outline-secondary fw-semibold px-4 py-2"
+                (click)="voltar()"
+              >
+                Cancelar
+              </button>
+              <button
+                type="submit"
+                class="btn btn-primary fw-bold px-4 py-2"
+                [disabled]="salvando()"
+              >
+                @if (salvando()) {
+                  <span class="spinner-border spinner-border-sm me-2" role="status"></span
+                  >Salvando...
+                } @else {
+                  <i class="fas fa-save me-2"></i>Salvar
+                }
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  } @else {
+    <div class="text-center py-5">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Carregando...</span>
+      </div>
+      <p class="text-muted mt-3">Carregando dados do profissional...</p>
+    </div>
+  }
+</div>

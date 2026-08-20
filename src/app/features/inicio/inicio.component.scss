@@ -3,17 +3,66 @@
   width: 100%;
 }
 
+/* ==========================================================================
+   Ícones e Elementos Visuais (Círculos Perfeitos)
+   ========================================================================== */
 .icon-circle {
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: transform 0.3s ease;
+  width: 44px !important;
+  height: 44px !important;
+  min-width: 44px !important;
+  min-height: 44px !important;
+  max-width: 44px !important;
+  max-height: 44px !important;
+  aspect-ratio: 1 / 1 !important;
+  flex-shrink: 0 !important;
+  border-radius: 50% !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-size: 1.05rem;
+  transition: transform 0.2s ease;
 
   &:hover {
-    transform: scale(1.15);
+    transform: scale(1.1);
+  }
+}
+
+.icon-circle-sm {
+  width: 32px !important;
+  height: 32px !important;
+  min-width: 32px !important;
+  min-height: 32px !important;
+  max-width: 32px !important;
+  max-height: 32px !important;
+  aspect-ratio: 1 / 1 !important;
+  flex-shrink: 0 !important;
+  border-radius: 50% !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-size: 0.85rem;
+}
+
+.rank-circle {
+  width: 24px;
+  height: 24px;
+  min-width: 24px;
+  min-height: 24px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  font-weight: 700;
+
+  &.rank-gold {
+    background-color: var(--tm-warning, #ffc107);
+    color: #000000 !important;
+  }
+
+  &.rank-normal {
+    background-color: rgba(148, 163, 184, 0.2);
+    color: var(--tm-text-secondary, #64748b);
   }
 }
 
@@ -23,23 +72,260 @@
   left: 0;
   width: 100%;
   height: 4px;
+
+  &.bg-purple {
+    background-color: #6f42c1 !important;
+  }
 }
 
-.chart-wrapper {
-  height: 350px;
+.bg-purple-subtle {
+  background-color: rgba(111, 66, 193, 0.12) !important;
+  color: #6f42c1 !important;
+  border: 1px solid rgba(111, 66, 193, 0.2) !important;
 }
 
-.chart-wrapper--centered {
-  display: flex;
-  justify-content: center;
-  align-items: center;
+.text-purple {
+  color: #6f42c1 !important;
 }
 
+.border-purple-subtle {
+  border-color: rgba(111, 66, 193, 0.25) !important;
+}
+
+.bg-gradient-purple {
+  background: linear-gradient(135deg, #6f42c1 0%, #0d6efd 100%) !important;
+}
+
+/* ==========================================================================
+   Estilização Padrão dos Cards (Padrão do Sistema)
+   ========================================================================== */
+.custom-dark-card {
+  background-color: var(--tm-surface-color, #ffffff) !important;
+  border: 1px solid var(--tm-border-color, #e2e8f0) !important;
+  color: var(--tm-text-primary, #0f172a);
+}
+
+.custom-dark-title {
+  color: var(--tm-text-primary, #0f172a);
+}
+
+.custom-dark-subtitle {
+  color: var(--tm-text-secondary, #64748b);
+}
+
+.custom-dark-muted {
+  color: var(--tm-text-secondary, #64748b);
+}
+
+.custom-dark-label {
+  color: var(--tm-text-secondary, #64748b);
+}
+
+.custom-dark-input {
+  background-color: var(--tm-surface-color, #ffffff);
+  color: var(--tm-text-primary, #0f172a);
+  border: 1px solid var(--tm-border-color, #cbd5e1);
+
+  &:focus {
+    border-color: var(--tm-primary, #0d6efd);
+    box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.15);
+  }
+}
+
+/* ==========================================================================
+   Estilização das Abas (Tabs Pills Elegantes)
+   ========================================================================== */
+.dash-tabs-wrapper {
+  .btn-tab-pill {
+    background-color: transparent;
+    color: var(--tm-text-secondary, #64748b);
+    border: 1px solid transparent;
+
+    &:hover {
+      color: var(--tm-primary, #0d6efd);
+      background-color: rgba(13, 110, 253, 0.08);
+    }
+
+    &.active {
+      background-color: var(--tm-primary, #0d6efd) !important;
+      color: #ffffff !important;
+      border-color: var(--tm-primary, #0d6efd) !important;
+      box-shadow: 0 4px 12px rgba(13, 110, 253, 0.25) !important;
+    }
+  }
+}
+
+/* ==========================================================================
+   Hover nos Cards de Serviço
+   ========================================================================== */
 .card.tm-card {
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 
   &:hover {
-    transform: translateY(-4px);
-    box-shadow: var(--tm-shadow-md) !important;
+    transform: translateY(-3px);
+    box-shadow: var(--tm-shadow-md, 0 8px 16px rgba(0, 0, 0, 0.08)) !important;
+  }
+}
+
+.servico-card {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px -4px rgba(0, 0, 0, 0.1) !important;
+  }
+}
+
+.form-range {
+  height: 8px;
+  cursor: pointer;
+
+  &::-webkit-slider-thumb {
+    width: 20px;
+    height: 20px;
+    background-color: var(--tm-primary, #0d6efd);
+    border: 2px solid #ffffff;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+  }
+}
+
+/* ==========================================================================
+   Ajustes de Responsividade (Mobile xs/sm, Tablet md, Desktop lg/xl/xxl)
+   ========================================================================== */
+@media (max-width: 575.98px) {
+  .icon-circle {
+    width: 36px !important;
+    height: 36px !important;
+    min-width: 36px !important;
+    min-height: 36px !important;
+    max-width: 36px !important;
+    max-height: 36px !important;
+    font-size: 0.9rem;
+  }
+
+  .btn-tab-pill {
+    font-size: 0.82rem !important;
+    padding: 0.4rem 0.85rem !important;
+  }
+}
+
+/* ==========================================================================
+   REGRAS DE TEMA ESCURO PADRONIZADAS (#161b22)
+   ========================================================================== */
+:host-context([data-theme='dark']),
+[data-theme='dark'] {
+  .custom-dark-card {
+    background-color: #161b22 !important;
+    color: #f8fafc !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
+  }
+
+  .custom-dark-title {
+    color: #f8fafc !important;
+  }
+
+  .custom-dark-subtitle {
+    color: #cbd5e1 !important;
+  }
+
+  .custom-dark-muted {
+    color: #94a3b8 !important;
+  }
+
+  .custom-dark-label {
+    color: #cbd5e1 !important;
+  }
+
+  .custom-dark-input {
+    background-color: #0d1117 !important;
+    color: #f8fafc !important;
+    border-color: rgba(255, 255, 255, 0.15) !important;
+    font-weight: 500;
+
+    &:focus {
+      border-color: #0d6efd !important;
+      box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.25) !important;
+    }
+
+    option {
+      background-color: #0d1117 !important;
+      color: #f8fafc !important;
+    }
+  }
+
+  .btn-tab-pill {
+    color: #cbd5e1;
+
+    &:hover {
+      color: #60a5fa;
+      background-color: rgba(96, 165, 250, 0.12);
+    }
+
+    &.active {
+      background-color: #0d6efd !important;
+      color: #ffffff !important;
+      border-color: #0d6efd !important;
+      box-shadow: 0 4px 14px rgba(13, 110, 253, 0.4) !important;
+    }
+  }
+
+  .custom-dark-table {
+    background-color: transparent !important;
+    color: #f8fafc !important;
+
+    thead th {
+      background-color: #0d1117 !important;
+      color: #cbd5e1 !important;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+      font-weight: 700;
+    }
+
+    tbody tr, tbody td {
+      background-color: transparent !important;
+      color: #f8fafc !important;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+    }
+
+    tbody tr:hover td {
+      background-color: rgba(255, 255, 255, 0.04) !important;
+    }
+  }
+
+  /* Badges Padronizados em Tema Escuro */
+  .bg-primary-subtle {
+    background-color: rgba(13, 110, 253, 0.15) !important;
+    color: #60a5fa !important;
+    border: 1px solid rgba(96, 165, 250, 0.25) !important;
+  }
+
+  .bg-success-subtle {
+    background-color: rgba(25, 135, 84, 0.15) !important;
+    color: #4ade80 !important;
+    border: 1px solid rgba(74, 222, 128, 0.25) !important;
+  }
+
+  .bg-warning-subtle {
+    background-color: rgba(245, 158, 11, 0.15) !important;
+    color: #fbbf24 !important;
+    border: 1px solid rgba(251, 191, 36, 0.25) !important;
+  }
+
+  .bg-danger-subtle {
+    background-color: rgba(239, 68, 68, 0.15) !important;
+    color: #f87171 !important;
+    border: 1px solid rgba(248, 113, 113, 0.25) !important;
+  }
+
+  .bg-purple-subtle {
+    background-color: rgba(111, 66, 193, 0.15) !important;
+    color: #c084fc !important;
+    border: 1px solid rgba(192, 132, 252, 0.25) !important;
+  }
+
+  .bg-secondary-subtle {
+    background-color: rgba(148, 163, 184, 0.15) !important;
+    color: #e2e8f0 !important;
+    border: 1px solid rgba(226, 232, 240, 0.25) !important;
   }
 }

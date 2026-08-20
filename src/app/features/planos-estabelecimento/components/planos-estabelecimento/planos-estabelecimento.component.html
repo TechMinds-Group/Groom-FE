@@ -26,15 +26,6 @@
   </div>
 </div>
 
-<app-plano-modal-editar
-  [(show)]="showFormModal"
-  [plano]="null"
-  [opcoesBeneficios]="opcoesBeneficios()"
-  (confirm)="salvar($event)"
-  (cancel)="showFormModal.set(false)"
-  (addBeneficio)="adicionarNovoBeneficio($event)"
-></app-plano-modal-editar>
-
 <ng-template #nomeTemplate let-item>
   <div class="d-flex flex-column text-start">
     <strong class="fw-bold custom-dark-text">{{ item.nome }}</strong>
@@ -51,6 +42,14 @@
 <ng-template #frequenciaTemplate let-item>
   <div class="text-start">
     <span class="custom-dark-text">{{ item.frequencia | frequenciaPlano }}</span>
+  </div>
+</ng-template>
+
+<ng-template #assinantesTemplate let-item>
+  <div class="text-start">
+    <span class="badge bg-secondary-subtle text-secondary border px-2.5 py-1 rounded-pill small fw-semibold">
+      <i class="fas fa-users me-1 text-primary"></i>{{ item.totalAssinantes ?? 0 }} {{ (item.totalAssinantes === 1 ? 'assinante' : 'assinantes') }}
+    </span>
   </div>
 </ng-template>
 

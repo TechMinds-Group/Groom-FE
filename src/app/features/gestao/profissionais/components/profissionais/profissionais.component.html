@@ -1,0 +1,51 @@
+<div class="container mt-5">
+  <div class="row mb-4 align-items-center">
+    <div class="col-lg-8 col-12">
+      <h1 class="h2 text-primary fw-bold mb-2 custom-dark-text">
+        <i class="fas fa-user-tie me-2"></i>Profissionais
+      </h1>
+      <p class="text-muted custom-dark-text">
+        Visualize a lista de profissionais cadastrados no sistema.
+      </p>
+    </div>
+  </div>
+
+  <div class="mb-5">
+    <tm-table
+      [cols]="cols()"
+      [data]="profissionais()"
+      [paginated]="true"
+      [pageSize]="tamanhoPagina()"
+      (pageSizeChange)="tamanhoPagina.set($event)"
+      [showControls]="true"
+      (rowClick)="verDetalhes($event)"
+    ></tm-table>
+  </div>
+</div>
+
+<ng-template #usuarioTemplate let-item>
+  <div class="d-flex flex-column text-start">
+    <strong class="fw-bold custom-dark-text">{{ item.nome }} {{ item.sobrenome }}</strong>
+    <span class="text-muted small custom-dark-text">{{ item.email }}</span>
+  </div>
+</ng-template>
+
+<ng-template #perfilTemplate let-item>
+  <div class="d-flex align-items-center gap-1 flex-wrap">
+    @for (badge of (item | perfilBadge); track badge.label) {
+      <span class="badge border px-2.5 py-1 rounded-pill small fw-semibold" [ngClass]="badge.badgeClass">
+        <i [class]="badge.iconClass" class="me-1"></i>{{ badge.label }}
+      </span>
+    }
+  </div>
+</ng-template>
+
+<ng-template #statusTemplate let-item>
+  <div class="d-flex align-items-center gap-2">
+    @if (item.status | statusBadge; as badge) {
+      <span class="badge border px-2.5 py-1 rounded-pill small fw-semibold" [ngClass]="badge.badgeClass">
+        <i [class]="badge.iconClass" class="me-1"></i>{{ badge.label }}
+      </span>
+    }
+  </div>
+</ng-template>

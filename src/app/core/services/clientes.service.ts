@@ -1,11 +1,12 @@
 import { inject, Injectable, signal } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { Cliente } from '../models/clientes/cliente.model';
 
 export interface ClientePayload {
-  nome: string;
+  primeiroNome: string;
+  sobrenome: string;
   email?: string;
   celular: string;
   cpf?: string;
@@ -51,11 +52,22 @@ export class ClientesService {
     await this.carregarClientes();
   }
 
-  async excluir(id: string): Promise<void> {
-    await firstValueFrom(
-      this.http.delete<void>(`${this.apiUrl}/${id}`, { withCredentials: true })
-    );
-    await this.carregarClientes();
+  async excluir(id: string, confirmarAgendamentosFuturos = false): Promise<void> {
+    try {
+      await firstValueFrom(
+        this.http.delete<void>(`${this.apiUrl}/${id}?confirmarAgendamentosFuturos=${confirmarAgendamentosFuturos}`, { withCredentials: true })
+      );
+      await this.carregarClientes();
+    } catch (err: unknown) {
+      if (err instanceof HttpErrorResponse) {
+        const body = err.error as { message?: string; detail?: string; requiresConfirmation?: boolean } | null;
+        if (err.status === 409 && body?.requiresConfirmation) {
+          throw { requiresConfirmation: true, message: body.message };
+        }
+        throw new Error(body?.message ?? body?.detail ?? 'Não é possível excluir o cliente pois ele possui vínculos no sistema.');
+      }
+      throw err;
+    }
   }
 
   async atualizarCelularMeuPerfil(celular: string): Promise<void> {

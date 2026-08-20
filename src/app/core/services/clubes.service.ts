@@ -11,6 +11,7 @@ export interface ClubeConfig {
   descricao: string;
   recursos: string[];
   totalAssinantes: number;
+  duracaoTotal?: number;
   status: 'Ativo' | 'Inativo' | string;
 }
 

@@ -1,7 +1,17 @@
 import { Injectable } from '@angular/core';
+import { Cliente } from '../../../core/models/clientes/cliente.model';
 
-@Injectable()
+@Injectable({
+  providedIn: 'root',
+})
 export class ClientesHelperService {
+  separarNome(c: Cliente): { primeiroNome: string; sobrenome: string } {
+    const partes = (c.nome || '').trim().split(/\s+/).filter(Boolean);
+    const primeiroNome = c.primeiroNome || partes[0] || '';
+    const sobrenome = c.sobrenome || (partes.length > 1 ? partes.slice(1).join(' ') : '');
+    return { primeiroNome, sobrenome };
+  }
+
   formatarData(dataStr: string | undefined): string {
     if (!dataStr) return '';
     if (dataStr.includes('/')) return dataStr;

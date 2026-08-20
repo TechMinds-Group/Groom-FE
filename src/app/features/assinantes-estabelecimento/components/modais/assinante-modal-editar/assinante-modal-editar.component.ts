@@ -4,6 +4,7 @@ import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { TmModalComponent, TmTextComponent, TmSelectComponent, TmSelectOption, TmDateComponent } from '@techminds-group/tm-angular-lib';
 import { AssinanteDetalhes } from '../../../models/assinante-config.model';
 import { ContactPickerService } from '../../../../../core/services/contact-picker.service';
+import { ThemeService } from '../../../../../core/services/theme.service';
 
 export interface AssinanteEdicaoPayload {
   clienteNome: string;
@@ -24,6 +25,8 @@ export interface AssinanteEdicaoPayload {
 export class AssinanteModalEditarComponent {
   private readonly fb = inject(FormBuilder);
   private readonly contactPicker = inject(ContactPickerService);
+
+  protected readonly themeService = inject(ThemeService);
 
   readonly show = model<boolean>(false);
   readonly assinante = input<AssinanteDetalhes | null>(null);

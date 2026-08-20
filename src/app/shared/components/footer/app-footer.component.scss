@@ -1,9 +1,15 @@
 .app-footer {
   // margin-top: auto mantém o rodapé sempre no fim da página quando o conteúdo não preenche a tela.
   margin-top: auto;
+  // sticky bottom: o rodapé permanece fixo na base do viewport enquanto a página rola.
+  position: sticky;
+  bottom: 0;
+  z-index: 10;
   padding: 0.5rem 1.25rem;
   border-top: 1px solid color-mix(in srgb, var(--tm-border-color) 60%, transparent);
   background: color-mix(in srgb, var(--tm-bg-color) 92%, transparent);
+  backdrop-filter: blur(6px);
+  box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.06);
 
   &__content {
     display: flex;

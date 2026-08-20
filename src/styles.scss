@@ -52,3 +52,28 @@ body.sidebar-collapsed tm-sidebar .sidebar {
   color: var(--badge-color) !important;
   border-color: color-mix(in srgb, var(--badge-color) 15%, transparent) !important;
 }
+
+/* Popover de ajuda (ícone de interrogação) — renderizado via CDK Overlay fora do bloco */
+.dash-popover-panel {
+  width: 260px;
+  max-width: calc(100vw - 2.5rem);
+  background: var(--tm-surface-color, #ffffff);
+  color: var(--tm-text-primary, #212529);
+  border: 1px solid var(--tm-border-color, #e2e8f0);
+  border-radius: 12px;
+  padding: 0.85rem 1rem;
+  font-size: 0.8rem;
+  line-height: 1.5;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.14);
+
+  p {
+    margin: 0;
+  }
+}
+
+[data-theme='dark'] .dash-popover-panel {
+  background: #1c2128 !important;
+  border-color: rgba(255, 255, 255, 0.12) !important;
+  color: rgba(255, 255, 255, 0.88) !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5) !important;
+}

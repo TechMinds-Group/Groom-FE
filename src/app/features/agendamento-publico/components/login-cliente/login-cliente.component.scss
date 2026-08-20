@@ -11,11 +11,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 0.25rem;
-  background:
-    radial-gradient(ellipse at top left, rgba(13, 110, 253, 0.08), transparent 55%),
-    radial-gradient(ellipse at bottom right, rgba(13, 110, 253, 0.05), transparent 55%),
-    var(--tm-bg-color);
+  padding: 1rem 0.25rem 3rem;
+  background-color: var(--tm-bg-color);
 
   .text-muted {
     color: var(--tm-text-secondary) !important;
@@ -52,7 +49,6 @@
     font-size: 1.35rem;
     color: #ffffff !important;
     border: 2px solid color-mix(in srgb, var(--tm-primary) 30%, transparent);
-    box-shadow: 0 4px 12px rgba(13, 110, 253, 0.25);
     flex-shrink: 0;
   }
 
@@ -86,11 +82,12 @@
   &__card {
     position: relative;
     width: 100%;
-    padding: 1.25rem 1.5rem;
+    padding: 2.5rem;
     border: 1px solid var(--tm-border-color);
-    border-radius: 20px;
+    border-radius: 16px;
     background: var(--tm-surface-color);
-    box-shadow: 0 20px 50px -10px rgba(0, 0, 0, 0.18);
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    animation: slideUp 0.4s ease-out forwards;
 
     ::ng-deep .form-label {
       color: var(--tm-text-primary) !important;
@@ -105,18 +102,23 @@
     }
 
     ::ng-deep .agendamento-login__submit .btn {
-      height: 48px;
+      background-color: var(--tm-primary-color, #3b82f6);
+      border: none;
+      border-radius: 8px;
       font-size: 0.95rem;
       font-weight: 600;
-      border-radius: 12px;
-      background: linear-gradient(135deg, var(--tm-primary), color-mix(in srgb, var(--tm-primary) 60%, #6610f2));
-      border: none;
-      box-shadow: 0 8px 20px -6px rgba(13, 110, 253, 0.5);
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      height: 48px;
+      transition: all 0.2s ease;
 
       &:hover:not(:disabled) {
+        background-color: var(--tm-primary-hover, #2563eb);
         transform: translateY(-1px);
-        box-shadow: 0 12px 24px -6px rgba(13, 110, 253, 0.6);
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+      }
+
+      &:disabled {
+        opacity: 0.7;
+        cursor: not-allowed;
       }
     }
   }
@@ -203,11 +205,6 @@
 
 :host-context([data-theme='dark']) {
   .agendamento-login {
-    background:
-      radial-gradient(ellipse at top left, rgba(13, 110, 253, 0.12), transparent 55%),
-      radial-gradient(ellipse at bottom right, rgba(13, 110, 253, 0.08), transparent 55%),
-      var(--tm-bg-color);
-
     .text-muted {
       color: var(--tm-text-secondary, #94a3b8) !important;
     }
@@ -221,10 +218,21 @@
     }
 
     .alert-danger {
-      background-color: rgba(207, 102, 121, 0.1);
-      color: #cf6679;
-      border-color: rgba(207, 102, 121, 0.2);
+      background-color: rgba(239, 68, 68, 0.1);
+      color: #ef4444;
+      border-color: rgba(239, 68, 68, 0.2);
     }
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 

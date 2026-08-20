@@ -50,7 +50,7 @@
     <div class="mb-3 d-flex flex-column">
       <label class="form-label small fw-bold text-muted text-uppercase tracking-wider mb-2 custom-dark-text">Plano</label>
       @if (clubeOptions().length > 0) {
-        <tm-select formControlName="clubeId" [options]="clubeOptions()" class="custom-dark-text"></tm-select>
+        <tm-select formControlName="clubeId" [options]="clubeOptions()" [darkMode]="themeService.isDarkMode()" class="custom-dark-text"></tm-select>
       } @else {
         <div class="text-danger small py-2">
           <i class="fas fa-exclamation-triangle me-1"></i> Nenhum plano ativo disponível.

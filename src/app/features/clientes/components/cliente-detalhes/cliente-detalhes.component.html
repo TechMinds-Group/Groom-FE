@@ -1,0 +1,212 @@
+<div class="container mt-5">
+  @if (cliente(); as c) {
+    <!-- Header: botão voltar circular + nome + subtítulo — padrão idêntico ao gestao-usuario-detalhes -->
+    <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between mb-4 gap-3">
+      <div class="d-flex align-items-center gap-3">
+        <button (click)="voltar()" class="btn btn-light shadow-sm rounded-circle p-0 d-flex align-items-center justify-content-center btn-voltar" title="Voltar para Clientes">
+          <i class="fas fa-arrow-left text-muted"></i>
+        </button>
+
+        <div>
+          <h1 class="h2 text-primary fw-bold mb-1 custom-dark-text">
+            Detalhes do Cliente
+          </h1>
+          <p class="text-muted custom-dark-text small mb-0">Informações completas, contato e histórico de agendamentos.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Error banner de exclusão bloqueada -->
+    @if (mensagemErroExclusao()) {
+      <div class="alert alert-danger alert-dismissible d-flex align-items-start gap-2 mb-4 shadow-sm rounded-3" role="alert">
+        <i class="fas fa-exclamation-triangle mt-1 flex-shrink-0"></i>
+        <div style="min-width: 0; overflow: hidden; word-break: break-word;">
+          <strong class="d-block">Não é possível excluir este cliente</strong>
+          {{ mensagemErroExclusao() }}
+        </div>
+        <button type="button" class="btn-close ms-auto flex-shrink-0" (click)="mensagemErroExclusao.set(null)" aria-label="Fechar"></button>
+      </div>
+    }
+
+    <!-- Linha 1: Informações (col-lg-8) + Ações (col-lg-4) -->
+    <div class="row g-4 mb-4">
+      <!-- Card: Informações pessoais -->
+      <div class="col-lg-8 col-12">
+        <div class="card border-0 shadow-sm p-4 h-100 details-card custom-dark-card" style="overflow: hidden;">
+          <!-- Avatar + Nome + E-mail -->
+          <div class="d-flex align-items-center gap-3 border-bottom pb-4 mb-4" style="min-width: 0;">
+            <div class="avatar-circle bg-primary-subtle text-primary d-flex align-items-center justify-content-center">
+              <i class="fas fa-user fs-3"></i>
+            </div>
+            <div style="min-width: 0; flex: 1 1 0;">
+              <h3 class="h5 fw-bold mb-0 custom-dark-text" style="word-break: break-word;">{{ c.nome }}</h3>
+            </div>
+          </div>
+
+          <!-- Campos -->
+          <div class="row g-4">
+            <div class="col-sm-6 col-12">
+              <label class="form-label small fw-bold text-muted text-uppercase">Celular / WhatsApp</label>
+              <div class="mt-1 field-value">
+                <span class="fw-medium custom-dark-text"><i class="fab fa-whatsapp text-success me-1"></i>{{ c.celular }}</span>
+              </div>
+            </div>
+
+            <!-- Status dentro do card -->
+            <div class="col-sm-6 col-12">
+              <label class="form-label small fw-bold text-muted text-uppercase">Status</label>
+              <div class="mt-1">
+                @if (c.status | statusClienteBadge; as badge) {
+                  <span class="badge border px-3 py-1 rounded-pill fw-semibold" [ngClass]="badge.badgeClass">
+                    <i [class]="badge.iconClass"></i>{{ badge.label }}
+                  </span>
+                }
+              </div>
+            </div>
+
+            @if (c.email) {
+              <div class="col-sm-6 col-12">
+                <label class="form-label small fw-bold text-muted text-uppercase">E-mail</label>
+                <div class="mt-1 field-value">
+                  <span class="custom-dark-text">{{ c.email }}</span>
+                </div>
+              </div>
+            }
+
+            @if (c.cpf) {
+              <div class="col-sm-6 col-12">
+                <label class="form-label small fw-bold text-muted text-uppercase">CPF</label>
+                <div class="mt-1 field-value">
+                  <span class="custom-dark-text">{{ helper.formatarCpf(c.cpf) }}</span>
+                </div>
+              </div>
+            }
+
+            @if (c.dataNascimento) {
+              <div class="col-sm-6 col-12">
+                <label class="form-label small fw-bold text-muted text-uppercase">Data de Nascimento</label>
+                <div class="mt-1 field-value">
+                  <span class="custom-dark-text">{{ c.dataNascimento | date:'dd/MM/yyyy' }}</span>
+                </div>
+              </div>
+            }
+
+            @if (c.observacoes) {
+              <div class="col-12">
+                <label class="form-label small fw-bold text-muted text-uppercase">Observações</label>
+                <div class="mt-1">
+                  <p class="custom-dark-text custom-dark-highlight rounded p-3 mb-0 small border field-value">{{ c.observacoes }}</p>
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+      </div>
+
+      <!-- Card: Ações rápidas -->
+      <div class="col-lg-4 col-12">
+        <div class="card border-0 shadow-sm p-4 h-100 actions-card custom-dark-card">
+          <h4 class="h5 fw-bold mb-4 custom-dark-text">
+            <i class="fas fa-sliders-h me-2 text-primary"></i>Ações Rápidas
+          </h4>
+
+          <div class="d-grid gap-3">
+            <button (click)="abrirEdicao()" class="btn btn-primary py-2 fw-bold w-100 custom-action-btn">
+              <i class="fas fa-edit me-2"></i>Editar
+            </button>
+
+            <button (click)="excluir()" class="btn btn-outline-danger py-2 fw-bold w-100 custom-action-btn">
+              <i class="fas fa-trash-can me-2"></i>Excluir
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Linha 2: Histórico de Agendamentos -->
+    <div class="row g-4 mb-5">
+      <div class="col-12">
+        <div class="card border-0 shadow-sm p-4 custom-dark-card" style="overflow: hidden;">
+          <h4 class="h5 fw-bold mb-4 custom-dark-text d-flex align-items-center justify-content-between">
+            <span><i class="fas fa-calendar-alt me-2 text-primary"></i>Histórico de Agendamentos</span>
+            <span class="badge bg-primary rounded-pill flex-shrink-0">{{ agendamentosCliente().length }}</span>
+          </h4>
+
+          @if (agendamentosCliente().length === 0) {
+            <div class="text-center py-4 text-muted">
+              <i class="far fa-calendar-times fa-2x mb-2 d-block custom-dark-text"></i>
+              <p class="mb-0 small custom-dark-text">Nenhum agendamento encontrado para este cliente.</p>
+            </div>
+          } @else {
+            <div class="table-responsive">
+              <table class="table table-hover align-middle mb-0 small">
+                <thead class="table-light">
+                  <tr>
+                    <th class="text-nowrap">Serviço</th>
+                    <th class="text-nowrap">Profissional</th>
+                    <th class="text-nowrap">Data / Hora</th>
+                    <th class="text-nowrap">Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (a of agendamentosCliente(); track a.id) {
+                    <tr>
+                      <td class="fw-semibold custom-dark-text text-nowrap">{{ a.servicoNome }}</td>
+                      <td class="custom-dark-text text-nowrap">{{ a.profissionalNome }}</td>
+                      <td class="custom-dark-text text-nowrap">{{ a.dataInicio | date:'dd/MM/yyyy HH:mm' }}</td>
+                      <td class="text-nowrap">
+                        <span class="badge rounded-pill small fw-semibold border text-nowrap" [ngClass]="{
+                          'bg-success-subtle text-success border-success-subtle': a.status === 'confirmado',
+                          'bg-warning-subtle text-warning border-warning-subtle': a.status === 'agendado' || a.status === 'pendente',
+                          'bg-danger-subtle text-danger border-danger-subtle': a.status === 'recusado' || a.status === 'cancelado',
+                          'bg-secondary-subtle text-secondary border-secondary-subtle': a.status === 'concluido'
+                        }">{{ a.status }}</span>
+                      </td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+
+  } @else {
+    <div class="text-center py-5">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Carregando...</span>
+      </div>
+      <p class="text-muted mt-3">Carregando informações do cliente...</p>
+    </div>
+  }
+</div>
+
+<app-cliente-modal-excluir
+  [(show)]="showDeleteConfirmModal"
+  [nomeCliente]="cliente()?.nome || ''"
+  (confirm)="confirmarExcluir(false)"
+  (cancel)="showDeleteConfirmModal.set(false)"
+></app-cliente-modal-excluir>
+
+<tm-modal
+  title="Confirmar Exclusão com Agendamentos Futuros"
+  icon="fas fa-calendar-times"
+  iconClass="text-warning"
+  confirmClass="btn-warning text-dark fw-bold"
+  confirmLabel="Sim, Excluir e Recusar Agendamentos"
+  cancelLabel="Cancelar"
+  [show]="showConfirmarAgendamentosFuturosModal()"
+  (cancel)="showConfirmarAgendamentosFuturosModal.set(false)"
+  (confirm)="confirmarExcluir(true)"
+>
+  <div class="p-1">
+    <p class="mb-2 text-main">
+      {{ mensagemConfirmacaoFuturos() }}
+    </p>
+    <p class="text-muted small mb-0">
+      <i class="fas fa-info-circle me-1 text-warning"></i>
+      Os agendamentos não serão removidos do histórico, mas seu status será alterado para <strong>recusado</strong> na agenda para rastreabilidade.
+    </p>
+  </div>
+</tm-modal>

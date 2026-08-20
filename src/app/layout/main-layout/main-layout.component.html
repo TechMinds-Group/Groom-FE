@@ -1,24 +1,73 @@
-<div class="d-flex h-100 overflow-hidden main-layout-container">
-  <div class="sidebar-column d-none d-lg-flex flex-column" [class.is-collapsed]="sidebarCollapsed()">
-    <app-sidebar (logout)="handleLogout()" (themeToggle)="handleThemeToggle()" (collapseChange)="sidebarCollapsed.set($event)"></app-sidebar>
-    <a class="version-badge" routerLink="/guia" title="Guia do Sistema">
-      <i class="fas fa-tag"></i>
-      @if (!sidebarCollapsed()) {
-        <span class="ms-1">V 1.1.0</span>
-      }
-    </a>
+<div class="d-flex flex-column h-100 overflow-hidden main-layout-container">
+  <!-- Top Bar para Dispositivos Móveis Móvel (< 576px / menor que sm) -->
+  <header class="mobile-header d-sm-none d-flex align-items-center justify-content-between px-3 py-2 border-bottom">
+    <div class="d-flex align-items-center gap-3">
+      <button
+        type="button"
+        class="btn btn-icon btn-mobile-toggle text-light p-2"
+        (click)="toggleMobileDrawer()"
+        aria-label="Abrir Menu"
+      >
+        <i class="fas fa-bars fs-2"></i>
+      </button>
+
+      <div class="d-flex align-items-center gap-2 brand-logo-wrap">
+        <img src="logo.png" alt="Groom Logo" class="mobile-logo" />
+        <span class="fw-bold fs-4 brand-title">Groom</span>
+      </div>
+    </div>
+  </header>
+
+  <div class="d-flex flex-grow-1 overflow-hidden position-relative">
+    <!-- Sidebar Desktop (>= 576px / >= sm) -->
+    <aside class="sidebar-column d-none d-sm-flex flex-column" [class.is-collapsed]="sidebarCollapsed()">
+      <app-sidebar (logout)="handleLogout()" (themeToggle)="handleThemeToggle()" (collapseChange)="sidebarCollapsed.set($event)"></app-sidebar>
+      <a class="version-badge" routerLink="/guia" title="Guia do Sistema">
+        <i class="fas fa-tag"></i>
+        @if (!sidebarCollapsed()) {
+          <span class="ms-1">V 1.1.0</span>
+        }
+      </a>
+    </aside>
+
+    <!-- Overlay / Offcanvas Drawer Mobile (< 576px / menor que sm) -->
+    @if (mobileDrawerOpen()) {
+      <div class="mobile-drawer-backdrop d-sm-none" (click)="closeMobileDrawer()"></div>
+    }
+
+    <aside
+      class="mobile-drawer-panel d-sm-none flex-column"
+      [class.is-open]="mobileDrawerOpen()"
+    >
+      <button
+        type="button"
+        class="btn btn-icon btn-close-drawer text-light p-2 position-absolute top-0 end-0 m-2 z-3"
+        (click)="closeMobileDrawer()"
+        aria-label="Fechar Menu"
+      >
+        <i class="fas fa-times fs-2"></i>
+      </button>
+
+      <div class="mobile-drawer-body flex-grow-1 overflow-y-auto">
+        <app-sidebar (logout)="handleLogout()" (themeToggle)="handleThemeToggle()"></app-sidebar>
+      </div>
+
+      <div class="mobile-drawer-footer border-top p-3 text-center">
+        <a class="version-badge border-0" routerLink="/guia" (click)="closeMobileDrawer()">
+          <i class="fas fa-tag text-warning me-1"></i>
+          <span>V 1.1.0 — Guia do Sistema</span>
+        </a>
+      </div>
+    </aside>
+
+    <!-- Conteúdo Principal da Aplicação -->
+    <div class="main-column flex-grow-1 d-flex flex-column min-width-0 overflow-hidden">
+      <main class="main-content flex-grow-1 overflow-auto position-relative">
+        <router-outlet></router-outlet>
+      </main>
+      <app-footer></app-footer>
+    </div>
   </div>
-
-  <main class="flex-grow-1 overflow-auto position-relative main-content d-flex flex-column">
-    <router-outlet></router-outlet>
-    <app-footer></app-footer>
-  </main>
-
-  <tm-bottom-nav 
-    class="d-lg-none" 
-    [items]="mobileMenuItems()"
-    (itemClick)="handleMobileItemClick($event)"
-  ></tm-bottom-nav>
 </div>
 
 <app-sidebar-modal-idioma [(show)]="showIdiomaModal" />

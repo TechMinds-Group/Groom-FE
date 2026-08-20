@@ -8,10 +8,6 @@ import { GestaoUsuariosHelperService } from '../../../services/gestao-usuarios-h
 import { GestaoUsuarioDetalhesGeralComponent } from '../gestao-usuario-detalhes-geral/gestao-usuario-detalhes-geral.component';
 import { GestaoUsuarioDetalhesAcoesComponent } from '../gestao-usuario-detalhes-acoes/gestao-usuario-detalhes-acoes.component';
 import {
-  UsuarioModalEditarComponent,
-  UsuarioEdicaoPayload,
-} from '../../modais/usuario-modal-editar/usuario-modal-editar.component';
-import {
   UsuarioModalAlterarSenhaComponent,
   UsuarioSenhaPayload,
 } from '../../modais/usuario-modal-alterar-senha/usuario-modal-alterar-senha.component';
@@ -26,7 +22,6 @@ import { TranslatePipe } from '../../../../../shared/pipes/translate.pipe';
     CommonModule,
     GestaoUsuarioDetalhesGeralComponent,
     GestaoUsuarioDetalhesAcoesComponent,
-    UsuarioModalEditarComponent,
     UsuarioModalAlterarSenhaComponent,
     UsuarioModalExcluirComponent,
     TranslatePipe,
@@ -44,12 +39,10 @@ export class GestaoUsuarioDetalhesComponent implements OnInit {
 
   protected readonly id = signal<string | null>(null);
   protected readonly usuario = signal<Usuario | null>(null);
-  protected readonly perfilOptions = signal<{ value: string; label: string }[]>([]);
 
   protected readonly isAdmin = this.authService.isAdmin;
   protected readonly currentUserId = this.authService.currentUserId;
 
-  protected readonly showEditModal = signal<boolean>(false);
   protected readonly showChangePasswordModal = signal<boolean>(false);
   protected readonly showDeleteConfirmModal = signal<boolean>(false);
 
@@ -59,8 +52,6 @@ export class GestaoUsuarioDetalhesComponent implements OnInit {
       this.id.set(paramId);
       await this.carregarDadosUsuario(paramId);
     }
-    const niveis = await this.gestaoUsuariosService.carregarNiveis();
-    this.perfilOptions.set(niveis.map((n) => ({ value: n.id, label: n.nome })));
   }
 
   private async carregarDadosUsuario(userId: string): Promise<void> {
@@ -78,15 +69,10 @@ export class GestaoUsuarioDetalhesComponent implements OnInit {
   }
 
   abrirEdicao(): void {
-    this.showEditModal.set(true);
-  }
-
-  async salvarEdicao(payload: UsuarioEdicaoPayload): Promise<void> {
-    if (!this.id()) return;
-
-    await this.gestaoUsuariosService.atualizar(this.id()!, payload);
-    this.showEditModal.set(false);
-    await this.carregarDadosUsuario(this.id()!);
+    const userId = this.id();
+    if (userId) {
+      this.router.navigate(['/gestao/gestao-usuarios', userId, 'editar']);
+    }
   }
 
   abrirAlterarSenha(): void {

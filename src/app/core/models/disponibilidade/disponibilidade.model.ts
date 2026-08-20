@@ -18,6 +18,7 @@ export interface DisponibilidadeProfissional {
   profissionalId: string;
   dias: DiaDisponibilidade[];
   servicoIds: string[];
+  planoIds?: string[];
 }
 
 /** Resultado do salvamento; conflitos lista agendamentos que ficam fora dos novos horários (não bloqueia o save). */

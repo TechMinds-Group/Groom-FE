@@ -15,6 +15,10 @@
 
 6. **Reatividade Moderna (Signals Only)**: É proibido o uso de `BehaviorSubject` ou `Observable` para gerenciar estado simples de UI. Use obrigatoriamente **Signals** (`signal`, `computed`, `effect`). RxJS deve ser restrito apenas para chamadas de API no data-access. Modais devem usar `model()` para estado de exibição, `input()` para dados de entrada, e `output()` para eventos de confirmação/cancelamento.
 
+6b. **Tempo Real (SignalR)**: Dados voláteis compartilhados entre usuários (ex.: agenda) são atualizados via hub SignalR do backend — **proibido polling por tempo**. Use o `AgendaHubService` (`core/services/agenda-hub.service.ts`): conecte no `ngOnInit`, observe o sinal `eventVersion` com `effect` para recarregar os dados, e desconecte no `ngOnDestroy`. A conexão usa cookie do usuário autenticado (`withCredentials: true`) e `automaticReconnect` com política de reconexão infinita (a cada 30s). **Exceção aprovada (agenda)**: o `CalendarioComponent` busca os agendamentos na API a cada 1 minuto (`setupRefreshTimer`, `REFRESH_INTERVAL_MS = 60_000`) e atualiza a tela no lugar, sem recarregar a página — a pedido explícito do usuário, para exibir sempre os dados mais recentes sem depender de tempo real. Não replicar esse padrão em outras telas sem aprovação.
+
+6c. **Datas de Agendamento (sem fuso)**: Horários de agendamento seguem a convenção "hora local tratada como UTC" — **proibido converter fuso**. Ao exibir, monte o `Date` local a partir dos componentes do ISO (`agendamentoParaDateLocal` em `core/models/agenda.model.ts`); ao enviar, use a string crua `${yyyy}-${MM}-${dd}T${hh}:${mm}:00` **sem** `toISOString()`/`Z`. Usar `new Date(iso)` ou `toISOString()` desloca o horário em 3h.
+
 7. **Injeção de Dependência (Function-based)**: Priorize o uso da função `inject()` em vez de injeção via `constructor`.
 
 8. **Controle de Fluxo Built-in (Angular)**: Proibido o uso de `*ngIf`, `*ngFor` ou `*ngSwitch`. Use exclusivamente a nova sintaxe nativa do Angular (`@if`, `@for`, `@switch`).

@@ -28,59 +28,6 @@
   </div>
 </div>
 
-<tm-modal
-  title="Cadastrar Serviço"
-  confirmLabel="Cadastrar"
-  cancelLabel="Cancelar"
-  [show]="showFormModal()"
-  (showChange)="showFormModal.set($event)"
-  (confirm)="salvar()"
-  (cancel)="showFormModal.set(false)"
-  confirmClass="btn-primary"
-  icon="fas fa-list"
-  size="md"
->
-  <form [formGroup]="servicoForm" class="p-1 text-start">
-    <div class="mb-3">
-      <tm-text
-        formControlName="nome"
-        label="Nome do Serviço"
-        placeholder="Ex: Corte de Cabelo"
-        class="custom-dark-text"
-      ></tm-text>
-      @if (servicoForm.get('nome')?.touched && servicoForm.get('nome')?.invalid) {
-        <div class="text-danger extra-small mt-1">Nome é obrigatório (máx. 60 caracteres).</div>
-      }
-    </div>
-
-    <div class="mb-3">
-      <tm-text
-        formControlName="preco"
-        type="text"
-        mask="currency"
-        [maxlength]="14"
-        label="Preço (R$)"
-        placeholder="R$ 0,00"
-        class="custom-dark-text"
-      ></tm-text>
-      @if (servicoForm.get('preco')?.touched && servicoForm.get('preco')?.invalid) {
-        <div class="text-danger extra-small mt-1">Preço válido é obrigatório.</div>
-      }
-    </div>
-
-    <div class="mb-3">
-      <tm-text
-        formControlName="duracao"
-        type="number"
-        label="Duração (minutos)"
-        placeholder="Ex: 30"
-        class="custom-dark-text"
-      ></tm-text>
-
-    </div>
-  </form>
-</tm-modal>
-
 <ng-template #servicoTemplate let-item>
   <div class="d-flex flex-column text-start">
     <strong class="fw-bold custom-dark-text">{{ item.nome }}</strong>

@@ -15,12 +15,15 @@
     (eventClicked)="onEventClicked($event)"
   >
     <div filters>
-      <div class="d-flex gap-2">
-        <span
-          class="badge bg-primary-subtle text-primary border border-primary-subtle rounded-pill px-2 px-lg-3 py-1 py-lg-2 small"
-        >
-          Filtro: {{ filtroAtivo() }}
-        </span>
+      <div class="agenda-filter-select-wrap">
+        <tm-select
+          [options]="opcoesFiltroStatus"
+          [value]="filtroStatus()"
+          (valueChange)="onFiltroChange($event)"
+          icon="fas fa-filter text-info"
+          placeholder="Filtrar por status..."
+          dropdownWidth="260px"
+        ></tm-select>
       </div>
     </div>
   </tm-calendar>

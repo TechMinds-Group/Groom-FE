@@ -1,0 +1,43 @@
+.finalizar-cadastro__titulo {
+  font-size: 1rem;
+  color: var(--tm-text-primary);
+}
+
+.finalizar-cadastro__subtitulo {
+  font-size: 0.8rem;
+  line-height: 1.4;
+  margin-top: 0.15rem;
+}
+
+::ng-deep .finalizar-cadastro__submit .btn {
+  background-color: var(--tm-primary-color, #3b82f6);
+  border: none;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  transition: all 0.2s ease;
+  box-shadow: none;
+
+  &:hover:not(:disabled) {
+    background-color: var(--tm-primary-hover, #2563eb);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  }
+
+  &:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+  }
+}
+
+:host-context([data-theme='dark']) {
+  .text-muted {
+    color: var(--tm-text-secondary) !important;
+  }
+
+  .alert-danger {
+    background-color: rgba(239, 68, 68, 0.1);
+    color: #ef4444;
+    border-color: rgba(239, 68, 68, 0.2);
+  }
+}

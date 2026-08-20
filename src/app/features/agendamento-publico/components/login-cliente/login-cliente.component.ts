@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, effect, ElementRef, inject, OnDestroy, OnInit, signal, viewChild } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { TmButtonComponent, TmTextComponent } from '@techminds-group/tm-angular-lib';
 import { AgendamentoPublicoService } from '../../../../core/services/agendamento-publico.service';
 import { EstabelecimentoInfo, EstabelecimentoService } from '../../../../core/services/estabelecimento.service';
@@ -21,6 +21,7 @@ import { AppFooterComponent } from '../../../../shared/components/footer/app-foo
 export class LoginClienteComponent implements OnInit, OnDestroy {
   private readonly fb = inject(FormBuilder);
   private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
   private readonly agendamentoPublicoService = inject(AgendamentoPublicoService);
   private readonly estabelecimentoService = inject(EstabelecimentoService);
   private readonly authClienteHelper = inject(AuthClienteHelperService);
@@ -66,8 +67,20 @@ export class LoginClienteComponent implements OnInit, OnDestroy {
     void this.carregarInfoEstabelecimento();
   }
 
+  private getEstabelecimentoSlug(): string {
+    const slug =
+      this.agendamentoPublicoService.estabelecimento() ||
+      this.route.snapshot.paramMap.get('estabelecimento') ||
+      this.route.snapshot.parent?.paramMap.get('estabelecimento') ||
+      '';
+    if (slug) {
+      this.agendamentoPublicoService.setEstabelecimento(slug);
+    }
+    return slug;
+  }
+
   private async carregarInfoEstabelecimento(): Promise<void> {
-    const slug = this.agendamentoPublicoService.estabelecimento();
+    const slug = this.getEstabelecimentoSlug();
     if (slug) {
       try {
         const info = await this.estabelecimentoService.carregarInfoPublico(slug);
@@ -79,9 +92,10 @@ export class LoginClienteComponent implements OnInit, OnDestroy {
   }
 
   private async verificarSessao(): Promise<void> {
+    const slug = this.getEstabelecimentoSlug();
     const cliente = await this.agendamentoPublicoService.getMe();
-    if (cliente) {
-      await this.router.navigate(['/agendamento', this.agendamentoPublicoService.estabelecimento() ?? '', 'novo']);
+    if (cliente && slug) {
+      await this.router.navigate(['/agendamento', slug, 'novo']);
     }
   }
 
@@ -109,9 +123,10 @@ export class LoginClienteComponent implements OnInit, OnDestroy {
     this.errorMessage.set(null);
 
     try {
+      const slug = this.getEstabelecimentoSlug();
       const { email, senha, rememberMe } = this.form.value;
       await this.agendamentoPublicoService.login({ email: email!, senha: senha! }, rememberMe ?? false);
-      await this.router.navigate(['/agendamento', this.agendamentoPublicoService.estabelecimento() ?? '', 'novo']);
+      await this.router.navigate(['/agendamento', slug, 'novo']);
     } catch (err) {
       this.errorMessage.set(this.extrairMensagemErro(err));
     } finally {
@@ -124,8 +139,9 @@ export class LoginClienteComponent implements OnInit, OnDestroy {
     this.errorMessage.set(null);
 
     try {
+      const slug = this.getEstabelecimentoSlug();
       await this.agendamentoPublicoService.loginGoogle(idToken);
-      await this.router.navigate(['/agendamento', this.agendamentoPublicoService.estabelecimento() ?? '', 'novo']);
+      await this.router.navigate(['/agendamento', slug, 'novo']);
     } catch (err) {
       this.errorMessage.set(this.extrairMensagemErro(err));
     } finally {
@@ -134,7 +150,8 @@ export class LoginClienteComponent implements OnInit, OnDestroy {
   }
 
   onCadastrado(): void {
-    void this.router.navigate(['/agendamento', this.agendamentoPublicoService.estabelecimento() ?? '', 'novo']);
+    const slug = this.getEstabelecimentoSlug();
+    void this.router.navigate(['/agendamento', slug, 'novo']);
   }
 
   private extrairMensagemErro(err: unknown): string {

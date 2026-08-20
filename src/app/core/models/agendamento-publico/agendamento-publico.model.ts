@@ -14,6 +14,7 @@ export interface LoginClienteResult {
 export interface ProfissionalDisponivel {
   id: string;
   nome: string;
+  fotoUrl?: string;
 }
 
 export interface ServicoDisponivel {
@@ -47,15 +48,33 @@ export interface CriarAgendamentoPayload {
   observacoes?: string;
 }
 
+export interface CriarAgendamentoPlanoPayload {
+  profissionalId: string;
+  planoId: string;
+  dataInicio: string;
+}
+
+/** Plano com assinatura ativa do cliente logado (fluxo de agendamento pelo plano). */
+export interface PlanoAtivoCliente {
+  id: string;
+  nome: string;
+  preco: number;
+  recursos: string[];
+  duracaoTotal: number;
+}
+
 export interface AgendamentoPublico {
   id: string;
   clienteId: string;
   profissionalId: string;
   profissionalNome: string;
-  servicoId: string;
-  servicoNome: string;
+  servicoId?: string | null;
+  servicoNome?: string;
   servicoPreco: number;
   servicoDuracao: number;
+  tipo?: string;
+  planoId?: string | null;
+  planoNome?: string;
   dataInicio: Date;
   dataFim: Date;
   status: 'confirmado' | 'cancelado' | 'concluido';

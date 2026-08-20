@@ -1,9 +1,9 @@
 import { ChangeDetectionStrategy, Component, computed, inject, OnDestroy, OnInit, signal } from '@angular/core';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { AgendamentoPublicoService } from '../../../../core/services/agendamento-publico.service';
 import { EstabelecimentoInfo, EstabelecimentoService } from '../../../../core/services/estabelecimento.service';
-import { AgendamentoPublico, HorarioDisponivel, ProfissionalDisponivel, ServicoDisponivel } from '../../../../core/models/agendamento-publico/agendamento-publico.model';
+import { AgendamentoPublico, HorarioDisponivel, PlanoAtivoCliente, ProfissionalDisponivel, ServicoDisponivel } from '../../../../core/models/agendamento-publico/agendamento-publico.model';
 import { AGENDAMENTO_PUBLICO_CONFIG } from '../../models/agendamento-publico.config';
 import { TemaPublicoService } from '../../services/tema-publico.service';
 import { PassoProfissionalComponent } from './passo-profissional/passo-profissional.component';
@@ -11,6 +11,7 @@ import { PassoServicoComponent } from './passo-servico/passo-servico.component';
 import { PassoDataHorarioComponent } from './passo-data-horario/passo-data-horario.component';
 import { PassoResumoComponent } from './passo-resumo/passo-resumo.component';
 import { ConfirmacaoComponent } from './confirmacao/confirmacao.component';
+import { DadosFinalizacaoCadastro, FinalizarCadastroComponent } from './finalizar-cadastro/finalizar-cadastro.component';
 import { AppFooterComponent } from '../../../../shared/components/footer/app-footer.component';
 
 @Component({
@@ -23,6 +24,7 @@ import { AppFooterComponent } from '../../../../shared/components/footer/app-foo
     PassoDataHorarioComponent,
     PassoResumoComponent,
     ConfirmacaoComponent,
+    FinalizarCadastroComponent,
     AppFooterComponent,
   ],
   templateUrl: './novo-agendamento.component.html',
@@ -46,11 +48,29 @@ export class NovoAgendamentoComponent implements OnInit, OnDestroy {
   /** Logo com URL absoluta da API (imagens são servidas em /uploads). */
   readonly logoUrlExibicao = computed(() => this.estabelecimentoService.resolverUrl(this.estabelecimentoInfo()?.logoUrl));
 
+  /** Imagem de Capa (Banner) do estabelecimento com fallback para a capa padrão. */
+  readonly capaUrlExibicao = computed(() => {
+    const url = this.estabelecimentoInfo()?.capaUrl;
+    if (url) {
+      return this.estabelecimentoService.resolverUrl(url);
+    }
+    return 'images/capa-padrao.svg';
+  });
+
   readonly config = AGENDAMENTO_PUBLICO_CONFIG;
 
   readonly passo = signal(1);
   readonly isLoading = signal(false);
   readonly errorMessage = signal<string | null>(null);
+
+  /** Todos os planos com assinatura ativa do cliente logado. */
+  readonly meusPlanos = signal<PlanoAtivoCliente[]>([]);
+  /** Plano selecionado pelo cliente para o agendamento atual. */
+  readonly planoSelecionado = signal<PlanoAtivoCliente | null>(null);
+  /** Plano ativo ativo do cliente (selecionado ou primeiro da lista) — habilita o modo "Meu Plano". */
+  readonly meuPlano = computed(() => this.planoSelecionado() ?? this.meusPlanos()[0] ?? null);
+  /** Modo de agendamento: serviço avulso ou benefício do plano do cliente. */
+  readonly tipoAgendamento = signal<'servico' | 'plano'>('servico');
 
   readonly profissionais = signal<ProfissionalDisponivel[]>([]);
   readonly servicos = signal<ServicoDisponivel[]>([]);
@@ -64,6 +84,11 @@ export class NovoAgendamentoComponent implements OnInit, OnDestroy {
   readonly horarioSelecionado = signal<string | null>(null);
   readonly agendamentoConfirmado = signal<AgendamentoPublico | null>(null);
 
+  /** Tela de finalização de cadastro (dados incompletos ao confirmar o agendamento). */
+  readonly finalizandoCadastro = signal(false);
+  readonly salvandoCadastro = signal(false);
+  readonly dadosFinalizacao = signal<DadosFinalizacaoCadastro | null>(null);
+
   /** Etapas do fluxo de agendamento (stepper). */
   readonly steps = [
     { numero: 1, label: 'Profissional', icon: 'fa-solid fa-user' },
@@ -72,8 +97,24 @@ export class NovoAgendamentoComponent implements OnInit, OnDestroy {
     { numero: 4, label: 'Confirmação', icon: 'fa-solid fa-file-circle-check' },
   ] as const;
 
+  /** No modo plano o passo de serviço é pulado (o benefício já está definido no plano). */
+  readonly stepsVisiveis = computed(() => {
+    if (this.tipoAgendamento() === 'plano') {
+      return this.steps.filter((step) => step.numero !== 2);
+    }
+    return this.steps;
+  });
+
   /** Total do serviço selecionado (resumo lateral). */
   readonly totalServico = computed(() => this.servicoSelecionado()?.preco ?? null);
+
+  /** Duração do agendamento atual: serviço selecionado ou duração total do plano. */
+  readonly duracaoAtual = computed(() => {
+    if (this.tipoAgendamento() === 'plano') {
+      return this.meuPlano()?.duracaoTotal ?? null;
+    }
+    return this.servicoSelecionado()?.duracao ?? null;
+  });
 
   formatarPreco(preco: number): string {
     return preco.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
@@ -84,13 +125,49 @@ export class NovoAgendamentoComponent implements OnInit, OnDestroy {
     return `${dia}/${mes}/${ano}`;
   }
 
+  private readonly route = inject(ActivatedRoute);
+
   async ngOnInit(): Promise<void> {
-    await Promise.all([this.carregarProfissionais(), this.carregarInfoEstabelecimento()]);
+    const slug = this.route.snapshot.paramMap.get('estabelecimento') || this.route.snapshot.parent?.paramMap.get('estabelecimento');
+    if (slug) {
+      this.agendamentoPublicoService.setEstabelecimento(slug);
+    }
+    await Promise.all([this.carregarProfissionais(), this.carregarInfoEstabelecimento(), this.carregarMeuPlano()]);
+  }
+
+  /** Carrega todos os planos ativos do cliente logado. */
+  private async carregarMeuPlano(): Promise<void> {
+    const planos = await this.agendamentoPublicoService.getMeusPlanos();
+    this.meusPlanos.set(planos);
+    if (planos.length > 0 && !this.planoSelecionado()) {
+      this.planoSelecionado.set(planos[0]);
+    }
+  }
+
+  /** Altera o plano ativo selecionado pelo cliente e recarrega os profissionais correspondentes. */
+  async selecionarPlanoCliente(plano: PlanoAtivoCliente): Promise<void> {
+    if (this.planoSelecionado()?.id === plano.id) {
+      return;
+    }
+    this.planoSelecionado.set(plano);
+    this.profissionalSelecionado.set(null);
+    this.servicoSelecionado.set(null);
+    this.dataSelecionada.set(null);
+    this.horarioSelecionado.set(null);
+    this.servicos.set([]);
+    this.horarios.set([]);
+    this.diasDisponiveis.set([]);
+    await this.carregarProfissionais();
   }
 
   private async carregarInfoEstabelecimento(): Promise<void> {
-    const slug = this.agendamentoPublicoService.estabelecimento();
+    const slug =
+      this.agendamentoPublicoService.estabelecimento() ||
+      this.route.snapshot.paramMap.get('estabelecimento') ||
+      this.route.snapshot.parent?.paramMap.get('estabelecimento');
+
     if (slug) {
+      this.agendamentoPublicoService.setEstabelecimento(slug);
       try {
         const info = await this.estabelecimentoService.carregarInfoPublico(slug);
         this.estabelecimentoInfo.set(info);
@@ -108,12 +185,38 @@ export class NovoAgendamentoComponent implements OnInit, OnDestroy {
     this.isLoading.set(true);
     this.errorMessage.set(null);
     try {
-      this.profissionais.set(await this.agendamentoPublicoService.getProfissionais());
+      if (this.tipoAgendamento() === 'plano') {
+        const plano = this.meuPlano();
+        if (!plano) {
+          this.profissionais.set([]);
+          return;
+        }
+        this.profissionais.set(await this.agendamentoPublicoService.getProfissionaisPlano(plano.id));
+      } else {
+        this.profissionais.set(await this.agendamentoPublicoService.getProfissionais());
+      }
     } catch {
       this.errorMessage.set('Não foi possível carregar os profissionais. Tente novamente.');
     } finally {
       this.isLoading.set(false);
     }
+  }
+
+  /** Alterna entre agendar um serviço avulso ou o benefício do plano do cliente. */
+  async selecionarTipoAgendamento(tipo: 'servico' | 'plano'): Promise<void> {
+    if (tipo === this.tipoAgendamento()) {
+      return;
+    }
+    this.tipoAgendamento.set(tipo);
+    this.passo.set(1);
+    this.profissionalSelecionado.set(null);
+    this.servicoSelecionado.set(null);
+    this.dataSelecionada.set(null);
+    this.horarioSelecionado.set(null);
+    this.servicos.set([]);
+    this.horarios.set([]);
+    this.diasDisponiveis.set([]);
+    await this.carregarProfissionais();
   }
 
   async selecionarProfissional(profissional: ProfissionalDisponivel): Promise<void> {
@@ -127,15 +230,19 @@ export class NovoAgendamentoComponent implements OnInit, OnDestroy {
     this.isLoading.set(true);
     this.errorMessage.set(null);
     try {
-      const [servicos, disponibilidade] = await Promise.all([
-        this.agendamentoPublicoService.getServicosProfissional(profissional.id),
-        this.agendamentoPublicoService.getDisponibilidadeSemanal(profissional.id),
-      ]);
-      this.servicos.set(servicos);
+      const disponibilidade = await this.agendamentoPublicoService.getDisponibilidadeSemanal(profissional.id);
       this.diasDisponiveis.set(
         disponibilidade.filter((d) => d.trabalhaHoje && d.intervalos.length > 0).map((d) => d.diaSemana),
       );
-      this.passo.set(2);
+
+      if (this.tipoAgendamento() === 'plano') {
+        // No modo plano o benefício já é definido pelo plano — vai direto para data/hora
+        this.passo.set(3);
+      } else {
+        const servicos = await this.agendamentoPublicoService.getServicosProfissional(profissional.id);
+        this.servicos.set(servicos);
+        this.passo.set(2);
+      }
     } catch {
       this.errorMessage.set('Não foi possível carregar os serviços. Tente novamente.');
     } finally {
@@ -154,7 +261,27 @@ export class NovoAgendamentoComponent implements OnInit, OnDestroy {
   async carregarHorarios(data: string): Promise<void> {
     const profissional = this.profissionalSelecionado();
     const servico = this.servicoSelecionado();
-    if (!profissional || !servico) {
+    if (!profissional) {
+      return;
+    }
+    if (this.tipoAgendamento() === 'plano') {
+      const plano = this.meuPlano();
+      if (!plano) {
+        return;
+      }
+      this.isLoading.set(true);
+      this.errorMessage.set(null);
+      try {
+        this.horarios.set(await this.agendamentoPublicoService.getHorariosPlano(plano.id, profissional.id, data));
+      } catch {
+        this.errorMessage.set('Não foi possível carregar os horários. Tente novamente.');
+      } finally {
+        this.isLoading.set(false);
+      }
+      return;
+    }
+
+    if (!servico) {
       return;
     }
 
@@ -182,35 +309,89 @@ export class NovoAgendamentoComponent implements OnInit, OnDestroy {
 
   async confirmar(): Promise<void> {
     const profissional = this.profissionalSelecionado();
-    const servico = this.servicoSelecionado();
     const data = this.dataSelecionada();
     const horario = this.horarioSelecionado();
-    if (!profissional || !servico || !data || !horario) {
+    if (!profissional || !data || !horario) {
       return;
     }
 
     this.isLoading.set(true);
     this.errorMessage.set(null);
     try {
-      const agendamento = await this.agendamentoPublicoService.criarAgendamento({
-        profissionalId: profissional.id,
-        servicoId: servico.id,
-        dataInicio: `${data}T${horario}:00`,
-      });
+      let agendamento: AgendamentoPublico;
+      if (this.tipoAgendamento() === 'plano') {
+        const plano = this.meuPlano();
+        if (!plano) {
+          return;
+        }
+        agendamento = await this.agendamentoPublicoService.criarAgendamentoPlano({
+          profissionalId: profissional.id,
+          planoId: plano.id,
+          dataInicio: `${data}T${horario}:00`,
+        });
+      } else {
+        const servico = this.servicoSelecionado();
+        if (!servico) {
+          return;
+        }
+        agendamento = await this.agendamentoPublicoService.criarAgendamento({
+          profissionalId: profissional.id,
+          servicoId: servico.id,
+          dataInicio: `${data}T${horario}:00`,
+        });
+      }
       this.agendamentoConfirmado.set(agendamento);
       this.passo.set(5);
     } catch (err: any) {
       const code = err?.error?.code ?? err?.error?.Code;
       if (code === 'Agendamento.ProfissionalSemWhatsApp' || err?.error?.message?.includes('WhatsApp')) {
         this.errorMessage.set('Este profissional ainda não cadastrou um número de WhatsApp para confirmação de agendamentos. Escolha outro profissional ou solicite o cadastro à barbearia.');
-      } else if (code === 'Agendamento.CelularObrigatorio' || err?.error?.message?.includes('celular')) {
-        this.errorMessage.set('Seu cadastro precisa ter um celular válido para finalizar o agendamento.');
+      } else if (code === 'Cliente.CadastroIncompleto') {
+        await this.abrirFinalizacaoCadastro();
+      } else if (code === 'Plano.SemAssinatura') {
+        this.errorMessage.set('Sua assinatura do plano não está ativa. Escolha um serviço avulso ou renove sua assinatura.');
       } else {
         this.errorMessage.set('Não foi possível concluir o agendamento. Tente novamente.');
       }
     } finally {
       this.isLoading.set(false);
     }
+  }
+
+  /** Abre a tela de finalização de cadastro com os dados atuais do cliente. */
+  private async abrirFinalizacaoCadastro(): Promise<void> {
+    const me = await this.agendamentoPublicoService.getMe();
+    const nomeCompleto = me?.nome ?? this.clienteLogado()?.nome ?? '';
+    const partes = nomeCompleto.trim().split(/\s+/).filter(Boolean);
+    this.dadosFinalizacao.set({
+      primeiroNome: partes[0] ?? '',
+      ultimoNome: partes.slice(1).join(' '),
+      email: me?.email ?? this.clienteLogado()?.email ?? '',
+      celular: me?.celular ?? this.clienteLogado()?.celular ?? '',
+    });
+    this.finalizandoCadastro.set(true);
+  }
+
+  async salvarFinalizacaoCadastro(dados: DadosFinalizacaoCadastro): Promise<void> {
+    this.salvandoCadastro.set(true);
+    this.errorMessage.set(null);
+    try {
+      await this.agendamentoPublicoService.atualizarDadosCadastro({
+        nome: `${dados.primeiroNome} ${dados.ultimoNome}`.trim(),
+        email: dados.email,
+        celular: dados.celular,
+      });
+      this.dadosFinalizacao.set(null);
+      this.finalizandoCadastro.set(false);
+    } catch {
+      this.errorMessage.set('Não foi possível salvar seus dados. Confira as informações e tente novamente.');
+    } finally {
+      this.salvandoCadastro.set(false);
+    }
+  }
+
+  fecharFinalizacaoCadastro(): void {
+    this.finalizandoCadastro.set(false);
   }
 
   /**
@@ -235,20 +416,21 @@ export class NovoAgendamentoComponent implements OnInit, OnDestroy {
   passoNavegavel(numero: number): boolean {
     const profissional = this.profissionalSelecionado();
     const servico = this.servicoSelecionado();
+    const viaPlano = this.tipoAgendamento() === 'plano';
 
     if (numero === 1) {
       return true;
     }
 
     if (numero === 2) {
-      return profissional !== null;
+      return !viaPlano && profissional !== null;
     }
 
     if (numero === 3) {
-      return profissional !== null && servico !== null;
+      return profissional !== null && (viaPlano || servico !== null);
     }
 
-    return profissional !== null && servico !== null && this.dataSelecionada() !== null && this.horarioSelecionado() !== null;
+    return profissional !== null && (viaPlano || servico !== null) && this.dataSelecionada() !== null && this.horarioSelecionado() !== null;
   }
 
   reiniciar(): void {
@@ -270,7 +452,16 @@ export class NovoAgendamentoComponent implements OnInit, OnDestroy {
   }
 
   async sair(): Promise<void> {
+    const slug =
+      this.agendamentoPublicoService.estabelecimento() ||
+      this.route.snapshot.paramMap.get('estabelecimento') ||
+      this.route.snapshot.parent?.paramMap.get('estabelecimento') ||
+      '';
     await this.agendamentoPublicoService.logout();
-    await this.router.navigate(['/agendamento', this.agendamentoPublicoService.estabelecimento() ?? '', 'login']);
+    if (slug) {
+      await this.router.navigate(['/agendamento', slug, 'login']);
+    } else {
+      await this.router.navigate(['/login']);
+    }
   }
 }

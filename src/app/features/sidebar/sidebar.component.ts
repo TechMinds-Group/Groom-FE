@@ -38,20 +38,8 @@ export class SidebarComponent {
     return PROFILE_MENU_ITEMS;
   });
 
-  protected readonly currentUser = computed<SidebarUser>(() => {
-    const user = this.authService.currentUser();
-    if (!user) {
-      return {
-        nome: 'Usuário',
-        role: 'Profissional',
-        email: ''
-      };
-    }
-    return {
-      nome: user.nome,
-      role: user.role || 'Usuário',
-      email: user.email
-    };
+  protected readonly currentUser = computed<SidebarUser | undefined>(() => {
+    return undefined;
   });
 
   logout = output<void>();
@@ -79,5 +67,8 @@ export class SidebarComponent {
   }
 
   handleItemClick(item: MenuItem): void {
+    if (item.label === 'Sair' || item.route === '/login') {
+      this.handleLogout();
+    }
   }
 }

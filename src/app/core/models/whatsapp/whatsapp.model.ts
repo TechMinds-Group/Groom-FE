@@ -19,8 +19,10 @@ export interface WhatsAppStatusResponse {
 }
 
 export interface WhatsAppTenantConfig {
-  schedulingLink: string | null;
   welcomeMessage: string | null;
+  closingMessage: string | null;
+  lembrete1DiaMensagem: string | null;
+  lembrete4hMensagem: string | null;
   testMode: boolean;
   testNumbers: string | null;
 }

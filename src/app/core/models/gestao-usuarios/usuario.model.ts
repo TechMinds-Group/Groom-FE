@@ -1,6 +1,7 @@
 export interface Usuario {
   id: string;
   nome: string;
+  sobrenome?: string;
   email: string;
   telefone?: string;
   perfil: string;
@@ -11,4 +12,6 @@ export interface Usuario {
   status: 'Ativo' | 'Inativo';
   faturamento?: number;
   planoAssinatura?: string;
+  plano?: string;
+  fotoUrl?: string;
 }

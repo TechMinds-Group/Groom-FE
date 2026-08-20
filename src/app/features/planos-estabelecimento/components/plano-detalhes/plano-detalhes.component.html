@@ -1,117 +1,150 @@
 <div class="container mt-4 mb-5 pb-5">
   @if (clube(); as plano) {
-    <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between mb-4 gap-3">
+    <!-- Header: botão voltar circular + nome + subtítulo -->
+    <div class="d-flex flex-column flex-lg-row align-items-start align-items-lg-center justify-content-between mb-4 gap-3">
       <div class="d-flex align-items-center gap-3">
-        <button (click)="voltar()" class="btn btn-light shadow-sm rounded-circle p-0 d-flex align-items-center justify-content-center btn-voltar">
+        <button (click)="voltar()" class="btn btn-light shadow-sm rounded-circle p-0 d-flex align-items-center justify-content-center btn-voltar" title="Voltar para Planos">
           <i class="fas fa-arrow-left text-muted"></i>
         </button>
 
         <div>
-          <h2 class="h4 mb-0 fw-bold custom-dark-text d-flex align-items-center gap-2">
+          <h1 class="h2 text-primary fw-bold mb-1 custom-dark-text d-flex align-items-center gap-2">
             {{ plano.nome }}
-          </h2>
-          <span class="text-muted small custom-dark-text">Detalhes completos do plano contratual</span>
+          </h1>
+          <p class="custom-dark-muted small mb-0">Detalhes do plano contratual, precificação e serviços inclusos.</p>
         </div>
-      </div>
-
-      <div class="d-flex align-items-center gap-2">
-        @if (plano.status === 'Ativo') {
-          <span class="badge bg-success-subtle text-success border border-success-subtle px-3 py-2 rounded-pill fw-semibold">
-            <i class="fas fa-check-circle me-1"></i>Ativo
-          </span>
-        } @else {
-          <span class="badge bg-danger-subtle text-danger border border-danger-subtle px-3 py-2 rounded-pill fw-semibold">
-            <i class="fas fa-times-circle me-1"></i>Inativo
-          </span>
-        }
       </div>
     </div>
 
-    <div class="row g-4">
-      <div class="col-lg-8 col-12">
-        <div class="row g-3 mb-4">
-          <div class="col-12 col-md-4">
-            <div class="card tm-card border-0 shadow-sm rounded-4 h-100 p-3 premium-card">
-              <div class="d-flex align-items-center mb-2 text-muted fw-semibold small custom-dark-text">
-                <i class="fas fa-coins me-2 text-primary"></i> Preço do Plano
+    <!-- Linha 1: Informações (col-12 col-lg-8) + Ações (col-12 col-lg-4) -->
+    <div class="row g-4 mb-4">
+      <!-- Card: Informações do Plano -->
+      <div class="col-12 col-lg-8">
+        <div class="card border-0 shadow-sm p-4 details-card custom-dark-card" style="overflow: hidden;">
+          <!-- Cabeçalho do Card: Ícone Crown + Título + Tag 'Plano de Serviço' + Status Badge no canto superior direito -->
+          <div class="d-flex align-items-center justify-content-between border-bottom pb-4 mb-4 gap-2 flex-wrap">
+            <div class="d-flex align-items-center gap-3">
+              <div class="avatar-circle bg-primary-subtle text-primary d-flex align-items-center justify-content-center flex-shrink-0" style="width: 48px; height: 48px; border-radius: 12px;">
+                <i class="fas fa-crown fs-4 text-primary"></i>
               </div>
-              <h3 class="fw-bold mb-0 custom-dark-text text-primary">R$ {{ plano.preco.toFixed(2).replace('.', ',') }}</h3>
-            </div>
-          </div>
-
-          <div class="col-12 col-md-4">
-            <div class="card tm-card border-0 shadow-sm rounded-4 h-100 p-3 premium-card">
-              <div class="d-flex align-items-center mb-2 text-muted fw-semibold small custom-dark-text">
-                <i class="fas fa-history me-2 text-primary"></i> Frequência de Cobrança
-              </div>
-              <h3 class="fw-bold mb-0 custom-dark-text text-capitalize">{{ plano.frequencia }}</h3>
-            </div>
-          </div>
-
-          <div class="col-12 col-md-4">
-            <div class="card tm-card border-0 shadow-sm rounded-4 h-100 p-3 premium-card">
-              <div class="d-flex align-items-center mb-2 text-muted fw-semibold small custom-dark-text">
-                <i class="fas fa-users me-2 text-primary"></i> Assinantes Ativos
-              </div>
-              <h3 class="fw-bold mb-0 custom-dark-text">{{ plano.totalAssinantes }}</h3>
-            </div>
-          </div>
-        </div>
-
-        @if (plano.descricao) {
-          <div class="card tm-card border-0 shadow-sm rounded-4 p-4 mb-4">
-            <h5 class="fw-bold mb-3 custom-dark-text">
-              <i class="fas fa-info-circle me-2 text-primary"></i>Descrição do Plano
-            </h5>
-            <p class="mb-0 text-muted custom-dark-text lh-base">
-              {{ plano.descricao }}
-            </p>
-          </div>
-        }
-
-        <div class="card tm-card border-0 shadow-sm rounded-4 p-4 mb-4">
-          <h5 class="fw-bold mb-4 custom-dark-text">
-            <i class="fas fa-gift me-2 text-primary"></i>Benefícios e Recursos Inclusos
-          </h5>
-
-          @if (plano.recursos && plano.recursos.length > 0) {
-            <div class="row g-3">
-              @for (recurso of plano.recursos; track recurso) {
-                <div class="col-12 col-md-6 col-lg-4">
-                  <div class="d-flex align-items-start gap-3 p-3 custom-benefit-item rounded-3 h-100">
-                    <div class="icon-circle bg-success-subtle text-success rounded-circle d-flex align-items-center justify-content-center flex-shrink-0 icon-circle-size">
-                      <i class="fas fa-check small"></i>
-                    </div>
-                    <div class="d-flex flex-column text-start">
-                      <span class="fw-semibold custom-dark-text">{{ recurso }}</span>
-                      <span class="text-muted small custom-dark-text mt-0.5">Disponível no plano contratado</span>
-                    </div>
-                  </div>
+              <div>
+                <div class="d-flex align-items-center gap-2 flex-wrap">
+                  <h3 class="h5 fw-bold mb-0 custom-dark-text">{{ plano.nome }}</h3>
+                  <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-2.5 py-0.5 rounded-pill extra-small fw-semibold">
+                    Plano de Serviço
+                  </span>
                 </div>
+                <span class="custom-dark-muted extra-small d-block mt-0.5">Benefícios exclusivos e precificação contratual</span>
+              </div>
+            </div>
+
+            <div class="flex-shrink-0 ms-auto ms-sm-0">
+              @if (plano.status === 'Ativo') {
+                <span class="badge bg-success-subtle text-success border border-success-subtle px-3 py-1.5 rounded-pill small fw-bold d-inline-flex align-items-center">
+                  <i class="fas fa-circle text-success me-2" style="font-size: 7px;"></i>Ativo
+                </span>
+              } @else {
+                <span class="badge bg-danger-subtle text-danger border border-danger-subtle px-3 py-1.5 rounded-pill small fw-bold d-inline-flex align-items-center">
+                  <i class="fas fa-circle text-danger me-2" style="font-size: 7px;"></i>Inativo
+                </span>
               }
             </div>
-          } @else {
-            <div class="text-center py-4">
-              <i class="fas fa-box-open fa-3x text-muted mb-3 d-block"></i>
-              <span class="text-muted custom-dark-text">Nenhum benefício cadastrado para este plano.</span>
+          </div>
+
+          <!-- Métricas (Tamanho md ou menor = col-12 em pilha vertical um em baixo do outro, lg = col-lg-6) -->
+          <div class="row g-4 mb-5">
+            <div class="col-12 col-lg-6">
+              <div class="p-4 rounded-3 border custom-dark-item h-100">
+                <div class="custom-dark-muted small fw-bold text-uppercase mb-2 d-flex align-items-center gap-2">
+                  <i class="fas fa-coins text-primary"></i> Preço do Plano
+                </div>
+                <div class="fs-2 fw-bold text-primary lh-1">R$ {{ plano.preco.toFixed(2).replace('.', ',') }}</div>
+              </div>
+            </div>
+
+            <div class="col-12 col-lg-6">
+              <div class="p-4 rounded-3 border custom-dark-item h-100">
+                <div class="custom-dark-muted small fw-bold text-uppercase mb-2 d-flex align-items-center gap-2">
+                  <i class="fas fa-history text-info"></i> Frequência de Cobrança
+                </div>
+                <div class="fs-4 fw-bold custom-dark-text text-capitalize">{{ plano.frequencia }}</div>
+              </div>
+            </div>
+
+            <div class="col-12 col-lg-6">
+              <div class="p-4 rounded-3 border custom-dark-item h-100">
+                <div class="custom-dark-muted small fw-bold text-uppercase mb-2 d-flex align-items-center gap-2">
+                  <i class="fas fa-clock text-warning"></i> Tempo Total dos Serviços
+                </div>
+                <div class="fs-4 fw-bold custom-dark-text">{{ formatarDuracao(plano.duracaoTotal) }}</div>
+              </div>
+            </div>
+
+            <div class="col-12 col-lg-6">
+              <div class="p-4 rounded-3 border custom-dark-item h-100">
+                <div class="custom-dark-muted small fw-bold text-uppercase mb-2 d-flex align-items-center gap-2">
+                  <i class="fas fa-users text-success"></i> Assinantes Ativos
+                </div>
+                <div class="fs-4 fw-bold custom-dark-text">{{ plano.totalAssinantes }}</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Descrição -->
+          @if (plano.descricao) {
+            <div class="border-top pt-4 mt-2 mb-5">
+              <label class="form-label small fw-bold text-uppercase d-flex align-items-center gap-2 mb-3 custom-dark-muted">
+                <i class="fas fa-align-left text-primary"></i>Descrição do Plano
+              </label>
+              <p class="mb-0 text-secondary custom-dark-text lh-base fs-6">
+                {{ plano.descricao }}
+              </p>
             </div>
           }
+
+          <!-- Benefícios e Serviços Inclusos -->
+          <div class="border-top pt-4 mt-2">
+            <div class="d-flex align-items-center justify-content-between mb-4">
+              <label class="form-label small fw-bold text-uppercase d-flex align-items-center gap-2 mb-0 custom-dark-muted">
+                <i class="fas fa-gift text-primary"></i>Benefícios e Serviços Inclusos
+              </label>
+              <span class="badge bg-primary-subtle text-primary rounded-pill px-3 py-1.5 fw-semibold small">
+                {{ recursosExibicao().length }} {{ recursosExibicao().length === 1 ? 'item' : 'itens' }}
+              </span>
+            </div>
+
+            @if (recursosExibicao().length > 0) {
+              <div class="d-flex flex-wrap gap-3 pt-1">
+                @for (recurso of recursosExibicao(); track recurso) {
+                  <span class="badge border px-3.5 py-2.5 rounded-pill fw-semibold text-success border-success-subtle bg-success-subtle d-inline-flex align-items-center gap-2 fs-6 shadow-sm">
+                    <i class="fas fa-check-circle me-1 text-success"></i>{{ recurso }}
+                  </span>
+                }
+              </div>
+            } @else {
+              <div class="text-center py-4 text-muted">
+                <i class="fas fa-box-open fa-2x mb-2 d-block text-muted"></i>
+                <span class="small custom-dark-text">Nenhum benefício cadastrado para este plano.</span>
+              </div>
+            }
+          </div>
         </div>
       </div>
 
-      <div class="col-lg-4 col-12">
+      <!-- Card: Ações Rápidas -->
+      <div class="col-12 col-lg-4">
         <div class="card border-0 shadow-sm p-4 actions-card custom-dark-card">
           <h4 class="h5 fw-bold mb-4 custom-dark-text">
             <i class="fas fa-sliders-h me-2 text-primary"></i>Ações Rápidas
           </h4>
 
           <div class="d-grid gap-3">
-            <button (click)="abrirEdicao()" class="btn btn-primary py-2.5 fw-bold w-100 transition-all custom-action-btn">
-              <i class="fas fa-edit me-2"></i>Editar Plano
+            <button (click)="abrirEdicao()" class="btn btn-primary py-2.5 fw-bold w-100 custom-action-btn shadow-sm border-0 d-flex align-items-center justify-content-center gap-2">
+              <i class="fas fa-edit"></i>Editar Plano
             </button>
 
-            <button (click)="abrirExclusao()" class="btn btn-outline-danger py-2.5 fw-bold w-100 transition-all custom-action-btn">
-              <i class="fas fa-trash-can me-2"></i>Excluir Plano
+            <button (click)="abrirExclusao()" class="btn btn-outline-danger py-2.5 fw-bold w-100 custom-action-btn d-flex align-items-center justify-content-center gap-2">
+              <i class="fas fa-trash-can"></i>Excluir Plano
             </button>
           </div>
         </div>
@@ -119,15 +152,6 @@
     </div>
   }
 </div>
-
-<app-plano-modal-editar
-  [(show)]="showFormModal"
-  [plano]="clube()"
-  [opcoesBeneficios]="opcoesBeneficios()"
-  (confirm)="salvar($event)"
-  (cancel)="showFormModal.set(false)"
-  (addBeneficio)="adicionarNovoBeneficio($event)"
-></app-plano-modal-editar>
 
 <app-plano-modal-excluir
   [(show)]="showDeleteModal"

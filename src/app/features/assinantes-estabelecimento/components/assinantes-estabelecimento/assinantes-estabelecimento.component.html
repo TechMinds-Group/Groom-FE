@@ -29,14 +29,6 @@
   </div>
 </div>
 
-<app-assinante-modal-editar
-  [(show)]="showFormModal"
-  [assinante]="null"
-  [clubeOptions]="clubeOptions()"
-  (confirm)="salvar($event)"
-  (cancel)="showFormModal.set(false)"
-></app-assinante-modal-editar>
-
 <ng-template #clienteTemplate let-item>
   <div class="d-flex flex-column text-start">
     <strong class="fw-bold custom-dark-text">{{ item.clienteNome }}</strong>

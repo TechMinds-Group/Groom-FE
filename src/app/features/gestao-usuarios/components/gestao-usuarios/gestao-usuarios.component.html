@@ -32,7 +32,7 @@
 
 <ng-template #usuarioTemplate let-item>
   <div class="d-flex flex-column text-start">
-    <strong class="fw-bold custom-dark-text">{{ item.nome }}</strong>
+    <strong class="fw-bold custom-dark-text">{{ item.nome }} {{ item.sobrenome }}</strong>
     <span class="text-muted small custom-dark-text">{{ item.email }}</span>
   </div>
 </ng-template>
@@ -56,97 +56,3 @@
     }
   </div>
 </ng-template>
-
-
-
-<!-- Modal para Criar / Editar Usuário -->
-<tm-modal
-  [title]="usuarioSelecionado() ? ('USUARIOS.MODAL_EDIT.TITLE_EDIT' | translate) : ('USUARIOS.MODAL_EDIT.TITLE_NEW' | translate)"
-  [confirmLabel]="usuarioSelecionado() ? ('USUARIOS.MODAL_EDIT.SAVE' | translate) : ('USUARIOS.REGISTER' | translate)"
-  [cancelLabel]="'USUARIOS.MODAL_EDIT.CANCEL' | translate"
-  [show]="showFormModal()"
-  (showChange)="showFormModal.set($event)"
-  (confirm)="salvar()"
-  (cancel)="showFormModal.set(false)"
-  confirmClass="btn-primary"
-  icon="fas fa-users-cog"
-  size="md"
->
-  <form [formGroup]="usuarioForm" class="p-1 text-start">
-    <div class="mb-3">
-      <tm-text
-        formControlName="nome"
-        [label]="'USUARIOS.MODAL_EDIT.NAME_LABEL' | translate"
-        [placeholder]="'USUARIOS.MODAL_EDIT.NAME_PLACEHOLDER' | translate"
-        class="custom-dark-text"
-      ></tm-text>
-      @if (usuarioForm.get('nome')?.touched && usuarioForm.get('nome')?.invalid) {
-        <div class="text-danger extra-small mt-1">Nome é obrigatório.</div>
-      }
-    </div>
-
-    <div class="mb-3">
-      <tm-text
-        formControlName="email"
-        [label]="'USUARIOS.MODAL_EDIT.EMAIL_LABEL' | translate"
-        [placeholder]="'USUARIOS.MODAL_EDIT.EMAIL_PLACEHOLDER' | translate"
-        type="email"
-        class="custom-dark-text"
-      ></tm-text>
-      @if (usuarioForm.get('email')?.touched && usuarioForm.get('email')?.invalid) {
-        <div class="text-danger extra-small mt-1">E-mail válido é obrigatório.</div>
-      }
-    </div>
-
-    @if (!usuarioSelecionado()) {
-      <div class="mb-3">
-        <tm-text
-          formControlName="senha"
-          label="Senha"
-          placeholder="Senha do usuário"
-          type="password"
-          class="custom-dark-text"
-        ></tm-text>
-        @if (usuarioForm.get('senha')?.touched && usuarioForm.get('senha')?.invalid) {
-          <div class="text-danger extra-small mt-1">Senha é obrigatória para novos usuários.</div>
-        }
-      </div>
-    }
-
-    <div class="mb-3 d-flex flex-column">
-      <tm-select
-        [label]="('USUARIOS.MODAL_EDIT.PROFILE_LABEL' | translate) + ' (Até 2 perfis)'"
-        [options]="perfilOptions()"
-        [multiple]="true"
-        [value]="perfisNovoUsuario()"
-        (valueChange)="onPerfisNovoUsuarioChange($event)"
-        class="custom-dark-text"
-      ></tm-select>
-    </div>
-
-    @if (usuarioSelecionado()) {
-      <!-- Status do Usuário (Botão Alternador) -->
-      <div class="mb-2">
-        <label class="form-label small fw-bold text-muted text-uppercase tracking-wider mb-2"
-          >{{ 'USUARIOS.MODAL_EDIT.STATUS_LABEL' | translate }}</label
-        >
-        <div>
-          <button
-            type="button"
-            class="btn status-toggle-btn w-100 py-2.5 fw-bold transition-all d-flex align-items-center justify-content-center gap-2"
-            [class.status-ativo]="status() === 'Ativo'"
-            [class.status-inativo]="status() === 'Inativo'"
-            (click)="toggleStatus()" [disabled]="!isAdmin()"
-          >
-            <i
-              class="fas"
-              [class.fa-check-circle]="status() === 'Ativo'"
-              [class.fa-times-circle]="status() === 'Inativo'"
-            ></i>
-            {{ status() === 'Ativo' ? 'Conta Ativa' : 'Conta Inativa' }}
-          </button>
-        </div>
-      </div>
-    }
-  </form>
-</tm-modal>

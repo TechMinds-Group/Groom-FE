@@ -1,0 +1,111 @@
+<div class="container mt-5 mb-5">
+  <!-- Header: botão voltar + título fixo -->
+  <div class="d-flex align-items-center gap-3 mb-4">
+    <button (click)="voltar()" class="btn btn-light shadow-sm rounded-circle p-0 d-flex align-items-center justify-content-center btn-voltar" title="Cancelar cadastro">
+      <i class="fas fa-arrow-left text-muted"></i>
+    </button>
+    <div>
+      <h1 class="h2 text-primary fw-bold mb-1 custom-dark-text">Cadastrar Plano</h1>
+      <p class="text-muted small mb-0 custom-dark-text">Preencha os dados do novo plano.</p>
+    </div>
+  </div>
+
+  <div class="row g-4">
+    <div class="col-12">
+      <div class="card border-0 shadow-sm p-4 custom-dark-card">
+        <form [formGroup]="form" (ngSubmit)="salvar()">
+          <div class="row g-3">
+            <!-- Nome do plano -->
+            <div class="col-sm-6 col-12">
+              <tm-text
+                formControlName="nome"
+                label="Nome do Plano *"
+                placeholder="Ex: Cabelo + Barba VIP"
+                class="custom-dark-text"
+              ></tm-text>
+              @if (form.get('nome')?.touched && form.get('nome')?.invalid) {
+                <div class="text-danger extra-small mt-1">Nome é obrigatório (máx. 50 caracteres).</div>
+              }
+            </div>
+
+            <!-- Preço e frequência -->
+            <div class="col-sm-6 col-12">
+              <tm-text
+                formControlName="preco"
+                type="text"
+                mask="currency"
+                [maxlength]="14"
+                label="Preço do Plano (R$) *"
+                placeholder="R$ 0,00"
+                class="custom-dark-text"
+              ></tm-text>
+              @if (form.get('preco')?.touched && form.get('preco')?.invalid) {
+                <div class="text-danger extra-small mt-1">Preço válido é obrigatório.</div>
+              }
+            </div>
+
+            <!-- Frequência -->
+            <div class="col-sm-6 col-12">
+              <tm-select
+                formControlName="frequencia"
+                label="Frequência de Cobrança *"
+                [options]="frequenciaOptions"
+                [darkMode]="themeService.isDarkMode()"
+                class="custom-dark-text"
+              ></tm-select>
+            </div>
+
+            <!-- Descrição -->
+            <div class="col-12">
+              <tm-text
+                formControlName="descricao"
+                label="Descrição do Plano (Opcional)"
+                placeholder="Descreva o que o plano oferece..."
+                [textarea]="true"
+                [rows]="2"
+                class="custom-dark-text"
+              ></tm-text>
+              @if (form.get('descricao')?.touched && form.get('descricao')?.hasError('maxlength')) {
+                <div class="text-danger extra-small mt-1">A descrição deve ter no máximo 200 caracteres.</div>
+              }
+            </div>
+
+            <!-- Benefícios -->
+            <div class="col-12">
+              <tm-select
+                formControlName="beneficios"
+                label="Benefícios Inclusos *"
+                [options]="opcoesBeneficios()"
+                [multiple]="true"
+                [searchable]="true"
+                [addTag]="true"
+                addTagLabel="Criar benefício:"
+                placeholder="Selecione ou digite para adicionar"
+                (addTagEvent)="adicionarNovoBeneficio($event)"
+                [darkMode]="themeService.isDarkMode()"
+                class="custom-dark-text"
+              ></tm-select>
+              @if (form.get('beneficios')?.touched && form.get('beneficios')?.invalid) {
+                <div class="text-danger extra-small mt-1">Adicione pelo menos um benefício. (Máx 70 caracteres)</div>
+              }
+            </div>
+          </div>
+
+          <!-- Ações -->
+          <div class="d-flex gap-3 mt-4 justify-content-end flex-column flex-sm-row">
+            <button type="button" class="btn btn-outline-secondary fw-semibold px-4 py-2" (click)="voltar()">
+              Cancelar
+            </button>
+            <button type="submit" class="btn btn-primary fw-bold px-4 py-2" [disabled]="salvando()">
+              @if (salvando()) {
+                <span class="spinner-border spinner-border-sm me-2" role="status"></span>Salvando...
+              } @else {
+                <i class="fas fa-save me-2"></i>Cadastrar
+              }
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>

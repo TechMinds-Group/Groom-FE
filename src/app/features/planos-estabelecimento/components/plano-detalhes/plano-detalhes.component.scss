@@ -3,11 +3,6 @@
   width: 100%;
 }
 
-.icon-circle-size {
-  width: 32px;
-  height: 32px;
-}
-
 .btn-voltar {
   width: 40px;
   height: 40px;
@@ -19,24 +14,18 @@
   }
 }
 
-.premium-card {
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-
-  &:hover {
-    transform: translateY(-2px);
-    box-shadow: var(--tm-shadow-md) !important;
-  }
+.custom-dark-muted {
+  color: #6c757d;
 }
 
-.custom-benefit-item {
-  background-color: var(--tm-input-bg) !important;
-  border: 1px solid var(--tm-border-color) !important;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+.details-card,
+.actions-card {
+  transition: box-shadow 0.2s ease;
+}
 
-  &:hover {
-    transform: translateY(-2px);
-    box-shadow: var(--tm-shadow-sm) !important;
-  }
+.custom-dark-item {
+  padding: 1.25rem 1.5rem !important;
+  border-radius: 12px !important;
 }
 
 :host-context([data-theme='dark']) {
@@ -58,14 +47,22 @@
     border: 1px solid rgba(255, 255, 255, 0.08) !important;
   }
 
+  .custom-dark-item {
+    background-color: #1c2128 !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  }
+
   .custom-dark-text {
     color: #ffffff !important;
+  }
+
+  .custom-dark-muted {
+    color: #a3b1c2 !important;
   }
 }
 
 @media (max-width: 991.98px) {
-  .custom-action-btn {
-    padding-top: 0.65rem !important;
-    padding-bottom: 0.65rem !important;
+  .actions-card {
+    height: auto !important;
   }
 }

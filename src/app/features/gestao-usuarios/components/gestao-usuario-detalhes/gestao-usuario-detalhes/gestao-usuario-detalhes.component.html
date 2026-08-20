@@ -8,7 +8,7 @@
 
         <div>
           <h2 class="h4 mb-0 fw-bold custom-dark-text d-flex align-items-center gap-2">
-            {{ user.nome }}
+            {{ user.nome }} {{ user.sobrenome }}
           </h2>
           <span class="text-muted small custom-dark-text">{{ 'USUARIOS.DETAILS.TITLE' | translate }}</span>
         </div>
@@ -40,13 +40,6 @@
   }
 </div>
 
-<app-usuario-modal-editar
-  [(show)]="showEditModal"
-  [usuario]="usuario()"
-  [perfilOptions]="perfilOptions()"
-  (confirm)="salvarEdicao($event)"
-/>
-
 <app-usuario-modal-alterar-senha
   [(show)]="showChangePasswordModal"
   [isAdmin]="isAdmin()"
@@ -55,6 +48,6 @@
 
 <app-usuario-modal-excluir
   [(show)]="showDeleteConfirmModal"
-  [nomeUsuario]="usuario()?.nome || ''"
+  [nomeUsuario]="(usuario()?.nome || '') + (usuario()?.sobrenome ? ' ' + usuario()?.sobrenome : '')"
   (confirm)="confirmarExcluir()"
 />

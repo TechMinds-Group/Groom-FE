@@ -118,20 +118,35 @@
                 }
               </div>
             </div>
-            <span class="text-muted extra-small d-block mt-1">Clique no círculo para alterar. Formato redondo.</span>
           </div>
 
           <!-- Dados de Cadastro -->
           <div class="col-12 col-md-8">
             <div class="row g-3">
               <div class="col-12 col-sm-6">
-                <label class="form-label fw-bold custom-dark-text small">Nome do Estabelecimento</label>
+                <label class="form-label fw-bold custom-dark-text small">
+                  Nome do Estabelecimento
+                  <span class="badge bg-secondary-subtle text-secondary ms-1 fw-normal">Imutável</span>
+                </label>
                 <input
                   type="text"
                   class="form-control"
                   placeholder="Ex: Barbearia Grooming Club"
                   [ngModel]="estabelecimentoInfo().nome"
-                  (ngModelChange)="atualizarCampo('nome', $event)"
+                  disabled
+                  readonly
+                  title="O nome é o identificador único do estabelecimento (usado no login e no link público) e não pode ser alterado."
+                />
+              </div>
+
+              <div class="col-12 col-sm-6">
+                <label class="form-label fw-bold custom-dark-text small">Nome de Exibição</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  placeholder="Ex: Barbearia Grooming Club"
+                  [ngModel]="estabelecimentoInfo().nomeExibicao"
+                  (ngModelChange)="atualizarCampo('nomeExibicao', $event)"
                 />
               </div>
 
@@ -151,7 +166,7 @@
               </div>
 
               <div class="col-12 col-sm-6">
-                <label class="form-label fw-bold custom-dark-text small">Telefone / WhatsApp de Contato</label>
+                <label class="form-label fw-bold custom-dark-text small">Contato</label>
                 <input
                   type="text"
                   class="form-control"
@@ -161,7 +176,7 @@
                 />
               </div>
 
-              <div class="col-12 col-sm-6">
+              <div class="col-12">
                 <label class="form-label fw-bold custom-dark-text small">Descrição Curta</label>
                 <input
                   type="text"
@@ -175,18 +190,33 @@
           </div>
         </div>
 
-        <div class="pt-3 mt-3 border-top d-flex justify-content-end">
-          <button
-            type="button"
-            class="btn btn-primary px-4 py-2 fw-bold rounded-3"
-            (click)="salvarInfo()"
-            [disabled]="salvandoInfo()"
+        <div
+          class="pt-3 mt-3 border-top d-flex flex-column flex-lg-row align-items-stretch align-items-lg-center justify-content-between gap-3"
+        >
+          <div
+            class="d-flex flex-column flex-lg-row gap-2 w-100 w-lg-auto ms-auto justify-content-lg-end"
           >
-            @if (salvandoInfo()) {
-              <span class="spinner-border spinner-border-sm me-2" role="status"></span>
-            }
-            <i class="fas fa-save me-2"></i>Salvar Perfil do Estabelecimento
-          </button>
+            <button
+              type="button"
+              class="btn btn-outline-secondary px-4 py-2 fw-semibold rounded-3 btn-action-responsive"
+              (click)="carregarInfo()"
+              [disabled]="salvandoInfo()"
+            >
+              <i class="fas fa-times me-2"></i>Cancelar
+            </button>
+
+            <button
+              type="button"
+              class="btn btn-primary px-4 py-2 fw-bold rounded-3 btn-action-responsive"
+              (click)="salvarInfo()"
+              [disabled]="salvandoInfo()"
+            >
+              @if (salvandoInfo()) {
+                <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+              }
+              <i class="fas fa-save me-2"></i>Salvar
+            </button>
+          </div>
         </div>
       </div>
     }
@@ -315,7 +345,7 @@
                         </div>
                       </div>
                     </div>
-                    <div class="col-12 col-md-6 mt-2 mt-md-0" style="padding-top: 15.5px">
+                    <div class="col-12 col-md-6 mt-2 mt-md-0 intervalo-col-padding">
                       @if (dia.temIntervalo) {
                         <div class="d-flex align-items-center gap-2 w-100">
                           <div class="flex-fill min-w-0">

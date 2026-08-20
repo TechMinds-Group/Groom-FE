@@ -1,4 +1,5 @@
 <div class="card border-0 shadow-sm p-4 h-100 details-card custom-dark-card">
+  <!-- Avatar + Nome Completo -->
   <div class="d-flex align-items-center gap-3 border-bottom pb-4 mb-4">
     <div
       class="avatar-circle bg-primary-subtle text-primary d-flex align-items-center justify-content-center"
@@ -6,12 +7,46 @@
       <i class="fas fa-user fs-3"></i>
     </div>
     <div>
-      <h2 class="h3 fw-bold mb-1 custom-dark-text">{{ usuario().nome }}</h2>
+      <h2 class="h3 fw-bold mb-1 custom-dark-text">{{ getNomeCompleto(usuario()) }}</h2>
       <p class="text-muted mb-0 custom-dark-text">{{ usuario().email }}</p>
     </div>
   </div>
 
+  <!-- Campos -->
   <div class="row g-4">
+    <!-- Nome -->
+    <div class="col-sm-6 col-12">
+      <label class="form-label small fw-bold text-muted text-uppercase tracking-wider">Nome</label>
+      <div class="mt-1 field-value">
+        <span class="fw-medium custom-dark-text">
+          <i class="fas fa-user text-primary me-1"></i>{{ getPrimeiroNome(usuario()) || '—' }}
+        </span>
+      </div>
+    </div>
+
+    <!-- Sobrenome -->
+    <div class="col-sm-6 col-12">
+      <label class="form-label small fw-bold text-muted text-uppercase tracking-wider">Sobrenome</label>
+      <div class="mt-1 field-value">
+        <span class="fw-medium custom-dark-text">
+          <i class="far fa-user text-primary me-1"></i>{{ getSobrenome(usuario()) || '—' }}
+        </span>
+      </div>
+    </div>
+
+    <!-- Telefone / WhatsApp -->
+    <div class="col-sm-6 col-12">
+      <label class="form-label small fw-bold text-muted text-uppercase tracking-wider">{{
+        'USUARIOS.DETAILS.PHONE' | translate
+      }}</label>
+      <div class="mt-1 field-value">
+        <span class="fw-medium custom-dark-text">
+          <i class="fab fa-whatsapp text-success me-1"></i>{{ usuario().telefone || '—' }}
+        </span>
+      </div>
+    </div>
+
+    <!-- Perfil -->
     <div class="col-sm-6 col-12">
       <label class="form-label small fw-bold text-muted text-uppercase tracking-wider">{{
         'USUARIOS.DETAILS.PROFILE' | translate
@@ -28,6 +63,7 @@
       </div>
     </div>
 
+    <!-- Status -->
     <div class="col-sm-6 col-12">
       <label class="form-label small fw-bold text-muted text-uppercase tracking-wider">{{
         'USUARIOS.DETAILS.STATUS' | translate
@@ -43,5 +79,62 @@
         }
       </div>
     </div>
+
+    <!-- E-mail -->
+    @if (usuario().email) {
+      <div class="col-sm-6 col-12">
+        <label class="form-label small fw-bold text-muted text-uppercase tracking-wider">E-mail</label>
+        <div class="mt-1 field-value">
+          <span class="custom-dark-text">
+            <i class="far fa-envelope text-primary me-1"></i>{{ usuario().email }}
+          </span>
+        </div>
+      </div>
+    }
+
+    <!-- Plano do Sistema -->
+    @if (usuario().planoAssinatura || usuario().plano) {
+      <div class="col-sm-6 col-12">
+        <label class="form-label small fw-bold text-muted text-uppercase tracking-wider">Plano do Sistema</label>
+        <div class="mt-1 field-value">
+          <span class="custom-dark-text">
+            <i class="fas fa-crown text-warning me-1"></i>{{ usuario().planoAssinatura || usuario().plano }}
+          </span>
+        </div>
+      </div>
+    }
+
+    <!-- Catálogo de Serviços Atendidos (se houver ou se for Profissional) -->
+    @if (usuario().perfil && (usuario().perfil.includes('Profissional') || servicosAtuacao().length > 0)) {
+      <div class="col-12 border-top pt-3 mt-2">
+        <label class="form-label small fw-bold text-muted text-uppercase d-flex align-items-center gap-2 mb-2">
+          <i class="fas fa-cut text-primary"></i>Catálogo de Serviços Atendidos
+        </label>
+        <div class="d-flex flex-wrap gap-2">
+          @for (servico of servicosAtuacao(); track servico) {
+            <span class="badge border px-3 py-1.5 rounded-pill fw-semibold text-primary border-primary-subtle bg-primary-subtle d-inline-flex align-items-center gap-1">
+              <i class="fas fa-check-circle me-1"></i>{{ servico }}
+            </span>
+          } @empty {
+            <span class="text-muted small custom-dark-text">Nenhum serviço do catálogo vinculado a este profissional.</span>
+          }
+        </div>
+      </div>
+
+      <div class="col-12 border-top pt-3 mt-2">
+        <label class="form-label small fw-bold text-muted text-uppercase d-flex align-items-center gap-2 mb-2">
+          <i class="fas fa-gem text-success"></i>Planos de Assinatura Atendidos (Clube)
+        </label>
+        <div class="d-flex flex-wrap gap-2">
+          @for (plano of planosAtuacao(); track plano) {
+            <span class="badge border px-3 py-1.5 rounded-pill fw-semibold text-success border-success-subtle bg-success-subtle d-inline-flex align-items-center gap-1">
+              <i class="fas fa-crown me-1"></i>{{ plano }}
+            </span>
+          } @empty {
+            <span class="text-muted small custom-dark-text">Nenhum plano de assinatura do estabelecimento vinculado a este profissional.</span>
+          }
+        </div>
+      </div>
+    }
   </div>
 </div>

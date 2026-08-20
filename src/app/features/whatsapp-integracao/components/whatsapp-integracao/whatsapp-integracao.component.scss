@@ -1,24 +1,3 @@
-.collapsible-trigger {
-  cursor: pointer;
-  user-select: none;
-  transition: background-color 0.2s ease;
-
-  &:hover {
-    background-color: rgba(0, 0, 0, 0.02) !important;
-  }
-}
-
-.chevron-icon-box {
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: background-color 0.2s ease;
-  flex-shrink: 0;
-}
-
 .btn-voltar {
   width: 40px !important;
   height: 40px !important;
@@ -36,45 +15,105 @@
   }
 
   &:hover {
-    background-color: #e9ecef !important;
+    background-color: var(--tm-primary-color, #3b82f6) !important;
+    border-color: var(--tm-primary-color, #3b82f6) !important;
     transform: translateX(-2px);
+
+    i {
+      color: #ffffff !important;
+    }
   }
 }
 
-.avatar-circle {
-  width: 56px !important;
-  height: 56px !important;
-  min-width: 56px !important;
-  min-height: 56px !important;
-  max-width: 56px !important;
-  max-height: 56px !important;
-  border-radius: 50% !important;
+/* Ícone em caixa dos cabeçalhos dos blocos */
+.bloco-icone {
+  width: 44px !important;
+  height: 44px !important;
+  min-width: 44px !important;
+  min-height: 44px !important;
+  max-width: 44px !important;
+  max-height: 44px !important;
+  border-radius: 12px !important;
   flex-shrink: 0 !important;
   aspect-ratio: 1 / 1 !important;
+
+  i {
+    font-size: 1.15rem !important;
+  }
+
+  @media (max-width: 575.98px) {
+    width: 38px !important;
+    height: 38px !important;
+    min-width: 38px !important;
+    min-height: 38px !important;
+    max-width: 38px !important;
+    max-height: 38px !important;
+    border-radius: 10px !important;
+
+    i {
+      font-size: 1rem !important;
+    }
+  }
 }
 
+.card-header--clean {
+  padding-bottom: 1rem !important;
+}
+
+.collapsible-trigger {
+  cursor: pointer;
+  user-select: none;
+  transition: background-color 0.2s ease;
+
+  &:hover {
+    background-color: rgba(0, 0, 0, 0.02) !important;
+  }
+}
+
+.chevron-icon-box {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s ease;
+  flex-shrink: 0;
+}
+
+.collapsible-trigger:hover .chevron-icon-box {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+/* QR Code com dimensão fluida */
 .qr-code-img {
-  max-width: 280px;
+  max-width: 240px;
+  width: 100%;
   background-color: #ffffff;
-  border-radius: var(--tm-border-radius, 8px);
+  border-radius: var(--tm-border-radius, 12px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+
+  @media (max-width: 575.98px) {
+    max-width: 200px;
+  }
 }
 
 .perfil-img {
-  width: 40px;
-  height: 40px;
+  width: 44px;
+  height: 44px;
   object-fit: cover;
   flex-shrink: 0;
 }
 
 .avatar-placeholder {
-  width: 40px;
-  height: 40px;
+  width: 44px;
+  height: 44px;
   flex-shrink: 0;
 }
 
 .btn-icon-action {
-  width: 32px;
-  height: 32px;
+  width: 36px;
+  height: 36px;
   padding: 0;
   display: inline-flex;
   align-items: center;
@@ -93,18 +132,60 @@
   }
 }
 
+.placeholder-table {
+  border-radius: 8px;
+  overflow: hidden;
+  border-color: var(--tm-border-color, #e2e8f0) !important;
+
+  thead tr th {
+    background-color: rgba(0, 0, 0, 0.03) !important;
+    border-color: var(--tm-border-color, #e2e8f0) !important;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.8rem;
+    color: var(--tm-text-secondary, #6c757d);
+  }
+
+  tbody tr {
+    background-color: transparent !important;
+
+    td {
+      background-color: transparent !important;
+      border-color: var(--tm-border-color, #e2e8f0) !important;
+      padding: 0.5rem 0.75rem;
+      vertical-align: middle;
+      color: var(--tm-text-primary, #212529);
+
+      code {
+        font-size: 0.8rem;
+        padding: 0.15rem 0.4rem;
+        border-radius: 4px;
+        background-color: rgba(13, 110, 253, 0.08) !important;
+        color: #0d6efd !important;
+        font-weight: 600;
+      }
+    }
+  }
+}
+
 .min-w-0 {
   min-width: 0;
+}
+
+.var-col {
+  width: 180px;
 }
 
 .btn-action-responsive {
   width: 100% !important;
   display: block !important;
   text-align: center;
+  min-height: 44px;
+  line-height: 1.5;
 
-  @media (min-width: 992px) {
+  @media (min-width: 768px) {
     width: auto !important;
     display: inline-block !important;
+    min-height: auto;
   }
 }
 
@@ -112,6 +193,10 @@
 :host-context([data-theme='dark']) {
   .collapsible-trigger:hover {
     background-color: rgba(255, 255, 255, 0.03) !important;
+  }
+
+  .collapsible-trigger:hover .chevron-icon-box {
+    background-color: rgba(255, 255, 255, 0.06);
   }
 
   .btn-voltar {
@@ -123,7 +208,8 @@
     }
 
     &:hover {
-      background-color: #30363d !important;
+      background-color: var(--tm-primary-color, #3b82f6) !important;
+      border-color: var(--tm-primary-color, #3b82f6) !important;
     }
   }
 
@@ -135,6 +221,40 @@
   .dia-card {
     background-color: #1c2128 !important;
     border-color: rgba(255, 255, 255, 0.08) !important;
+  }
+
+  .placeholder-table {
+    border-color: rgba(255, 255, 255, 0.10) !important;
+    background-color: transparent !important;
+
+    thead tr th {
+      background-color: rgba(255, 255, 255, 0.05) !important;
+      border-color: rgba(255, 255, 255, 0.10) !important;
+      color: rgba(255, 255, 255, 0.55) !important;
+    }
+
+    tbody tr {
+      background-color: transparent !important;
+      --bs-table-bg: transparent !important;
+      --bs-table-striped-bg: transparent !important;
+      --bs-table-active-bg: transparent !important;
+
+      td {
+        background-color: transparent !important;
+        --bs-table-bg: transparent !important;
+        border-color: rgba(255, 255, 255, 0.07) !important;
+        color: rgba(255, 255, 255, 0.82) !important;
+
+        code {
+          background-color: rgba(99, 170, 255, 0.14) !important;
+          color: #7db8f7 !important;
+        }
+
+        em {
+          color: rgba(255, 255, 255, 0.55) !important;
+        }
+      }
+    }
   }
 
   .custom-dark-text {
@@ -159,6 +279,22 @@
       &:hover td {
         background-color: rgba(255, 255, 255, 0.03) !important;
       }
+    }
+  }
+
+  .custom-dark-input {
+    background-color: #0d1117 !important;
+    color: #ffffff !important;
+    border-color: rgba(255, 255, 255, 0.18) !important;
+
+    &:focus {
+      border-color: var(--tm-primary-color, #3b82f6) !important;
+      box-shadow: 0 0 0 0.25rem rgba(59, 130, 246, 0.25) !important;
+    }
+
+    &:disabled {
+      background-color: #21262d !important;
+      color: #9aa4b2 !important;
     }
   }
 
@@ -189,7 +325,7 @@
       border-color: rgba(255, 255, 255, 0.18) !important;
 
       &:focus {
-        border-color: var(--bs-primary, #0d6efd) !important;
+        border-color: var(--tm-primary-color, #3b82f6) !important;
       }
     }
   }

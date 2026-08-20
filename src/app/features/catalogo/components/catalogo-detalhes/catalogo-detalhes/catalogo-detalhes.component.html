@@ -65,12 +65,6 @@
   }
 </div>
 
-<app-catalogo-modal-editar
-  [(show)]="showEditModal"
-  [servico]="servico()"
-  (confirm)="salvarEdicao($event)"
-/>
-
 <app-catalogo-modal-excluir
   [(show)]="showDeleteConfirmModal"
   [nomeServico]="servico()?.nome || ''"

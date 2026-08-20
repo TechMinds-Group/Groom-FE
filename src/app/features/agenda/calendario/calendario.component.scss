@@ -80,6 +80,18 @@
 }
 
 /* =====================================================================
+   Badges de Data & Filtros — Alto Contraste & Design Premium
+   ===================================================================== */
+.agenda-filter-select-wrap {
+  width: 280px;
+  max-width: 100%;
+
+  @media (max-width: 575.98px) {
+    width: 100%;
+  }
+}
+
+/* =====================================================================
    Responsividade & UX Mobile — Calendário (≤ md Bootstrap / < 992px)
    Melhora a visualização, legibilidade e área de toque para telas pequenas.
    ===================================================================== */
@@ -88,6 +100,11 @@
     /* Container principal da agenda em mobile — espaçamento enxuto */
     .tm-calendar-container {
       padding: 0;
+
+      .calendar-date-badges {
+        margin-top: 0.25rem;
+        max-width: 100%;
+      }
     }
 
     /* Cabeçalho de Controles — compacto e facil de tocar */
@@ -192,21 +209,20 @@
         overflow: hidden !important;
       }
 
-      /* Pílula de Evento no Mês — toque fácil, recorte limpo (...) */
+      /* Pílula de Evento no Mês — permite quebrar linha para baixo quando o texto for extenso */
       .cal-event {
-        font-size: 0.68rem !important;
+        font-size: 0.62rem !important;
         font-weight: 600 !important;
-        line-height: 1 !important;
-        height: 22px !important;
-        min-height: 22px !important;
+        line-height: 1.15 !important;
+        height: auto !important;
+        min-height: 20px !important;
         width: 100% !important;
-        padding: 0 4px !important;
+        padding: 2px 3px !important;
         margin: 0 0 2px 0 !important;
-        border-radius: 11px !important;
-        white-space: nowrap !important;
-        word-break: normal !important;
-        overflow: hidden !important;
-        text-overflow: ellipsis !important;
+        border-radius: 8px !important;
+        white-space: normal !important;
+        word-break: break-word !important;
+        overflow-wrap: anywhere !important;
         display: flex !important;
         align-items: center !important;
         justify-content: center !important;
@@ -214,7 +230,7 @@
         min-width: 0 !important;
         max-width: 100% !important;
         box-sizing: border-box !important;
-        border-left: 3px solid rgba(0, 0, 0, 0.25) !important;
+        border-left: 2px solid rgba(0, 0, 0, 0.25) !important;
         box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04) !important;
         touch-action: manipulation;
 
@@ -222,20 +238,32 @@
         .cal-event-text,
         mwl-calendar-event-title,
         a {
-          font-size: 0.68rem !important;
+          font-size: 0.62rem !important;
           font-weight: 600 !important;
-          line-height: 1 !important;
+          line-height: 1.15 !important;
           display: block !important;
           width: 100% !important;
           min-width: 0 !important;
           max-width: 100% !important;
-          white-space: nowrap !important;
-          overflow: hidden !important;
-          text-overflow: ellipsis !important;
+          white-space: normal !important;
+          word-break: break-word !important;
+          overflow-wrap: anywhere !important;
           text-align: center !important;
           margin: 0 !important;
           padding: 0 !important;
           box-sizing: border-box !important;
+        }
+
+        @media (max-width: 575.98px) {
+          font-size: 0.56rem !important;
+          padding: 2px 1px !important;
+
+          .cal-event-title,
+          .cal-event-text,
+          mwl-calendar-event-title,
+          a {
+            font-size: 0.56rem !important;
+          }
         }
 
         &:active {

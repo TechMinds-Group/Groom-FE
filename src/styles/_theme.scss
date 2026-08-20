@@ -42,17 +42,17 @@ body {
   }
 
   .alert-success {
-    background-color: rgba(3, 218, 198, 0.1) !important;
+    background-color: rgba(25, 135, 84, 0.1) !important;
     color: var(--tm-success) !important;
-    border-color: rgba(3, 218, 198, 0.2) !important;
+    border-color: rgba(25, 135, 84, 0.2) !important;
     i, span { color: var(--tm-success) !important; }
   }
 
   .alert-danger {
-    background-color: rgba(207, 102, 121, 0.1) !important;
+    background-color: rgba(239, 68, 68, 0.1) !important;
     color: var(--tm-text-primary) !important;
-    border-color: rgba(207, 102, 121, 0.2) !important;
-    i { color: #ef5350 !important; }
+    border-color: rgba(239, 68, 68, 0.2) !important;
+    i { color: #ef4444 !important; }
   }
 
   .alert-info {

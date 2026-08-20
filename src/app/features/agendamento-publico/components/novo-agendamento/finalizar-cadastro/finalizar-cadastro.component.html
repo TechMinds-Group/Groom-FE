@@ -1,0 +1,81 @@
+<form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
+  <div class="mb-3">
+    <label class="finalizar-cadastro__titulo form-label fw-bold">
+      Complete seu cadastro para confirmar
+    </label>
+    <span class="finalizar-cadastro__subtitulo text-muted d-block">
+      Para finalizar o agendamento precisamos de algumas informações suas.
+    </span>
+  </div>
+
+  <div class="row g-3 mb-3">
+    <div class="col-12 col-sm-6">
+      <tm-text
+        formControlName="primeiroNome"
+        [control]="form.controls.primeiroNome"
+        label="Primeiro nome"
+        icon="fa-solid fa-user text-muted"
+        placeholder="Seu primeiro nome"
+        [maxlength]="15"
+      ></tm-text>
+    </div>
+
+    <div class="col-12 col-sm-6">
+      <tm-text
+        formControlName="ultimoNome"
+        [control]="form.controls.ultimoNome"
+        label="Último nome"
+        icon="fa-solid fa-user text-muted"
+        placeholder="Seu sobrenome"
+        [maxlength]="15"
+      ></tm-text>
+    </div>
+  </div>
+
+  <div class="mb-3">
+    <tm-text
+      formControlName="email"
+      [control]="form.controls.email"
+      label="E-mail"
+      type="email"
+      icon="fa-solid fa-envelope text-muted"
+      placeholder="voce@email.com"
+    ></tm-text>
+  </div>
+
+  <div class="mb-3">
+    <tm-text
+      formControlName="celular"
+      [control]="form.controls.celular"
+      label="Celular (WhatsApp)"
+      mask="phone"
+      icon="fa-solid fa-phone text-muted"
+      placeholder="(00) 00000-0000"
+    ></tm-text>
+  </div>
+
+  @if (errorMessage()) {
+    <div class="alert alert-danger py-2">{{ errorMessage() }}</div>
+  }
+
+  <div class="d-flex gap-2">
+    <tm-button
+      type="button"
+      variant="outline-secondary"
+      label="Cancelar"
+      icon="fa-solid fa-times"
+      [isFullWidth]="false"
+      (click)="cancelar.emit()"
+      class="finalizar-cadastro__cancelar"
+    ></tm-button>
+
+    <tm-button
+      type="submit"
+      variant="primary"
+      label="Salvar e voltar"
+      icon="fa-solid fa-check"
+      [loading]="isSaving()"
+      class="finalizar-cadastro__submit"
+    ></tm-button>
+  </div>
+</form>

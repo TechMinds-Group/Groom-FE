@@ -19,6 +19,8 @@ interface DiaCalendario {
 })
 export class PassoDataHorarioComponent {
   readonly servico = input.required<ServicoDisponivel | null>();
+  /** Duração em minutos quando o agendamento é via plano (o serviço não é selecionado). */
+  readonly duracao = input<number | null>(null);
   readonly horarios = input.required<HorarioDisponivel[]>();
   /** Dias da semana (0 = Domingo ... 6 = Sábado) em que o profissional atende. */
   readonly diasDisponiveis = input<number[]>([]);
@@ -44,12 +46,37 @@ export class PassoDataHorarioComponent {
     return mes.getFullYear() === this.hoje.getFullYear() && mes.getMonth() === this.hoje.getMonth();
   });
 
+  /** Horários exibidos: quando a data selecionada é hoje, exclui os slots cujo início já passou. */
+  protected readonly horariosVisiveis = computed<HorarioDisponivel[]>(() => {
+    const data = this.dataSelecionada();
+    const lista = this.horarios();
+    if (data !== this.toIso(new Date())) {
+      return lista;
+    }
+
+    const agora = new Date();
+    const agoraMinutos = agora.getHours() * 60 + agora.getMinutes();
+    return lista.filter((horario) => {
+      const [hora, minuto] = horario.hora.split(':').map(Number);
+      return hora * 60 + minuto > agoraMinutos;
+    });
+  });
+
+  /** Hoje fica desabilitado quando todos os horários do dia já passaram. */
+  protected readonly diaEsgotado = computed(() => {
+    if (this.dataSelecionada() !== this.toIso(new Date())) {
+      return false;
+    }
+    return this.horarios().length > 0 && this.horariosVisiveis().length === 0;
+  });
+
   protected readonly diasCalendario = computed<DiaCalendario[]>(() => {
     const mes = this.mesExibido();
     const offset = new Date(mes.getFullYear(), mes.getMonth(), 1).getDay();
     const ultimoDia = new Date(mes.getFullYear(), mes.getMonth() + 1, 0).getDate();
     const inicioHoje = this.inicioDoDia(this.hoje);
     const diasDisponiveis = this.diasDisponiveis();
+    const diaEsgotado = this.diaEsgotado();
 
     const dias: DiaCalendario[] = [];
     for (let i = 0; i < offset; i++) {
@@ -57,13 +84,16 @@ export class PassoDataHorarioComponent {
     }
     for (let dia = 1; dia <= ultimoDia; dia++) {
       const date = new Date(mes.getFullYear(), mes.getMonth(), dia);
-      const habilitado = diasDisponiveis.includes(date.getDay()) && date >= inicioHoje;
+      const ehHoje = date.getTime() === inicioHoje.getTime();
+      const habilitado = diasDisponiveis.includes(date.getDay())
+        && date >= inicioHoje
+        && !(ehHoje && diaEsgotado);
       dias.push({
         date,
         vazio: false,
         habilitado,
         selecionado: this.dataSelecionada() === this.toIso(date),
-        hoje: date.getTime() === inicioHoje.getTime(),
+        hoje: ehHoje,
       });
     }
     return dias;
@@ -87,7 +117,7 @@ export class PassoDataHorarioComponent {
   }
 
   calcularFim(horario: string): string {
-    const duracao = this.servico()?.duracao ?? 30;
+    const duracao = this.duracao() ?? this.servico()?.duracao ?? 30;
     const [hora, minuto] = horario.split(':').map(Number);
     const fim = new Date(2000, 0, 1, hora, minuto + duracao);
     return `${String(fim.getHours()).padStart(2, '0')}:${String(fim.getMinutes()).padStart(2, '0')}`;

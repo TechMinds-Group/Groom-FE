@@ -12,7 +12,11 @@
       <span class="agendamento-resumo__rotulo">
         <i class="fa-solid fa-scissors"></i> Serviço
       </span>
-      <span class="agendamento-resumo__valor">{{ servico()?.nome }}</span>
+      @if (planoNome(); as nomePlano) {
+        <span class="agendamento-resumo__valor">{{ nomePlano }} <span class="badge text-bg-success">Incluso no plano</span></span>
+      } @else {
+        <span class="agendamento-resumo__valor">{{ servico()?.nome }}</span>
+      }
     </div>
   </div>
 
@@ -33,13 +37,17 @@
       <span class="agendamento-resumo__rotulo">
         <i class="fa-solid fa-hourglass-half"></i> Duração
       </span>
-      <span class="agendamento-resumo__valor">{{ servico()?.duracao }} min</span>
+      <span class="agendamento-resumo__valor">{{ duracao() ?? servico()?.duracao ?? 0 }} min</span>
     </div>
   </div>
 
   <div class="agendamento-resumo__total">
     <span class="agendamento-resumo__total-rotulo">Total a pagar</span>
-    <span class="agendamento-resumo__total-valor">{{ formatarPreco(servico()?.preco ?? 0) }}</span>
+    @if (planoNome()) {
+      <span class="agendamento-resumo__total-valor">Incluso no plano</span>
+    } @else {
+      <span class="agendamento-resumo__total-valor">{{ formatarPreco(servico()?.preco ?? 0) }}</span>
+    }
   </div>
 </div>
 

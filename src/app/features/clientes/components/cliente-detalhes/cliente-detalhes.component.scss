@@ -1,0 +1,98 @@
+.btn-voltar {
+  width: 40px !important;
+  height: 40px !important;
+  min-width: 40px !important;
+  border-radius: 50% !important;
+  flex-shrink: 0;
+  padding: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  line-height: 1 !important;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background-color: #e9ecef !important;
+    transform: translateX(-2px);
+  }
+}
+
+.avatar-circle {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.details-card,
+.actions-card {
+  background-color: #ffffff;
+  overflow: hidden; /* impede qualquer conteúdo de vazar o card */
+}
+
+/* Quebra de linha segura para textos longos (e-mail, CPF, etc.) */
+.field-value {
+  word-break: break-word;
+  overflow-wrap: break-word;
+  min-width: 0;
+}
+
+.custom-dark-highlight {
+  background-color: #f8f9fa;
+}
+
+:host-context([data-theme='dark']) {
+  .btn-voltar {
+    background-color: #21262d !important;
+    border-color: rgba(255, 255, 255, 0.1) !important;
+
+    i {
+      color: #c9d1d9 !important;
+    }
+
+    &:hover {
+      background-color: #30363d !important;
+    }
+  }
+
+  .details-card,
+  .actions-card,
+  .custom-dark-card {
+    background-color: #161b22 !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  }
+
+  .custom-dark-highlight {
+    background-color: #0d1117 !important;
+    border-color: rgba(255, 255, 255, 0.08) !important;
+  }
+
+  .custom-dark-text {
+    color: #ffffff !important;
+  }
+
+  label {
+    color: rgba(255, 255, 255, 0.7) !important;
+  }
+
+  .table {
+    --bs-table-color: #c9d1d9;
+    --bs-table-bg: transparent;
+    --bs-table-striped-bg: rgba(255, 255, 255, 0.03);
+    --bs-table-hover-bg: rgba(255, 255, 255, 0.05);
+    --bs-table-border-color: rgba(255, 255, 255, 0.08);
+  }
+
+  .table-light {
+    --bs-table-bg: #21262d;
+    --bs-table-color: #c9d1d9;
+    --bs-table-border-color: rgba(255, 255, 255, 0.08);
+  }
+}
+
+@media (max-width: 991.98px) {
+  .custom-action-btn {
+    padding-top: 0.65rem !important;
+    padding-bottom: 0.65rem !important;
+  }
+}

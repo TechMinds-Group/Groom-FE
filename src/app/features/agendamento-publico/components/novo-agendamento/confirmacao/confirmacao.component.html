@@ -18,7 +18,11 @@
       <span class="agendamento-confirmacao__rotulo">
         <i class="fa-solid fa-scissors"></i> Serviço
       </span>
-      <span class="agendamento-confirmacao__valor">{{ agendamento().servicoNome }}</span>
+      @if (agendamento().planoNome) {
+        <span class="agendamento-confirmacao__valor">{{ agendamento().planoNome }} <span class="badge text-bg-success">Incluso no plano</span></span>
+      } @else {
+        <span class="agendamento-confirmacao__valor">{{ agendamento().servicoNome }}</span>
+      }
     </div>
     <div class="agendamento-confirmacao__linha">
       <span class="agendamento-confirmacao__rotulo">
@@ -28,7 +32,11 @@
     </div>
     <div class="agendamento-confirmacao__linha agendamento-confirmacao__linha--total">
       <span class="agendamento-confirmacao__rotulo">Total</span>
-      <span class="agendamento-confirmacao__total">{{ formatarPreco(agendamento().servicoPreco) }}</span>
+      @if (agendamento().planoNome) {
+        <span class="agendamento-confirmacao__total">Incluso no plano</span>
+      } @else {
+        <span class="agendamento-confirmacao__total">{{ formatarPreco(agendamento().servicoPreco) }}</span>
+      }
     </div>
   </div>
 

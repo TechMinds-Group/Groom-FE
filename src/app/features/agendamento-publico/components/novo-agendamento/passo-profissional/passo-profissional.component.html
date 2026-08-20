@@ -10,9 +10,13 @@
         class="agendamento-profissionais__card"
         (click)="selecionado.emit(profissional)"
       >
-        <span class="agendamento-profissionais__avatar">
-          {{ inicial(profissional.nome) }}
-        </span>
+        @if (profissional.fotoUrl) {
+          <img [src]="estabelecimentoService.resolverUrl(profissional.fotoUrl)" [alt]="profissional.nome" class="agendamento-profissionais__avatar-img" />
+        } @else {
+          <span class="agendamento-profissionais__avatar">
+            {{ inicial(profissional.nome) }}
+          </span>
+        }
         <span class="agendamento-profissionais__nome">{{ profissional.nome }}</span>
         <i class="fa-solid fa-chevron-right agendamento-profissionais__seta"></i>
       </button>

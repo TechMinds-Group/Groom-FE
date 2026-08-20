@@ -1,0 +1,86 @@
+<div class="container mt-5 mb-5">
+  <!-- Header: botão voltar + título fixo -->
+  <div class="d-flex align-items-center gap-3 mb-4">
+    <button (click)="voltar()" class="btn btn-light shadow-sm rounded-circle p-0 d-flex align-items-center justify-content-center btn-voltar" title="Cancelar cadastro">
+      <i class="fas fa-arrow-left text-muted"></i>
+    </button>
+    <div>
+      <h1 class="h2 text-primary fw-bold mb-1 custom-dark-text">Cadastrar Assinante</h1>
+      <p class="text-muted small mb-0 custom-dark-text">Vincule um cliente existente a um plano de assinatura.</p>
+    </div>
+  </div>
+
+  <div class="row g-4">
+    <div class="col-12">
+      <div class="card border-0 shadow-sm p-4 custom-dark-card">
+        <form [formGroup]="form" (ngSubmit)="salvar()">
+          <div class="row g-3">
+            <!-- Cliente -->
+            <div class="col-12">
+              <tm-select
+                formControlName="cliente"
+                [options]="clienteOptions()"
+                label="Cliente *"
+                placeholder="Selecione o cliente"
+                [searchable]="true"
+                [darkMode]="themeService.isDarkMode()"
+                icon="fas fa-user"
+                class="custom-dark-text"
+                (valueChange)="onClienteChange($event)"
+              ></tm-select>
+              <div class="small text-muted custom-dark-text mt-1">
+                Cliente ainda não cadastrado? Use a opção "+ Cadastrar novo cliente" no final da lista.
+              </div>
+              @if (form.get('cliente')?.touched && form.get('cliente')?.invalid) {
+                <div class="text-danger extra-small mt-1">Selecione um cliente.</div>
+              }
+            </div>
+
+            <!-- Plano -->
+            <div class="col-sm-6 col-12">
+              <label class="form-label small fw-bold text-muted text-uppercase tracking-wider mb-2 custom-dark-text">Plano *</label>
+              @if (clubeOptions().length > 0) {
+                <tm-select formControlName="clubeId" [options]="clubeOptions()" [darkMode]="themeService.isDarkMode()" class="custom-dark-text"></tm-select>
+              } @else {
+                <div class="text-danger small py-2">
+                  <i class="fas fa-exclamation-triangle me-1"></i> Nenhum plano ativo disponível.
+                </div>
+              }
+              @if (form.get('clubeId')?.touched && form.get('clubeId')?.invalid) {
+                <div class="text-danger extra-small mt-1">Selecione um plano.</div>
+              }
+            </div>
+
+            <!-- Data de Início -->
+            <div class="col-sm-6 col-12">
+              <tm-date
+                formControlName="dataInicio"
+                label="Data de Início *"
+                placeholder="DD/MM/AAAA"
+                [includeTime]="false"
+                class="custom-dark-text"
+              ></tm-date>
+              @if (form.get('dataInicio')?.touched && form.get('dataInicio')?.invalid) {
+                <div class="text-danger extra-small mt-1">Data de início é obrigatória.</div>
+              }
+            </div>
+          </div>
+
+          <!-- Ações -->
+          <div class="d-flex gap-3 mt-4 justify-content-end flex-column flex-sm-row">
+            <button type="button" class="btn btn-outline-secondary fw-semibold px-4 py-2" (click)="voltar()">
+              Cancelar
+            </button>
+            <button type="submit" class="btn btn-primary fw-bold px-4 py-2" [disabled]="salvando()">
+              @if (salvando()) {
+                <span class="spinner-border spinner-border-sm me-2" role="status"></span>Salvando...
+              } @else {
+                <i class="fas fa-user-plus me-2"></i>Cadastrar
+              }
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>

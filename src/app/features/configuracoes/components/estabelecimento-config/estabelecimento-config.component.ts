@@ -31,6 +31,7 @@ export class EstabelecimentoConfigComponent implements OnInit {
   protected readonly salvandoInfo = signal(false);
   protected readonly estabelecimentoInfo = signal<EstabelecimentoInfo>({
     nome: '',
+    nomeExibicao: '',
     cnpj: '',
     telefone: '',
     logoUrl: '',
@@ -175,6 +176,7 @@ export class EstabelecimentoConfigComponent implements OnInit {
 
       await this.estabelecimentoService.salvarInfo({
         nome: info.nome,
+        nomeExibicao: info.nomeExibicao,
         cnpj: info.cnpj,
         telefone: info.telefone,
         descricao: info.descricao,

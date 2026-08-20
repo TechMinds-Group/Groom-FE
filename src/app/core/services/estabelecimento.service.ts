@@ -6,6 +6,7 @@ import { DiaFuncionamento } from '../models/configuracoes/horario-estabeleciment
 
 export interface EstabelecimentoInfo {
   nome: string;
+  nomeExibicao?: string;
   cnpj: string;
   telefone: string;
   logoUrl?: string;
@@ -55,6 +56,12 @@ export class EstabelecimentoService {
 
   async carregarInfo(): Promise<EstabelecimentoInfo> {
     return firstValueFrom(this.http.get<EstabelecimentoInfo>(`${this.apiUrl}/info`));
+  }
+
+  /** Obtém o link público de agendamento; no primeiro acesso o backend gera e persiste. */
+  async obterLinkAgendamento(): Promise<string> {
+    const data = await firstValueFrom(this.http.get<{ link: string }>(`${this.apiUrl}/link-agendamento`));
+    return data.link;
   }
 
   async salvarInfo(info: Partial<EstabelecimentoInfo>): Promise<void> {

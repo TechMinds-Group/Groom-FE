@@ -2,7 +2,8 @@ import { inject, Injectable, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { Agendamento } from '../models/agenda.model';
+import { Agendamento, agendamentoParaDateLocal } from '../models/agenda.model';
+import { HorarioDisponivel } from '../models/agendamento-publico/agendamento-publico.model';
 
 /** DTO de agendamento retornado pela API (camelCase) — exportado para reuso em mapeamentos de outros services. */
 export interface AgendamentoApi {
@@ -13,6 +14,9 @@ export interface AgendamentoApi {
   profissionalNome: string;
   servicoId: string;
   servicoNome: string;
+  planoId?: string;
+  planoNome?: string;
+  tipo?: string;
   preco: number;
   servicoDuracao: number;
   dataInicio: string;
@@ -21,7 +25,7 @@ export interface AgendamentoApi {
   observacoes?: string;
 }
 
-const STATUS_VALIDOS = ['pendente', 'agendado', 'confirmado', 'recusado', 'concluido', 'no-show'] as const;
+const STATUS_VALIDOS = ['pendente', 'agendado', 'confirmado', 'recusado', 'concluido', 'no-show', 'cancelado', 'nao_compareceu'] as const;
 type StatusValido = (typeof STATUS_VALIDOS)[number];
 
 function normalizarStatus(status: string): Agendamento['status'] {
@@ -42,11 +46,14 @@ export function mapearAgendamento(api: AgendamentoApi): Agendamento {
     servicoNome: api.servicoNome,
     profissionalId: api.profissionalId,
     profissionalNome: api.profissionalNome,
-    dataInicio: new Date(api.dataInicio),
-    dataFim: new Date(api.dataFim),
+    dataInicio: agendamentoParaDateLocal(api.dataInicio),
+    dataFim: agendamentoParaDateLocal(api.dataFim),
     status: normalizarStatus(api.status),
     preco: api.preco,
-    observacoes: api.observacoes
+    observacoes: api.observacoes,
+    tipo: api.tipo ?? 'servico',
+    planoId: api.planoId,
+    planoNome: api.planoNome,
   };
 }
 
@@ -68,6 +75,14 @@ export class AgendamentosService {
     this._agendamentos.set(data.map(mapearAgendamento));
   }
 
+  /** Horários disponíveis de um profissional para a data/serviço (com base na agenda e disponibilidade configurada). */
+  async getHorariosDisponiveis(profissionalId: string, data: string, servicoId: string): Promise<HorarioDisponivel[]> {
+    const params = `data=${encodeURIComponent(data)}&servicoId=${encodeURIComponent(servicoId)}`;
+    return firstValueFrom(
+      this.http.get<HorarioDisponivel[]>(`${this.apiUrl}/profissionais/${profissionalId}/horarios?${params}`, { withCredentials: true })
+    );
+  }
+
   async criarManual(dados: {
     clienteNome: string;
     clienteTelefone: string;
@@ -85,9 +100,9 @@ export class AgendamentosService {
   async editarManual(
     id: string,
     dados: {
-      servicoId: string;
-      dataInicio: string;
-      status: 'confirmado' | 'recusado';
+      servicoId?: string;
+      dataInicio?: string;
+      status: 'confirmado' | 'recusado' | 'nao_compareceu' | 'concluido';
       observacoes?: string;
     }
   ): Promise<Agendamento> {

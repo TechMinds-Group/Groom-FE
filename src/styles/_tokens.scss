@@ -81,8 +81,8 @@ tm-sidebar, .sidebar-column {
 
   /* Glow Palette Overrides */
   --tm-primary: #0d6efd; 
-  --tm-success: #03dac6;
-  --tm-danger: #cf6679;
+  --tm-success: #198754;
+  --tm-danger: #ef4444;
   --tm-warning: #ffd166;
   --tm-warning-text: #000000;
 
@@ -103,26 +103,26 @@ tm-sidebar, .sidebar-column {
 }
 
 .bg-success-subtle {
-  background-color: rgba(22, 163, 74, 0.1) !important;
-  color: #16a34a !important;
-  border: 1px solid rgba(22, 163, 74, 0.15) !important;
+  background-color: rgba(25, 135, 84, 0.1) !important;
+  color: #198754 !important;
+  border: 1px solid rgba(25, 135, 84, 0.15) !important;
 
   [data-theme='dark'] & {
-    background-color: rgba(3, 218, 198, 0.1) !important;
-    color: #03dac6 !important;
-    border-color: rgba(3, 218, 198, 0.2) !important;
+    background-color: rgba(25, 135, 84, 0.1) !important;
+    color: #198754 !important;
+    border-color: rgba(25, 135, 84, 0.2) !important;
   }
 }
 
 .bg-danger-subtle {
-  background-color: rgba(220, 38, 38, 0.1) !important;
-  color: #dc2626 !important;
-  border: 1px solid rgba(220, 38, 38, 0.15) !important;
+  background-color: rgba(239, 68, 68, 0.1) !important;
+  color: #ef4444 !important;
+  border: 1px solid rgba(239, 68, 68, 0.15) !important;
 
   [data-theme='dark'] & {
-    background-color: rgba(207, 102, 121, 0.1) !important;
-    color: #cf6679 !important;
-    border-color: rgba(207, 102, 121, 0.2) !important;
+    background-color: rgba(239, 68, 68, 0.1) !important;
+    color: #ef4444 !important;
+    border-color: rgba(239, 68, 68, 0.2) !important;
   }
 }
 

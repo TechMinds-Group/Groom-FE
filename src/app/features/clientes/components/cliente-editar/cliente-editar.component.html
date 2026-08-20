@@ -1,0 +1,156 @@
+<div class="container mt-5 mb-5">
+  @if (cliente(); as c) {
+    <!-- Header: botão voltar + título fixo -->
+    <div class="d-flex align-items-center gap-3 mb-4">
+      <button (click)="voltar()" class="btn btn-light shadow-sm rounded-circle p-0 d-flex align-items-center justify-content-center btn-voltar" title="Cancelar edição">
+        <i class="fas fa-arrow-left text-muted"></i>
+      </button>
+      <div>
+        <h1 class="h2 text-primary fw-bold mb-1 custom-dark-text">Editar Cliente</h1>
+        <p class="text-muted small mb-0 custom-dark-text">Editando: <strong>{{ c.nome }}</strong></p>
+      </div>
+    </div>
+
+    <div class="row g-4">
+      <div class="col-12">
+        <div class="card border-0 shadow-sm p-4 custom-dark-card">
+          <form [formGroup]="form" (ngSubmit)="salvar()">
+            <div class="row g-3">
+              <!-- Nome e Sobrenome -->
+              <div class="col-sm-6 col-12">
+                <tm-text
+                  formControlName="primeiroNome"
+                  label="Nome *"
+                  placeholder="Ex: Michel"
+                  class="custom-dark-text"
+                ></tm-text>
+                @if (form.get('primeiroNome')?.touched && form.get('primeiroNome')?.invalid) {
+                  <div class="text-danger extra-small mt-1">Nome é obrigatório.</div>
+                }
+              </div>
+              <div class="col-sm-6 col-12">
+                <tm-text
+                  formControlName="sobrenome"
+                  label="Sobrenome *"
+                  placeholder="Ex: Silva"
+                  class="custom-dark-text"
+                ></tm-text>
+                @if (form.get('sobrenome')?.touched && form.get('sobrenome')?.invalid) {
+                  <div class="text-danger extra-small mt-1">Sobrenome é obrigatório.</div>
+                }
+              </div>
+
+              <!-- Celular -->
+              <div class="col-sm-6 col-12">
+                <tm-text
+                  formControlName="celular"
+                  label="Celular *"
+                  placeholder="(11) 98888-7777"
+                  mask="phone"
+                  [maxlength]="15"
+                  class="custom-dark-text"
+                ></tm-text>
+                @if (form.get('celular')?.touched && form.get('celular')?.invalid) {
+                  <div class="text-danger extra-small mt-1">Celular válido obrigatório: (XX) XXXXX-XXXX.</div>
+                }
+              </div>
+
+              <!-- E-mail -->
+              <div class="col-sm-6 col-12">
+                <tm-text
+                  formControlName="email"
+                  label="E-mail (Opcional)"
+                  placeholder="exemplo@email.com"
+                  type="email"
+                  class="custom-dark-text"
+                ></tm-text>
+                @if (form.get('email')?.touched && form.get('email')?.hasError('email')) {
+                  <div class="text-danger extra-small mt-1">Insira um e-mail válido.</div>
+                }
+              </div>
+
+              <!-- CPF -->
+              <div class="col-sm-6 col-12">
+                <tm-text
+                  formControlName="cpf"
+                  label="CPF (Opcional)"
+                  placeholder="000.000.000-00"
+                  mask="cpf"
+                  [maxlength]="14"
+                  class="custom-dark-text"
+                ></tm-text>
+              </div>
+
+              <!-- Data de nascimento -->
+              <div class="col-sm-6 col-12">
+                <tm-date
+                  formControlName="dataNascimento"
+                  label="Data de Nascimento (Opcional)"
+                  placeholder="DD/MM/AAAA"
+                  [includeTime]="false"
+                  class="custom-dark-text"
+                ></tm-date>
+              </div>
+
+              <!-- Observações -->
+              <div class="col-12">
+                <tm-text
+                  formControlName="observacoes"
+                  label="Observações (Opcional)"
+                  placeholder="Observações sobre o cliente..."
+                  [textarea]="true"
+                  [rows]="3"
+                  class="custom-dark-text"
+                ></tm-text>
+              </div>
+
+              <!-- Status do cliente -->
+              <div class="col-12">
+                <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 p-3 rounded-3 border border-secondary-subtle">
+                  <div>
+                    <div class="fw-bold custom-dark-text">Cliente ativo</div>
+                    <div class="small text-muted custom-dark-text">
+                      Clientes inativos não podem realizar novos agendamentos no estabelecimento.
+                    </div>
+                  </div>
+                  <div class="form-check form-switch mb-0 shrink-0">
+                    <input
+                      class="form-check-input"
+                      type="checkbox"
+                      role="switch"
+                      id="switch-status-cliente"
+                      aria-label="Alternar status do cliente"
+                      [checked]="form.get('status')?.value === 'Ativo'"
+                      (change)="alternarStatus($event)"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Ações -->
+            <div class="d-flex gap-3 mt-4 justify-content-end flex-column flex-sm-row">
+              <button type="button" class="btn btn-outline-secondary fw-semibold px-4 py-2" (click)="voltar()">
+                Cancelar
+              </button>
+              <button type="submit" class="btn btn-primary fw-bold px-4 py-2" [disabled]="salvando()">
+                @if (salvando()) {
+                  <span class="spinner-border spinner-border-sm me-2" role="status"></span>Salvando...
+                } @else {
+                  <i class="fas fa-save me-2"></i>Salvar
+                }
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  } @else {
+    <div class="text-center py-5">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Carregando...</span>
+      </div>
+      <p class="text-muted mt-3">Carregando dados do cliente...</p>
+    </div>
+  }
+</div>

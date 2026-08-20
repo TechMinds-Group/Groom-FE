@@ -39,6 +39,21 @@ export class CadastroClienteComponent {
     }
 
     const { nome, email, celular, senha, confirmarSenha, rememberMe } = this.form.value;
+
+    const partes = (nome ?? '').trim().split(/\s+/).filter(Boolean);
+    const primeiroNome = partes[0] || '';
+    const ultimoNome = partes.length > 1 ? partes[partes.length - 1] : '';
+
+    if (primeiroNome.length > 15) {
+      this.errorMessage.set('O primeiro nome deve ter no máximo 15 caracteres.');
+      return;
+    }
+
+    if (ultimoNome.length > 15) {
+      this.errorMessage.set('O último nome deve ter no máximo 15 caracteres.');
+      return;
+    }
+
     if (senha !== confirmarSenha) {
       this.errorMessage.set('As senhas não coincidem.');
       return;

@@ -19,16 +19,16 @@
     </p>
 
     <ul class="list-unstyled mb-4 flex-grow-1">
-      @for (recurso of clube().recursos.slice(0, 5); track recurso) {
+      @for (recurso of recursosExibicao().slice(0, 5); track recurso) {
         <li class="mb-2 small d-flex align-items-center">
           <i class="fas fa-check text-success me-2"></i>
           <span>{{ recurso }}</span>
         </li>
       }
-      @if (clube().recursos.length > 5) {
+      @if (recursosExibicao().length > 5) {
         <li class="mb-2 small d-flex align-items-center mt-1">
-          <span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle rounded-pill px-2.5 py-1" style="cursor: help;" [title]="clube().recursos.slice(5).join(', ')">
-            + {{ clube().recursos.length - 5 }} ver mais
+          <span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle rounded-pill px-2.5 py-1" style="cursor: help;" [title]="recursosExibicao().slice(5).join(', ')">
+            + {{ recursosExibicao().length - 5 }} ver mais
           </span>
         </li>
       }

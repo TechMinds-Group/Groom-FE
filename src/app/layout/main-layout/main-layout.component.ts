@@ -1,20 +1,24 @@
-import { ChangeDetectionStrategy, Component, effect, inject, Renderer2, signal, computed } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { RouterLink, RouterOutlet, Router, NavigationEnd } from '@angular/router';
 import { SidebarModalIdiomaComponent } from '../../features/sidebar/components/modais/sidebar-modal-idioma/sidebar-modal-idioma.component';
-import { CommonModule, DOCUMENT } from '@angular/common';
-import { RouterLink, RouterOutlet } from '@angular/router';
 import { SidebarComponent } from '../../features/sidebar/sidebar.component';
 import { ThemeService } from '../../core/services/theme.service';
-import { TmBottomNavComponent, MenuItem } from '@techminds-group/tm-angular-lib';
 import { AppFooterComponent } from '../../shared/components/footer/app-footer.component';
-import { ALL_SIDEBAR_MENU_ITEMS, VISIBLE_SIDEBAR_MENUS, PROFILE_MENU_ITEMS, filterMenuByRoles } from '../../core/config/menu.config';
 import { AuthService } from '../../core/services/auth.service';
-import { LanguageService } from '../../core/services/language.service';
-import { Router } from '@angular/router';
+import { filter } from 'rxjs';
 
 @Component({
   selector: 'app-main-layout',
   standalone: true,
-  imports: [CommonModule, RouterLink, RouterOutlet, SidebarComponent, TmBottomNavComponent, SidebarModalIdiomaComponent, AppFooterComponent],
+  imports: [
+    CommonModule,
+    RouterLink,
+    RouterOutlet,
+    SidebarComponent,
+    SidebarModalIdiomaComponent,
+    AppFooterComponent,
+  ],
   templateUrl: './main-layout.component.html',
   styleUrl: './main-layout.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -22,48 +26,35 @@ import { Router } from '@angular/router';
 export class MainLayoutComponent {
   private themeService = inject(ThemeService);
   private authService = inject(AuthService);
-  private languageService = inject(LanguageService);
   private router = inject(Router);
+
   protected showIdiomaModal = signal(false);
   protected sidebarCollapsed = signal(false);
+  protected mobileDrawerOpen = signal(false);
 
-  // --- Mobile Menu Configuration dynamically computed from the central menu.config ---
-  protected readonly mobileMenuItems = computed<MenuItem[]>(() => {
-    const roles = this.authService.currentUser()?.roles ?? [];
-    const sidebarItems = filterMenuByRoles(
-      ALL_SIDEBAR_MENU_ITEMS.filter(item =>
-        VISIBLE_SIDEBAR_MENUS.includes(item.label)
-      ),
-      roles,
-    );
-    const profileSubItems: MenuItem[] = PROFILE_MENU_ITEMS
-      .filter(p => !p.hidden)
-      .map(p => ({ label: p.label, icon: p.icon, route: p.route }) as MenuItem);
-    profileSubItems.push({ label: 'Versão', icon: 'fas fa-tag', route: '/guia' });
-    profileSubItems.push({ label: 'Sair', icon: 'fas fa-right-from-bracket' });
-    return [
-      ...sidebarItems,
-      { label: 'Perfil', icon: 'fas fa-user', subItems: profileSubItems },
-    ];
-  });
-
-  handleThemeToggle(): void {
+  constructor() {
+    this.router.events.pipe(filter((event) => event instanceof NavigationEnd)).subscribe(() => {
+      this.mobileDrawerOpen.set(false);
+    });
   }
 
-  protected handleMobileItemClick(item: MenuItem): void {
-    if (item.label === 'Modo de Tela') {
-      this.themeService.toggleTheme();
-    } else if (item.label === 'Idioma') {
-      this.showIdiomaModal.set(true);
-    } else if (item.label === 'Sair') {
-      this.handleLogout();
-    }
+  toggleMobileDrawer(): void {
+    this.mobileDrawerOpen.update((v) => !v);
+  }
+
+  closeMobileDrawer(): void {
+    this.mobileDrawerOpen.set(false);
+  }
+
+  handleThemeToggle(): void {
+    this.themeService.toggleTheme();
   }
 
   handleLogout(): void {
+    this.mobileDrawerOpen.set(false);
     this.authService.logout().subscribe({
       next: () => this.router.navigate(['/login']),
-      error: () => this.router.navigate(['/login']) // Redirect even on error to clear local state
+      error: () => this.router.navigate(['/login']),
     });
   }
 }

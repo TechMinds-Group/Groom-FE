@@ -3,16 +3,12 @@ import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CatalogoService } from '../../../../../core/services/catalogo.service';
 import { ServicoCatalogo } from '../../../../../core/models/catalogo/servico.model';
-import {
-  CatalogoModalEditarComponent,
-  ServicoEdicaoPayload,
-} from '../../modais/catalogo-modal-editar/catalogo-modal-editar.component';
 import { CatalogoModalExcluirComponent } from '../../modais/catalogo-modal-excluir/catalogo-modal-excluir.component';
 
 @Component({
   selector: 'app-catalogo-detalhes',
   standalone: true,
-  imports: [CommonModule, CatalogoModalEditarComponent, CatalogoModalExcluirComponent],
+  imports: [CommonModule, CatalogoModalExcluirComponent],
   templateUrl: './catalogo-detalhes.component.html',
   styleUrl: './catalogo-detalhes.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -24,7 +20,6 @@ export class CatalogoDetalhesComponent implements OnInit {
 
   protected readonly servico = signal<ServicoCatalogo | null>(null);
 
-  protected readonly showEditModal = signal<boolean>(false);
   protected readonly showDeleteConfirmModal = signal<boolean>(false);
 
   ngOnInit(): void {
@@ -39,16 +34,10 @@ export class CatalogoDetalhesComponent implements OnInit {
   }
 
   abrirEdicao(): void {
-    this.showEditModal.set(true);
-  }
-
-  async salvarEdicao(payload: ServicoEdicaoPayload): Promise<void> {
-    const s = this.servico();
-    if (!s) return;
-
-    await this.catalogoService.atualizar(s.id, payload);
-    this.showEditModal.set(false);
-    await this.carregarServico(s.id);
+    const id = this.servico()?.id;
+    if (id) {
+      this.router.navigate(['/servicos/catalogo', id, 'editar']);
+    }
   }
 
   excluir(): void {

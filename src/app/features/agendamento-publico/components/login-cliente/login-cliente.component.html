@@ -29,7 +29,7 @@
         </div>
         <div class="agendamento-login__brand-text">
           <h1 class="agendamento-login__nome-estabelecimento mb-0">
-            {{ estabelecimentoInfo()?.nome || 'Agendamento Online' }}
+            {{ estabelecimentoInfo()?.nomeExibicao || estabelecimentoInfo()?.nome || 'Agendamento Online' }}
           </h1>
           @if (estabelecimentoInfo()?.descricao) {
             <p class="agendamento-login__descricao-estabelecimento mb-0">{{ estabelecimentoInfo()?.descricao }}</p>

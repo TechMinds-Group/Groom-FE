@@ -4,6 +4,13 @@
   border-radius: 50%;
 }
 
+/* Quebra de linha segura para textos longos (telefone, e-mail) */
+.field-value {
+  word-break: break-word;
+  overflow-wrap: break-word;
+  min-width: 0;
+}
+
 :host-context([data-theme='dark']) {
   label {
     color: #ffffff !important;

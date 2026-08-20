@@ -1,75 +1,267 @@
 <tm-modal
   [show]="show()"
-  [title]="('AGENDA_MODAL.TITLE' | translate) + ' - ' + formatData(dataSelecionada())"
+  [title]="formatData(dataSelecionada())"
   [size]="'lg'"
   [showFooter]="false"
+  icon="fas fa-calendar-day"
   (showChange)="show.set($event)"
 >
-  <div class="agenda-modal-content">
-    @if (!exibeForm()) {
-      <div class="d-flex justify-content-between align-items-center mb-3">
-        <h6 class="mb-0 tm-text-muted fw-semibold">
-          Agendamentos ({{ agendamentosDoDia().length }})
+  <div class="agenda-modal-content text-start">
+    @if (exibeDetalhes() && agendamentoDetalhe(); as detalhe) {
+      <!-- Detalhes do agendamento -->
+      <div class="d-flex align-items-center justify-content-between gap-2 mb-3">
+        <h6 class="fw-bold mb-0 custom-dark-text">
+          {{ 'AGENDA_MODAL.DETALHES.TITLE' | translate }}
         </h6>
-        <tm-button
-          variant="primary"
-          size="sm"
-          icon="fas fa-plus"
-          [isFullWidth]="false"
-          [label]="'AGENDA_MODAL.BTN_NOVO' | translate"
-          (onClick)="abrirNovoForm()"
-        ></tm-button>
+        <span
+          class="badge rounded-pill text-white fw-semibold px-3 py-2 small"
+          [style.background-color]="coresStatus[detalhe.status]"
+        >
+          {{ statusTraduzidoKey(detalhe.status) | translate }}
+        </span>
       </div>
 
+      <div class="card custom-dark-card rounded-4 shadow-sm mb-4">
+        <div class="card-body p-4">
+          <div class="d-flex align-items-center gap-3 mb-3">
+            <div class="time-chip flex-shrink-0 d-flex flex-column align-items-center justify-content-center px-3 py-2 rounded-3">
+              <span class="time-chip-hora fw-bold lh-1">{{ formatHora(detalhe.dataInicio) }}</span>
+              <span class="time-chip-label text-uppercase mt-1">{{ 'AGENDA_MODAL.DETALHES.HORARIO_LABEL' | translate }}</span>
+            </div>
+            <div class="min-w-0 flex-grow-1">
+              <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+                <div class="fw-bold fs-6 text-break custom-dark-text">{{ detalhe.clienteNome }}</div>
+                @if (detalhe.tipo === 'plano' || detalhe.planoId || detalhe.planoNome) {
+                  <span class="badge bg-warning text-dark fw-bold px-2 py-1 small">
+                    <i class="fas fa-crown me-1"></i>{{ 'AGENDA_MODAL.DETALHES.PLANO_LABEL' | translate }}
+                  </span>
+                } @else {
+                  <span class="badge bg-secondary text-white fw-semibold px-2 py-1 small">
+                    <i class="fas fa-cut me-1"></i>{{ 'AGENDA_MODAL.DETALHES.SERVICO_AVULSO_LABEL' | translate }}
+                  </span>
+                }
+              </div>
+              <div class="text-muted small custom-dark-text text-break mt-1">
+                <i class="fas fa-cut text-primary opacity-75 me-1"></i>{{ detalhe.servicoNome }}
+              </div>
+            </div>
+          </div>
+
+          <hr class="my-3 border-light-subtle">
+
+          <dl class="row mb-0 small">
+            <dt class="col-5 col-sm-4 text-muted fw-semibold custom-dark-text">{{ 'AGENDA_MODAL.DETALHES.CLIENTE_LABEL' | translate }}</dt>
+            <dd class="col-7 col-sm-8 mb-2 text-break custom-dark-text">{{ detalhe.clienteNome }}</dd>
+
+            @if (detalhe.clienteTelefone) {
+              <dt class="col-5 col-sm-4 text-muted fw-semibold custom-dark-text">{{ 'AGENDA_MODAL.DETALHES.TELEFONE_LABEL' | translate }}</dt>
+              <dd class="col-7 col-sm-8 mb-2 text-break custom-dark-text">
+                <i class="fab fa-whatsapp text-success me-1"></i>{{ detalhe.clienteTelefone }}
+              </dd>
+            }
+
+            <dt class="col-5 col-sm-4 text-muted fw-semibold custom-dark-text">{{ 'AGENDA_MODAL.DETALHES.PROFISSIONAL_LABEL' | translate }}</dt>
+            <dd class="col-7 col-sm-8 mb-2 text-break custom-dark-text">
+              <i class="fas fa-user-tie text-primary opacity-75 me-1"></i>{{ detalhe.profissionalNome || '—' }}
+            </dd>
+
+            <dt class="col-5 col-sm-4 text-muted fw-semibold custom-dark-text">{{ 'AGENDA_MODAL.DETALHES.SERVICO_LABEL' | translate }}</dt>
+            <dd class="col-7 col-sm-8 mb-2 text-break custom-dark-text">{{ detalhe.servicoNome }}</dd>
+
+            <dt class="col-5 col-sm-4 text-muted fw-semibold custom-dark-text">{{ 'AGENDA_MODAL.DETALHES.DATA_HORA_LABEL' | translate }}</dt>
+            <dd class="col-7 col-sm-8 mb-2 text-break custom-dark-text">
+              <i class="far fa-calendar-alt text-primary me-1"></i>{{ formatData(detalhe.dataInicio) }} às {{ formatHora(detalhe.dataInicio) }}
+            </dd>
+
+            <dt class="col-5 col-sm-4 text-muted fw-semibold custom-dark-text">{{ 'AGENDA_MODAL.DETALHES.TIPO_LABEL' | translate }}</dt>
+            <dd class="col-7 col-sm-8 mb-2 custom-dark-text">
+              @if (detalhe.tipo === 'plano' || detalhe.planoId || detalhe.planoNome) {
+                <span class="badge bg-warning text-dark fw-bold px-2 py-1">
+                  <i class="fas fa-crown me-1"></i>{{ detalhe.planoNome ? 'Plano ' + detalhe.planoNome : ('AGENDA_MODAL.DETALHES.PLANO_LABEL' | translate) }}
+                </span>
+              } @else {
+                <span class="badge bg-light text-dark border px-2 py-1">
+                  <i class="fas fa-tag me-1"></i>{{ 'AGENDA_MODAL.DETALHES.SERVICO_AVULSO_LABEL' | translate }}
+                </span>
+              }
+            </dd>
+
+            <dt class="col-5 col-sm-4 text-muted fw-semibold custom-dark-text">{{ 'AGENDA_MODAL.DETALHES.PRECO_LABEL' | translate }}</dt>
+            <dd class="col-7 col-sm-8 mb-2 custom-dark-text fw-bold">
+              @if (detalhe.tipo === 'plano' || detalhe.planoId || detalhe.preco === 0) {
+                <span class="text-success">R$ 0,00 (Plano de Assinatura)</span>
+              } @else {
+                <span>{{ detalhe.preco | currency: 'BRL' }}</span>
+              }
+            </dd>
+
+            @if (detalhe.observacoes) {
+              <dt class="col-5 col-sm-4 text-muted fw-semibold custom-dark-text">{{ 'AGENDA_MODAL.DETALHES.OBSERVACOES_LABEL' | translate }}</dt>
+              <dd class="col-7 col-sm-8 mb-0 fst-italic text-break custom-dark-text">"{{ detalhe.observacoes }}"</dd>
+            }
+          </dl>
+        </div>
+      </div>
+
+      <!-- Ações de decisão (botões grandes, confortáveis para toque em mobile) -->
+      @if (podeDecidir()) {
+        @if (confirmandoRecusa()) {
+          <div class="alert alert-warning small py-2 px-3 mb-2 d-flex align-items-center gap-2">
+            <i class="fas fa-exclamation-triangle"></i>
+            <span>{{ 'AGENDA_MODAL.DETALHES.CONFIRM_RECUSA_MSG' | translate }}</span>
+          </div>
+          <div class="detalhe-acoes d-flex flex-column flex-md-row gap-3 mb-3">
+            <tm-button
+              variant="primary"
+              icon="fas fa-arrow-left"
+              [isFullWidth]="true"
+              [label]="'AGENDA_MODAL.DETALHES.BTN_NAO' | translate"
+              [disabled]="salvando()"
+              (onClick)="confirmandoRecusa.set(false)"
+            ></tm-button>
+            <tm-button
+              class="acao-recusar"
+              variant="outline-danger"
+              icon="fas fa-times"
+              [isFullWidth]="true"
+              [label]="'AGENDA_MODAL.DETALHES.BTN_SIM' | translate"
+              [disabled]="salvando()"
+              (onClick)="salvarDecisao('recusado')"
+            ></tm-button>
+          </div>
+        } @else {
+          <div class="detalhe-acoes d-flex flex-column flex-md-row gap-3 mb-3">
+            @if (podeConfirmar()) {
+              <tm-button
+                class="acao-confirmar"
+                variant="success"
+                icon="fas fa-check"
+                [isFullWidth]="true"
+                [label]="'AGENDA_MODAL.DETALHES.BTN_CONFIRMAR' | translate"
+                [disabled]="salvando()"
+                (onClick)="salvarDecisao('confirmado')"
+              ></tm-button>
+            }
+            @if (podeMarcarNaoCompareceu(detalhe)) {
+              <tm-button
+                class="acao-nao-compareceu"
+                variant="outline-warning"
+                icon="fas fa-user-slash"
+                [isFullWidth]="true"
+                [label]="'Não Compareceu'"
+                [disabled]="salvando()"
+                (onClick)="salvarDecisao('nao_compareceu')"
+              ></tm-button>
+            }
+            @if (podeRecusar(detalhe)) {
+              <tm-button
+                class="acao-recusar"
+                variant="outline-danger"
+                icon="fas fa-times"
+                [isFullWidth]="true"
+                [label]="'AGENDA_MODAL.DETALHES.BTN_RECUSAR' | translate"
+                [disabled]="salvando()"
+                (onClick)="confirmandoRecusa.set(true)"
+              ></tm-button>
+            }
+          </div>
+        }
+      } @else {
+        <div class="alert alert-warning small py-2 px-3 mb-3">
+          <i class="fas fa-lock me-1"></i>{{ 'AGENDA_MODAL.DETALHES.STATUS_FINAL_MSG' | translate }}
+        </div>
+      }
+
+      <div class="detalhe-acoes d-flex flex-column flex-md-row gap-3">
+        <tm-button
+          variant="outline-secondary"
+          icon="fas fa-pen"
+          [isFullWidth]="true"
+          [label]="'AGENDA_MODAL.DETALHES.BTN_EDITAR' | translate"
+          (onClick)="abrirEdicao(detalhe)"
+        ></tm-button>
+        <tm-button
+          variant="outline-secondary"
+          icon="fas fa-arrow-left"
+          [isFullWidth]="true"
+          [label]="'AGENDA_MODAL.DETALHES.BTN_VOLTAR' | translate"
+          (onClick)="fecharDetalhes()"
+        ></tm-button>
+      </div>
+    } @else if (!exibeForm()) {
+      <!-- Cabeçalho da lista -->
+      <div class="d-flex flex-column flex-md-row align-items-start align-items-md-center justify-content-between gap-3 mb-3 pb-2 border-bottom border-light-subtle">
+        <div class="header-info">
+          <p class="text-muted small mb-1 custom-dark-text">
+            {{ 'AGENDA_MODAL.SUBTITLE' | translate }}
+          </p>
+          <span class="badge bg-primary-subtle text-primary border border-primary-subtle rounded-pill px-3 py-1 small fw-bold">
+            {{ agendamentosDoDia().length }}
+            {{ agendamentosDoDia().length === 1 ? 'agendamento' : 'agendamentos' }}
+          </span>
+        </div>
+        <div class="header-action col-12 col-md-auto">
+          <tm-button
+            variant="primary"
+            size="sm"
+            icon="fas fa-plus"
+            [isFullWidth]="false"
+            [label]="'AGENDA_MODAL.BTN_NOVO' | translate"
+            (onClick)="abrirNovoForm()"
+          ></tm-button>
+        </div>
+      </div>
+
+      <!-- Lista de agendamentos -->
       @if (agendamentosDoDia().length === 0) {
-        <div class="empty-state text-center py-4 text-muted custom-dark-text rounded-3">
-          <i class="far fa-calendar-times fs-3 mb-2 d-block tm-text-muted opacity-50"></i>
-          {{ 'AGENDA_MODAL.NO_EVENTS' | translate }}
+        <div class="empty-state text-center py-4 py-sm-5 rounded-4">
+          <div class="empty-icon mx-auto mb-3">
+            <i class="far fa-calendar-check"></i>
+          </div>
+          <p class="fw-semibold mb-1 custom-dark-text">{{ 'AGENDA_MODAL.NO_EVENTS' | translate }}</p>
         </div>
       } @else {
-        <div class="list-group list-group-flush gap-2">
+        <div class="d-flex flex-column gap-3">
           @for (item of agendamentosDoDia(); track item.id) {
-            <div class="list-group-item agendamento-item border rounded-3 p-3 d-flex justify-content-between align-items-center flex-wrap gap-2">
-              <div class="d-flex align-items-center gap-3">
-                <div class="time-badge px-3 py-2 fw-bold rounded-2 text-center">
-                  {{ formatHora(item.dataInicio) }}
+            <div
+              class="agendamento-item rounded-3 p-3 d-flex flex-column flex-sm-row align-items-start align-items-sm-center justify-content-between gap-3 cursor-pointer"
+              [class.is-cancelado]="item.status === 'cancelado'"
+              (click)="abrirDetalhes(item)"
+            >
+              <!-- Informações do Agendamento -->
+              <div class="d-flex align-items-center gap-3 min-w-0 flex-grow-1">
+                <div class="time-chip flex-shrink-0 d-flex flex-column align-items-center justify-content-center px-2 px-sm-3 py-2 rounded-3">
+                  <span class="time-chip-hora fw-bold lh-1">{{ formatHora(item.dataInicio) }}</span>
+                  <span class="time-chip-label text-uppercase mt-1">agendado</span>
                 </div>
-                <div>
-                  <div class="fw-bold custom-dark-text">{{ item.clienteNome }}</div>
-                  <div class="text-muted custom-dark-text small">
-                    <i class="fas fa-cut me-1"></i>{{ item.servicoNome }}
-                    <span class="ms-2"><i class="fas fa-phone-alt me-1"></i>{{ item.clienteTelefone }}</span>
+
+                <div class="min-w-0 flex-grow-1">
+                  <div class="fw-bold text-break custom-dark-text fs-6 mb-1">{{ item.clienteNome }}</div>
+                  <div class="text-muted small custom-dark-text d-flex flex-wrap align-items-center gap-2">
+                    <span class="d-inline-flex align-items-center gap-1 text-break">
+                      <i class="fas fa-cut text-primary opacity-75 flex-shrink-0"></i>{{ item.servicoNome }}
+                    </span>
+                    @if (item.clienteTelefone) {
+                      <span class="d-inline-flex align-items-center gap-1 text-break">
+                        <i class="fas fa-phone-alt text-primary opacity-75 flex-shrink-0"></i>{{ item.clienteTelefone }}
+                      </span>
+                    }
                   </div>
                   @if (item.observacoes) {
-                    <div class="text-muted custom-dark-text small fst-italic mt-1">"{{ item.observacoes }}"</div>
+                    <div class="text-muted small fst-italic mt-1 custom-dark-text text-break">"{{ item.observacoes }}"</div>
                   }
                 </div>
               </div>
 
-              <div class="d-flex align-items-center gap-2">
+              <!-- Status Badge -->
+              <div class="agendamento-actions d-flex align-items-center justify-content-between justify-content-sm-end gap-2 w-100 w-sm-auto pt-2 pt-sm-0">
                 <span
-                  class="badge px-3 py-2 rounded-pill text-white fw-semibold"
+                  class="badge rounded-pill text-white fw-semibold px-3 py-2 small"
                   [style.background-color]="coresStatus[item.status]"
                 >
                   {{ statusTraduzidoKey(item.status) | translate }}
                 </span>
-
-                @if (item.status !== 'cancelado') {
-                  <tm-button
-                    variant="outline-secondary"
-                    size="sm"
-                    icon="fas fa-pencil-alt"
-                    [isFullWidth]="false"
-                    (onClick)="abrirEdicao(item)"
-                  ></tm-button>
-                  <tm-button
-                    variant="outline-danger"
-                    size="sm"
-                    icon="fas fa-trash-alt"
-                    [isFullWidth]="false"
-                    (onClick)="confirmarCancelar(item)"
-                  ></tm-button>
-                }
+                <i class="fas fa-chevron-right text-muted small ms-1 opacity-50"></i>
               </div>
             </div>
           }
@@ -77,8 +269,16 @@
       }
     } @else {
       <!-- Formulário de Criação / Edição -->
-      <div class="form-panel border-0 p-3 rounded-3">
-        <h6 class="fw-bold mb-3 custom-dark-text">
+      <div>
+        <button
+          type="button"
+          class="btn btn-link btn-sm text-muted p-0 mb-3 custom-dark-text text-decoration-none"
+          (click)="fecharForm()"
+        >
+          <i class="fas fa-arrow-left me-1"></i>{{ 'AGENDA_MODAL.FORM.CANCELAR' | translate }}
+        </button>
+
+        <h6 class="fw-bold mb-4 custom-dark-text">
           {{ (agendamentoEditando() ? 'AGENDA_MODAL.FORM.TITLE_EDIT' : 'AGENDA_MODAL.FORM.TITLE_NEW') | translate }}
         </h6>
 
@@ -86,83 +286,173 @@
           @if (!agendamentoEditando()) {
             <div class="row g-3 mb-3">
               <div class="col-md-6">
+                <label class="form-label small fw-bold text-muted text-uppercase tracking-wider mb-2 custom-dark-text">
+                  {{ 'AGENDA_MODAL.FORM.CLIENTE_NOME' | translate }} *
+                </label>
                 <tm-text
                   formControlName="clienteNome"
                   class="custom-dark-text"
-                  [label]="'AGENDA_MODAL.FORM.CLIENTE_NOME' | translate"
                   [placeholder]="'AGENDA_MODAL.FORM.CLIENTE_NOME_PLACEHOLDER' | translate"
                   icon="fas fa-user"
                 ></tm-text>
               </div>
               <div class="col-md-6">
+                <label class="form-label small fw-bold text-muted text-uppercase tracking-wider mb-2 custom-dark-text">
+                  {{ 'AGENDA_MODAL.FORM.CLIENTE_TELEFONE' | translate }}
+                </label>
                 <tm-text
                   formControlName="clienteTelefone"
                   class="custom-dark-text"
-                  [label]="'AGENDA_MODAL.FORM.CLIENTE_TELEFONE' | translate"
                   [placeholder]="'AGENDA_MODAL.FORM.CLIENTE_TELEFONE_PLACEHOLDER' | translate"
                   icon="fas fa-phone-alt"
                 ></tm-text>
               </div>
             </div>
+
+            <div class="row g-3 mb-3">
+              <div class="col-md-6">
+                <label class="form-label small fw-bold text-muted text-uppercase tracking-wider mb-2 custom-dark-text">
+                  {{ 'AGENDA_MODAL.FORM.PROFISSIONAL' | translate }} *
+                </label>
+                <tm-select
+                  [options]="profissionalOptions()"
+                  [value]="form.get('profissionalId')?.value"
+                  [disabled]="!ehAdmin()"
+                  [darkMode]="themeService.isDarkMode()"
+                  [placeholder]="'AGENDA_MODAL.FORM.PROFISSIONAL_PLACEHOLDER' | translate"
+                  icon="fas fa-user-tie"
+                  (valueChange)="form.patchValue({ profissionalId: $event })"
+                ></tm-select>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label small fw-bold text-muted text-uppercase tracking-wider mb-2 custom-dark-text">
+                  {{ 'AGENDA_MODAL.FORM.SERVICO' | translate }} *
+                </label>
+                <tm-select
+                  [options]="servicoOptions()"
+                  [value]="form.get('servicoId')?.value"
+                  [darkMode]="themeService.isDarkMode()"
+                  [placeholder]="'AGENDA_MODAL.FORM.SERVICO_PLACEHOLDER' | translate"
+                  (valueChange)="form.patchValue({ servicoId: $event })"
+                ></tm-select>
+              </div>
+            </div>
           }
 
-          <div class="row g-3 mb-3">
-            <div class="col-md-6">
-              <label class="form-label fw-medium">{{ 'AGENDA_MODAL.FORM.SERVICO' | translate }} *</label>
-              <tm-select
-                [options]="servicoOptions()"
-                [value]="form.get('servicoId')?.value"
-                [placeholder]="'AGENDA_MODAL.FORM.SERVICO_PLACEHOLDER' | translate"
-                (valueChange)="form.patchValue({ servicoId: $event })"
-              ></tm-select>
+          @if (agendamentoEditando()) {
+            <div class="row g-3 mb-3">
+              <div class="col-md-6">
+                <label class="form-label small fw-bold text-muted text-uppercase tracking-wider mb-2 custom-dark-text">
+                  {{ 'AGENDA_MODAL.FORM.SERVICO' | translate }} *
+                </label>
+                <tm-select
+                  [options]="servicoOptions()"
+                  [value]="form.get('servicoId')?.value"
+                  [darkMode]="themeService.isDarkMode()"
+                  [placeholder]="'AGENDA_MODAL.FORM.SERVICO_PLACEHOLDER' | translate"
+                  (valueChange)="form.patchValue({ servicoId: $event })"
+                ></tm-select>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label small fw-bold text-muted text-uppercase tracking-wider mb-2 custom-dark-text">
+                  {{ 'AGENDA_MODAL.FORM.HORA_INICIO' | translate }}
+                </label>
+                <tm-time
+                  [value]="form.get('horaInicio')?.value"
+                  (valueChange)="form.patchValue({ horaInicio: $event })"
+                ></tm-time>
+              </div>
             </div>
-            <div class="col-md-6">
-              <label class="form-label fw-medium">{{ 'AGENDA_MODAL.FORM.HORA_INICIO' | translate }} *</label>
-              <tm-time
-                [value]="form.get('horaInicio')?.value"
-                (valueChange)="form.patchValue({ horaInicio: $event })"
-              ></tm-time>
+          } @else {
+            <div class="row g-3 mb-3">
+              <div class="col-md-6">
+                <label class="form-label small fw-bold text-muted text-uppercase tracking-wider mb-2 custom-dark-text">
+                  {{ 'AGENDA_MODAL.FORM.HORA_INICIO' | translate }}
+                </label>
+                <tm-select
+                  [options]="horaOptions()"
+                  [value]="form.get('horaInicio')?.value"
+                  [disabled]="carregandoHorarios()"
+                  [darkMode]="themeService.isDarkMode()"
+                  [placeholder]="'AGENDA_MODAL.FORM.HORA_PLACEHOLDER' | translate"
+                  icon="fas fa-clock"
+                  (valueChange)="form.patchValue({ horaInicio: $event })"
+                ></tm-select>
+                @if (!carregandoHorarios() && horaOptions().length === 0) {
+                  <p class="text-muted small mt-2 mb-0 custom-dark-text">
+                    {{ 'AGENDA_MODAL.FORM.SEM_HORARIOS' | translate }}
+                  </p>
+                }
+              </div>
             </div>
-          </div>
+          }
 
           @if (agendamentoEditando()) {
             <div class="mb-3">
-              <label class="form-label fw-medium">{{ 'AGENDA_MODAL.FORM.STATUS_DECISAO' | translate }}</label>
+              <label class="form-label small fw-bold text-muted text-uppercase tracking-wider mb-2 custom-dark-text">
+                {{ 'AGENDA_MODAL.FORM.STATUS_DECISAO' | translate }}
+              </label>
               <tm-select
                 [options]="statusDecisionOptions"
                 [value]="form.get('statusDecisao')?.value"
+                [disabled]="statusDecisaoBloqueado()"
+                [darkMode]="themeService.isDarkMode()"
                 (valueChange)="form.patchValue({ statusDecisao: $event })"
               ></tm-select>
             </div>
           }
 
           <div class="mb-3">
+            <label class="form-label small fw-bold text-muted text-uppercase tracking-wider mb-2 custom-dark-text">
+              {{ 'AGENDA_MODAL.FORM.OBSERVACOES' | translate }}
+            </label>
             <tm-text
               formControlName="observacoes"
               class="custom-dark-text"
-              [label]="'AGENDA_MODAL.FORM.OBSERVACOES' | translate"
               [placeholder]="'AGENDA_MODAL.FORM.OBSERVACOES_PLACEHOLDER' | translate"
               [textarea]="true"
               [rows]="2"
             ></tm-text>
           </div>
 
-          <div class="d-flex justify-content-end gap-2 mt-4">
-            <tm-button
-              variant="outline-secondary"
-              [isFullWidth]="false"
-              [label]="'AGENDA_MODAL.FORM.CANCELAR' | translate"
-              [disabled]="salvando()"
-              (onClick)="fecharForm()"
-            ></tm-button>
+          <div class="form-actions d-flex flex-column flex-sm-row justify-content-between align-items-stretch align-items-sm-center gap-2 mt-4">
+            @if (agendamentoEditando()) {
+              @if (agendamentoEditando()?.status !== 'recusado') {
+                <tm-button
+                  type="button"
+                  variant="outline-danger"
+                  icon="fas fa-trash-alt"
+                  [isFullWidth]="false"
+                  [label]="'Excluir Agendamento'"
+                  [disabled]="salvando()"
+                  (onClick)="confirmarCancelar(agendamentoEditando()!)"
+                ></tm-button>
+              }
+            } @else {
+              <div></div>
+            }
 
-            <tm-button
-              type="submit"
-              variant="primary"
-              [isFullWidth]="false"
-              [label]="'AGENDA_MODAL.FORM.SALVAR' | translate"
-              [loading]="salvando()"
-            ></tm-button>
+            <div class="d-flex flex-column flex-sm-row gap-2">
+              <tm-button
+                type="button"
+                variant="outline-secondary"
+                [isFullWidth]="false"
+                [label]="'AGENDA_MODAL.FORM.CANCELAR' | translate"
+                [disabled]="salvando()"
+                (onClick)="fecharForm()"
+              ></tm-button>
+
+              <tm-button
+                class="acao-salvar"
+                type="submit"
+                variant="primary"
+                icon="fas fa-save"
+                size="lg"
+                [isFullWidth]="true"
+                [label]="'AGENDA_MODAL.FORM.SALVAR' | translate"
+                [loading]="salvando()"
+              ></tm-button>
+            </div>
           </div>
         </form>
       </div>
@@ -174,37 +464,21 @@
 <tm-modal
   [show]="showCancelModal()"
   [title]="'AGENDA_MODAL.CANCEL_MODAL.TITLE' | translate"
-  [size]="'sm'"
-  (showChange)="showCancelModal.set($event)"
+  icon="fas fa-calendar-times"
+  iconClass="danger"
+  confirmClass="btn-danger"
+  [confirmLabel]="'AGENDA_MODAL.CANCEL_MODAL.CONFIRM_BTN' | translate"
+  [cancelLabel]="'AGENDA_MODAL.CANCEL_MODAL.CANCEL_BTN' | translate"
+  (confirm)="executarCancelamento()"
+  (cancel)="showCancelModal.set(false)"
 >
-  <div class="text-center py-2">
-    <p>
+  <div class="text-start">
+    <p class="mb-0 custom-dark-text">
       {{ 'AGENDA_MODAL.CANCEL_MODAL.CONFIRM_MSG' | translate }}
       <strong>{{ agendamentoCancelando()?.clienteNome }}</strong>?
     </p>
-
-    <div class="alert alert-warning small py-2 mb-3">
-      <i class="fas fa-exclamation-triangle me-1"></i>
-      {{ 'AGENDA_MODAL.CANCEL_MODAL.WARNING_MSG' | translate }}
-    </div>
-
-    <div class="d-flex justify-content-center gap-2">
-      <tm-button
-        variant="outline-secondary"
-        size="sm"
-        [isFullWidth]="false"
-        [label]="'AGENDA_MODAL.CANCEL_MODAL.CANCEL_BTN' | translate"
-        (onClick)="showCancelModal.set(false)"
-      ></tm-button>
-
-      <tm-button
-        variant="danger"
-        size="sm"
-        [isFullWidth]="false"
-        [label]="'AGENDA_MODAL.CANCEL_MODAL.CONFIRM_BTN' | translate"
-        [loading]="salvando()"
-        (onClick)="executarCancelamento()"
-      ></tm-button>
-    </div>
+    <p class="text-danger small mt-2 mb-0">
+      <i class="fas fa-exclamation-triangle me-1"></i>{{ 'AGENDA_MODAL.CANCEL_MODAL.WARNING_MSG' | translate }}
+    </p>
   </div>
 </tm-modal>

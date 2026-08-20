@@ -142,6 +142,64 @@
   }
 }
 
+/* O tm-time da lib tem min-width fixo de 120px; aqui os pares ficam em col-md-6 e precisam poder
+   encolher para não vazar da tela (mesmo ajuste da tela de Disponibilidade). */
+tm-time {
+  ::ng-deep .tm-time-container {
+    min-width: 0;
+  }
+}
+
+/* Alinha a coluna do intervalo com a linha de abertura/fechamento. */
+.intervalo-col-padding {
+  padding-top: 15.5px;
+}
+
+/* Em resoluções menores, os pares de tm-time do bloco Horário de Funcionamento ficam estreitos —
+   reduz fonte, ícone e paddings para exibir o valor "HH:MM" (mesmo ajuste da tela de Disponibilidade). */
+@media (max-width: 1399.98px) {
+  tm-time {
+    ::ng-deep .icon-section {
+      padding-left: 0.75rem !important;
+
+      i {
+        font-size: 0.875rem !important;
+      }
+    }
+
+    ::ng-deep .custom-input {
+      padding: 0.5rem 0.6rem 0.5rem 0.4rem !important;
+      font-size: 0.8rem !important;
+    }
+
+    ::ng-deep .input-wrapper {
+      min-height: 44px;
+    }
+  }
+}
+
+/* Telas muito pequenas: compactação extra. */
+@media (max-width: 575.98px) {
+  tm-time {
+    ::ng-deep .icon-section {
+      padding-left: 0.5rem !important;
+
+      i {
+        font-size: 0.75rem !important;
+      }
+    }
+
+    ::ng-deep .custom-input {
+      padding: 0.4rem 0.45rem 0.4rem 0.35rem !important;
+      font-size: 0.75rem !important;
+    }
+
+    ::ng-deep .input-wrapper {
+      min-height: 40px;
+    }
+  }
+}
+
 /* Regras de Tema Escuro Baseadas no Bloco de Horários */
 :host-context([data-theme='dark']) {
   .collapsible-trigger:hover {

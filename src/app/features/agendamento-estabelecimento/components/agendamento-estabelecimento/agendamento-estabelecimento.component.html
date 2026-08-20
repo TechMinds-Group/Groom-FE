@@ -1,44 +1,72 @@
-<div class="container py-4">
-  <h1 class="h4 mb-1">Link de Agendamento</h1>
-  <p class="text-muted mb-4">
-    Compartilhe este link com seus clientes para que eles marquem serviços online.
-  </p>
+<div class="container mt-5 mb-5">
+  <!-- Header: botão voltar + título fixo -->
+  <div class="d-flex align-items-center gap-3 mb-4">
+    <button (click)="voltar()" class="btn btn-light shadow-sm rounded-circle p-0 d-flex align-items-center justify-content-center btn-voltar" title="Voltar ao painel">
+      <i class="fas fa-arrow-left text-muted"></i>
+    </button>
+    <div>
+      <h1 class="h2 text-primary fw-bold mb-1 custom-dark-text">Link de Agendamento</h1>
+      <p class="text-muted small mb-0 custom-dark-text">
+        Compartilhe este link com seus clientes para que eles marquem serviços online.
+      </p>
+    </div>
+  </div>
 
-  <div class="card">
-    <div class="card-body">
-      <div class="input-group">
-        <input
-          type="text"
-          class="form-control"
-          [value]="linkAgendamento"
-          readonly
-          aria-label="Link público de agendamento"
-        />
-        <button type="button" class="btn btn-primary" (click)="copiarLink()">
-          @if (copiado()) {
-            <i class="fas fa-check me-1"></i>
-            Copiado!
-          } @else {
-            <i class="fas fa-copy me-1"></i>
-            Copiar link
-          }
-        </button>
-      </div>
+  <div class="row g-4">
+    <div class="col-12 col-xl-10 col-xxl-8">
+      <div class="card border-0 shadow-sm p-4 custom-dark-card">
+        <!-- Apresentação -->
+        <div class="d-flex align-items-center gap-3 mb-4">
+          <div class="agendamento-link__icone d-flex align-items-center justify-content-center flex-shrink-0">
+            <i class="fas fa-calendar-check"></i>
+          </div>
+          <div>
+            <h2 class="h5 fw-bold mb-1 custom-dark-text">Agendamento online do estabelecimento</h2>
+            <p class="text-muted small mb-0 custom-dark-text">
+              O cliente acessa o link, faz login ou cria uma conta (e-mail e senha ou Google) e escolhe profissional, serviço e horário.
+            </p>
+          </div>
+        </div>
 
-      <div class="d-flex gap-2 mt-3 flex-wrap">
-        <button type="button" class="btn btn-outline-primary" (click)="abrirPreview()">
-          <i class="fas fa-eye me-1"></i>
-          Ver página do cliente
-        </button>
-        <a
-          class="btn btn-outline-success"
-          [href]="linkWhatsApp"
-          target="_blank"
-          rel="noopener"
-        >
-          <i class="fab fa-whatsapp me-1"></i>
-          Compartilhar no WhatsApp
-        </a>
+        <!-- Link + copiar -->
+        <div class="input-group input-group-lg">
+          <span class="input-group-text bg-body text-muted border-end-0">
+            <i class="fas fa-link"></i>
+          </span>
+          <input
+            type="text"
+            class="form-control form-control-lg"
+            [value]="linkAgendamento()"
+            readonly
+            aria-label="Link público de agendamento"
+          />
+          <button type="button" class="btn btn-primary btn-lg text-nowrap" (click)="copiarLink()">
+            @if (copiado()) {
+              <i class="fas fa-check me-1"></i>
+              Copiado!
+            } @else {
+              <i class="fas fa-copy me-1"></i>
+              Copiar link
+            }
+          </button>
+        </div>
+
+        <!-- Ações -->
+        <div class="d-flex gap-2 mt-4 flex-wrap">
+          <button type="button" class="btn btn-outline-primary" (click)="abrirPreview()">
+            <i class="fas fa-eye me-1"></i>
+            Ver página do cliente
+          </button>
+          <a
+            class="btn btn-outline-success"
+            [href]="linkWhatsApp"
+            target="_blank"
+            rel="noopener"
+          >
+            <i class="fab fa-whatsapp me-1"></i>
+            Compartilhar no WhatsApp
+          </a>
+        </div>
       </div>
     </div>
   </div>

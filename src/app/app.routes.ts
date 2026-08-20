@@ -37,6 +37,13 @@ export const routes: Routes = [
                 './features/disponibilidade/components/disponibilidade/disponibilidade.component'
               ).then((m) => m.DisponibilidadeComponent),
           },
+          {
+            path: 'disponibilidade/:id',
+            loadComponent: () =>
+              import(
+                './features/disponibilidade/components/disponibilidade/disponibilidade.component'
+              ).then((m) => m.DisponibilidadeComponent),
+          },
         ],
       },
       {
@@ -57,10 +64,38 @@ export const routes: Routes = [
               ),
           },
           {
+            path: 'clientes/novo',
+            loadComponent: () =>
+              import('./features/clientes/components/cliente-novo/cliente-novo.component').then(
+                (m) => m.ClienteNovoComponent,
+              ),
+          },
+          {
+            path: 'clientes/:id',
+            loadComponent: () =>
+              import('./features/clientes/components/cliente-detalhes/cliente-detalhes.component').then(
+                (m) => m.ClienteDetalhesComponent,
+              ),
+          },
+          {
+            path: 'clientes/:id/editar',
+            loadComponent: () =>
+              import('./features/clientes/components/cliente-editar/cliente-editar.component').then(
+                (m) => m.ClienteEditarComponent,
+              ),
+          },
+          {
             path: 'assinantes',
             loadComponent: () =>
               import('./features/assinantes-estabelecimento/components/assinantes-estabelecimento/assinantes-estabelecimento.component').then(
                 (m) => m.AssinantesEstabelecimentoComponent,
+              ),
+          },
+          {
+            path: 'assinantes/novo',
+            loadComponent: () =>
+              import('./features/assinantes-estabelecimento/components/assinante-novo/assinante-novo.component').then(
+                (m) => m.AssinanteNovoComponent,
               ),
           },
           {
@@ -73,8 +108,22 @@ export const routes: Routes = [
           {
             path: 'profissionais',
             loadComponent: () =>
-              import('./features/gestao/profissionais/profissionais.component').then(
+              import('./features/gestao/profissionais/components/profissionais/profissionais.component').then(
                 (m) => m.ProfissionaisComponent,
+              ),
+          },
+          {
+            path: 'profissionais/:id',
+            loadComponent: () =>
+              import('./features/gestao/profissionais/components/profissional-detalhes/profissional-detalhes.component').then(
+                (m) => m.ProfissionalDetalhesComponent,
+              ),
+          },
+          {
+            path: 'profissionais/:id/editar',
+            loadComponent: () =>
+              import('./features/gestao/profissionais/components/profissional-editar/profissional-editar.component').then(
+                (m) => m.ProfissionalEditarComponent,
               ),
           },
           {
@@ -82,6 +131,20 @@ export const routes: Routes = [
             loadComponent: () =>
               import('./features/gestao-usuarios/components/gestao-usuarios/gestao-usuarios.component').then(
                 (m) => m.GestaoUsuariosComponent,
+              ),
+          },
+          {
+            path: 'gestao-usuarios/novo',
+            loadComponent: () =>
+              import('./features/gestao-usuarios/components/usuario-novo/usuario-novo.component').then(
+                (m) => m.UsuarioNovoComponent,
+              ),
+          },
+          {
+            path: 'gestao-usuarios/:id/editar',
+            loadComponent: () =>
+              import('./features/gestao-usuarios/components/usuario-editar/usuario-editar.component').then(
+                (m) => m.UsuarioEditarComponent,
               ),
           },
           {
@@ -104,6 +167,20 @@ export const routes: Routes = [
               ),
           },
           {
+            path: 'planos-estabelecimento/novo',
+            loadComponent: () =>
+              import('./features/planos-estabelecimento/components/plano-novo/plano-novo.component').then(
+                (m) => m.PlanoNovoComponent,
+              ),
+          },
+          {
+            path: 'planos-estabelecimento/:id/editar',
+            loadComponent: () =>
+              import('./features/planos-estabelecimento/components/plano-editar/plano-editar.component').then(
+                (m) => m.PlanoEditarComponent,
+              ),
+          },
+          {
             path: 'planos-estabelecimento/:id',
             loadComponent: () =>
               import('./features/planos-estabelecimento/components/plano-detalhes/plano-detalhes.component').then(
@@ -115,6 +192,20 @@ export const routes: Routes = [
             loadComponent: () =>
               import('./features/catalogo/components/catalogo/catalogo.component').then(
                 (m) => m.CatalogoComponent,
+              ),
+          },
+          {
+            path: 'catalogo/novo',
+            loadComponent: () =>
+              import('./features/catalogo/components/catalogo-novo/catalogo-novo.component').then(
+                (m) => m.CatalogoNovoComponent,
+              ),
+          },
+          {
+            path: 'catalogo/:id/editar',
+            loadComponent: () =>
+              import('./features/catalogo/components/catalogo-editar/catalogo-editar.component').then(
+                (m) => m.CatalogoEditarComponent,
               ),
           },
           {

@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ClubeConfig } from '../../../../core/services/clubes.service';
 
@@ -14,4 +14,9 @@ export class PlanoCardComponent {
   clube = input.required<ClubeConfig>();
   editar = output<ClubeConfig>();
   excluir = output<ClubeConfig>();
+
+  protected readonly recursosExibicao = computed<string[]>(() => {
+    const recursos = this.clube()?.recursos ?? [];
+    return [...new Set(recursos)];
+  });
 }
