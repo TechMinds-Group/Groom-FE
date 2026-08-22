@@ -242,7 +242,7 @@ export class DisponibilidadeComponent implements OnInit {
           };
         }),
       );
-    } catch {
+    } catch (_unused: unknown) {
       this.toastService.error('Erro ao buscar horários do estabelecimento');
     } finally {
       this.carregando.set(false);
@@ -275,7 +275,7 @@ export class DisponibilidadeComponent implements OnInit {
     try {
       const dados = await this.disponibilidadeService.getDisponibilidade(profissionalId);
       await this.popularForm(dados);
-    } catch {
+    } catch (_unused: unknown) {
       this.toastService.error(this.languageService.translate('DISPONIBILIDADE.TOAST_ERRO_CARREGAR'));
     } finally {
       this.carregando.set(false);
@@ -314,7 +314,7 @@ export class DisponibilidadeComponent implements OnInit {
       } else {
         this.toastService.success(this.languageService.translate('DISPONIBILIDADE.TOAST_SUCESSO'));
       }
-    } catch {
+    } catch (_unused: unknown) {
       this.toastService.error(this.languageService.translate('DISPONIBILIDADE.TOAST_ERRO'));
     } finally {
       this.salvando.set(false);
