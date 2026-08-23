@@ -14,7 +14,19 @@
     (dayClicked)="onDayClicked($event)"
     (eventClicked)="onEventClicked($event)"
   >
-    <div filters>
+    <div filters class="d-flex align-items-center gap-2 flex-wrap">
+      <div class="agenda-filter-select-wrap">
+        <tm-select
+          [options]="opcoesFiltroProfissional()"
+          [value]="profissionalIdFiltro()"
+          (valueChange)="onProfissionalFilterChange($event)"
+          icon="fas fa-user-tie text-primary"
+          placeholder="Filtrar por profissional..."
+          dropdownWidth="240px"
+          [darkMode]="themeService.isDarkMode()"
+        ></tm-select>
+      </div>
+
       <div class="agenda-filter-select-wrap">
         <tm-select
           [options]="opcoesFiltroStatus"
@@ -22,7 +34,8 @@
           (valueChange)="onFiltroChange($event)"
           icon="fas fa-filter text-info"
           placeholder="Filtrar por status..."
-          dropdownWidth="260px"
+          dropdownWidth="240px"
+          [darkMode]="themeService.isDarkMode()"
         ></tm-select>
       </div>
     </div>

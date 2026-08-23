@@ -4,6 +4,7 @@ import {
   Component,
   computed,
   inject,
+  Input,
   OnInit,
   signal,
   TemplateRef,
@@ -90,6 +91,15 @@ export class DisponibilidadeComponent implements OnInit, AfterViewInit {
 
   /** Se true, personaliza os horários; se false, utiliza os horários do estabelecimento. */
   protected readonly usarHorarioEstabelecimento = signal(false);
+
+  @Input() embedded = false;
+
+  @Input() set profissionalId(id: string | null | undefined) {
+    if (id && id !== this.profissionalAlvo()) {
+      this.profissionalAlvo.set(id);
+      void this.carregarDisponibilidade(id);
+    }
+  }
 
   /** Profissional alvo da edição (quando null, exibe a tabela de profissionais). */
   protected readonly profissionalAlvo = signal<string | null>(null);
