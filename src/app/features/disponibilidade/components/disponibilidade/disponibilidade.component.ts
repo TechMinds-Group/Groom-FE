@@ -1,8 +1,25 @@
-import { ChangeDetectionStrategy, Component, computed, inject, OnInit, signal } from '@angular/core';
+import {
+  AfterViewInit,
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  inject,
+  OnInit,
+  signal,
+  TemplateRef,
+  ViewChild,
+} from '@angular/core';
 import { CommonModule, Location } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
-import { TmSelectComponent, TmSelectOption, TmTimeComponent, TmToastService } from '@techminds-group/tm-angular-lib';
+import {
+  TableColumn,
+  TmSelectComponent,
+  TmSelectOption,
+  TmTableComponent,
+  TmTimeComponent,
+  TmToastService,
+} from '@techminds-group/tm-angular-lib';
 import { TranslatePipe } from '../../../../shared/pipes/translate.pipe';
 import { Agendamento } from '../../../../core/models/agenda.model';
 import {
@@ -11,6 +28,7 @@ import {
   IntervaloDisponibilidade,
 } from '../../../../core/models/disponibilidade/disponibilidade.model';
 import { DiaFuncionamento } from '../../../../core/models/configuracoes/horario-estabelecimento.model';
+import { Usuario } from '../../../../core/models/gestao-usuarios/usuario.model';
 import { AuthService } from '../../../../core/services/auth.service';
 import { CatalogoService } from '../../../../core/services/catalogo.service';
 import { ClubesService } from '../../../../core/services/clubes.service';
@@ -18,6 +36,7 @@ import { DisponibilidadeService } from '../../../../core/services/disponibilidad
 import { EstabelecimentoService } from '../../../../core/services/estabelecimento.service';
 import { GestaoUsuariosService } from '../../../../core/services/gestao-usuarios.service';
 import { LanguageService } from '../../../../core/services/language.service';
+import { ThemeService } from '../../../../core/services/theme.service';
 import { DIAS_SEMANA_FORM, INTERVALO_PADRAO } from '../../models/disponibilidade-form.config.model';
 import { DisponibilidadeConflitosComponent } from '../modais/disponibilidade-conflitos/disponibilidade-conflitos.component';
 import { GestaoUsuariosHelperService } from '../../../gestao-usuarios/services/gestao-usuarios-helper.service';
@@ -33,6 +52,7 @@ import { StatusBadgePipe } from '../../../gestao-usuarios/pipes/status-badge.pip
     TranslatePipe,
     TmSelectComponent,
     TmTimeComponent,
+    TmTableComponent,
     DisponibilidadeConflitosComponent,
     PerfilBadgePipe,
     StatusBadgePipe,
@@ -42,7 +62,7 @@ import { StatusBadgePipe } from '../../../gestao-usuarios/pipes/status-badge.pip
   changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [GestaoUsuariosHelperService],
 })
-export class DisponibilidadeComponent implements OnInit {
+export class DisponibilidadeComponent implements OnInit, AfterViewInit {
   private readonly location = inject(Location);
   private readonly route = inject(ActivatedRoute);
   private readonly authService = inject(AuthService);
@@ -51,19 +71,32 @@ export class DisponibilidadeComponent implements OnInit {
   private readonly disponibilidadeService = inject(DisponibilidadeService);
   private readonly estabelecimentoService = inject(EstabelecimentoService);
   private readonly catalogoService = inject(CatalogoService);
-  private readonly gestaoUsuariosService = inject(GestaoUsuariosService);
+  protected readonly gestaoUsuariosService = inject(GestaoUsuariosService);
   private readonly clubesService = inject(ClubesService);
+  protected readonly themeService = inject(ThemeService);
+
+  @ViewChild('usuarioTemplate', { static: true }) usuarioTemplate!: TemplateRef<{ $implicit: Usuario }>;
+  @ViewChild('perfilTemplate', { static: true }) perfilTemplate!: TemplateRef<{ $implicit: Usuario }>;
+  @ViewChild('statusTemplate', { static: true }) statusTemplate!: TemplateRef<{ $implicit: Usuario }>;
+  @ViewChild('acoesTemplate', { static: true }) acoesTemplate!: TemplateRef<{ $implicit: Usuario }>;
+
+  private readonly templatesReady = signal(false);
+  protected readonly tamanhoPagina = signal<number>(10);
 
   protected readonly diasSemanaConfig = DIAS_SEMANA_FORM;
 
   protected readonly carregando = signal(false);
   protected readonly salvando = signal(false);
-  protected readonly usarHorarioEstabelecimento = signal(true);
-  /** Profissional alvo da edição (admin escolhe; profissional-only usa o próprio id). */
-  protected readonly profissionalAlvo = signal<string>('');
+
+  /** Se true, personaliza os horários; se false, utiliza os horários do estabelecimento. */
+  protected readonly usarHorarioEstabelecimento = signal(false);
+
+  /** Profissional alvo da edição (quando null, exibe a tabela de profissionais). */
+  protected readonly profissionalAlvo = signal<string | null>(null);
   protected readonly servicosSelecionados = signal<string[]>([]);
   protected readonly planosSelecionados = signal<string[]>([]);
-  /** Agendamentos que ficaram fora da nova disponibilidade (D-06 — o save não é bloqueado). */
+
+  /** Agendamentos que ficaram fora da nova disponibilidade. */
   protected readonly conflitos = signal<Agendamento[]>([]);
   protected readonly showConflitosModal = signal(false);
 
@@ -74,6 +107,37 @@ export class DisponibilidadeComponent implements OnInit {
     planos: string[];
     dias: DiaFuncionamento[];
   } | null>(null);
+
+  /** Lista de profissionais para a tabela. Administrador vê todos; Profissional não-admin vê apenas a si mesmo. */
+  protected readonly profissionais = computed<Usuario[]>(() => {
+    const todos = this.gestaoUsuariosService.usuarios().filter((u) => u.status !== 'Inativo');
+    const profs = todos.filter(
+      (u) =>
+        u.perfil === 'Profissional' ||
+        (u.perfil && u.perfil.includes('Profissional')) ||
+        (u.perfil && u.perfil.includes('Administrador')),
+    );
+    const list = profs.length > 0 ? profs : todos;
+
+    if (this.authService.hasAdminRole()) {
+      return list;
+    }
+
+    const currentUserId = this.authService.currentUserId();
+    return list.filter((u) => u.id === currentUserId);
+  });
+
+  /** Colunas da tabela de profissionais (Profissional e Status). */
+  protected readonly cols = computed<TableColumn<Usuario>[]>(() => {
+    this.languageService.currentLang();
+    if (!this.templatesReady()) {
+      return [];
+    }
+    return [
+      { header: this.languageService.translate('USUARIOS.COLUMNS.USER'), template: this.usuarioTemplate, width: '60%' },
+      { header: this.languageService.translate('USUARIOS.COLUMNS.STATUS'), template: this.statusTemplate, width: '40%' },
+    ];
+  });
 
   /** Retorna true somente se houver alterações não salvas na tela. */
   protected readonly temAlteracoes = computed<boolean>(() => {
@@ -90,27 +154,29 @@ export class DisponibilidadeComponent implements OnInit {
     const planosIniciais = [...inicial.planos].sort();
     if (JSON.stringify(planosAtuais) !== JSON.stringify(planosIniciais)) return true;
 
-    const diasAtuais = this.diasFuncionamento();
-    if (diasAtuais.length !== inicial.dias.length) return true;
-    for (let i = 0; i < diasAtuais.length; i++) {
-      const d1 = diasAtuais[i];
-      const d2 = inicial.dias[i];
-      if (
-        d1.ativo !== d2.ativo ||
-        d1.horaAbertura !== d2.horaAbertura ||
-        d1.horaFechamento !== d2.horaFechamento ||
-        d1.temIntervalo !== d2.temIntervalo ||
-        d1.intervaloInicio !== d2.intervaloInicio ||
-        d1.intervaloFim !== d2.intervaloFim
-      ) {
-        return true;
+    if (this.usarHorarioEstabelecimento()) {
+      const diasAtuais = this.diasFuncionamento();
+      if (diasAtuais.length !== inicial.dias.length) return true;
+      for (let i = 0; i < diasAtuais.length; i++) {
+        const d1 = diasAtuais[i];
+        const d2 = inicial.dias[i];
+        if (
+          d1.ativo !== d2.ativo ||
+          d1.horaAbertura !== d2.horaAbertura ||
+          d1.horaFechamento !== d2.horaFechamento ||
+          d1.temIntervalo !== d2.temIntervalo ||
+          d1.intervaloInicio !== d2.intervaloInicio ||
+          d1.intervaloFim !== d2.intervaloFim
+        ) {
+          return true;
+        }
       }
     }
 
     return false;
   });
 
-  /** Dias da semana com abertura/fechamento e intervalo de almoço — mesmo objeto da tela de Configurações do Estabelecimento. */
+  /** Dias da semana com abertura/fechamento e intervalo de almoço. */
   protected readonly diasFuncionamento = signal<DiaFuncionamento[]>(
     DIAS_SEMANA_FORM.map((dia) => this.criarDiaPadrao(dia.diaSemana)),
   );
@@ -122,14 +188,6 @@ export class DisponibilidadeComponent implements OnInit {
     if (!id) return null;
     return this.gestaoUsuariosService.usuarios().find((u) => u.id === id) ?? null;
   });
-
-  /** Profissionais do tenant com perfil Profissional (padrão ProfissionaisComponent). */
-  protected readonly profissionalOptions = computed<TmSelectOption<string>[]>(() =>
-    this.gestaoUsuariosService
-      .usuarios()
-      .filter((u) => u.perfil === 'Profissional' || (u.perfil && u.perfil.includes('Profissional')))
-      .map((u) => ({ value: u.id, label: u.nome })),
-  );
 
   /** Serviços ativos do catálogo para o checklist. */
   protected readonly servicoOptions = computed<TmSelectOption<string>[]>(() =>
@@ -155,46 +213,79 @@ export class DisponibilidadeComponent implements OnInit {
     ]);
 
     const routeId = this.route.snapshot.paramMap.get('id') || this.route.snapshot.queryParamMap.get('id');
-    const usuario = this.authService.currentUser();
-
-    // Se o usuário não for administrador, força a carregar apenas a sua própria disponibilidade
-    if (!this.authService.hasAdminRole() && usuario?.id) {
-      this.profissionalAlvo.set(usuario.id);
-      await this.carregarDisponibilidade(usuario.id);
-      return;
-    }
 
     if (routeId) {
       this.profissionalAlvo.set(routeId);
       await this.carregarDisponibilidade(routeId);
-      return;
-    }
-
-    if (this.authService.hasAdminRole()) {
-      // Admin: preseleciona o primeiro profissional para a tela já vir carregada.
-      const primeiro = this.profissionalOptions()[0];
-      if (primeiro) {
-        this.profissionalAlvo.set(primeiro.value);
-        await this.carregarDisponibilidade(primeiro.value);
-      }
-      return;
-    }
-    if (usuario?.id) {
-      this.profissionalAlvo.set(usuario.id);
-      await this.carregarDisponibilidade(usuario.id);
     }
   }
 
+  ngAfterViewInit(): void {
+    this.templatesReady.set(true);
+  }
+
+  /** Abre os detalhes de disponibilidade do profissional selecionado na tabela. */
+  protected selecionarProfissional(user: Usuario): void {
+    if (user?.id) {
+      this.profissionalAlvo.set(user.id);
+      void this.carregarDisponibilidade(user.id);
+    }
+  }
+
+  /** Retorna da tela de detalhes para a tabela de profissionais (ou volta no histórico se acessado via ID). */
   protected voltar(): void {
-    this.location.back();
+    const routeId = this.route.snapshot.paramMap.get('id') || this.route.snapshot.queryParamMap.get('id');
+    if (routeId) {
+      this.location.back();
+    } else {
+      this.profissionalAlvo.set(null);
+    }
   }
 
-  protected onToggleUsarHorarioEstabelecimento(event: Event): void {
+  protected async onToggleUsarHorarioEstabelecimento(event: Event): Promise<void> {
     const checked = (event.target as HTMLInputElement).checked;
     this.usarHorarioEstabelecimento.set(checked);
-    if (checked) {
-      void this.usarHorariosEstabelecimento();
+    if (!checked) {
+      await this.usarHorariosEstabelecimento();
     }
+  }
+
+  protected onDiaAtivoChange(dia: DiaFuncionamento, val: boolean): void {
+    dia.ativo = val;
+    this.diasFuncionamento.update((dias) => [...dias]);
+  }
+
+  protected onIntervaloSwitchChange(dia: DiaFuncionamento, val: boolean): void {
+    dia.temIntervalo = val;
+    this.diasFuncionamento.update((dias) => [...dias]);
+  }
+
+  protected setHoraAbertura(dia: DiaFuncionamento, val: string): void {
+    dia.horaAbertura = val;
+    this.diasFuncionamento.update((dias) => [...dias]);
+  }
+
+  protected setHoraFechamento(dia: DiaFuncionamento, val: string): void {
+    dia.horaFechamento = val;
+    this.diasFuncionamento.update((dias) => [...dias]);
+  }
+
+  protected getIntervaloInicio(dia: DiaFuncionamento): string {
+    return dia.intervaloInicio || '12:00';
+  }
+
+  protected setIntervaloInicio(dia: DiaFuncionamento, val: string): void {
+    dia.intervaloInicio = val || '12:00';
+    this.diasFuncionamento.update((dias) => [...dias]);
+  }
+
+  protected getIntervaloFim(dia: DiaFuncionamento): string {
+    return dia.intervaloFim || '13:00';
+  }
+
+  protected setIntervaloFim(dia: DiaFuncionamento, val: string): void {
+    dia.intervaloFim = val || '13:00';
+    this.diasFuncionamento.update((dias) => [...dias]);
   }
 
   /** Copia o status e horários do dia informado para todos os outros dias da semana. */
@@ -217,10 +308,7 @@ export class DisponibilidadeComponent implements OnInit {
     this.toastService.success(`Horários de ${nomeDia} copiados para todos os dias!`);
   }
 
-  /**
-   * Sincroniza a disponibilidade do profissional automaticamente com os horários de funcionamento
-   * do estabelecimento.
-   */
+  /** Sincroniza a disponibilidade do profissional com os horários do estabelecimento. */
   protected async usarHorariosEstabelecimento(): Promise<void> {
     this.carregando.set(true);
     try {
@@ -237,8 +325,8 @@ export class DisponibilidadeComponent implements OnInit {
             horaAbertura: this.normalizarHora(configEst.horaAbertura),
             horaFechamento: this.normalizarHora(configEst.horaFechamento),
             temIntervalo: configEst.temIntervalo,
-            intervaloInicio: configEst.intervaloInicio ? this.normalizarHora(configEst.intervaloInicio) : '',
-            intervaloFim: configEst.intervaloFim ? this.normalizarHora(configEst.intervaloFim) : '',
+            intervaloInicio: configEst.intervaloInicio ? this.normalizarHora(configEst.intervaloInicio) : '12:00',
+            intervaloFim: configEst.intervaloFim ? this.normalizarHora(configEst.intervaloFim) : '13:00',
           };
         }),
       );
@@ -246,13 +334,6 @@ export class DisponibilidadeComponent implements OnInit {
       this.toastService.error('Erro ao buscar horários do estabelecimento');
     } finally {
       this.carregando.set(false);
-    }
-  }
-
-  protected onProfissionalChange(valor: unknown): void {
-    if (typeof valor === 'string' && valor) {
-      this.profissionalAlvo.set(valor);
-      void this.carregarDisponibilidade(valor);
     }
   }
 
@@ -264,12 +345,12 @@ export class DisponibilidadeComponent implements OnInit {
     this.planosSelecionados.set(Array.isArray(valor) ? (valor as string[]) : []);
   }
 
-  /** Traduz chaves dinâmicas (ex: rótulo do dia) via serviço de tradução. */
+  /** Traduz chaves dinâmicas via serviço de tradução. */
   protected traduzir(chave: string): string {
     return this.languageService.translate(chave);
   }
 
-  /** Carrega a disponibilidade do profissional alvo e popula o formulário (D-12, sem refresh). */
+  /** Carrega a disponibilidade do profissional alvo e popula o formulário. */
   protected async carregarDisponibilidade(profissionalId: string): Promise<void> {
     this.carregando.set(true);
     try {
@@ -301,18 +382,35 @@ export class DisponibilidadeComponent implements OnInit {
 
     this.salvando.set(true);
     try {
+      if (!this.usarHorarioEstabelecimento()) {
+        await this.usarHorariosEstabelecimento();
+      }
+
+      const payload = this.montarPayload(profissionalId);
       const resultado = await this.disponibilidadeService.salvarDisponibilidade(
         profissionalId,
-        this.montarPayload(profissionalId),
+        payload,
       );
-      localStorage.setItem(`groom_usar_est_${profissionalId}`, this.usarHorarioEstabelecimento() ? 'true' : 'false');
+
+      localStorage.setItem(
+        `groom_usar_est_${profissionalId}`,
+        this.usarHorarioEstabelecimento() ? 'true' : 'false',
+      );
+      localStorage.setItem(
+        `groom_servicos_${profissionalId}`,
+        JSON.stringify(this.servicosSelecionados()),
+      );
+      localStorage.setItem(
+        `groom_planos_${profissionalId}`,
+        JSON.stringify(this.planosSelecionados()),
+      );
+
       this.atualizarEstadoInicial();
-      if (resultado.conflitos.length > 0) {
-        // D-06: avisa, não bloqueia — o save já foi persistido; abre o modal informativo.
+      this.toastService.success(this.languageService.translate('DISPONIBILIDADE.TOAST_SUCESSO'));
+
+      if (resultado.conflitos && resultado.conflitos.length > 0) {
         this.conflitos.set(resultado.conflitos);
         this.showConflitosModal.set(true);
-      } else {
-        this.toastService.success(this.languageService.translate('DISPONIBILIDADE.TOAST_SUCESSO'));
       }
     } catch (_unused: unknown) {
       this.toastService.error(this.languageService.translate('DISPONIBILIDADE.TOAST_ERRO'));
@@ -321,28 +419,39 @@ export class DisponibilidadeComponent implements OnInit {
     }
   }
 
-  private criarDiaPadrao(diaSemana: number): DiaFuncionamento {
-    return {
-      diaSemana,
-      ativo: false,
-      horaAbertura: INTERVALO_PADRAO.horaInicio,
-      horaFechamento: INTERVALO_PADRAO.horaFim,
-      temIntervalo: false,
-      intervaloInicio: '',
-      intervaloFim: '',
-    };
+  protected fecharConflitosModal(): void {
+    this.showConflitosModal.set(false);
   }
 
   private async popularForm(dados: DisponibilidadeProfissional): Promise<void> {
-    this.servicosSelecionados.set(dados.servicoIds ?? []);
-    this.planosSelecionados.set(dados.planoIds ?? []);
-
     const profId = this.profissionalAlvo();
-    const storedVal = profId ? localStorage.getItem(`groom_usar_est_${profId}`) : null;
-    const usarEst = storedVal === null ? (!dados.dias || dados.dias.length === 0) : storedVal === 'true';
-    this.usarHorarioEstabelecimento.set(usarEst);
 
-    // Converte os intervalos persistidos (um ou dois turnos) para o par abertura/fechamento + intervalo de almoço.
+    let servs = dados.servicoIds ?? [];
+    if (servs.length === 0 && profId) {
+      const storedServs = localStorage.getItem(`groom_servicos_${profId}`);
+      if (storedServs) {
+        try {
+          servs = JSON.parse(storedServs);
+        } catch (_unused: unknown) {}
+      }
+    }
+    this.servicosSelecionados.set(servs);
+
+    let plans = dados.planoIds ?? [];
+    if (plans.length === 0 && profId) {
+      const storedPlans = localStorage.getItem(`groom_planos_${profId}`);
+      if (storedPlans) {
+        try {
+          plans = JSON.parse(storedPlans);
+        } catch (_unused: unknown) {}
+      }
+    }
+    this.planosSelecionados.set(plans);
+
+    const storedVal = profId ? localStorage.getItem(`groom_usar_est_${profId}`) : null;
+    const personalizar = storedVal === 'true';
+    this.usarHorarioEstabelecimento.set(personalizar);
+
     this.diasFuncionamento.set(
       this.diasFuncionamento().map((dia) => {
         const registro = dados.dias?.find((d) => d.diaSemana === dia.diaSemana);
@@ -358,8 +467,8 @@ export class DisponibilidadeComponent implements OnInit {
             horaAbertura: unico ? this.normalizarHora(unico.horaInicio) : dia.horaAbertura,
             horaFechamento: unico ? this.normalizarHora(unico.horaFim) : dia.horaFechamento,
             temIntervalo: false,
-            intervaloInicio: '',
-            intervaloFim: '',
+            intervaloInicio: '12:00',
+            intervaloFim: '13:00',
           };
         }
         const ultimo = intervalos[intervalos.length - 1];
@@ -375,20 +484,11 @@ export class DisponibilidadeComponent implements OnInit {
       }),
     );
 
-    if (usarEst) {
+    if (!personalizar) {
       await this.usarHorariosEstabelecimento();
     }
 
     this.atualizarEstadoInicial();
-  }
-
-  private atualizarEstadoInicial(): void {
-    this.estadoInicial.set({
-      usarEst: this.usarHorarioEstabelecimento(),
-      servicos: [...this.servicosSelecionados()],
-      planos: [...this.planosSelecionados()],
-      dias: JSON.parse(JSON.stringify(this.diasFuncionamento())),
-    });
   }
 
   private montarPayload(profissionalId: string): DisponibilidadeProfissional {
@@ -400,7 +500,6 @@ export class DisponibilidadeComponent implements OnInit {
       const fechamento = this.normalizarHora(dia.horaFechamento);
       const intervalos: IntervaloDisponibilidade[] = [];
       if (dia.temIntervalo && dia.intervaloInicio && dia.intervaloFim) {
-        // Turno 1 (abertura até início do intervalo) + Turno 2 (fim do intervalo até fechamento).
         intervalos.push(
           { horaInicio: abertura, horaFim: this.normalizarHora(dia.intervaloInicio) },
           { horaInicio: this.normalizarHora(dia.intervaloFim), horaFim: fechamento },
@@ -418,19 +517,33 @@ export class DisponibilidadeComponent implements OnInit {
     };
   }
 
-  /** Normaliza o valor do tm-time para "HH:mm" (o componente devolve hora como string da lib; a API retorna "HH:mm:ss"). */
-  private normalizarHora(valor: string | Date | null): string {
-    if (typeof valor === 'string') {
-      const match = /^(\d{1,2}):(\d{2})(?::\d{2})?$/.exec(valor);
-      if (match) {
-        return `${match[1].padStart(2, '0')}:${match[2]}`;
-      }
+  private criarDiaPadrao(diaSemana: number): DiaFuncionamento {
+    return {
+      diaSemana,
+      ativo: false,
+      horaAbertura: INTERVALO_PADRAO.horaInicio,
+      horaFechamento: INTERVALO_PADRAO.horaFim,
+      temIntervalo: false,
+      intervaloInicio: '12:00',
+      intervaloFim: '13:00',
+    };
+  }
+
+  private normalizarHora(val?: string): string {
+    if (!val) return '08:00';
+    const partes = val.split(':');
+    if (partes.length >= 2) {
+      return `${partes[0].padStart(2, '0')}:${partes[1].padStart(2, '0')}`;
     }
-    if (valor instanceof Date && !Number.isNaN(valor.getTime())) {
-      const hora = String(valor.getHours()).padStart(2, '0');
-      const minuto = String(valor.getMinutes()).padStart(2, '0');
-      return `${hora}:${minuto}`;
-    }
-    return '';
+    return val;
+  }
+
+  private atualizarEstadoInicial(): void {
+    this.estadoInicial.set({
+      usarEst: this.usarHorarioEstabelecimento(),
+      servicos: [...this.servicosSelecionados()],
+      planos: [...this.planosSelecionados()],
+      dias: JSON.parse(JSON.stringify(this.diasFuncionamento())),
+    });
   }
 }
