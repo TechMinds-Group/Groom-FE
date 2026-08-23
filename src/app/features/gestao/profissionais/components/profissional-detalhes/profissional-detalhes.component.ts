@@ -14,11 +14,12 @@ import { StatusBadgePipe } from '../../../../gestao-usuarios/pipes/status-badge.
 import { GestaoUsuariosHelperService } from '../../../../gestao-usuarios/services/gestao-usuarios-helper.service';
 
 import { EstabelecimentoService } from '../../../../../core/services/estabelecimento.service';
+import { DisponibilidadeComponent } from '../../../../disponibilidade/components/disponibilidade/disponibilidade.component';
 
 @Component({
   selector: 'app-profissional-detalhes',
   standalone: true,
-  imports: [CommonModule, PerfilBadgePipe, StatusBadgePipe],
+  imports: [CommonModule, PerfilBadgePipe, StatusBadgePipe, DisponibilidadeComponent],
   templateUrl: './profissional-detalhes.component.html',
   styleUrl: './profissional-detalhes.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

@@ -10,11 +10,12 @@ import { CatalogoService } from '../../../../../core/services/catalogo.service';
 import { ClubesService } from '../../../../../core/services/clubes.service';
 import { EstabelecimentoService } from '../../../../../core/services/estabelecimento.service';
 import { ThemeService } from '../../../../../core/services/theme.service';
+import { DisponibilidadeComponent } from '../../../../disponibilidade/components/disponibilidade/disponibilidade.component';
 
 @Component({
   selector: 'app-profissional-editar',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, TmTextComponent, TmSelectComponent],
+  imports: [CommonModule, ReactiveFormsModule, TmTextComponent, TmSelectComponent, DisponibilidadeComponent],
   templateUrl: './profissional-editar.component.html',
   styleUrl: './profissional-editar.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

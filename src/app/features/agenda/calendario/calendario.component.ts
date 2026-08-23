@@ -19,6 +19,9 @@ import { CORES_STATUS, agendamentoParaDateLocal } from '../../../core/models/age
 
 import { EstabelecimentoService } from '../../../core/services/estabelecimento.service';
 
+import { GestaoUsuariosService } from '../../../core/services/gestao-usuarios.service';
+import { ThemeService } from '../../../core/services/theme.service';
+
 /** Breakpoint Bootstrap md — abaixo disso usa View Dia para melhor legibilidade em mobile. */
 const MOBILE_BREAKPOINT = 992;
 
@@ -40,8 +43,10 @@ export type FiltroStatus = 'todos' | 'confirmado' | 'aguardando' | 'recusado';
 })
 export class CalendarioComponent implements OnInit, OnDestroy {
   private readonly agendaService = inject(AgendaService);
-  private readonly authService = inject(AuthService);
+  protected readonly authService = inject(AuthService);
   private readonly estabelecimentoService = inject(EstabelecimentoService);
+  private readonly gestaoUsuariosService = inject(GestaoUsuariosService);
+  protected readonly themeService = inject(ThemeService);
   private readonly platformId = inject(PLATFORM_ID);
 
   CalendarView = CalendarView;
@@ -56,8 +61,35 @@ export class CalendarioComponent implements OnInit, OnDestroy {
   /** Estado do Modal de Gestão do Dia */
   protected readonly showModalDia = signal(false);
   protected readonly dataSelecionadaModal = signal<Date | null>(null);
+
+  /** Filtro de profissional selecionado (ID do profissional ou 'todos'). */
+  protected readonly profissionalIdFiltro = signal<string>('todos');
+
   /** Estado do filtro de agendamento por status (Todos, Confirmado, Aguardando, Recusado/Cancelado). */
   protected readonly filtroStatus = signal<FiltroStatus>('todos');
+
+  protected readonly opcoesFiltroProfissional = computed<TmSelectOption<string>[]>(() => {
+    const user = this.authService.currentUser();
+    const isProfOnly = !this.authService.hasAdminRole();
+
+    if (isProfOnly && user) {
+      const userProf = this.gestaoUsuariosService.usuarios().find((u) => u.id === user.id);
+      const nomeCompleto = userProf
+        ? `${userProf.nome} ${userProf.sobrenome ?? ''}`.trim()
+        : user.nome || 'Meus Agendamentos';
+      return [{ value: user.id, label: nomeCompleto }];
+    }
+
+    const todosProfs = this.gestaoUsuariosService.usuarios().filter((u) => u.status !== 'Inativo');
+    const options: TmSelectOption<string>[] = [
+      { value: 'todos', label: 'Todos os profissionais' },
+      ...todosProfs.map((u) => ({
+        value: u.id,
+        label: `${u.nome} ${u.sobrenome ?? ''}`.trim(),
+      })),
+    ];
+    return options;
+  });
 
   protected readonly opcoesFiltroStatus: TmSelectOption<FiltroStatus>[] = [
     { value: 'todos', label: 'Todos os agendamentos' },
@@ -72,22 +104,40 @@ export class CalendarioComponent implements OnInit, OnDestroy {
     }
   }
 
+  protected onProfissionalFilterChange(val: unknown): void {
+    if (val && typeof val === 'string') {
+      this.profissionalIdFiltro.set(val);
+    }
+  }
+
   private readonly todosAgendamentos = this.agendaService.getAgendamentosFiltrados(this.authService.currentUser());
 
   readonly agendamentosFiltrados = computed(() => {
-    const todos = this.todosAgendamentos();
+    let list = this.todosAgendamentos();
+    const user = this.authService.currentUser();
+    const isProfOnly = !this.authService.hasAdminRole();
+
+    if (isProfOnly && user) {
+      list = list.filter((a) => a.profissionalId === user.id);
+    } else {
+      const profId = this.profissionalIdFiltro();
+      if (profId !== 'todos') {
+        list = list.filter((a) => a.profissionalId === profId);
+      }
+    }
+
     const filtro = this.filtroStatus();
 
     if (filtro === 'confirmado') {
-      return todos.filter((a) => a.status === 'confirmado' || a.status === 'concluido');
+      return list.filter((a) => a.status === 'confirmado' || a.status === 'concluido');
     }
     if (filtro === 'aguardando') {
-      return todos.filter((a) => a.status === 'pendente' || a.status === 'agendado');
+      return list.filter((a) => a.status === 'pendente' || a.status === 'agendado');
     }
     if (filtro === 'recusado') {
-      return todos.filter((a) => a.status === 'recusado' || a.status === 'cancelado' || a.status === 'no-show');
+      return list.filter((a) => a.status === 'recusado' || a.status === 'cancelado' || a.status === 'no-show');
     }
-    return todos;
+    return list;
   });
 
   readonly tituloAgenda = computed(() =>
@@ -116,7 +166,13 @@ export class CalendarioComponent implements OnInit, OnDestroy {
   /** Timer de recarga automática da página da agenda. */
   private refreshTimer?: number;
 
-  ngOnInit() {
+  async ngOnInit() {
+    await this.gestaoUsuariosService.carregarUsuarios();
+    const user = this.authService.currentUser();
+    if (!this.authService.hasAdminRole() && user) {
+      this.profissionalIdFiltro.set(user.id);
+    }
+
     this.carregarAgendamentos();
     this.estabelecimentoService.carregarHorarios();
     this.setupResizeListener();

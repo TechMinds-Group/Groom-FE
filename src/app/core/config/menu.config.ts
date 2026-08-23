@@ -12,11 +12,8 @@ export const ALL_SIDEBAR_MENU_ITEMS: MenuItem[] = [
   {
     label: 'Agenda',
     icon: 'fas fa-calendar-alt',
+    route: '/agenda/calendario',
     roles: ['Administrador', 'Profissional'],
-    subItems: [
-      { label: 'Minha Agenda', icon: 'fas fa-calendar-day', route: '/agenda/calendario' },
-      { label: 'Disponibilidade', icon: 'fas fa-clock', route: '/agenda/disponibilidade' },
-    ],
   },
   {
     label: 'Gestão',
