@@ -27,7 +27,7 @@
     <span class="text-muted custom-dark-text">/{{ plano().ciclo }}</span>
   </div>
 
-  <p class="text-muted mb-4 custom-dark-text">
+  <p class="text-muted mb-0 custom-dark-text">
     @if (plano().status === StatusAssinatura.Ativo && plano().validoAte) {
       {{ 'ASSINATURA.PLANO_ATUAL.VALID_UNTIL' | translate }}: <strong>{{ plano().validoAte }}</strong> ({{ 'ASSINATURA.PLANO_ATUAL.DAYS_REMAINING' | translate }}:
       {{ plano().diasRestantes }} {{ 'ASSINATURA.PLANO_ATUAL.DAYS_SUFFIX' | translate }}).
@@ -37,11 +37,4 @@
       {{ 'ASSINATURA.PLANO_ATUAL.STATUS_PREFIX' | translate }} {{ 'USUARIOS.STATUS.INACTIVE' | translate | lowercase }}.
     }
   </p>
-
-  <div class="alert alert-warning d-flex align-items-start gap-2 mb-0" role="alert">
-    <i class="fas fa-info-circle mt-1"></i>
-    <div class="small">
-      O <strong>preço base</strong> é o valor informado acima. Ele pode sofrer reajuste conforme futuras atualizações e melhorias do sistema.
-    </div>
-  </div>
 </div>

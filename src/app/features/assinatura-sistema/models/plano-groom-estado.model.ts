@@ -12,6 +12,4 @@ export interface PlanoGroomEstado {
   limiteProfissionais: number;
   usoClientes: number;
   limiteClientes: number;
-  usoClientesAssinantes: number;
-  limiteClientesAssinantes: number;
 }

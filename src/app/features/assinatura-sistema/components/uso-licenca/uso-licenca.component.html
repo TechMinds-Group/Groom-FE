@@ -31,13 +31,13 @@
 
   <div class="mb-3">
     <div class="d-flex justify-content-between mb-1">
-      <span class="custom-dark-text">{{ 'ASSINATURA.USO_LICENCA.SUBSCRIBED_CLIENTS' | translate }}</span>
+      <span class="custom-dark-text">{{ 'ASSINATURA.USO_LICENCA.CLIENTS' | translate }}</span>
       <span class="custom-dark-text fw-bold">
-        {{ plano().usoClientesAssinantes }} / {{ plano().limiteClientesAssinantes }}
+        {{ plano().usoClientes }} / {{ plano().limiteClientes }}
       </span>
     </div>
     <div class="progress progress-uso">
-      <div class="progress-bar bg-success" role="progressbar" [style.width.%]="pctClientesAssinantes()"></div>
+      <div class="progress-bar bg-success" role="progressbar" [style.width.%]="pctClientes()"></div>
     </div>
   </div>
 </div>

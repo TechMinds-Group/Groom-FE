@@ -75,4 +75,34 @@ export class ClientesService {
       this.http.put<void>(`${this.apiUrl}/me/celular`, { celular }, { withCredentials: true })
     );
   }
+
+  async importarClientesTuaAgenda(file: File): Promise<ImportacaoClienteResult> {
+    const formData = new FormData();
+    formData.append('file', file, file.name);
+
+    const result = await firstValueFrom(
+      this.http.post<ImportacaoClienteResult>(`${this.apiUrl}/importar/tua-agenda`, formData, { withCredentials: true })
+    );
+    await this.carregarClientes();
+    return result;
+  }
+}
+
+export interface ItemClienteDuplicado {
+  linhaCsv: number;
+  nomeCsv: string;
+  celular: string;
+  clienteExistenteId: string;
+  clienteExistenteNome: string;
+  clienteExistenteEmail?: string;
+}
+
+export interface ImportacaoClienteResult {
+  totalLinhas: number;
+  totalCriados: number;
+  totalAtualizados: number;
+  totalIgnoradosPorLimite: number;
+  totalErros: number;
+  erros: string[];
+  clientesDuplicadosPorCelular: ItemClienteDuplicado[];
 }

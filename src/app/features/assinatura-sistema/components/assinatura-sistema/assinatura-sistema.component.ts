@@ -44,8 +44,6 @@ export class AssinaturaSistemaComponent implements OnInit {
     limiteProfissionais: 0,
     usoClientes: 0,
     limiteClientes: 0,
-    usoClientesAssinantes: 0,
-    limiteClientesAssinantes: 0,
   });
 
   protected readonly planosDisponiveis = signal<PlanoAssinatura[]>([]);
@@ -63,11 +61,9 @@ export class AssinaturaSistemaComponent implements OnInit {
     return e.limiteProfissionais > 0 ? (e.usoProfissionais / e.limiteProfissionais) * 100 : 0;
   });
 
-  protected readonly pctClientesAssinantes = computed<number>(() => {
+  protected readonly pctClientes = computed<number>(() => {
     const e = this.planoGroom();
-    return e.limiteClientesAssinantes > 0
-      ? (e.usoClientesAssinantes / e.limiteClientesAssinantes) * 100
-      : 0;
+    return e.limiteClientes > 0 ? (e.usoClientes / e.limiteClientes) * 100 : 0;
   });
 
   public ngOnInit(): void {
@@ -92,10 +88,8 @@ export class AssinaturaSistemaComponent implements OnInit {
           diasRestantes: plano.diasRestantes ?? 0,
           limiteProfissionais: plano.limiteProfissionais ?? 0,
           limiteClientes: plano.limiteClientes ?? 0,
-          limiteClientesAssinantes: plano.limiteClientesAssinantes ?? 0,
           usoProfissionais: plano.usoProfissionais ?? 0,
           usoClientes: plano.usoClientes ?? 0,
-          usoClientesAssinantes: plano.usoClientesAssinantes ?? 0,
         });
 
         if (!this.planoSelecionado()) {
@@ -125,10 +119,8 @@ export class AssinaturaSistemaComponent implements OnInit {
             status: e.status,
             limiteProfissionais: e.limiteProfissionais,
             limiteClientes: e.limiteClientes,
-            limiteClientesAssinantes: e.limiteClientesAssinantes,
             usoProfissionais: e.usoProfissionais,
             usoClientes: e.usoClientes,
-            usoClientesAssinantes: e.usoClientesAssinantes,
           };
           this.planosDisponiveis.set([fallback]);
           this.planoSelecionado.set(fallback);
