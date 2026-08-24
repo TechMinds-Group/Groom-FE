@@ -9,10 +9,8 @@ export interface PlanoAssinatura {
   status: string;
   limiteProfissionais: number;
   limiteClientes: number;
-  limiteClientesAssinantes: number;
   usoProfissionais: number;
   usoClientes: number;
-  usoClientesAssinantes: number;
   validoAte?: string;
   diasRestantes?: number;
 }

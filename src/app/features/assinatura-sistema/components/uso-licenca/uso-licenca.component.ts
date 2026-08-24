@@ -13,7 +13,7 @@ import { TranslatePipe } from '../../../../shared/pipes/translate.pipe';
 export class UsoLicencaComponent {
   readonly plano = input.required<PlanoGroomEstado>();
   readonly pctProfissionais = input.required<number>();
-  readonly pctClientesAssinantes = input.required<number>();
+  readonly pctClientes = input.required<number>();
 
   protected readonly mostrarInfoProfissionais = signal(false);
 }

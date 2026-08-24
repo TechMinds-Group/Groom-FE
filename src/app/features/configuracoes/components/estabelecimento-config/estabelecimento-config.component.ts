@@ -5,10 +5,11 @@ import { Router, RouterModule } from '@angular/router';
 import { TmTimeComponent, TmToastService } from '@techminds-group/tm-angular-lib';
 import { EstabelecimentoInfo, EstabelecimentoService } from '../../../../core/services/estabelecimento.service';
 import { DiaFuncionamento, DIAS_SEMANA_ESTABELECIMENTO } from '../../../../core/models/configuracoes/horario-estabelecimento.model';
+import { ClientesService, ImportacaoClienteResult } from '../../../../core/services/clientes.service';
 
 /**
  * Componente de Gestão do Estabelecimento (RF-32).
- * Contém blocos colapsáveis de configuração (ex.: Horário de Funcionamento).
+ * Contém blocos colapsáveis de configuração (ex.: Horário de Funcionamento, Importação de Dados).
  */
 @Component({
   selector: 'app-estabelecimento-config',
@@ -20,11 +21,29 @@ import { DiaFuncionamento, DIAS_SEMANA_ESTABELECIMENTO } from '../../../../core/
 })
 export class EstabelecimentoConfigComponent implements OnInit {
   private readonly estabelecimentoService = inject(EstabelecimentoService);
+  private readonly clientesService = inject(ClientesService);
   private readonly toastService = inject(TmToastService);
   private readonly router = inject(Router);
 
   protected readonly diasFuncionamento = signal<DiaFuncionamento[]>([]);
   protected readonly salvando = signal(false);
+
+  /** Sinais para o bloco de Importação de Dados */
+  protected readonly importacaoExpandido = signal(false);
+  protected readonly plataformaSelecionada = signal<'tua-agenda' | null>('tua-agenda');
+  protected readonly categoriaSelecionada = signal<'clientes' | null>('clientes');
+  protected readonly arquivoSelecionado = signal<File | null>(null);
+  protected readonly importando = signal(false);
+  protected readonly resultadoImportacao = signal<ImportacaoClienteResult | null>(null);
+  protected readonly exibirModalDuplicados = signal(false);
+
+  protected abrirModalDuplicados(): void {
+    this.exibirModalDuplicados.set(true);
+  }
+
+  protected fecharModalDuplicados(): void {
+    this.exibirModalDuplicados.set(false);
+  }
 
   /** Sinais para a identidade do estabelecimento */
   protected readonly infoExpandido = signal(false);
@@ -236,6 +255,64 @@ export class EstabelecimentoConfigComponent implements OnInit {
     this.diasFuncionamento.set(atualizado);
     const nomeDia = DIAS_SEMANA_ESTABELECIMENTO[diaOrigem.diaSemana]?.label;
     this.toastService.success(`Horários de ${nomeDia} copiados para todos os dias!`);
+  }
+
+  protected toggleImportacao(): void {
+    this.importacaoExpandido.update((v) => !v);
+  }
+
+  protected selecionarPlataforma(plat: 'tua-agenda' | null): void {
+    this.plataformaSelecionada.set(plat);
+    this.arquivoSelecionado.set(null);
+    this.resultadoImportacao.set(null);
+  }
+
+  protected selecionarCategoria(cat: 'clientes' | null): void {
+    this.categoriaSelecionada.set(cat);
+    this.arquivoSelecionado.set(null);
+    this.resultadoImportacao.set(null);
+  }
+
+  protected onArquivoCsvSelecionado(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    if (file) {
+      if (!file.name.toLowerCase().endsWith('.csv')) {
+        this.toastService.error('Selecione um arquivo de formato CSV (.csv).');
+        input.value = '';
+        return;
+      }
+      this.arquivoSelecionado.set(file);
+      this.resultadoImportacao.set(null);
+    }
+  }
+
+  protected limparArquivo(): void {
+    this.arquivoSelecionado.set(null);
+    this.resultadoImportacao.set(null);
+  }
+
+  protected async importarCsv(): Promise<void> {
+    const file = this.arquivoSelecionado();
+    if (!file) {
+      this.toastService.error('Selecione um arquivo CSV para importar.');
+      return;
+    }
+
+    this.importando.set(true);
+    try {
+      const res = await this.clientesService.importarClientesTuaAgenda(file);
+      this.resultadoImportacao.set(res);
+      this.toastService.success(`Importação do Tua Agenda concluída! ${res.totalCriados} novos clientes cadastrados.`);
+      if (res.clientesDuplicadosPorCelular && res.clientesDuplicadosPorCelular.length > 0) {
+        this.exibirModalDuplicados.set(true);
+      }
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Falha ao processar arquivo CSV do Tua Agenda.';
+      this.toastService.error(msg);
+    } finally {
+      this.importando.set(false);
+    }
   }
 
   protected async salvar(): Promise<void> {
