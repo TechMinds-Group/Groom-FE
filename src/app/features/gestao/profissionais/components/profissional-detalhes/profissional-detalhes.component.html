@@ -20,156 +20,368 @@
       </div>
     </div>
 
-    <!-- Grid Principal (row g-4 mb-5): Informações Gerais (col-lg-8) + Ações Rápidas (col-lg-4) -->
-    <div class="row g-4 mb-5">
-      <!-- Coluna Esquerda: Informações Gerais -->
-      <div class="col-lg-8 col-12">
-        <div class="card border-0 shadow-sm p-4 h-100 details-card custom-dark-card">
-          <!-- Avatar + Nome Completo + E-mail -->
-          <div class="d-flex align-items-center gap-3 border-bottom pb-4 mb-4">
-            @if (p.fotoUrl) {
-              <img
-                [src]="estabelecimentoService.resolverUrl(p.fotoUrl)"
-                alt="Foto de {{ getNomeCompleto(p) }}"
-                class="rounded-circle border object-fit-cover shadow-sm"
-                style="width: 60px; height: 60px;"
-              />
+    <!-- Form Wrapper / Grid Principal (row g-4 mb-5) -->
+    <form [formGroup]="form">
+      <div class="row g-4 mb-5">
+        <!-- Coluna Esquerda: Informações Gerais -->
+        <div class="col-lg-8 col-12">
+          <div class="card border-0 shadow-sm p-4 h-100 details-card custom-dark-card">
+            <!-- Avatar + Nome Completo + E-mail -->
+            <div class="d-flex align-items-center gap-3 border-bottom pb-4 mb-4">
+              @if (modoEdicao()) {
+                <div class="d-flex align-items-center gap-3 w-100">
+                  <div class="avatar-container position-relative">
+                    @if (fotoVisivel()) {
+                      <img
+                        [src]="fotoVisivel()"
+                        alt="Foto do profissional"
+                        class="rounded-circle border object-fit-cover shadow-sm"
+                        style="width: 60px; height: 60px"
+                      />
+                    } @else {
+                      <div
+                        class="rounded-circle border bg-secondary-subtle d-flex align-items-center justify-content-center text-secondary shadow-sm"
+                        style="width: 60px; height: 60px; font-size: 1.5rem"
+                      >
+                        <i class="fas fa-user"></i>
+                      </div>
+                    }
+                  </div>
+                  <div>
+                    <input
+                      type="file"
+                      #fileInput
+                      (change)="onFotoSelected($event)"
+                      accept="image/png, image/jpeg, image/webp"
+                      class="d-none"
+                    />
+                    <button
+                      type="button"
+                      class="btn btn-sm btn-outline-primary fw-semibold d-inline-flex align-items-center gap-2 px-3 py-1 shadow-sm"
+                      (click)="fileInput.click()"
+                    >
+                      <i class="fas fa-camera"></i>
+                      <span>{{ fotoVisivel() ? 'Alterar foto' : 'Enviar foto' }}</span>
+                    </button>
+                  </div>
+                </div>
+              } @else {
+                @if (p.fotoUrl) {
+                  <img
+                    [src]="estabelecimentoService.resolverUrl(p.fotoUrl)"
+                    alt="Foto de {{ getNomeCompleto(p) }}"
+                    class="rounded-circle border object-fit-cover shadow-sm"
+                    style="width: 60px; height: 60px;"
+                  />
+                } @else {
+                  <div class="avatar-circle bg-primary-subtle text-primary d-flex align-items-center justify-content-center">
+                    <i class="fas fa-user-tie fs-3"></i>
+                  </div>
+                }
+                <div>
+                  <h2 class="h3 fw-bold mb-1 custom-dark-text">{{ getNomeCompleto(p) }}</h2>
+                  <p class="text-muted mb-0 custom-dark-text">{{ p.email || p.telefone }}</p>
+                </div>
+              }
+            </div>
+
+            <!-- Campos do Perfil: SOMENTE LEITURA vs MODO EDIÇÃO -->
+            @if (!modoEdicao()) {
+              <div class="row g-4">
+                <!-- Status -->
+                <div class="col-sm-6 col-12">
+                  <label class="form-label small fw-bold text-muted text-uppercase tracking-wider">Status</label>
+                  <div class="mt-1">
+                    @if (p.status | statusBadge; as badge) {
+                      <span class="badge border px-3 py-1.5 rounded-pill fw-semibold" [ngClass]="badge.badgeClass">
+                        <i [class]="badge.iconClass" class="me-1"></i>{{ badge.label }}
+                      </span>
+                    }
+                  </div>
+                </div>
+
+                <!-- Perfil -->
+                <div class="col-sm-6 col-12">
+                  <label class="form-label small fw-bold text-muted text-uppercase tracking-wider">Perfil</label>
+                  <div class="mt-1 d-flex flex-wrap gap-2">
+                    @for (badge of (p | perfilBadge); track badge.label) {
+                      <span class="badge border px-3 py-1.5 rounded-pill fw-semibold" [ngClass]="badge.badgeClass">
+                        <i [class]="badge.iconClass" class="me-1"></i>{{ badge.label }}
+                      </span>
+                    }
+                  </div>
+                </div>
+
+                <!-- Telefone / WhatsApp -->
+                <div class="col-sm-6 col-12">
+                  <label class="form-label small fw-bold text-muted text-uppercase tracking-wider">Telefone / WhatsApp</label>
+                  <p class="fw-semibold mb-0 custom-dark-text">
+                    <i class="fab fa-whatsapp text-success me-1"></i>{{ p.telefone || '—' }}
+                  </p>
+                </div>
+
+                <!-- E-mail -->
+                <div class="col-sm-6 col-12">
+                  <label class="form-label small fw-bold text-muted text-uppercase tracking-wider">E-mail</label>
+                  <p class="fw-semibold mb-0 custom-dark-text">
+                    <i class="far fa-envelope text-primary me-1"></i>{{ p.email || '—' }}
+                  </p>
+                </div>
+
+                <!-- Plano do Sistema -->
+                @if (p.planoAssinatura || p.plano) {
+                  <div class="col-sm-6 col-12">
+                    <label class="form-label small fw-bold text-muted text-uppercase tracking-wider">Plano do Sistema</label>
+                    <p class="fw-semibold mb-0 custom-dark-text">
+                      <i class="fas fa-crown text-warning me-1"></i>{{ p.planoAssinatura || p.plano }}
+                    </p>
+                  </div>
+                }
+
+                <!-- Faturamento -->
+                @if (p.faturamento) {
+                  <div class="col-sm-6 col-12">
+                    <label class="form-label small fw-bold text-muted text-uppercase tracking-wider">Faturamento</label>
+                    <p class="fw-semibold mb-0 custom-dark-text">
+                      <i class="fas fa-money-bill-trend-up text-success me-1"></i>R$ {{ p.faturamento.toFixed(2).replace('.', ',') }}
+                    </p>
+                  </div>
+                }
+
+                <!-- Serviços do catálogo vinculados (atuação) -->
+                <div class="col-12">
+                  <div class="border-top pt-3 mt-2">
+                    <label class="form-label small fw-bold text-muted text-uppercase tracking-wider d-flex align-items-center gap-2 mb-2">
+                      <i class="fas fa-cut text-primary"></i>Catálogo de Serviços Atendidos
+                    </label>
+                    <div class="d-flex flex-wrap gap-2">
+                      @for (servico of servicosAtuacao(); track servico) {
+                        <span class="badge border px-3 py-1.5 rounded-pill fw-semibold text-primary border-primary-subtle bg-primary-subtle d-inline-flex align-items-center gap-1">
+                          <i class="fas fa-check-circle me-1"></i>{{ servico }}
+                        </span>
+                      } @empty {
+                        <span class="text-muted small custom-dark-text">Nenhum serviço do catálogo vinculado a este profissional.</span>
+                      }
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Planos do Estabelecimento vinculados (atuação) -->
+                <div class="col-12">
+                  <div class="border-top pt-3 mt-2">
+                    <label class="form-label small fw-bold text-muted text-uppercase tracking-wider d-flex align-items-center gap-2 mb-2">
+                      <i class="fas fa-gem text-success"></i>Planos de Assinatura Atendidos (Clube)
+                    </label>
+                    <div class="d-flex flex-wrap gap-2">
+                      @for (plano of planosAtuacao(); track plano) {
+                        <span class="badge border px-3 py-1.5 rounded-pill fw-semibold text-success border-success-subtle bg-success-subtle d-inline-flex align-items-center gap-1">
+                          <i class="fas fa-crown me-1"></i>{{ plano }}
+                        </span>
+                      } @empty {
+                        <span class="text-muted small custom-dark-text">Nenhum plano de assinatura do estabelecimento vinculado a este profissional.</span>
+                      }
+                    </div>
+                  </div>
+                </div>
+              </div>
             } @else {
-              <div class="avatar-circle bg-primary-subtle text-primary d-flex align-items-center justify-content-center">
-                <i class="fas fa-user-tie fs-3"></i>
+              <!-- MODO EDIÇÃO INLINE DO FORMULÁRIO -->
+              <div class="row g-3">
+                <!-- Nome -->
+                <div class="col-sm-6 col-12">
+                  <tm-text
+                    formControlName="nome"
+                    label="Nome *"
+                    placeholder="Ex: Michel"
+                    class="custom-dark-text"
+                  ></tm-text>
+                </div>
+
+                <!-- Sobrenome -->
+                <div class="col-sm-6 col-12">
+                  <tm-text
+                    formControlName="sobrenome"
+                    label="Sobrenome *"
+                    placeholder="Ex: Silva"
+                    class="custom-dark-text"
+                  ></tm-text>
+                </div>
+
+                <!-- E-mail -->
+                <div class="col-sm-6 col-12">
+                  <tm-text
+                    formControlName="email"
+                    label="E-mail *"
+                    placeholder="exemplo@email.com"
+                    type="email"
+                    class="custom-dark-text"
+                  ></tm-text>
+                </div>
+
+                <!-- WhatsApp / Telefone -->
+                <div class="col-sm-6 col-12">
+                  <tm-text
+                    formControlName="numeroWhatsApp"
+                    label="Telefone / WhatsApp *"
+                    placeholder="(11) 98888-7777"
+                    mask="phone"
+                    [maxlength]="15"
+                    class="custom-dark-text"
+                  ></tm-text>
+                </div>
+
+                <!-- Status do profissional -->
+                <div class="col-12">
+                  <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 p-3 rounded-3 border border-secondary-subtle">
+                    <div>
+                      <div class="fw-bold custom-dark-text">Profissional ativo</div>
+                      <div class="small text-muted custom-dark-text">
+                        Profissionais inativos não podem ser selecionados em novos agendamentos.
+                      </div>
+                    </div>
+                    <div class="form-check form-switch mb-0 shrink-0">
+                      <input
+                        class="form-check-input"
+                        type="checkbox"
+                        role="switch"
+                        id="switch-status-detalhes"
+                        aria-label="Alternar status do profissional"
+                        [checked]="form.get('status')?.value === 'Ativo'"
+                        (change)="alternarStatus($event)"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Atuação: serviços prestados -->
+                <div class="col-12 border-top pt-3 mt-2">
+                  <div class="d-flex align-items-center justify-content-between mb-2 flex-wrap gap-2">
+                    <label class="form-label fw-semibold custom-dark-text mb-0">Catálogo de Serviços Atendidos *</label>
+                    <div class="d-flex align-items-center gap-2">
+                      <button
+                        type="button"
+                        class="btn btn-sm btn-outline-primary fw-semibold px-2 py-1"
+                        (click)="selecionarTodosServicos()"
+                      >
+                        <i class="fas fa-check-double me-1"></i>Selecionar Todos
+                      </button>
+                      @if ((form.get('servicoIds')?.value || []).length > 0) {
+                        <button
+                          type="button"
+                          class="btn btn-sm btn-outline-secondary fw-semibold px-2 py-1"
+                          (click)="desmarcarTodosServicos()"
+                        >
+                          <i class="fas fa-times me-1"></i>Limpar Seleção
+                        </button>
+                      }
+                    </div>
+                  </div>
+                  <tm-select
+                    formControlName="servicoIds"
+                    [options]="servicosOptions()"
+                    [multiple]="true"
+                    [searchable]="true"
+                    placeholder="Selecione os serviços que este profissional realiza"
+                    [darkMode]="themeService.isDarkMode()"
+                    class="custom-dark-text"
+                  ></tm-select>
+                </div>
+
+                <!-- Atuação: planos do clube -->
+                <div class="col-12 border-top pt-3 mt-2">
+                  <div class="d-flex align-items-center justify-content-between mb-2 flex-wrap gap-2">
+                    <label class="form-label fw-semibold custom-dark-text mb-0">Planos de Assinatura Atendidos (Clube)</label>
+                    <div class="d-flex align-items-center gap-2">
+                      <button
+                        type="button"
+                        class="btn btn-sm btn-outline-primary fw-semibold px-2 py-1"
+                        (click)="selecionarTodosPlanos()"
+                      >
+                        <i class="fas fa-check-double me-1"></i>Selecionar Todos
+                      </button>
+                      @if ((form.get('planoIds')?.value || []).length > 0) {
+                        <button
+                          type="button"
+                          class="btn btn-sm btn-outline-secondary fw-semibold px-2 py-1"
+                          (click)="desmarcarTodosPlanos()"
+                        >
+                          <i class="fas fa-times me-1"></i>Limpar Seleção
+                        </button>
+                      }
+                    </div>
+                  </div>
+                  <tm-select
+                    formControlName="planoIds"
+                    [options]="planosOptions()"
+                    [multiple]="true"
+                    [searchable]="true"
+                    placeholder="Selecione os planos atendidos por este profissional"
+                    [darkMode]="themeService.isDarkMode()"
+                    class="custom-dark-text"
+                  ></tm-select>
+                </div>
               </div>
             }
-            <div>
-              <h2 class="h3 fw-bold mb-1 custom-dark-text">{{ getNomeCompleto(p) }}</h2>
-              <p class="text-muted mb-0 custom-dark-text">{{ p.email || p.telefone }}</p>
-            </div>
           </div>
+        </div>
 
-          <!-- Campos do Perfil -->
-          <div class="row g-4">
-            <!-- Status -->
-            <div class="col-sm-6 col-12">
-              <label class="form-label small fw-bold text-muted text-uppercase tracking-wider">Status</label>
-              <div class="mt-1">
-                @if (p.status | statusBadge; as badge) {
-                  <span class="badge border px-3 py-1.5 rounded-pill fw-semibold" [ngClass]="badge.badgeClass">
-                    <i [class]="badge.iconClass" class="me-1"></i>{{ badge.label }}
-                  </span>
-                }
-              </div>
-            </div>
+        <!-- Coluna Direita: Card Ações Rápidas (Botão Único de Editar / Salvar e Cancelar) -->
+        <div class="col-lg-4 col-12">
+          <div class="card border-0 shadow-sm p-4 actions-card custom-dark-card">
+            <h4 class="h5 fw-bold mb-4 custom-dark-text">
+              <i class="fas fa-sliders-h me-2 text-primary"></i>Ações Rápidas
+            </h4>
 
-            <!-- Perfil -->
-            <div class="col-sm-6 col-12">
-              <label class="form-label small fw-bold text-muted text-uppercase tracking-wider">Perfil</label>
-              <div class="mt-1 d-flex flex-wrap gap-2">
-                @for (badge of (p | perfilBadge); track badge.label) {
-                  <span class="badge border px-3 py-1.5 rounded-pill fw-semibold" [ngClass]="badge.badgeClass">
-                    <i [class]="badge.iconClass" class="me-1"></i>{{ badge.label }}
-                  </span>
-                }
-              </div>
-            </div>
-
-            <!-- Telefone / WhatsApp -->
-            <div class="col-sm-6 col-12">
-              <label class="form-label small fw-bold text-muted text-uppercase tracking-wider">Telefone / WhatsApp</label>
-              <p class="fw-semibold mb-0 custom-dark-text">
-                <i class="fab fa-whatsapp text-success me-1"></i>{{ p.telefone || '—' }}
-              </p>
-            </div>
-
-            <!-- E-mail -->
-            <div class="col-sm-6 col-12">
-              <label class="form-label small fw-bold text-muted text-uppercase tracking-wider">E-mail</label>
-              <p class="fw-semibold mb-0 custom-dark-text">
-                <i class="far fa-envelope text-primary me-1"></i>{{ p.email || '—' }}
-              </p>
-            </div>
-
-            <!-- Plano do Sistema -->
-            @if (p.planoAssinatura || p.plano) {
-              <div class="col-sm-6 col-12">
-                <label class="form-label small fw-bold text-muted text-uppercase tracking-wider">Plano do Sistema</label>
-                <p class="fw-semibold mb-0 custom-dark-text">
-                  <i class="fas fa-crown text-warning me-1"></i>{{ p.planoAssinatura || p.plano }}
-                </p>
-              </div>
-            }
-
-            <!-- Faturamento -->
-            @if (p.faturamento) {
-              <div class="col-sm-6 col-12">
-                <label class="form-label small fw-bold text-muted text-uppercase tracking-wider">Faturamento</label>
-                <p class="fw-semibold mb-0 custom-dark-text">
-                  <i class="fas fa-money-bill-trend-up text-success me-1"></i>R$ {{ p.faturamento.toFixed(2).replace('.', ',') }}
-                </p>
-              </div>
-            }
-
-            <!-- Serviços do catálogo vinculados (atuação) -->
-            <div class="col-12">
-              <div class="border-top pt-3 mt-2">
-                <label class="form-label small fw-bold text-muted text-uppercase tracking-wider d-flex align-items-center gap-2 mb-2">
-                  <i class="fas fa-cut text-primary"></i>Catálogo de Serviços Atendidos
-                </label>
-                <div class="d-flex flex-wrap gap-2">
-                  @for (servico of servicosAtuacao(); track servico) {
-                    <span class="badge border px-3 py-1.5 rounded-pill fw-semibold text-primary border-primary-subtle bg-primary-subtle d-inline-flex align-items-center gap-1">
-                      <i class="fas fa-check-circle me-1"></i>{{ servico }}
-                    </span>
-                  } @empty {
-                    <span class="text-muted small custom-dark-text">Nenhum serviço do catálogo vinculado a este profissional.</span>
+            <div class="d-grid gap-3">
+              @if (!modoEdicao()) {
+                <button
+                  type="button"
+                  (click)="habilitarEdicao()"
+                  class="btn btn-primary py-2.5 fw-bold w-100 transition-all custom-action-btn"
+                >
+                  <i class="fas fa-edit me-2"></i>Editar
+                </button>
+              } @else {
+                <button
+                  type="button"
+                  (click)="salvarGeral()"
+                  class="btn btn-primary py-2.5 fw-bold w-100 transition-all custom-action-btn"
+                  [disabled]="salvando()"
+                >
+                  @if (salvando()) {
+                    <span class="spinner-border spinner-border-sm me-2" role="status"></span>Salvando...
+                  } @else {
+                    <i class="fas fa-save me-2"></i>Salvar
                   }
-                </div>
-              </div>
-            </div>
+                </button>
 
-            <!-- Planos do Estabelecimento vinculados (atuação) -->
-            <div class="col-12">
-              <div class="border-top pt-3 mt-2">
-                <label class="form-label small fw-bold text-muted text-uppercase tracking-wider d-flex align-items-center gap-2 mb-2">
-                  <i class="fas fa-gem text-success"></i>Planos de Assinatura Atendidos (Clube)
-                </label>
-                <div class="d-flex flex-wrap gap-2">
-                  @for (plano of planosAtuacao(); track plano) {
-                    <span class="badge border px-3 py-1.5 rounded-pill fw-semibold text-success border-success-subtle bg-success-subtle d-inline-flex align-items-center gap-1">
-                      <i class="fas fa-crown me-1"></i>{{ plano }}
-                    </span>
-                  } @empty {
-                    <span class="text-muted small custom-dark-text">Nenhum plano de assinatura do estabelecimento vinculado a este profissional.</span>
-                  }
-                </div>
-              </div>
+                <button
+                  type="button"
+                  (click)="cancelarEdicao()"
+                  class="btn btn-outline-secondary py-2.5 fw-bold w-100 transition-all custom-action-btn"
+                  [disabled]="salvando()"
+                >
+                  <i class="fas fa-times me-2"></i>Cancelar
+                </button>
+              }
             </div>
           </div>
         </div>
       </div>
+    </form>
 
-      <!-- Coluna Direita: Card Ações Rápidas (Padrão exato de Assinante Detalhes) -->
-      <div class="col-lg-4 col-12">
-        <div class="card border-0 shadow-sm p-4 actions-card custom-dark-card">
-          <h4 class="h5 fw-bold mb-4 custom-dark-text">
-            <i class="fas fa-sliders-h me-2 text-primary"></i>Ações Rápidas
-          </h4>
-
-          <div class="d-grid gap-3">
-            <button (click)="abrirEdicao()" class="btn btn-primary py-2.5 fw-bold w-100 transition-all custom-action-btn">
-              <i class="fas fa-edit me-2"></i>Editar
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Linha 2: Configuração de Horários / Disponibilidade -->
+    <!-- Linha 2: Configuração de Horários / Disponibilidade (Liberada quando modoEdicao = true) -->
     <div class="row mb-5">
       <div class="col-12">
-        <app-disponibilidade [embedded]="true" [profissionalId]="p.id" [readOnly]="true"></app-disponibilidade>
+        <app-disponibilidade
+          [embedded]="true"
+          [profissionalId]="p.id"
+          [readOnly]="!modoEdicao()"
+        ></app-disponibilidade>
       </div>
     </div>
 
-    <!-- Linha 3: Histórico de Agendamentos (Padrão exato de Assinante Detalhes) -->
+    <!-- Linha 3: Histórico de Agendamentos -->
     <div class="row mb-5">
       <div class="col-12">
         <h5 class="fw-bold mb-3 custom-dark-text">

@@ -409,7 +409,7 @@ export class DisponibilidadeComponent implements OnInit, AfterViewInit {
     }
   }
 
-  protected async cancelar(): Promise<void> {
+  public async cancelar(): Promise<void> {
     const profId = this.profissionalAlvo();
     if (profId) {
       await this.carregarDisponibilidade(profId);
@@ -420,7 +420,7 @@ export class DisponibilidadeComponent implements OnInit, AfterViewInit {
     this.modoEdicao.set(false);
   }
 
-  protected async salvar(): Promise<void> {
+  public async salvar(): Promise<void> {
     const profissionalId = this.profissionalAlvo();
     if (!profissionalId) {
       this.toastService.error(this.languageService.translate('DISPONIBILIDADE.SEM_PROFISSIONAIS'));
