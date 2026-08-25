@@ -79,6 +79,41 @@
     margin-top: 0.15rem;
   }
 
+  &__endereco-wrapper {
+    display: flex;
+    max-width: 100%;
+  }
+
+  &__endereco-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    max-width: 100%;
+    padding: 0.35rem 0.75rem;
+    border-radius: 12px;
+    background: color-mix(in srgb, var(--tm-primary) 10%, var(--tm-surface-color));
+    border: 1px solid color-mix(in srgb, var(--tm-primary) 25%, var(--tm-border-color));
+    color: var(--tm-primary);
+    font-size: 0.8rem;
+    line-height: 1.35;
+    white-space: normal;
+    word-break: break-word;
+    overflow-wrap: anywhere;
+    transition: all 0.2s ease-in-out;
+
+    &:hover {
+      background: color-mix(in srgb, var(--tm-primary) 18%, var(--tm-surface-color));
+      border-color: var(--tm-primary);
+    }
+  }
+
+  &__endereco-texto {
+    font-weight: 500;
+    white-space: normal;
+    word-break: break-word;
+    overflow-wrap: anywhere;
+  }
+
   &__card {
     position: relative;
     width: 100%;

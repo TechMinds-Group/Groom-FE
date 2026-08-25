@@ -103,15 +103,15 @@ export class DisponibilidadeComponent implements OnInit, AfterViewInit {
 
   /** Profissional alvo da edição (quando null, exibe a tabela de profissionais). */
   protected readonly profissionalAlvo = signal<string | null>(null);
-  protected readonly servicosSelecionados = signal<string[]>([]);
-  protected readonly planosSelecionados = signal<string[]>([]);
+  public readonly servicosSelecionados = signal<string[]>([]);
+  public readonly planosSelecionados = signal<string[]>([]);
 
   @Input() set readOnly(val: boolean) {
     this.modoEdicao.set(!val);
   }
 
   /** Controla se os campos da tela estão em modo de edição (true) ou somente leitura (false). */
-  protected readonly modoEdicao = signal<boolean>(true);
+  public readonly modoEdicao = signal<boolean>(true);
 
   /** Agendamentos que ficaram fora da nova disponibilidade. */
   protected readonly conflitos = signal<Agendamento[]>([]);

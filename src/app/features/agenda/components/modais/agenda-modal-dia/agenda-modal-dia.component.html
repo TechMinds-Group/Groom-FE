@@ -24,20 +24,28 @@
       <div class="card custom-dark-card rounded-4 shadow-sm mb-4">
         <div class="card-body p-4">
           <div class="d-flex align-items-center gap-3 mb-3">
-            <div class="time-chip flex-shrink-0 d-flex flex-column align-items-center justify-content-center px-3 py-2 rounded-3">
+            <div
+              class="time-chip flex-shrink-0 d-flex flex-column align-items-center justify-content-center px-3 py-2 rounded-3"
+            >
               <span class="time-chip-hora fw-bold lh-1">{{ formatHora(detalhe.dataInicio) }}</span>
-              <span class="time-chip-label text-uppercase mt-1">{{ 'AGENDA_MODAL.DETALHES.HORARIO_LABEL' | translate }}</span>
+              <span class="time-chip-label text-uppercase mt-1">{{
+                'AGENDA_MODAL.DETALHES.HORARIO_LABEL' | translate
+              }}</span>
             </div>
             <div class="min-w-0 flex-grow-1">
               <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
-                <div class="fw-bold fs-6 text-break custom-dark-text">{{ detalhe.clienteNome }}</div>
+                <div class="fw-bold fs-6 text-break custom-dark-text">
+                  {{ detalhe.clienteNome }}
+                </div>
                 @if (detalhe.tipo === 'plano' || detalhe.planoId || detalhe.planoNome) {
                   <span class="badge bg-warning text-dark fw-bold px-2 py-1 small">
-                    <i class="fas fa-crown me-1"></i>{{ 'AGENDA_MODAL.DETALHES.PLANO_LABEL' | translate }}
+                    <i class="fas fa-crown me-1"></i
+                    >{{ 'AGENDA_MODAL.DETALHES.PLANO_LABEL' | translate }}
                   </span>
                 } @else {
                   <span class="badge bg-secondary text-white fw-semibold px-2 py-1 small">
-                    <i class="fas fa-cut me-1"></i>{{ 'AGENDA_MODAL.DETALHES.SERVICO_AVULSO_LABEL' | translate }}
+                    <i class="fas fa-cut me-1"></i
+                    >{{ 'AGENDA_MODAL.DETALHES.SERVICO_AVULSO_LABEL' | translate }}
                   </span>
                 }
               </div>
@@ -47,46 +55,72 @@
             </div>
           </div>
 
-          <hr class="my-3 border-light-subtle">
+          <hr class="my-3 border-light-subtle" />
 
           <dl class="row mb-0 small">
-            <dt class="col-5 col-sm-4 text-muted fw-semibold custom-dark-text">{{ 'AGENDA_MODAL.DETALHES.CLIENTE_LABEL' | translate }}</dt>
-            <dd class="col-7 col-sm-8 mb-2 text-break custom-dark-text">{{ detalhe.clienteNome }}</dd>
+            <dt class="col-5 col-sm-4 text-muted fw-semibold custom-dark-text">
+              {{ 'AGENDA_MODAL.DETALHES.CLIENTE_LABEL' | translate }}
+            </dt>
+            <dd class="col-7 col-sm-8 mb-2 text-break custom-dark-text">
+              {{ detalhe.clienteNome }}
+            </dd>
 
             @if (detalhe.clienteTelefone) {
-              <dt class="col-5 col-sm-4 text-muted fw-semibold custom-dark-text">{{ 'AGENDA_MODAL.DETALHES.TELEFONE_LABEL' | translate }}</dt>
+              <dt class="col-5 col-sm-4 text-muted fw-semibold custom-dark-text">
+                {{ 'AGENDA_MODAL.DETALHES.TELEFONE_LABEL' | translate }}
+              </dt>
               <dd class="col-7 col-sm-8 mb-2 text-break custom-dark-text">
                 <i class="fab fa-whatsapp text-success me-1"></i>{{ detalhe.clienteTelefone }}
               </dd>
             }
 
-            <dt class="col-5 col-sm-4 text-muted fw-semibold custom-dark-text">{{ 'AGENDA_MODAL.DETALHES.PROFISSIONAL_LABEL' | translate }}</dt>
+            <dt class="col-5 col-sm-4 text-muted fw-semibold custom-dark-text">
+              {{ 'AGENDA_MODAL.DETALHES.PROFISSIONAL_LABEL' | translate }}
+            </dt>
             <dd class="col-7 col-sm-8 mb-2 text-break custom-dark-text">
-              <i class="fas fa-user-tie text-primary opacity-75 me-1"></i>{{ detalhe.profissionalNome || '—' }}
+              <i class="fas fa-user-tie text-primary opacity-75 me-1"></i
+              >{{ detalhe.profissionalNome || '—' }}
             </dd>
 
-            <dt class="col-5 col-sm-4 text-muted fw-semibold custom-dark-text">{{ 'AGENDA_MODAL.DETALHES.SERVICO_LABEL' | translate }}</dt>
-            <dd class="col-7 col-sm-8 mb-2 text-break custom-dark-text">{{ detalhe.servicoNome }}</dd>
-
-            <dt class="col-5 col-sm-4 text-muted fw-semibold custom-dark-text">{{ 'AGENDA_MODAL.DETALHES.DATA_HORA_LABEL' | translate }}</dt>
+            <dt class="col-5 col-sm-4 text-muted fw-semibold custom-dark-text">
+              {{ 'AGENDA_MODAL.DETALHES.SERVICO_LABEL' | translate }}
+            </dt>
             <dd class="col-7 col-sm-8 mb-2 text-break custom-dark-text">
-              <i class="far fa-calendar-alt text-primary me-1"></i>{{ formatData(detalhe.dataInicio) }} às {{ formatHora(detalhe.dataInicio) }}
+              {{ detalhe.servicoNome }}
             </dd>
 
-            <dt class="col-5 col-sm-4 text-muted fw-semibold custom-dark-text">{{ 'AGENDA_MODAL.DETALHES.TIPO_LABEL' | translate }}</dt>
+            <dt class="col-5 col-sm-4 text-muted fw-semibold custom-dark-text">
+              {{ 'AGENDA_MODAL.DETALHES.DATA_HORA_LABEL' | translate }}
+            </dt>
+            <dd class="col-7 col-sm-8 mb-2 text-break custom-dark-text">
+              <i class="far fa-calendar-alt text-primary me-1"></i
+              >{{ formatData(detalhe.dataInicio) }} às {{ formatHora(detalhe.dataInicio) }}
+            </dd>
+
+            <dt class="col-5 col-sm-4 text-muted fw-semibold custom-dark-text">
+              {{ 'AGENDA_MODAL.DETALHES.TIPO_LABEL' | translate }}
+            </dt>
             <dd class="col-7 col-sm-8 mb-2 custom-dark-text">
               @if (detalhe.tipo === 'plano' || detalhe.planoId || detalhe.planoNome) {
                 <span class="badge bg-warning text-dark fw-bold px-2 py-1">
-                  <i class="fas fa-crown me-1"></i>{{ detalhe.planoNome ? 'Plano ' + detalhe.planoNome : ('AGENDA_MODAL.DETALHES.PLANO_LABEL' | translate) }}
+                  <i class="fas fa-crown me-1"></i
+                  >{{
+                    detalhe.planoNome
+                      ? 'Plano ' + detalhe.planoNome
+                      : ('AGENDA_MODAL.DETALHES.PLANO_LABEL' | translate)
+                  }}
                 </span>
               } @else {
                 <span class="badge bg-light text-dark border px-2 py-1">
-                  <i class="fas fa-tag me-1"></i>{{ 'AGENDA_MODAL.DETALHES.SERVICO_AVULSO_LABEL' | translate }}
+                  <i class="fas fa-tag me-1"></i
+                  >{{ 'AGENDA_MODAL.DETALHES.SERVICO_AVULSO_LABEL' | translate }}
                 </span>
               }
             </dd>
 
-            <dt class="col-5 col-sm-4 text-muted fw-semibold custom-dark-text">{{ 'AGENDA_MODAL.DETALHES.PRECO_LABEL' | translate }}</dt>
+            <dt class="col-5 col-sm-4 text-muted fw-semibold custom-dark-text">
+              {{ 'AGENDA_MODAL.DETALHES.PRECO_LABEL' | translate }}
+            </dt>
             <dd class="col-7 col-sm-8 mb-2 custom-dark-text fw-bold">
               @if (detalhe.tipo === 'plano' || detalhe.planoId || detalhe.preco === 0) {
                 <span class="text-success">R$ 0,00 (Plano de Assinatura)</span>
@@ -96,8 +130,12 @@
             </dd>
 
             @if (detalhe.observacoes) {
-              <dt class="col-5 col-sm-4 text-muted fw-semibold custom-dark-text">{{ 'AGENDA_MODAL.DETALHES.OBSERVACOES_LABEL' | translate }}</dt>
-              <dd class="col-7 col-sm-8 mb-0 fst-italic text-break custom-dark-text">"{{ detalhe.observacoes }}"</dd>
+              <dt class="col-5 col-sm-4 text-muted fw-semibold custom-dark-text">
+                {{ 'AGENDA_MODAL.DETALHES.OBSERVACOES_LABEL' | translate }}
+              </dt>
+              <dd class="col-7 col-sm-8 mb-0 fst-italic text-break custom-dark-text">
+                "{{ detalhe.observacoes }}"
+              </dd>
             }
           </dl>
         </div>
@@ -190,12 +228,16 @@
       </div>
     } @else if (!exibeForm()) {
       <!-- Cabeçalho da lista -->
-      <div class="d-flex flex-column flex-md-row align-items-start align-items-md-center justify-content-between gap-3 mb-3 pb-2 border-bottom border-light-subtle">
+      <div
+        class="d-flex flex-column flex-md-row align-items-start align-items-md-center justify-content-between gap-3 mb-3 pb-2 border-bottom border-light-subtle"
+      >
         <div class="header-info">
           <p class="text-muted small mb-1 custom-dark-text">
             {{ 'AGENDA_MODAL.SUBTITLE' | translate }}
           </p>
-          <span class="badge bg-primary-subtle text-primary border border-primary-subtle rounded-pill px-3 py-1 small fw-bold">
+          <span
+            class="badge bg-primary-subtle text-primary border border-primary-subtle rounded-pill px-3 py-1 small fw-bold"
+          >
             {{ agendamentosDoDia().length }}
             {{ agendamentosDoDia().length === 1 ? 'agendamento' : 'agendamentos' }}
           </span>
@@ -218,7 +260,9 @@
           <div class="empty-icon mx-auto mb-3">
             <i class="far fa-calendar-check"></i>
           </div>
-          <p class="fw-semibold mb-1 custom-dark-text">{{ 'AGENDA_MODAL.NO_EVENTS' | translate }}</p>
+          <p class="fw-semibold mb-1 custom-dark-text">
+            {{ 'AGENDA_MODAL.NO_EVENTS' | translate }}
+          </p>
         </div>
       } @else {
         <div class="d-flex flex-column gap-3">
@@ -230,31 +274,43 @@
             >
               <!-- Informações do Agendamento -->
               <div class="d-flex align-items-center gap-3 min-w-0 flex-grow-1">
-                <div class="time-chip flex-shrink-0 d-flex flex-column align-items-center justify-content-center px-2 px-sm-3 py-2 rounded-3">
+                <div
+                  class="time-chip flex-shrink-0 d-flex flex-column align-items-center justify-content-center px-2 px-sm-3 py-2 rounded-3"
+                >
                   <span class="time-chip-hora fw-bold lh-1">{{ formatHora(item.dataInicio) }}</span>
                   <span class="time-chip-label text-uppercase mt-1">agendado</span>
                 </div>
 
                 <div class="min-w-0 flex-grow-1">
-                  <div class="fw-bold text-break custom-dark-text fs-6 mb-1">{{ item.clienteNome }}</div>
-                  <div class="text-muted small custom-dark-text d-flex flex-wrap align-items-center gap-2">
+                  <div class="fw-bold text-break custom-dark-text fs-6 mb-1">
+                    {{ item.clienteNome }}
+                  </div>
+                  <div
+                    class="text-muted small custom-dark-text d-flex flex-wrap align-items-center gap-2"
+                  >
                     <span class="d-inline-flex align-items-center gap-1 text-break">
-                      <i class="fas fa-cut text-primary opacity-75 flex-shrink-0"></i>{{ item.servicoNome }}
+                      <i class="fas fa-cut text-primary opacity-75 flex-shrink-0"></i
+                      >{{ item.servicoNome }}
                     </span>
                     @if (item.clienteTelefone) {
                       <span class="d-inline-flex align-items-center gap-1 text-break">
-                        <i class="fas fa-phone-alt text-primary opacity-75 flex-shrink-0"></i>{{ item.clienteTelefone }}
+                        <i class="fas fa-phone-alt text-primary opacity-75 flex-shrink-0"></i
+                        >{{ item.clienteTelefone }}
                       </span>
                     }
                   </div>
                   @if (item.observacoes) {
-                    <div class="text-muted small fst-italic mt-1 custom-dark-text text-break">"{{ item.observacoes }}"</div>
+                    <div class="text-muted small fst-italic mt-1 custom-dark-text text-break">
+                      "{{ item.observacoes }}"
+                    </div>
                   }
                 </div>
               </div>
 
               <!-- Status Badge -->
-              <div class="agendamento-actions d-flex align-items-center justify-content-between justify-content-sm-end gap-2 w-100 w-sm-auto pt-2 pt-sm-0">
+              <div
+                class="agendamento-actions d-flex align-items-center justify-content-between justify-content-sm-end gap-2 w-100 w-sm-auto pt-2 pt-sm-0"
+              >
                 <span
                   class="badge rounded-pill text-white fw-semibold px-3 py-2 small"
                   [style.background-color]="coresStatus[item.status]"
@@ -279,25 +335,38 @@
         </button>
 
         <h6 class="fw-bold mb-4 custom-dark-text">
-          {{ (agendamentoEditando() ? 'AGENDA_MODAL.FORM.TITLE_EDIT' : 'AGENDA_MODAL.FORM.TITLE_NEW') | translate }}
+          {{
+            (agendamentoEditando() ? 'AGENDA_MODAL.FORM.TITLE_EDIT' : 'AGENDA_MODAL.FORM.TITLE_NEW')
+              | translate
+          }}
         </h6>
 
         <form [formGroup]="form" (ngSubmit)="salvarAgendamento()">
           @if (!agendamentoEditando()) {
             <div class="row g-3 mb-3">
               <div class="col-md-6">
-                <label class="form-label small fw-bold text-muted text-uppercase tracking-wider mb-2 custom-dark-text">
+                <label
+                  class="form-label small fw-bold text-muted text-uppercase tracking-wider mb-2 custom-dark-text"
+                >
                   {{ 'AGENDA_MODAL.FORM.CLIENTE_NOME' | translate }} *
                 </label>
-                <tm-text
-                  formControlName="clienteNome"
-                  class="custom-dark-text"
+                <tm-select
+                  [options]="clienteOptions()"
+                  [value]="clienteIdSelecionado()"
+                  [darkMode]="themeService.isDarkMode()"
+                  [searchable]="true"
+                  [addTag]="true"
+                  addTagLabel="Cadastrar cliente:"
                   [placeholder]="'AGENDA_MODAL.FORM.CLIENTE_NOME_PLACEHOLDER' | translate"
                   icon="fas fa-user"
-                ></tm-text>
+                  (valueChange)="onClienteSelectChange($event)"
+                  (addTagEvent)="redirecionarNovoCliente()"
+                ></tm-select>
               </div>
               <div class="col-md-6">
-                <label class="form-label small fw-bold text-muted text-uppercase tracking-wider mb-2 custom-dark-text">
+                <label
+                  class="form-label small fw-bold text-muted text-uppercase tracking-wider mb-2 custom-dark-text"
+                >
                   {{ 'AGENDA_MODAL.FORM.CLIENTE_TELEFONE' | translate }}
                 </label>
                 <tm-text
@@ -311,7 +380,9 @@
 
             <div class="row g-3 mb-3">
               <div class="col-md-6">
-                <label class="form-label small fw-bold text-muted text-uppercase tracking-wider mb-2 custom-dark-text">
+                <label
+                  class="form-label small fw-bold text-muted text-uppercase tracking-wider mb-2 custom-dark-text"
+                >
                   {{ 'AGENDA_MODAL.FORM.PROFISSIONAL' | translate }} *
                 </label>
                 <tm-select
@@ -325,7 +396,9 @@
                 ></tm-select>
               </div>
               <div class="col-md-6">
-                <label class="form-label small fw-bold text-muted text-uppercase tracking-wider mb-2 custom-dark-text">
+                <label
+                  class="form-label small fw-bold text-muted text-uppercase tracking-wider mb-2 custom-dark-text"
+                >
                   {{ 'AGENDA_MODAL.FORM.SERVICO' | translate }} *
                 </label>
                 <tm-select
@@ -342,7 +415,9 @@
           @if (agendamentoEditando()) {
             <div class="row g-3 mb-3">
               <div class="col-md-6">
-                <label class="form-label small fw-bold text-muted text-uppercase tracking-wider mb-2 custom-dark-text">
+                <label
+                  class="form-label small fw-bold text-muted text-uppercase tracking-wider mb-2 custom-dark-text"
+                >
                   {{ 'AGENDA_MODAL.FORM.SERVICO' | translate }} *
                 </label>
                 <tm-select
@@ -354,7 +429,9 @@
                 ></tm-select>
               </div>
               <div class="col-md-6">
-                <label class="form-label small fw-bold text-muted text-uppercase tracking-wider mb-2 custom-dark-text">
+                <label
+                  class="form-label small fw-bold text-muted text-uppercase tracking-wider mb-2 custom-dark-text"
+                >
                   {{ 'AGENDA_MODAL.FORM.HORA_INICIO' | translate }}
                 </label>
                 <tm-time
@@ -366,7 +443,9 @@
           } @else {
             <div class="row g-3 mb-3">
               <div class="col-md-6">
-                <label class="form-label small fw-bold text-muted text-uppercase tracking-wider mb-2 custom-dark-text">
+                <label
+                  class="form-label small fw-bold text-muted text-uppercase tracking-wider mb-2 custom-dark-text"
+                >
                   {{ 'AGENDA_MODAL.FORM.HORA_INICIO' | translate }}
                 </label>
                 <tm-select
@@ -389,7 +468,9 @@
 
           @if (agendamentoEditando()) {
             <div class="mb-3">
-              <label class="form-label small fw-bold text-muted text-uppercase tracking-wider mb-2 custom-dark-text">
+              <label
+                class="form-label small fw-bold text-muted text-uppercase tracking-wider mb-2 custom-dark-text"
+              >
                 {{ 'AGENDA_MODAL.FORM.STATUS_DECISAO' | translate }}
               </label>
               <tm-select
@@ -403,7 +484,9 @@
           }
 
           <div class="mb-3">
-            <label class="form-label small fw-bold text-muted text-uppercase tracking-wider mb-2 custom-dark-text">
+            <label
+              class="form-label small fw-bold text-muted text-uppercase tracking-wider mb-2 custom-dark-text"
+            >
               {{ 'AGENDA_MODAL.FORM.OBSERVACOES' | translate }}
             </label>
             <tm-text
@@ -415,7 +498,9 @@
             ></tm-text>
           </div>
 
-          <div class="form-actions d-flex flex-column flex-sm-row justify-content-between align-items-stretch align-items-sm-center gap-2 mt-4">
+          <div
+            class="form-actions d-flex flex-column flex-sm-row justify-content-between align-items-stretch align-items-sm-center gap-2 mt-4"
+          >
             @if (agendamentoEditando()) {
               @if (agendamentoEditando()?.status !== 'recusado') {
                 <tm-button
@@ -475,10 +560,12 @@
   <div class="text-start">
     <p class="mb-0 custom-dark-text">
       {{ 'AGENDA_MODAL.CANCEL_MODAL.CONFIRM_MSG' | translate }}
-      <strong>{{ agendamentoCancelando()?.clienteNome }}</strong>?
+      <strong>{{ agendamentoCancelando()?.clienteNome }}</strong
+      >?
     </p>
     <p class="text-danger small mt-2 mb-0">
-      <i class="fas fa-exclamation-triangle me-1"></i>{{ 'AGENDA_MODAL.CANCEL_MODAL.WARNING_MSG' | translate }}
+      <i class="fas fa-exclamation-triangle me-1"></i
+      >{{ 'AGENDA_MODAL.CANCEL_MODAL.WARNING_MSG' | translate }}
     </p>
   </div>
 </tm-modal>

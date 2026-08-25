@@ -251,7 +251,7 @@ export const ptBR = {
       TITLE_NEW: 'Novo Agendamento Manual',
       TITLE_EDIT: 'Editar Agendamento',
       CLIENTE_NOME: 'Nome do Cliente',
-      CLIENTE_NOME_PLACEHOLDER: 'Ex: Carlos Silva',
+      CLIENTE_NOME_PLACEHOLDER: 'Selecione um cliente...',
       CLIENTE_TELEFONE: 'Celular / WhatsApp',
       CLIENTE_TELEFONE_PLACEHOLDER: 'Ex: 11999999999',
       SERVICO: 'Serviço',

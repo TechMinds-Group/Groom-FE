@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, computed, inject, OnDestroy, OnInit
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AgendamentoPublicoService } from '../../../../core/services/agendamento-publico.service';
-import { EstabelecimentoInfo, EstabelecimentoService } from '../../../../core/services/estabelecimento.service';
+import { EstabelecimentoInfo, EstabelecimentoService, obterIconeAleatorioCapa, obterIconeAleatorioLogo } from '../../../../core/services/estabelecimento.service';
 import { AgendamentoPublico, HorarioDisponivel, PlanoAtivoCliente, ProfissionalDisponivel, ServicoDisponivel } from '../../../../core/models/agendamento-publico/agendamento-publico.model';
 import { AGENDAMENTO_PUBLICO_CONFIG } from '../../models/agendamento-publico.config';
 import { TemaPublicoService } from '../../services/tema-publico.service';
@@ -48,16 +48,30 @@ export class NovoAgendamentoComponent implements OnInit, OnDestroy {
   /** Logo com URL absoluta da API (imagens são servidas em /uploads). */
   readonly logoUrlExibicao = computed(() => this.estabelecimentoService.resolverUrl(this.estabelecimentoInfo()?.logoUrl));
 
-  /** Imagem de Capa (Banner) do estabelecimento com fallback para a capa padrão. */
+  /** Imagem de Capa (Banner) do estabelecimento. */
   readonly capaUrlExibicao = computed(() => {
     const url = this.estabelecimentoInfo()?.capaUrl;
     if (url) {
       return this.estabelecimentoService.resolverUrl(url);
     }
-    return 'images/capa-padrao.svg';
+    return '';
   });
 
+  /** Ícones aleatórios estáveis por estabelecimento quando não há imagem cadastrada. */
+  readonly logoIconePadrao = computed(() =>
+    obterIconeAleatorioLogo(this.estabelecimentoInfo()?.nomeExibicao || this.estabelecimentoInfo()?.nome)
+  );
+
+  readonly capaIconePadrao = computed(() =>
+    obterIconeAleatorioCapa(this.estabelecimentoInfo()?.nomeExibicao || this.estabelecimentoInfo()?.nome)
+  );
+
   readonly config = AGENDAMENTO_PUBLICO_CONFIG;
+
+  obterUrlGoogleMaps(endereco?: string): string {
+    if (!endereco) return '';
+    return this.estabelecimentoService.obterUrlGoogleMaps(endereco);
+  }
 
   readonly passo = signal(1);
   readonly isLoading = signal(false);

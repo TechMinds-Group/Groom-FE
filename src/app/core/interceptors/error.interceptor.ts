@@ -43,6 +43,7 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
 
       const shouldSkipToast =
         req.headers.has('X-Skip-Error-Toast') ||
+        req.url.includes('viacep.com.br') ||
         (error.status === 401 && isPublicOrAuthCheck);
 
       if (!shouldSkipToast) {

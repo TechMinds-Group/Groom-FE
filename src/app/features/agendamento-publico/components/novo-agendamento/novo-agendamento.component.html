@@ -1,283 +1,341 @@
 <div class="agendamento-wizard-page">
   <div class="agendamento-wizard">
     @if (agendamentoConfirmado(); as agendamento) {
-    <div class="agendamento-wizard__card agendamento-wizard__card--centered">
-      <app-confirmacao [agendamento]="agendamento" (voltarInicio)="reiniciar()" />
-    </div>
-  } @else {
-    <div class="agendamento-wizard__card">
-      <!-- Banner Hero com Imagem de Capa do Estabelecimento -->
-      <div class="agendamento-wizard__banner" [style.backgroundImage]="'url(' + capaUrlExibicao() + ')'">
-        <div class="agendamento-wizard__banner-overlay"></div>
-        <div class="agendamento-wizard__acoes">
-          <button
-            type="button"
-            class="agendamento-wizard__tema"
-            (click)="alternarTema()"
-            [attr.aria-label]="temaAtivo() === 'dark' ? 'Ativar tema claro' : 'Ativar tema escuro'"
-            title="Alternar tema"
-          >
-            @if (temaAtivo() === 'dark') {
-              <i class="fa-solid fa-sun"></i>
-            } @else {
-              <i class="fa-solid fa-moon"></i>
-            }
-          </button>
-          @if (clienteLogado(); as cliente) {
-            <button type="button" class="agendamento-wizard__sair" (click)="sair()" title="Sair">
-              <i class="fa-solid fa-right-from-bracket"></i>
-              <span class="d-none d-sm-inline">Sair</span>
-            </button>
-          }
-        </div>
+      <div class="agendamento-wizard__card agendamento-wizard__card--centered">
+        <app-confirmacao [agendamento]="agendamento" (voltarInicio)="reiniciar()" />
       </div>
-
-      <!-- Cabeçalho do Perfil com Logo Sobreposta ao Banner -->
-      <header class="agendamento-wizard__header">
-        <div class="agendamento-wizard__header-info">
-          <div class="agendamento-wizard__logo-wrapper">
-            <div
-              class="agendamento-wizard__logo"
-              [style.backgroundImage]="logoUrlExibicao() ? 'url(' + logoUrlExibicao() + ')' : 'none'"
-              [class.agendamento-wizard__logo--has-image]="!!logoUrlExibicao()"
+    } @else {
+      <div class="agendamento-wizard__card">
+        <!-- Banner Hero com Imagem de Capa do Estabelecimento -->
+        <div
+          class="agendamento-wizard__banner position-relative"
+          [style.backgroundImage]="capaUrlExibicao() ? 'url(' + capaUrlExibicao() + ')' : 'none'"
+        >
+          @if (!capaUrlExibicao()) {
+            <div class="d-flex align-items-center justify-content-center h-100 opacity-25">
+              <i [class]="capaIconePadrao() + ' display-1 text-white'"></i>
+            </div>
+          }
+          <div class="agendamento-wizard__banner-overlay"></div>
+          <div class="agendamento-wizard__acoes">
+            <button
+              type="button"
+              class="agendamento-wizard__tema"
+              (click)="alternarTema()"
+              [attr.aria-label]="
+                temaAtivo() === 'dark' ? 'Ativar tema claro' : 'Ativar tema escuro'
+              "
+              title="Alternar tema"
             >
-              @if (!logoUrlExibicao()) {
-                <div class="agendamento-wizard__logo-icon">
-                  <i class="fa-solid fa-scissors"></i>
+              @if (temaAtivo() === 'dark') {
+                <i class="fa-solid fa-sun"></i>
+              } @else {
+                <i class="fa-solid fa-moon"></i>
+              }
+            </button>
+            @if (clienteLogado(); as cliente) {
+              <button type="button" class="agendamento-wizard__sair" (click)="sair()" title="Sair">
+                <i class="fa-solid fa-right-from-bracket"></i>
+                <span class="d-none d-sm-inline">Sair</span>
+              </button>
+            }
+          </div>
+        </div>
+
+        <!-- Cabeçalho do Perfil com Logo Sobreposta ao Banner -->
+        <header class="agendamento-wizard__header">
+          <div class="agendamento-wizard__header-info">
+            <div class="agendamento-wizard__logo-wrapper">
+              <div
+                class="agendamento-wizard__logo"
+                [style.backgroundImage]="
+                  logoUrlExibicao() ? 'url(' + logoUrlExibicao() + ')' : 'none'
+                "
+                [class.agendamento-wizard__logo--has-image]="!!logoUrlExibicao()"
+              >
+                @if (!logoUrlExibicao()) {
+                  <div class="agendamento-wizard__logo-icon">
+                    <i [class]="logoIconePadrao()"></i>
+                  </div>
+                }
+              </div>
+              <span class="agendamento-wizard__logo-badge" title="Barbearia Verificada">
+                <i class="fa-solid fa-circle-check"></i>
+              </span>
+            </div>
+            <div class="agendamento-wizard__header-textos">
+              <span class="agendamento-wizard__eyebrow mb-1">
+                <i class="fa-solid fa-calendar-check me-1"></i>Agendamento Online
+              </span>
+              <h1 class="agendamento-wizard__titulo mb-1">
+                {{
+                  estabelecimentoInfo()?.nomeExibicao || estabelecimentoInfo()?.nome || 'Barbearia'
+                }}
+              </h1>
+              <p class="agendamento-wizard__subtitulo mb-0">
+                {{
+                  estabelecimentoInfo()?.descricao ||
+                    'Escolha o profissional, o serviço e o melhor horário para você.'
+                }}
+              </p>
+              @if (estabelecimentoInfo()?.endereco; as endereco) {
+                <div class="mt-2 agendamento-wizard__endereco-wrapper">
+                  <a
+                    [href]="obterUrlGoogleMaps(endereco)"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="agendamento-wizard__endereco-badge text-decoration-none"
+                    title="Clique para abrir a rota direta no Google Maps"
+                  >
+                    <i class="fa-solid fa-location-dot text-danger me-1 flex-shrink-0"></i>
+                    <span class="agendamento-wizard__endereco-texto">{{ endereco }}</span>
+                    <i
+                      class="fa-solid fa-arrow-up-right-from-square extra-small opacity-75 ms-1 flex-shrink-0"
+                    ></i>
+                  </a>
                 </div>
               }
             </div>
-            <span class="agendamento-wizard__logo-badge" title="Barbearia Verificada">
-              <i class="fa-solid fa-circle-check"></i>
-            </span>
           </div>
-          <div class="agendamento-wizard__header-textos">
-            <span class="agendamento-wizard__eyebrow mb-1">
-              <i class="fa-solid fa-calendar-check me-1"></i>Agendamento Online
-            </span>
-            <h1 class="agendamento-wizard__titulo mb-1">
-              {{ estabelecimentoInfo()?.nomeExibicao || estabelecimentoInfo()?.nome || 'Barbearia' }}
-            </h1>
-            <p class="agendamento-wizard__subtitulo mb-0">
-              {{ estabelecimentoInfo()?.descricao || 'Escolha o profissional, o serviço e o melhor horário para você.' }}
-            </p>
-          </div>
-        </div>
-      </header>
+        </header>
 
-      <div class="agendamento-wizard__body">
-        @if (!finalizandoCadastro()) {
-          @if (meuPlano(); as plano) {
-            <div class="agendamento-wizard__tipo-seletor mb-3" role="tablist" aria-label="Tipo de agendamento">
-              <button
-                type="button"
-                class="agendamento-wizard__tipo-opcao"
-                [class.agendamento-wizard__tipo-opcao--active]="tipoAgendamento() === 'servico'"
-                (click)="selecionarTipoAgendamento('servico')"
-                role="tab"
-                [attr.aria-selected]="tipoAgendamento() === 'servico'"
+        <div class="agendamento-wizard__body">
+          @if (!finalizandoCadastro()) {
+            @if (meuPlano(); as plano) {
+              <div
+                class="agendamento-wizard__tipo-seletor mb-3"
+                role="tablist"
+                aria-label="Tipo de agendamento"
               >
-                <i class="fa-solid fa-scissors"></i>
-                <span>
-                  <strong>Agendar serviço</strong>
-                  <small>Pagamento no local</small>
-                </span>
-              </button>
-              <button
-                type="button"
-                class="agendamento-wizard__tipo-opcao"
-                [class.agendamento-wizard__tipo-opcao--active]="tipoAgendamento() === 'plano'"
-                (click)="selecionarTipoAgendamento('plano')"
-                role="tab"
-                [attr.aria-selected]="tipoAgendamento() === 'plano'"
-              >
-                <i class="fa-solid fa-gem"></i>
-                <span>
-                  <strong>Meu plano</strong>
-                  <small>{{ meusPlanos().length > 1 ? (meusPlanos().length + ' assinaturas · Incluso') : (plano.nome + ' · Incluso') }}</small>
-                </span>
-              </button>
-            </div>
-
-            @if (tipoAgendamento() === 'plano' && meusPlanos().length > 1) {
-              <div class="agendamento-wizard__planos-seletor mb-4 border">
-                <div class="agendamento-wizard__planos-header d-flex align-items-center gap-2 mb-3">
-                  <i class="fa-solid fa-gem text-primary"></i>
-                  <strong class="small text-uppercase tracking-wide">Escolha o plano para este agendamento:</strong>
-                </div>
-                <div class="row g-2.5">
-                  @for (p of meusPlanos(); track p.id) {
-                    <div class="col-12 col-sm-6">
-                      <button
-                        type="button"
-                        class="agendamento-wizard__plano-card w-100 text-start border transition-all"
-                        [class.agendamento-wizard__plano-card--selected]="plano.id === p.id"
-                        (click)="selecionarPlanoCliente(p)"
-                      >
-                        <div class="d-flex align-items-center justify-content-between">
-                          <strong class="agendamento-wizard__plano-nome">{{ p.nome }}</strong>
-                          @if (plano.id === p.id) {
-                            <span class="badge bg-primary rounded-pill"><i class="fa-solid fa-check me-1"></i>Ativo</span>
-                          }
-                        </div>
-                        <div class="small text-muted mt-1.5 d-flex align-items-center gap-2">
-                          <span><i class="fa-solid fa-clock me-1"></i>{{ p.duracaoTotal }} min</span>
-                          <span>·</span>
-                          <span class="text-success font-weight-bold">Incluso na assinatura</span>
-                        </div>
-                      </button>
-                    </div>
-                  }
-                </div>
+                <button
+                  type="button"
+                  class="agendamento-wizard__tipo-opcao"
+                  [class.agendamento-wizard__tipo-opcao--active]="tipoAgendamento() === 'servico'"
+                  (click)="selecionarTipoAgendamento('servico')"
+                  role="tab"
+                  [attr.aria-selected]="tipoAgendamento() === 'servico'"
+                >
+                  <i class="fa-solid fa-scissors"></i>
+                  <span>
+                    <strong>Agendar serviço</strong>
+                    <small>Pagamento no local</small>
+                  </span>
+                </button>
+                <button
+                  type="button"
+                  class="agendamento-wizard__tipo-opcao"
+                  [class.agendamento-wizard__tipo-opcao--active]="tipoAgendamento() === 'plano'"
+                  (click)="selecionarTipoAgendamento('plano')"
+                  role="tab"
+                  [attr.aria-selected]="tipoAgendamento() === 'plano'"
+                >
+                  <i class="fa-solid fa-gem"></i>
+                  <span>
+                    <strong>Meu plano</strong>
+                    <small>{{
+                      meusPlanos().length > 1
+                        ? meusPlanos().length + ' assinaturas · Incluso'
+                        : plano.nome + ' · Incluso'
+                    }}</small>
+                  </span>
+                </button>
               </div>
+
+              @if (tipoAgendamento() === 'plano' && meusPlanos().length > 1) {
+                <div class="agendamento-wizard__planos-seletor mb-4 border">
+                  <div
+                    class="agendamento-wizard__planos-header d-flex align-items-center gap-2 mb-3"
+                  >
+                    <i class="fa-solid fa-gem text-primary"></i>
+                    <strong class="small text-uppercase tracking-wide"
+                      >Escolha o plano para este agendamento:</strong
+                    >
+                  </div>
+                  <div class="row g-2.5">
+                    @for (p of meusPlanos(); track p.id) {
+                      <div class="col-12 col-sm-6">
+                        <button
+                          type="button"
+                          class="agendamento-wizard__plano-card w-100 text-start border transition-all"
+                          [class.agendamento-wizard__plano-card--selected]="plano.id === p.id"
+                          (click)="selecionarPlanoCliente(p)"
+                        >
+                          <div class="d-flex align-items-center justify-content-between">
+                            <strong class="agendamento-wizard__plano-nome">{{ p.nome }}</strong>
+                            @if (plano.id === p.id) {
+                              <span class="badge bg-primary rounded-pill"
+                                ><i class="fa-solid fa-check me-1"></i>Ativo</span
+                              >
+                            }
+                          </div>
+                          <div class="small text-muted mt-1.5 d-flex align-items-center gap-2">
+                            <span
+                              ><i class="fa-solid fa-clock me-1"></i>{{ p.duracaoTotal }} min</span
+                            >
+                            <span>·</span>
+                            <span class="text-success font-weight-bold">Incluso na assinatura</span>
+                          </div>
+                        </button>
+                      </div>
+                    }
+                  </div>
+                </div>
+              }
             }
+
+            <nav class="agendamento-wizard__stepper mb-4" aria-label="Progresso do agendamento">
+              @for (step of stepsVisiveis(); track step.numero) {
+                <button
+                  type="button"
+                  class="agendamento-wizard__step"
+                  [class.agendamento-wizard__step--active]="passo() === step.numero"
+                  [class.agendamento-wizard__step--done]="passo() > step.numero"
+                  [disabled]="!passoNavegavel(step.numero)"
+                  (click)="navegarParaStep(step.numero)"
+                  [attr.aria-current]="passo() === step.numero ? 'step' : null"
+                >
+                  <span class="agendamento-wizard__step-icone">
+                    @if (passo() > step.numero) {
+                      <i class="fa-solid fa-check"></i>
+                    } @else {
+                      <i [class]="step.icon"></i>
+                    }
+                  </span>
+                  <span class="agendamento-wizard__step-label">{{ step.label }}</span>
+                </button>
+
+                @if (!$last) {
+                  <span
+                    class="agendamento-wizard__step-linha"
+                    [class.agendamento-wizard__step-linha--done]="passo() > step.numero"
+                  ></span>
+                }
+              }
+            </nav>
           }
 
-          <nav class="agendamento-wizard__stepper mb-4" aria-label="Progresso do agendamento">
-            @for (step of stepsVisiveis(); track step.numero) {
-              <button
-                type="button"
-                class="agendamento-wizard__step"
-                [class.agendamento-wizard__step--active]="passo() === step.numero"
-                [class.agendamento-wizard__step--done]="passo() > step.numero"
-                [disabled]="!passoNavegavel(step.numero)"
-                (click)="navegarParaStep(step.numero)"
-                [attr.aria-current]="passo() === step.numero ? 'step' : null"
-              >
-                <span class="agendamento-wizard__step-icone">
-                  @if (passo() > step.numero) {
-                    <i class="fa-solid fa-check"></i>
-                  } @else {
-                    <i [class]="step.icon"></i>
+          <div class="agendamento-wizard__corpo">
+            <div class="agendamento-wizard__conteudo">
+              @if (errorMessage()) {
+                <div class="alert alert-danger py-2">{{ errorMessage() }}</div>
+              }
+
+              @if (isLoading()) {
+                <div class="text-center py-5">
+                  <div class="spinner-border text-primary"></div>
+                </div>
+              } @else if (finalizandoCadastro()) {
+                @if (dadosFinalizacao(); as dados) {
+                  <app-finalizar-cadastro
+                    [primeiroNome]="dados.primeiroNome"
+                    [ultimoNome]="dados.ultimoNome"
+                    [email]="dados.email"
+                    [celular]="dados.celular"
+                    [isSaving]="salvandoCadastro()"
+                    (salvar)="salvarFinalizacaoCadastro($event)"
+                    (cancelar)="fecharFinalizacaoCadastro()"
+                  />
+                }
+              } @else {
+                @switch (passo()) {
+                  @case (1) {
+                    <app-passo-profissional
+                      [profissionais]="profissionais()"
+                      (selecionado)="selecionarProfissional($event)"
+                    />
                   }
-                </span>
-                <span class="agendamento-wizard__step-label">{{ step.label }}</span>
-              </button>
-
-              @if (!$last) {
-                <span
-                  class="agendamento-wizard__step-linha"
-                  [class.agendamento-wizard__step-linha--done]="passo() > step.numero"
-                ></span>
+                  @case (2) {
+                    <app-passo-servico
+                      [servicos]="servicos()"
+                      (selecionado)="selecionarServico($event)"
+                    />
+                  }
+                  @case (3) {
+                    <app-passo-data-horario
+                      [servico]="servicoSelecionado()"
+                      [duracao]="duracaoAtual()"
+                      [horarios]="horarios()"
+                      [diasDisponiveis]="diasDisponiveis()"
+                      [dataSelecionada]="dataSelecionada()"
+                      [horarioSelecionado]="horarioSelecionado()"
+                      [isLoading]="isLoading()"
+                      (dataSelecionadaChange)="selecionarData($event)"
+                      (horarioSelecionadoChange)="selecionarHorario($event)"
+                    />
+                  }
+                  @case (4) {
+                    <app-passo-resumo
+                      [profissional]="profissionalSelecionado()"
+                      [servico]="servicoSelecionado()"
+                      [planoNome]="
+                        tipoAgendamento() === 'plano' && meuPlano() ? meuPlano()!.nome : null
+                      "
+                      [duracao]="duracaoAtual()"
+                      [data]="dataSelecionada()"
+                      [horario]="horarioSelecionado()"
+                      [isLoading]="isLoading()"
+                      (confirmar)="confirmar()"
+                    />
+                  }
+                }
               }
-            }
-          </nav>
-        }
+            </div>
 
-        <div class="agendamento-wizard__corpo">
-          <div class="agendamento-wizard__conteudo">
-            @if (errorMessage()) {
-              <div class="alert alert-danger py-2">{{ errorMessage() }}</div>
-            }
-
-            @if (isLoading()) {
-              <div class="text-center py-5">
-                <div class="spinner-border text-primary"></div>
+            <aside class="agendamento-wizard__resumo">
+              <div class="agendamento-wizard__resumo-header">
+                <i class="fa-solid fa-file-lines"></i>
+                <span class="fw-semibold">Seu agendamento</span>
               </div>
-            } @else if (finalizandoCadastro()) {
-              @if (dadosFinalizacao(); as dados) {
-                <app-finalizar-cadastro
-                  [primeiroNome]="dados.primeiroNome"
-                  [ultimoNome]="dados.ultimoNome"
-                  [email]="dados.email"
-                  [celular]="dados.celular"
-                  [isSaving]="salvandoCadastro()"
-                  (salvar)="salvarFinalizacaoCadastro($event)"
-                  (cancelar)="fecharFinalizacaoCadastro()"
-                />
-              }
-            } @else {
-              @switch (passo()) {
-                @case (1) {
-                  <app-passo-profissional [profissionais]="profissionais()" (selecionado)="selecionarProfissional($event)" />
-                }
-                @case (2) {
-                  <app-passo-servico [servicos]="servicos()" (selecionado)="selecionarServico($event)" />
-                }
-                @case (3) {
-                  <app-passo-data-horario
-                    [servico]="servicoSelecionado()"
-                    [duracao]="duracaoAtual()"
-                    [horarios]="horarios()"
-                    [diasDisponiveis]="diasDisponiveis()"
-                    [dataSelecionada]="dataSelecionada()"
-                    [horarioSelecionado]="horarioSelecionado()"
-                    [isLoading]="isLoading()"
-                    (dataSelecionadaChange)="selecionarData($event)"
-                    (horarioSelecionadoChange)="selecionarHorario($event)"
-                  />
-                }
-                @case (4) {
-                  <app-passo-resumo
-                    [profissional]="profissionalSelecionado()"
-                    [servico]="servicoSelecionado()"
-                    [planoNome]="tipoAgendamento() === 'plano' && meuPlano() ? meuPlano()!.nome : null"
-                    [duracao]="duracaoAtual()"
-                    [data]="dataSelecionada()"
-                    [horario]="horarioSelecionado()"
-                    [isLoading]="isLoading()"
-                    (confirmar)="confirmar()"
-                  />
-                }
-              }
-            }
+
+              <dl class="agendamento-wizard__resumo-lista mb-0">
+                <div class="agendamento-wizard__resumo-item">
+                  <dt><i class="fa-solid fa-user"></i> Profissional</dt>
+                  <dd>{{ profissionalSelecionado()?.nome ?? '—' }}</dd>
+                </div>
+                <div class="agendamento-wizard__resumo-item">
+                  <dt><i class="fa-solid fa-scissors"></i> Serviço</dt>
+                  <dd>
+                    @if (tipoAgendamento() === 'plano' && meuPlano(); as plano) {
+                      {{ plano.nome }}
+                    } @else {
+                      {{ servicoSelecionado()?.nome ?? '—' }}
+                    }
+                  </dd>
+                </div>
+                <div class="agendamento-wizard__resumo-item">
+                  <dt><i class="fa-solid fa-calendar-days"></i> Data</dt>
+                  <dd>
+                    @if (dataSelecionada(); as data) {
+                      {{ formatarData(data) }}
+                    } @else {
+                      —
+                    }
+                  </dd>
+                </div>
+                <div class="agendamento-wizard__resumo-item">
+                  <dt><i class="fa-solid fa-clock"></i> Horário</dt>
+                  <dd>{{ horarioSelecionado() ? horarioSelecionado() + 'h' : '—' }}</dd>
+                </div>
+              </dl>
+
+              <div class="agendamento-wizard__resumo-total">
+                <span>Total</span>
+                <strong>
+                  @if (tipoAgendamento() === 'plano') {
+                    Incluso no plano
+                  } @else {
+                    @if (totalServico(); as total) {
+                      {{ formatarPreco(total) }}
+                    } @else {
+                      —
+                    }
+                  }
+                </strong>
+              </div>
+            </aside>
           </div>
-
-          <aside class="agendamento-wizard__resumo">
-            <div class="agendamento-wizard__resumo-header">
-              <i class="fa-solid fa-file-lines"></i>
-              <span class="fw-semibold">Seu agendamento</span>
-            </div>
-
-            <dl class="agendamento-wizard__resumo-lista mb-0">
-              <div class="agendamento-wizard__resumo-item">
-                <dt><i class="fa-solid fa-user"></i> Profissional</dt>
-                <dd>{{ profissionalSelecionado()?.nome ?? '—' }}</dd>
-              </div>
-              <div class="agendamento-wizard__resumo-item">
-                <dt><i class="fa-solid fa-scissors"></i> Serviço</dt>
-                <dd>
-                  @if (tipoAgendamento() === 'plano' && meuPlano(); as plano) {
-                    {{ plano.nome }}
-                  } @else {
-                    {{ servicoSelecionado()?.nome ?? '—' }}
-                  }
-                </dd>
-              </div>
-              <div class="agendamento-wizard__resumo-item">
-                <dt><i class="fa-solid fa-calendar-days"></i> Data</dt>
-                <dd>
-                  @if (dataSelecionada(); as data) {
-                    {{ formatarData(data) }}
-                  } @else {
-                    —
-                  }
-                </dd>
-              </div>
-              <div class="agendamento-wizard__resumo-item">
-                <dt><i class="fa-solid fa-clock"></i> Horário</dt>
-                <dd>{{ horarioSelecionado() ? horarioSelecionado() + 'h' : '—' }}</dd>
-              </div>
-            </dl>
-
-            <div class="agendamento-wizard__resumo-total">
-              <span>Total</span>
-              <strong>
-                @if (tipoAgendamento() === 'plano') {
-                  Incluso no plano
-                } @else {
-                  @if (totalServico(); as total) {
-                    {{ formatarPreco(total) }}
-                  } @else {
-                    —
-                  }
-                }
-              </strong>
-            </div>
-          </aside>
         </div>
       </div>
-    </div>
     }
   </div>
   <app-footer></app-footer>

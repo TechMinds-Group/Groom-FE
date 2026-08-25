@@ -1,11 +1,30 @@
-import { ChangeDetectionStrategy, Component, computed, inject, OnInit, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+  computed,
+  inject,
+  OnInit,
+  signal,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { TmTimeComponent, TmToastService } from '@techminds-group/tm-angular-lib';
-import { EstabelecimentoInfo, EstabelecimentoService } from '../../../../core/services/estabelecimento.service';
-import { DiaFuncionamento, DIAS_SEMANA_ESTABELECIMENTO } from '../../../../core/models/configuracoes/horario-estabelecimento.model';
-import { ClientesService, ImportacaoClienteResult } from '../../../../core/services/clientes.service';
+import {
+  EstabelecimentoInfo,
+  EstabelecimentoService,
+  obterIconeAleatorioCapa,
+  obterIconeAleatorioLogo,
+} from '../../../../core/services/estabelecimento.service';
+import {
+  DiaFuncionamento,
+  DIAS_SEMANA_ESTABELECIMENTO,
+} from '../../../../core/models/configuracoes/horario-estabelecimento.model';
+import {
+  ClientesService,
+  ImportacaoClienteResult,
+} from '../../../../core/services/clientes.service';
 
 /**
  * Componente de Gestão do Estabelecimento (RF-32).
@@ -24,6 +43,7 @@ export class EstabelecimentoConfigComponent implements OnInit {
   private readonly clientesService = inject(ClientesService);
   private readonly toastService = inject(TmToastService);
   private readonly router = inject(Router);
+  private readonly cdr = inject(ChangeDetectorRef);
 
   protected readonly diasFuncionamento = signal<DiaFuncionamento[]>([]);
   protected readonly salvando = signal(false);
@@ -56,6 +76,53 @@ export class EstabelecimentoConfigComponent implements OnInit {
     logoUrl: '',
     capaUrl: '',
     descricao: '',
+    cep: '',
+    logradouro: '',
+    numero: '',
+    complemento: '',
+    bairro: '',
+    cidade: '',
+    estado: '',
+    endereco: '',
+  });
+
+  protected readonly estabelecimentoInfoOriginal = signal<EstabelecimentoInfo>({
+    nome: '',
+    nomeExibicao: '',
+    cnpj: '',
+    telefone: '',
+    logoUrl: '',
+    capaUrl: '',
+    descricao: '',
+    cep: '',
+    logradouro: '',
+    numero: '',
+    complemento: '',
+    bairro: '',
+    cidade: '',
+    estado: '',
+    endereco: '',
+  });
+
+  protected readonly temAlteracoesInfo = computed(() => {
+    if (this.logoFile() !== null || this.capaFile() !== null || this.logoRemovida() || this.capaRemovida()) {
+      return true;
+    }
+    const cur = this.estabelecimentoInfo();
+    const orig = this.estabelecimentoInfoOriginal();
+    return (
+      (cur.nomeExibicao ?? '') !== (orig.nomeExibicao ?? '') ||
+      (cur.telefone ?? '') !== (orig.telefone ?? '') ||
+      (cur.descricao ?? '') !== (orig.descricao ?? '') ||
+      (cur.cep ?? '') !== (orig.cep ?? '') ||
+      (cur.logradouro ?? '') !== (orig.logradouro ?? '') ||
+      (cur.numero ?? '') !== (orig.numero ?? '') ||
+      (cur.complemento ?? '') !== (orig.complemento ?? '') ||
+      (cur.bairro ?? '') !== (orig.bairro ?? '') ||
+      (cur.cidade ?? '') !== (orig.cidade ?? '') ||
+      (cur.estado ?? '') !== (orig.estado ?? '') ||
+      (cur.endereco ?? '') !== (orig.endereco ?? '')
+    );
   });
 
   /** Arquivos pendentes de upload (nunca enviados como base64) e previews locais */
@@ -87,8 +154,88 @@ export class EstabelecimentoConfigComponent implements OnInit {
     return this.estabelecimentoService.resolverUrl(this.estabelecimentoInfo().capaUrl);
   });
 
+  protected readonly logoIconePadrao = computed(() =>
+    obterIconeAleatorioLogo(this.estabelecimentoInfo().nomeExibicao || this.estabelecimentoInfo().nome)
+  );
+
+  protected readonly capaIconePadrao = computed(() =>
+    obterIconeAleatorioCapa(this.estabelecimentoInfo().nomeExibicao || this.estabelecimentoInfo().nome)
+  );
+
+  protected readonly buscandoCep = signal(false);
+  private ultimoCepBuscado = '';
+
   protected atualizarCampo(campo: keyof EstabelecimentoInfo, valor: string): void {
-    this.estabelecimentoInfo.update((prev) => ({ ...prev, [campo]: valor }));
+    this.estabelecimentoInfo.update((prev) => {
+      const next = { ...prev, [campo]: valor };
+      return next;
+    });
+
+    if (
+      ['logradouro', 'numero', 'complemento', 'bairro', 'cidade', 'estado', 'cep'].includes(
+        campo as string,
+      )
+    ) {
+      this.montarEnderecoCompleto();
+    }
+  }
+
+  protected async onCepChange(val: string): Promise<void> {
+    this.atualizarCampo('cep', val);
+
+    const cepLimpo = val.replace(/\D/g, '');
+    if (cepLimpo.length !== 8) {
+      this.ultimoCepBuscado = '';
+      return;
+    }
+
+    if (cepLimpo === this.ultimoCepBuscado) {
+      return;
+    }
+
+    this.ultimoCepBuscado = cepLimpo;
+    this.buscandoCep.set(true);
+    this.cdr.markForCheck();
+
+    try {
+      const dados = await this.estabelecimentoService.buscarCep(cepLimpo);
+      if (dados) {
+        this.estabelecimentoInfo.update((prev) => ({
+          ...prev,
+          logradouro: dados.logradouro || prev.logradouro || '',
+          bairro: dados.bairro || prev.bairro || '',
+          cidade: dados.localidade || prev.cidade || '',
+          estado: dados.uf || prev.estado || '',
+        }));
+        this.montarEnderecoCompleto();
+        this.toastService.success('Endereço atualizado!');
+      } else {
+        this.toastService.error('CEP não encontrado. Preencha o endereço manualmente.');
+      }
+    } catch {
+      this.toastService.error('Erro ao consultar o CEP.');
+    } finally {
+      this.buscandoCep.set(false);
+      this.cdr.markForCheck();
+    }
+  }
+
+  protected montarEnderecoCompleto(): void {
+    const info = this.estabelecimentoInfo();
+    const partes: string[] = [];
+    if (info.logradouro) partes.push(info.logradouro);
+    if (info.numero) partes.push(info.numero);
+    if (info.complemento) partes.push(info.complemento);
+    if (info.bairro) partes.push(info.bairro);
+    if (info.cidade && info.estado) {
+      partes.push(`${info.cidade} - ${info.estado}`);
+    } else if (info.cidade) {
+      partes.push(info.cidade);
+    }
+    if (info.cep) partes.push(`CEP ${info.cep}`);
+
+    const enderecoFormatado = partes.join(', ');
+    this.estabelecimentoInfo.update((prev) => ({ ...prev, endereco: enderecoFormatado }));
   }
 
   /** Sinal para controle de expansão do bloco colapsável */
@@ -96,7 +243,9 @@ export class EstabelecimentoConfigComponent implements OnInit {
 
   /** Lista de horários em formato 24 horas (00:00 a 23:45 em intervalos de 15 min) */
   protected readonly OPCOES_HORARIOS: string[] = Array.from({ length: 96 }, (_, i) => {
-    const h = Math.floor(i / 4).toString().padStart(2, '0');
+    const h = Math.floor(i / 4)
+      .toString()
+      .padStart(2, '0');
     const m = ((i % 4) * 15).toString().padStart(2, '0');
     return `${h}:${m}`;
   });
@@ -124,12 +273,22 @@ export class EstabelecimentoConfigComponent implements OnInit {
     try {
       const data = await this.estabelecimentoService.carregarInfo();
       if (data) {
-        this.estabelecimentoInfo.set(data);
+        this.estabelecimentoInfo.set(structuredClone(data));
+        this.montarEnderecoCompleto();
+        this.estabelecimentoInfoOriginal.set(structuredClone(this.estabelecimentoInfo()));
       }
       this.resetImagens();
+      this.cdr.markForCheck();
     } catch {
       // Ignora erro se ainda não houver informações salvas
     }
+  }
+
+  protected cancelarAlteracoesInfo(): void {
+    const orig = this.estabelecimentoInfoOriginal();
+    this.estabelecimentoInfo.set(structuredClone(orig));
+    this.resetImagens();
+    this.cdr.markForCheck();
   }
 
   protected triggerCapaUpload(input: HTMLInputElement): void {
@@ -199,13 +358,23 @@ export class EstabelecimentoConfigComponent implements OnInit {
         cnpj: info.cnpj,
         telefone: info.telefone,
         descricao: info.descricao,
+        cep: info.cep,
+        logradouro: info.logradouro,
+        numero: info.numero,
+        complemento: info.complemento,
+        bairro: info.bairro,
+        cidade: info.cidade,
+        estado: info.estado,
+        endereco: info.endereco,
         logoUrl: this.logoRemovida() ? '' : logoArquivo ? novasUrls.logoUrl : info.logoUrl,
         capaUrl: this.capaRemovida() ? '' : capaArquivo ? novasUrls.capaUrl : info.capaUrl,
       });
 
       const atualizado = await this.estabelecimentoService.carregarInfo();
       if (atualizado) {
-        this.estabelecimentoInfo.set(atualizado);
+        this.estabelecimentoInfo.set(structuredClone(atualizado));
+        this.montarEnderecoCompleto();
+        this.estabelecimentoInfoOriginal.set(structuredClone(this.estabelecimentoInfo()));
       }
       this.resetImagens();
       this.toastService.success('Perfil do estabelecimento salvo com sucesso!');
@@ -213,6 +382,7 @@ export class EstabelecimentoConfigComponent implements OnInit {
       this.toastService.error('Erro ao salvar dados do estabelecimento.');
     } finally {
       this.salvandoInfo.set(false);
+      this.cdr.markForCheck();
     }
   }
 
@@ -303,12 +473,15 @@ export class EstabelecimentoConfigComponent implements OnInit {
     try {
       const res = await this.clientesService.importarClientesTuaAgenda(file);
       this.resultadoImportacao.set(res);
-      this.toastService.success(`Importação do Tua Agenda concluída! ${res.totalCriados} novos clientes cadastrados.`);
+      this.toastService.success(
+        `Importação do Tua Agenda concluída! ${res.totalCriados} novos clientes cadastrados.`,
+      );
       if (res.clientesDuplicadosPorCelular && res.clientesDuplicadosPorCelular.length > 0) {
         this.exibirModalDuplicados.set(true);
       }
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : 'Falha ao processar arquivo CSV do Tua Agenda.';
+      const msg =
+        err instanceof Error ? err.message : 'Falha ao processar arquivo CSV do Tua Agenda.';
       this.toastService.error(msg);
     } finally {
       this.importando.set(false);

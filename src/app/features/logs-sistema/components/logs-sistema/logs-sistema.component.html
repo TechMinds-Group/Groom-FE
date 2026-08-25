@@ -38,14 +38,16 @@
         <label class="form-label small fw-bold text-muted text-uppercase tracking-wider custom-dark-text">Filtrar por Módulo</label>
         <select
           [ngModel]="moduloFiltro()"
-          (ngModelChange)="moduloFiltro.set($event)"
+          (ngModelChange)="onModuloChange($event)"
           class="form-select custom-dark-card custom-dark-text rounded-3"
         >
           <option value="todos">Todos os Módulos</option>
-          <option value="Usuários">Usuários</option>
-          <option value="Assinantes">Assinantes</option>
-          <option value="Clientes">Clientes</option>
           <option value="Agenda">Agenda</option>
+          <option value="Clientes">Clientes</option>
+          <option value="Assinantes">Assinantes</option>
+          <option value="Usuários">Usuários</option>
+          <option value="Catálogo">Catálogo</option>
+          <option value="Configurações">Configurações</option>
           <option value="WhatsApp">WhatsApp</option>
           <option value="Autenticação">Autenticação</option>
         </select>
@@ -58,6 +60,7 @@
     <tm-table
       [cols]="cols()"
       [data]="logsFiltrados()"
+      [isLoading]="carregando()"
       [paginated]="true"
       [pageSize]="tamanhoPagina()"
       (pageSizeChange)="tamanhoPagina.set($event)"
@@ -84,6 +87,13 @@
   <span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle px-2.5 py-1 rounded-pill small fw-semibold">
     {{ item.modulo }}
   </span>
+</ng-template>
+
+<ng-template #detalhesTemplate let-item>
+  <div class="d-flex flex-column text-start">
+    <strong class="fw-bold custom-dark-text small">{{ item.acao }}</strong>
+    <span class="text-muted extra-small custom-dark-text text-break">{{ item.detalhes }}</span>
+  </div>
 </ng-template>
 
 <ng-template #statusTemplate let-item>

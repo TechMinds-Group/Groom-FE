@@ -147,13 +147,14 @@
                   </div>
                 </div>
                 <tm-select
-                  formControlName="servicoIds"
                   [options]="servicosOptions()"
+                  [value]="form.get('servicoIds')?.value"
                   [multiple]="true"
                   [searchable]="true"
                   placeholder="Selecione os serviços que este profissional realiza"
                   [darkMode]="themeService.isDarkMode()"
                   class="custom-dark-text"
+                  (valueChange)="onServicosChange($event)"
                 ></tm-select>
                 <div class="small text-muted mt-1 custom-dark-text">
                   Apenas serviços do catálogo poderão ser agendados com este profissional.
@@ -187,13 +188,14 @@
                   </div>
                 </div>
                 <tm-select
-                  formControlName="planoIds"
                   [options]="planosOptions()"
+                  [value]="form.get('planoIds')?.value"
                   [multiple]="true"
                   [searchable]="true"
                   placeholder="Selecione os planos atendidos por este profissional"
                   [darkMode]="themeService.isDarkMode()"
                   class="custom-dark-text"
+                  (valueChange)="onPlanosChange($event)"
                 ></tm-select>
                 <div class="small text-muted mt-1 custom-dark-text">
                   Clientes com assinatura ativa dos planos selecionados poderão agendar com este

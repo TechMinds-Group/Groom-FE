@@ -72,6 +72,10 @@ export class ClienteNovoComponent {
       this.router.navigate(['/gestao/assinantes/novo']);
       return;
     }
+    if (this.origem === 'agenda') {
+      this.router.navigate(['/agenda/calendario']);
+      return;
+    }
     this.router.navigate(['/gestao/clientes']);
   }
 }

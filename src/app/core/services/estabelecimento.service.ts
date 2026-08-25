@@ -1,8 +1,18 @@
 import { inject, Injectable, signal } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
 import { firstValueFrom } from 'rxjs';
 import { DiaFuncionamento } from '../models/configuracoes/horario-estabelecimento.model';
+
+export interface ViaCepResult {
+  cep: string;
+  logradouro: string;
+  complemento: string;
+  bairro: string;
+  localidade: string;
+  uf: string;
+  erro?: boolean;
+}
 
 export interface EstabelecimentoInfo {
   nome: string;
@@ -12,6 +22,62 @@ export interface EstabelecimentoInfo {
   logoUrl?: string;
   capaUrl?: string;
   descricao?: string;
+  cep?: string;
+  logradouro?: string;
+  numero?: string;
+  complemento?: string;
+  bairro?: string;
+  cidade?: string;
+  estado?: string;
+  endereco?: string;
+}
+
+export const ICONES_LOGO_ALEATORIOS = [
+  'fa-solid fa-scissors',
+  'fa-solid fa-shop',
+  'fa-solid fa-store',
+  'fa-solid fa-crown',
+  'fa-solid fa-spray-can-sparkles',
+  'fa-solid fa-user-tie',
+  'fa-solid fa-wand-magic-sparkles',
+  'fa-solid fa-gem',
+];
+
+export const ICONES_CAPA_ALEATORIOS = [
+  'fa-solid fa-image',
+  'fa-solid fa-images',
+  'fa-solid fa-mountain-sun',
+  'fa-solid fa-store',
+  'fa-solid fa-shop',
+  'fa-solid fa-panorama',
+  'fa-solid fa-icons',
+  'fa-solid fa-layer-group',
+];
+
+export function obterIconeAleatorioLogo(semente?: string): string {
+  if (!semente) {
+    return ICONES_LOGO_ALEATORIOS[Math.floor(Math.random() * ICONES_LOGO_ALEATORIOS.length)];
+  }
+  let hash = 0;
+  for (let i = 0; i < semente.length; i++) {
+    hash = (hash << 5) - hash + semente.charCodeAt(i);
+    hash |= 0;
+  }
+  const index = Math.abs(hash) % ICONES_LOGO_ALEATORIOS.length;
+  return ICONES_LOGO_ALEATORIOS[index];
+}
+
+export function obterIconeAleatorioCapa(semente?: string): string {
+  if (!semente) {
+    return ICONES_CAPA_ALEATORIOS[Math.floor(Math.random() * ICONES_CAPA_ALEATORIOS.length)];
+  }
+  let hash = 0;
+  for (let i = 0; i < semente.length; i++) {
+    hash = (hash << 5) - hash + semente.charCodeAt(i);
+    hash |= 0;
+  }
+  const index = Math.abs(hash) % ICONES_CAPA_ALEATORIOS.length;
+  return ICONES_CAPA_ALEATORIOS[index];
 }
 
 @Injectable({
@@ -105,5 +171,29 @@ export class EstabelecimentoService {
       dayEndHour: isNaN(end) ? 18 : end,
       ativo: true,
     };
+  }
+
+  /** Consulta o ViaCEP para autopreenchimento de endereço por CEP */
+  async buscarCep(cep: string): Promise<ViaCepResult | null> {
+    const cepLimpo = cep.replace(/\D/g, '');
+    if (cepLimpo.length !== 8) {
+      return null;
+    }
+    try {
+      const res = await firstValueFrom(
+        this.http.get<ViaCepResult>(`https://viacep.com.br/ws/${cepLimpo}/json/`)
+      );
+      if (!res || res.erro === true || (res.erro as unknown) === 'true') {
+        return null;
+      }
+      return res;
+    } catch {
+      return null;
+    }
+  }
+
+  /** Gera a URL do Google Maps com a rota até o destino */
+  obterUrlGoogleMaps(endereco: string): string {
+    return `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(endereco)}`;
   }
 }

@@ -121,6 +121,11 @@ export class ProfissionalDetalhesComponent implements OnInit, AfterViewInit {
     if (p) {
       this.preencherFormulario(p);
       this.modoEdicao.set(true);
+      if (this.availabilityComp) {
+        this.availabilityComp.servicosSelecionados.set(this.servicoIdsAtendidos());
+        this.availabilityComp.planosSelecionados.set(this.planoIdsAtendidos());
+        this.availabilityComp.modoEdicao.set(true);
+      }
     }
   }
 
@@ -142,26 +147,59 @@ export class ProfissionalDetalhesComponent implements OnInit, AfterViewInit {
     this.form.get('status')?.setValue(alvo.checked ? 'Ativo' : 'Inativo');
   }
 
-  protected selecionarTodosServicos(): void {
-    const todos = this.servicosOptions().map((opt) => opt.value);
-    this.form.get('servicoIds')?.setValue(todos);
+  protected readonly servicoIdsAtendidos = signal<string[]>([]);
+  protected readonly planoIdsAtendidos = signal<string[]>([]);
+
+  protected onServicosChange(val: unknown): void {
+    const ids = Array.isArray(val) ? (val as string[]) : typeof val === 'string' ? [val] : [];
+    this.form.patchValue({ servicoIds: ids });
     this.form.get('servicoIds')?.markAsDirty();
+    if (this.availabilityComp) {
+      this.availabilityComp.servicosSelecionados.set(ids);
+    }
+  }
+
+  protected onPlanosChange(val: unknown): void {
+    const ids = Array.isArray(val) ? (val as string[]) : typeof val === 'string' ? [val] : [];
+    this.form.patchValue({ planoIds: ids });
+    this.form.get('planoIds')?.markAsDirty();
+    if (this.availabilityComp) {
+      this.availabilityComp.planosSelecionados.set(ids);
+    }
+  }
+
+  protected selecionarTodosServicos(): void {
+    const todos = this.servicosOptions().map((opt) => String(opt.value));
+    this.form.patchValue({ servicoIds: todos });
+    this.form.get('servicoIds')?.markAsDirty();
+    if (this.availabilityComp) {
+      this.availabilityComp.servicosSelecionados.set(todos);
+    }
   }
 
   protected desmarcarTodosServicos(): void {
-    this.form.get('servicoIds')?.setValue([]);
+    this.form.patchValue({ servicoIds: [] });
     this.form.get('servicoIds')?.markAsDirty();
+    if (this.availabilityComp) {
+      this.availabilityComp.servicosSelecionados.set([]);
+    }
   }
 
   protected selecionarTodosPlanos(): void {
-    const todos = this.planosOptions().map((opt) => opt.value);
-    this.form.get('planoIds')?.setValue(todos);
+    const todos = this.planosOptions().map((opt) => String(opt.value));
+    this.form.patchValue({ planoIds: todos });
     this.form.get('planoIds')?.markAsDirty();
+    if (this.availabilityComp) {
+      this.availabilityComp.planosSelecionados.set(todos);
+    }
   }
 
   protected desmarcarTodosPlanos(): void {
-    this.form.get('planoIds')?.setValue([]);
+    this.form.patchValue({ planoIds: [] });
     this.form.get('planoIds')?.markAsDirty();
+    if (this.availabilityComp) {
+      this.availabilityComp.planosSelecionados.set([]);
+    }
   }
 
   protected onFotoSelected(event: Event): void {
@@ -200,6 +238,8 @@ export class ProfissionalDetalhesComponent implements OnInit, AfterViewInit {
     this.salvando.set(true);
     try {
       const raw = this.form.value;
+      const servicoIdsFinal = raw.servicoIds ?? [];
+      const planoIdsFinal = raw.planoIds ?? [];
 
       // 1. Atualizar dados cadastrais
       await this.gestaoUsuariosService.atualizar(p.id, {
@@ -220,12 +260,14 @@ export class ProfissionalDetalhesComponent implements OnInit, AfterViewInit {
       // 3. Atuação (serviços e planos)
       await this.gestaoUsuariosService.salvarAtuacao({
         profissionalId: p.id,
-        servicoIds: raw.servicoIds ?? [],
-        planoIds: raw.planoIds ?? [],
+        servicoIds: servicoIdsFinal,
+        planoIds: planoIdsFinal,
       });
 
-      // 4. Salvar Disponibilidade / Horários de Atendimento
+      // 4. Salvar Disponibilidade / Horários de Atendimento (garante sincronia dos serviços/planos selecionados)
       if (this.availabilityComp) {
+        this.availabilityComp.servicosSelecionados.set(servicoIdsFinal);
+        this.availabilityComp.planosSelecionados.set(planoIdsFinal);
         await this.availabilityComp.salvar();
       }
 
@@ -318,18 +360,26 @@ export class ProfissionalDetalhesComponent implements OnInit, AfterViewInit {
         firstValueFrom(this.clubesService.carregarClubes()),
       ]);
 
+      const servIds = atuacao.servicoIds ?? [];
+      const planIds = atuacao.planoIds ?? [];
+
+      this.servicoIdsAtendidos.set(servIds);
+      this.planoIdsAtendidos.set(planIds);
+
       this.servicosAtuacao.set(
-        atuacao.servicoIds
+        servIds
           .map((servicoId) => servicos.find((s) => s.id === servicoId)?.nome)
           .filter((nome): nome is string => !!nome),
       );
       this.planosAtuacao.set(
-        atuacao.planoIds
+        planIds
           .map((planoId) => planos.find((p) => p.id === planoId)?.nome)
           .filter((nome): nome is string => !!nome),
       );
     } catch (err) {
       console.error('Erro ao carregar atuação do profissional', err);
+      this.servicoIdsAtendidos.set([]);
+      this.planoIdsAtendidos.set([]);
       this.servicosAtuacao.set([]);
       this.planosAtuacao.set([]);
     }
@@ -340,7 +390,7 @@ export class ProfissionalDetalhesComponent implements OnInit, AfterViewInit {
       if (this.catalogoService.servicos().length === 0) {
         await this.catalogoService.carregarServicos();
       }
-      const ativos = this.catalogoService.servicos().filter((s) => s.status === 'Ativo');
+      const ativos = this.catalogoService.servicos().filter((s) => !s.status || s.status.toLowerCase() === 'ativo');
       this.servicosOptions.set(ativos.map((s) => ({ value: s.id, label: s.nome })));
     } catch {
       this.servicosOptions.set([]);
@@ -350,7 +400,7 @@ export class ProfissionalDetalhesComponent implements OnInit, AfterViewInit {
   private async carregarPlanosOptions(): Promise<void> {
     try {
       const planos = await firstValueFrom(this.clubesService.carregarClubes());
-      const ativos = planos.filter((p) => p.status === 'Ativo');
+      const ativos = planos.filter((p) => !p.status || p.status.toLowerCase() === 'ativo');
       this.planosOptions.set(ativos.map((p) => ({ value: p.id, label: p.nome })));
     } catch {
       this.planosOptions.set([]);
@@ -373,24 +423,14 @@ export class ProfissionalDetalhesComponent implements OnInit, AfterViewInit {
   }
 
   private preencherFormulario(user: Usuario): void {
-    const servs = this.catalogoService.servicos();
-    const servicoIds = this.servicosAtuacao()
-      .map((nome) => servs.find((s) => s.nome === nome)?.id)
-      .filter((id): id is string => !!id);
-
-    const planos = this.planosOptions();
-    const planoIds = this.planosAtuacao()
-      .map((nome) => planos.find((p) => p.label === nome)?.value)
-      .filter((id): id is string => !!id);
-
     this.form.patchValue({
       nome: user.nome,
       sobrenome: user.sobrenome ?? '',
       email: user.email,
       numeroWhatsApp: this.formatarWhatsApp(user.telefone ?? ''),
       status: user.status,
-      servicoIds: servicoIds,
-      planoIds: planoIds,
+      servicoIds: this.servicoIdsAtendidos(),
+      planoIds: this.planoIdsAtendidos(),
     });
   }
 }
