@@ -50,15 +50,18 @@
                   @if (c.email) {
                     <span>{{ c.email }}</span> • 
                   }
-                  <a
-                    [href]="obterLinkWhatsapp(c.celular)"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    class="text-success text-decoration-none d-inline-flex align-items-center gap-1 fw-semibold"
-                    title="Chamar no WhatsApp"
-                  >
-                    <i class="fab fa-whatsapp fs-5"></i>{{ c.celular }}
-                  </a>
+                  @if (c.celular) {
+                    <a
+                      [href]="obterLinkWhatsapp(c.celular)"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      class="text-success text-decoration-none d-inline-flex align-items-center me-2"
+                      title="Chamar no WhatsApp"
+                    >
+                      <i class="fab fa-whatsapp fs-5 text-success me-2"></i>
+                      <span class="custom-dark-text">{{ c.celular }}</span>
+                    </a>
+                  }
                 </p>
               </div>
             </div>
@@ -78,22 +81,23 @@
                   </div>
                 </div>
 
-                <!-- Celular / WhatsApp com Ícone e Botão para abrir conversa no WhatsApp -->
+                <!-- Celular / WhatsApp com Ícone + margem me-2 na frente do número -->
                 <div class="col-sm-6 col-12">
                   <label class="form-label small fw-bold text-muted text-uppercase tracking-wider">Celular / WhatsApp</label>
-                  <div class="d-flex align-items-center gap-2 mt-1 flex-wrap">
-                    <span class="fw-semibold custom-dark-text">{{ c.celular || '—' }}</span>
+                  <div class="mt-1">
                     @if (c.celular) {
                       <a
                         [href]="obterLinkWhatsapp(c.celular)"
                         target="_blank"
                         rel="noopener noreferrer"
-                        class="btn btn-sm btn-success text-white d-inline-flex align-items-center gap-1.5 px-2.5 py-1 rounded-pill shadow-sm transition-all"
-                        title="Chamar cliente no WhatsApp"
+                        class="text-success text-decoration-none d-inline-flex align-items-center fw-semibold me-2"
+                        title="Chamar no WhatsApp"
                       >
-                        <i class="fab fa-whatsapp fs-6"></i>
-                        <span class="small fw-bold">Chamar no WhatsApp</span>
+                        <i class="fab fa-whatsapp fs-5 text-success me-2"></i>
+                        <span class="custom-dark-text">{{ c.celular }}</span>
                       </a>
+                    } @else {
+                      <p class="fw-semibold mb-0 custom-dark-text">—</p>
                     }
                   </div>
                 </div>
@@ -102,7 +106,7 @@
                 <div class="col-sm-6 col-12">
                   <label class="form-label small fw-bold text-muted text-uppercase tracking-wider">E-mail</label>
                   <p class="fw-semibold mb-0 custom-dark-text">
-                    <i class="far fa-envelope text-primary me-1"></i>{{ c.email || '—' }}
+                    <i class="far fa-envelope text-primary me-2"></i>{{ c.email || '—' }}
                   </p>
                 </div>
 
@@ -110,7 +114,7 @@
                 <div class="col-sm-6 col-12">
                   <label class="form-label small fw-bold text-muted text-uppercase tracking-wider">CPF</label>
                   <p class="fw-semibold mb-0 custom-dark-text">
-                    <i class="far fa-id-card text-info me-1"></i>{{ helper.formatarCpf(c.cpf) || '—' }}
+                    <i class="far fa-id-card text-info me-2"></i>{{ helper.formatarCpf(c.cpf) || '—' }}
                   </p>
                 </div>
 
@@ -118,7 +122,7 @@
                 <div class="col-sm-6 col-12">
                   <label class="form-label small fw-bold text-muted text-uppercase tracking-wider">Data de Nascimento</label>
                   <p class="fw-semibold mb-0 custom-dark-text">
-                    <i class="far fa-calendar-alt text-warning me-1"></i>{{ helper.formatarData(c.dataNascimento) || '—' }}
+                    <i class="far fa-calendar-alt text-warning me-2"></i>{{ helper.formatarData(c.dataNascimento) || '—' }}
                   </p>
                 </div>
 
@@ -126,7 +130,7 @@
                 @if (c.observacoes) {
                   <div class="col-12">
                     <label class="form-label small fw-bold text-muted text-uppercase tracking-wider">
-                      <i class="far fa-comment-alt text-secondary me-1"></i>Observações
+                      <i class="far fa-comment-alt text-secondary me-2"></i>Observações
                     </label>
                     <div class="mt-1">
                       <p class="custom-dark-text custom-dark-highlight rounded p-3 mb-0 small border field-value">
