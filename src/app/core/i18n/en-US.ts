@@ -253,7 +253,7 @@ export const enUS: TranslationSchema = {
       TITLE_NEW: 'New Manual Appointment',
       TITLE_EDIT: 'Edit Appointment',
       CLIENTE_NOME: 'Client Name',
-      CLIENTE_NOME_PLACEHOLDER: 'E.g.: John Doe',
+      CLIENTE_NOME_PLACEHOLDER: 'Select a client...',
       CLIENTE_TELEFONE: 'Phone / WhatsApp',
       CLIENTE_TELEFONE_PLACEHOLDER: 'E.g.: 11999999999',
       SERVICO: 'Service',

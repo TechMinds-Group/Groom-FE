@@ -24,7 +24,7 @@
           [style.backgroundImage]="logoUrlExibicao() ? 'url(' + logoUrlExibicao() + ')' : 'none'"
         >
           @if (!logoUrlExibicao()) {
-            <i class="fa-solid fa-scissors"></i>
+            <i [class]="logoIconePadrao()"></i>
           }
         </div>
         <div class="agendamento-login__brand-text">
@@ -35,9 +35,24 @@
             <p class="agendamento-login__descricao-estabelecimento mb-0">{{ estabelecimentoInfo()?.descricao }}</p>
           }
           @if (estabelecimentoInfo()?.telefone) {
-            <span class="agendamento-login__telefone-text">
+            <span class="agendamento-login__telefone-text d-block">
               <i class="fa-solid fa-phone me-1"></i>{{ estabelecimentoInfo()?.telefone }}
             </span>
+          }
+          @if (estabelecimentoInfo()?.endereco; as endereco) {
+            <div class="agendamento-login__endereco-wrapper mt-2">
+              <a
+                [href]="obterUrlGoogleMaps(endereco)"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="agendamento-login__endereco-badge text-decoration-none"
+                title="Abrir rota no Google Maps"
+              >
+                <i class="fa-solid fa-location-dot text-danger flex-shrink-0"></i>
+                <span class="agendamento-login__endereco-texto">{{ endereco }}</span>
+                <i class="fa-solid fa-arrow-up-right-from-square extra-small opacity-75 flex-shrink-0"></i>
+              </a>
+            </div>
           }
         </div>
       </div>

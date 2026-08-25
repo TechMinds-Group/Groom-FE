@@ -1,16 +1,44 @@
-import { ChangeDetectionStrategy, Component, computed, inject, input, model, output, signal, OnChanges, SimpleChanges, OnDestroy } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  inject,
+  input,
+  model,
+  output,
+  signal,
+  OnChanges,
+  SimpleChanges,
+  OnDestroy,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { TmModalComponent, TmSelectComponent, TmSelectOption, TmTimeComponent, TmTextComponent, TmButtonComponent, TmToastService } from '@techminds-group/tm-angular-lib';
+import {
+  TmModalComponent,
+  TmSelectComponent,
+  TmSelectOption,
+  TmTimeComponent,
+  TmTextComponent,
+  TmButtonComponent,
+  TmToastService,
+} from '@techminds-group/tm-angular-lib';
 import { TranslatePipe } from '../../../../../shared/pipes/translate.pipe';
-import { Agendamento, CORES_STATUS, agendamentoParaDateLocal } from '../../../../../core/models/agenda.model';
+import { Router } from '@angular/router';
+import {
+  Agendamento,
+  CORES_STATUS,
+  agendamentoParaDateLocal,
+} from '../../../../../core/models/agenda.model';
 import { AgendamentosService } from '../../../../../core/services/agendamentos.service';
 import { AuthService } from '../../../../../core/services/auth.service';
 import { CatalogoService } from '../../../../../core/services/catalogo.service';
+import { ClientesService } from '../../../../../core/services/clientes.service';
 import { GestaoUsuariosService } from '../../../../../core/services/gestao-usuarios.service';
 import { LanguageService } from '../../../../../core/services/language.service';
 import { ThemeService } from '../../../../../core/services/theme.service';
 import { TxKey } from '../../../../../core/i18n/i18n.types';
+
+const NOVO_CLIENTE_VALUE = '__cadastrar_cliente__';
 
 @Component({
   selector: 'app-agenda-modal-dia',
@@ -30,10 +58,12 @@ import { TxKey } from '../../../../../core/i18n/i18n.types';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AgendaModalDiaComponent implements OnChanges, OnDestroy {
+  private readonly router = inject(Router);
   private readonly fb = inject(FormBuilder);
   private readonly agendamentosService = inject(AgendamentosService);
   private readonly authService = inject(AuthService);
   private readonly catalogoService = inject(CatalogoService);
+  private readonly clientesService = inject(ClientesService);
   private readonly gestaoUsuariosService = inject(GestaoUsuariosService);
   private readonly languageService = inject(LanguageService);
   private readonly toastService = inject(TmToastService);
@@ -60,6 +90,20 @@ export class AgendaModalDiaComponent implements OnChanges, OnDestroy {
   protected readonly confirmandoRecusa = signal(false);
   protected readonly carregandoHorarios = signal(false);
   protected readonly horaOptions = signal<TmSelectOption<string>[]>([]);
+
+  protected readonly clienteIdSelecionado = signal<string>('');
+
+  protected readonly clienteOptions = computed<TmSelectOption<string>[]>(() => {
+    const clientes = this.clientesService.clientes();
+    const opcoes: TmSelectOption<string>[] = clientes.map((c) => {
+      const nomeCompleto = c.sobrenome ? `${c.nome} ${c.sobrenome}` : c.nome;
+      return {
+        value: c.id,
+        label: c.celular ? `${nomeCompleto} (${c.celular})` : nomeCompleto,
+      };
+    });
+    return [...opcoes, { value: NOVO_CLIENTE_VALUE, label: '+ Cadastrar cliente' }];
+  });
 
   protected readonly coresStatus: Record<string, string> = {
     ...CORES_STATUS,
@@ -90,20 +134,29 @@ export class AgendaModalDiaComponent implements OnChanges, OnDestroy {
   ];
 
   /** Status terminal: agendamento recusado não pode mais ter o status alterado. */
-  protected readonly statusDecisaoBloqueado = computed(() =>
-    this.agendamentoEditando()?.status === 'recusado',
+  protected readonly statusDecisaoBloqueado = computed(
+    () => this.agendamentoEditando()?.status === 'recusado',
   );
 
   /** Status que ainda aceitam decisão (recusado é terminal). */
   protected readonly podeDecidir = computed(() => {
     const status = this.agendamentoDetalhe()?.status;
-    return status === 'agendado' || status === 'pendente' || status === 'confirmado' || status === 'nao_compareceu';
+    return (
+      status === 'agendado' ||
+      status === 'pendente' ||
+      status === 'confirmado' ||
+      status === 'nao_compareceu'
+    );
   });
 
   /** Verifica se o agendamento já iniciou/passou do horário para exibir a opção "Não compareceu" */
   protected podeMarcarNaoCompareceu(agendamento: Agendamento | null): boolean {
     if (!agendamento) return false;
-    if (agendamento.status === 'recusado' || agendamento.status === 'cancelado' || agendamento.status === 'nao_compareceu') {
+    if (
+      agendamento.status === 'recusado' ||
+      agendamento.status === 'cancelado' ||
+      agendamento.status === 'nao_compareceu'
+    ) {
       return false;
     }
     const inicio = agendamentoParaDateLocal(agendamento.dataInicio);
@@ -114,7 +167,12 @@ export class AgendaModalDiaComponent implements OnChanges, OnDestroy {
   /** Permite recusar apenas agendamentos futuros (cujo horário de início ainda não passou) */
   protected podeRecusar(agendamento: Agendamento | null): boolean {
     if (!agendamento) return false;
-    if (agendamento.status === 'recusado' || agendamento.status === 'cancelado' || agendamento.status === 'nao_compareceu' || agendamento.status === 'concluido') {
+    if (
+      agendamento.status === 'recusado' ||
+      agendamento.status === 'cancelado' ||
+      agendamento.status === 'nao_compareceu' ||
+      agendamento.status === 'concluido'
+    ) {
       return false;
     }
     const inicio = agendamentoParaDateLocal(agendamento.dataInicio);
@@ -165,10 +223,43 @@ export class AgendaModalDiaComponent implements OnChanges, OnDestroy {
 
   async ngOnChanges(changes: SimpleChanges): Promise<void> {
     if (changes['show']?.currentValue === true) {
-      await Promise.all([this.catalogoService.carregarServicos(), this.gestaoUsuariosService.carregarUsuarios()]);
+      await Promise.all([
+        this.catalogoService.carregarServicos(),
+        this.gestaoUsuariosService.carregarUsuarios(),
+        this.clientesService.carregarClientes(),
+      ]);
       this.fecharForm();
       this.fecharDetalhes();
     }
+  }
+
+  protected onClienteSelectChange(val: unknown): void {
+    const clienteId = typeof val === 'string' ? val : '';
+    if (clienteId === NOVO_CLIENTE_VALUE) {
+      this.redirecionarNovoCliente();
+      return;
+    }
+    this.clienteIdSelecionado.set(clienteId);
+    const cliente = this.clientesService.clientes().find((c) => c.id === clienteId);
+    if (cliente) {
+      const nomeCompleto = cliente.sobrenome
+        ? `${cliente.nome} ${cliente.sobrenome}`
+        : cliente.nome;
+      this.form.patchValue({
+        clienteNome: nomeCompleto,
+        clienteTelefone: cliente.celular ?? '',
+      });
+    } else {
+      this.form.patchValue({
+        clienteNome: '',
+        clienteTelefone: '',
+      });
+    }
+  }
+
+  protected redirecionarNovoCliente(): void {
+    this.show.set(false);
+    void this.router.navigate(['/gestao/clientes/novo'], { queryParams: { origem: 'agenda' } });
   }
 
   /** Busca os horários disponíveis do profissional para a data/serviço selecionados e atualiza as opções do campo de horário. */
@@ -187,8 +278,14 @@ export class AgendaModalDiaComponent implements OnChanges, OnDestroy {
 
     this.carregandoHorarios.set(true);
     try {
-      const horarios = await this.agendamentosService.getHorariosDisponiveis(profissionalId, dataIso, servicoId);
-      const disponiveis = horarios.filter((h) => h.disponivel).map((h) => ({ value: h.hora, label: h.hora }));
+      const horarios = await this.agendamentosService.getHorariosDisponiveis(
+        profissionalId,
+        dataIso,
+        servicoId,
+      );
+      const disponiveis = horarios
+        .filter((h) => h.disponivel)
+        .map((h) => ({ value: h.hora, label: h.hora }));
       this.horaOptions.set(disponiveis);
 
       const atual = this.form.get('horaInicio')?.value as string | undefined;
@@ -207,17 +304,27 @@ export class AgendaModalDiaComponent implements OnChanges, OnDestroy {
     const data = this.dataSelecionada();
     if (!data) return [];
     const diaStr = data.toDateString();
-    return this.agendamentos().filter((a) => agendamentoParaDateLocal(a.dataInicio).toDateString() === diaStr);
+    return this.agendamentos().filter(
+      (a) => agendamentoParaDateLocal(a.dataInicio).toDateString() === diaStr,
+    );
   });
 
   protected formatData(data: Date | null): string {
     if (!data) return '';
-    const str = data.toLocaleDateString('pt-BR', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' });
+    const str = data.toLocaleDateString('pt-BR', {
+      weekday: 'long',
+      day: '2-digit',
+      month: 'long',
+      year: 'numeric',
+    });
     return str.charAt(0).toUpperCase() + str.slice(1);
   }
 
   protected formatHora(data: string | Date): string {
-    return agendamentoParaDateLocal(data).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+    return agendamentoParaDateLocal(data).toLocaleTimeString('pt-BR', {
+      hour: '2-digit',
+      minute: '2-digit',
+    });
   }
 
   protected statusTraduzidoKey(status: string): TxKey {
@@ -227,10 +334,11 @@ export class AgendaModalDiaComponent implements OnChanges, OnDestroy {
 
   protected abrirNovoForm(): void {
     this.agendamentoEditando.set(null);
+    this.clienteIdSelecionado.set('');
     const usuario = this.authService.currentUser();
     const ehAdmin = this.authService.hasAdminRole();
     const profissionalPadrao = ehAdmin
-      ? this.profissionalOptions()[0]?.value ?? ''
+      ? (this.profissionalOptions()[0]?.value ?? '')
       : (usuario?.id ?? '');
 
     this.form.reset({
@@ -261,7 +369,9 @@ export class AgendaModalDiaComponent implements OnChanges, OnDestroy {
   }
 
   /** Aplica a decisão (confirmar/recusar/não compareceu) diretamente dos detalhes, sem abrir o formulário. */
-  protected async salvarDecisao(status: 'confirmado' | 'recusado' | 'nao_compareceu'): Promise<void> {
+  protected async salvarDecisao(
+    status: 'confirmado' | 'recusado' | 'nao_compareceu',
+  ): Promise<void> {
     const agendamento = this.agendamentoDetalhe();
     if (!agendamento || this.salvando()) return;
 
@@ -294,11 +404,21 @@ export class AgendaModalDiaComponent implements OnChanges, OnDestroy {
     this.agendamentoEditando.set(agendamento);
     const hora = this.formatHora(agendamento.dataInicio);
 
+    const clienteMatch = this.clientesService.clientes().find((c) => {
+      const nomeCompleto = c.sobrenome ? `${c.nome} ${c.sobrenome}` : c.nome;
+      return (
+        nomeCompleto.toLowerCase() === agendamento.clienteNome.toLowerCase() ||
+        c.nome.toLowerCase() === agendamento.clienteNome.toLowerCase()
+      );
+    });
+    this.clienteIdSelecionado.set(clienteMatch?.id ?? '');
+
     this.form.reset({
       clienteNome: agendamento.clienteNome,
       clienteTelefone: agendamento.clienteTelefone,
       profissionalId: agendamento.profissionalId,
-      servicoId: this.servicoOptions().find((s) => s.label === agendamento.servicoNome)?.value ?? '',
+      servicoId:
+        this.servicoOptions().find((s) => s.label === agendamento.servicoNome)?.value ?? '',
       horaInicio: hora,
       statusDecisao: agendamento.status === 'recusado' ? 'recusado' : 'confirmado',
       observacoes: agendamento.observacoes ?? '',

@@ -3,7 +3,7 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TmButtonComponent, TmTextComponent } from '@techminds-group/tm-angular-lib';
 import { AgendamentoPublicoService } from '../../../../core/services/agendamento-publico.service';
-import { EstabelecimentoInfo, EstabelecimentoService } from '../../../../core/services/estabelecimento.service';
+import { EstabelecimentoInfo, EstabelecimentoService, obterIconeAleatorioLogo } from '../../../../core/services/estabelecimento.service';
 import { AuthClienteHelperService } from '../../services/auth-cliente-helper.service';
 import { GoogleOAuthClienteService } from '../../services/google-oauth-cliente.service';
 import { TemaPublicoService } from '../../services/tema-publico.service';
@@ -38,11 +38,21 @@ export class LoginClienteComponent implements OnInit, OnDestroy {
   /** Logo com URL absoluta da API (imagens são servidas em /uploads). */
   readonly logoUrlExibicao = computed(() => this.estabelecimentoService.resolverUrl(this.estabelecimentoInfo()?.logoUrl));
 
+  /** Ícone aleatório estável para quando não há logo informada */
+  readonly logoIconePadrao = computed(() =>
+    obterIconeAleatorioLogo(this.estabelecimentoInfo()?.nomeExibicao || this.estabelecimentoInfo()?.nome)
+  );
+
   private readonly googleButton = viewChild<ElementRef<HTMLDivElement>>('googleButton');
 
   readonly aba = signal<'login' | 'cadastro'>('login');
   readonly isLoading = signal(false);
   readonly errorMessage = signal<string | null>(null);
+
+  obterUrlGoogleMaps(endereco?: string): string {
+    if (!endereco) return '';
+    return this.estabelecimentoService.obterUrlGoogleMaps(endereco);
+  }
 
   readonly form = this.fb.group({
     email: ['', [Validators.required, Validators.email]],

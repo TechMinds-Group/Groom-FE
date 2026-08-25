@@ -81,25 +81,37 @@ export class ProfissionalEditarComponent implements OnInit {
     this.form.get('status')?.setValue(alvo.checked ? 'Ativo' : 'Inativo');
   }
 
+  protected onServicosChange(val: unknown): void {
+    const ids = Array.isArray(val) ? (val as string[]) : typeof val === 'string' ? [val] : [];
+    this.form.patchValue({ servicoIds: ids });
+    this.form.get('servicoIds')?.markAsDirty();
+  }
+
+  protected onPlanosChange(val: unknown): void {
+    const ids = Array.isArray(val) ? (val as string[]) : typeof val === 'string' ? [val] : [];
+    this.form.patchValue({ planoIds: ids });
+    this.form.get('planoIds')?.markAsDirty();
+  }
+
   protected selecionarTodosServicos(): void {
     const todos = this.servicosOptions().map((opt) => opt.value);
-    this.form.get('servicoIds')?.setValue(todos);
+    this.form.patchValue({ servicoIds: todos });
     this.form.get('servicoIds')?.markAsDirty();
   }
 
   protected desmarcarTodosServicos(): void {
-    this.form.get('servicoIds')?.setValue([]);
+    this.form.patchValue({ servicoIds: [] });
     this.form.get('servicoIds')?.markAsDirty();
   }
 
   protected selecionarTodosPlanos(): void {
     const todos = this.planosOptions().map((opt) => opt.value);
-    this.form.get('planoIds')?.setValue(todos);
+    this.form.patchValue({ planoIds: todos });
     this.form.get('planoIds')?.markAsDirty();
   }
 
   protected desmarcarTodosPlanos(): void {
-    this.form.get('planoIds')?.setValue([]);
+    this.form.patchValue({ planoIds: [] });
     this.form.get('planoIds')?.markAsDirty();
   }
 
@@ -181,7 +193,7 @@ export class ProfissionalEditarComponent implements OnInit {
       if (this.catalogoService.servicos().length === 0) {
         await this.catalogoService.carregarServicos();
       }
-      const ativos = this.catalogoService.servicos().filter((s) => s.status === 'Ativo');
+      const ativos = this.catalogoService.servicos().filter((s) => !s.status || s.status.toLowerCase() === 'ativo');
       this.servicosOptions.set(ativos.map((s) => ({ value: s.id, label: s.nome })));
     } catch {
       this.servicosOptions.set([]);
@@ -191,7 +203,7 @@ export class ProfissionalEditarComponent implements OnInit {
   private async carregarPlanos(): Promise<void> {
     try {
       const planos = await firstValueFrom(this.clubesService.carregarClubes());
-      const ativos = planos.filter((p) => p.status === 'Ativo');
+      const ativos = planos.filter((p) => !p.status || p.status.toLowerCase() === 'ativo');
       this.planosOptions.set(ativos.map((p) => ({ value: p.id, label: p.nome })));
     } catch {
       this.planosOptions.set([]);

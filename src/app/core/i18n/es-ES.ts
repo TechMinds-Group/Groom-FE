@@ -253,7 +253,7 @@ export const esES: TranslationSchema = {
       TITLE_NEW: 'Nueva Cita Manual',
       TITLE_EDIT: 'Editar Cita',
       CLIENTE_NOME: 'Nombre del Cliente',
-      CLIENTE_NOME_PLACEHOLDER: 'Ej: Carlos Silva',
+      CLIENTE_NOME_PLACEHOLDER: 'Seleccione un cliente...',
       CLIENTE_TELEFONE: 'Teléfono / WhatsApp',
       CLIENTE_TELEFONE_PLACEHOLDER: 'Ej: 11999999999',
       SERVICO: 'Servicio',

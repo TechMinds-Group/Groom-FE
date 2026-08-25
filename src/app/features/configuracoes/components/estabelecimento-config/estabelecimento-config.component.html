@@ -39,7 +39,8 @@
             Perfil e Identidade do Estabelecimento
           </h2>
           <p class="text-muted mb-0 custom-dark-text small text-break lh-sm">
-            Personalize a logo, foto de capa, nome, CNPJ e telefone de contato exibidos nas telas dos clientes.
+            Personalize a logo, foto de capa, nome, CNPJ e telefone de contato exibidos nas telas
+            dos clientes.
           </p>
         </div>
       </div>
@@ -59,18 +60,35 @@
           <!-- Imagem de Capa -->
           <div class="col-12">
             <label class="form-label fw-bold custom-dark-text small">Imagem de Capa (Banner)</label>
-            <input #capaInput type="file" class="d-none" accept="image/*" (change)="onCapaSelected($event)" />
+            <input
+              #capaInput
+              type="file"
+              class="d-none"
+              accept="image/*"
+              (change)="onCapaSelected($event)"
+            />
             <div
               class="capa-preview-box rounded-3 border overflow-hidden position-relative mb-1 text-center d-flex align-items-center justify-content-center cursor-pointer image-upload-zone"
-              style="height: 140px; background-size: cover; background-position: center;"
+              style="height: 140px; background-size: cover; background-position: center"
               [style.backgroundImage]="capaVisivel() ? 'url(' + capaVisivel() + ')' : 'none'"
               (click)="triggerCapaUpload(capaInput)"
               title="Clique para escolher foto de capa"
             >
-              <div class="image-upload-overlay d-flex flex-column align-items-center justify-content-center p-3">
+              @if (!capaVisivel()) {
+                <div class="position-absolute d-flex align-items-center justify-content-center opacity-25" style="pointer-events: none;">
+                  <i [class]="capaIconePadrao() + ' display-3 text-muted'"></i>
+                </div>
+              }
+              <div
+                class="image-upload-overlay d-flex flex-column align-items-center justify-content-center p-3"
+              >
                 <i class="fas fa-camera fs-3 mb-1"></i>
                 <span class="small fw-semibold">
-                  {{ capaVisivel() ? 'Clique para alterar a foto de capa' : 'Clique para selecionar uma foto de capa' }}
+                  {{
+                    capaVisivel()
+                      ? 'Clique para alterar a foto de capa'
+                      : 'Clique para selecionar uma foto de capa'
+                  }}
                 </span>
               </div>
               @if (capaVisivel()) {
@@ -84,25 +102,46 @@
                 </button>
               }
             </div>
-            <span class="text-muted extra-small d-block mt-1">Clique na imagem para alterar. Recomendado: imagem horizontal panorâmica (ex: 1200x400px).</span>
+            <span class="text-muted extra-small d-block mt-1"
+              >Clique na imagem para alterar. Recomendado: imagem horizontal panorâmica (ex:
+              1200x400px).</span
+            >
           </div>
 
           <!-- Logo do Estabelecimento -->
           <div class="col-12 col-md-4">
             <label class="form-label fw-bold custom-dark-text small">Logo do Estabelecimento</label>
-            <input #logoInput type="file" class="d-none" accept="image/*" (change)="onLogoSelected($event)" />
+            <input
+              #logoInput
+              type="file"
+              class="d-none"
+              accept="image/*"
+              (change)="onLogoSelected($event)"
+            />
             <div class="d-flex align-items-center gap-3">
               <div
                 class="logo-preview-box border overflow-hidden position-relative shrink-0 d-flex align-items-center justify-content-center cursor-pointer image-upload-zone"
-                style="width: 84px; height: 84px; min-width: 84px; min-height: 84px; max-width: 84px; max-height: 84px; border-radius: 50% !important; background-size: cover; background-position: center;"
+                style="
+                  width: 84px;
+                  height: 84px;
+                  min-width: 84px;
+                  min-height: 84px;
+                  max-width: 84px;
+                  max-height: 84px;
+                  border-radius: 50% !important;
+                  background-size: cover;
+                  background-position: center;
+                "
                 [style.backgroundImage]="logoVisivel() ? 'url(' + logoVisivel() + ')' : 'none'"
                 (click)="triggerLogoUpload(logoInput)"
                 title="Clique para escolher logo"
               >
                 @if (!logoVisivel()) {
-                  <i class="fas fa-store text-white fs-3"></i>
+                  <i [class]="logoIconePadrao() + ' text-white fs-3'"></i>
                 }
-                <div class="image-upload-overlay d-flex flex-column align-items-center justify-content-center text-center p-1">
+                <div
+                  class="image-upload-overlay d-flex flex-column align-items-center justify-content-center text-center p-1"
+                >
                   <i class="fas fa-camera fs-5"></i>
                 </div>
               </div>
@@ -126,7 +165,9 @@
               <div class="col-12 col-sm-6">
                 <label class="form-label fw-bold custom-dark-text small">
                   Nome do Estabelecimento
-                  <span class="badge bg-secondary-subtle text-secondary ms-1 fw-normal">Imutável</span>
+                  <span class="badge bg-secondary-subtle text-secondary ms-1 fw-normal"
+                    >Imutável</span
+                  >
                 </label>
                 <input
                   type="text"
@@ -152,7 +193,10 @@
 
               <div class="col-12 col-sm-6">
                 <label class="form-label fw-bold custom-dark-text small">
-                  CNPJ <span class="badge bg-secondary-subtle text-secondary ms-1 fw-normal">Imutável</span>
+                  CNPJ
+                  <span class="badge bg-secondary-subtle text-secondary ms-1 fw-normal"
+                    >Imutável</span
+                  >
                 </label>
                 <input
                   type="text"
@@ -186,38 +230,143 @@
                   (ngModelChange)="atualizarCampo('descricao', $event)"
                 />
               </div>
+
+              <!-- Seção de Endereço com Busca de CEP -->
+              <div class="col-12 mt-3 pt-3 border-top">
+                <div class="d-flex align-items-center gap-2 mb-3">
+                  <i class="fa-solid fa-map-location-dot text-primary fs-5"></i>
+                  <h6 class="fw-bold mb-0 custom-dark-text">
+                    Endereço da Unidade (com rota Google Maps)
+                  </h6>
+                </div>
+                <div class="row g-3">
+                  <div class="col-12 col-sm-4">
+                    <label class="form-label fw-bold custom-dark-text small">
+                      CEP
+                      @if (buscandoCep()) {
+                        <span
+                          class="spinner-border spinner-border-sm text-primary ms-1"
+                          role="status"
+                        ></span>
+                      }
+                    </label>
+                    <input
+                      type="text"
+                      class="form-control"
+                      placeholder="00000-000"
+                      [ngModel]="estabelecimentoInfo().cep"
+                      (ngModelChange)="onCepChange($event)"
+                      (blur)="onCepChange(estabelecimentoInfo().cep || '')"
+                      maxlength="9"
+                    />
+                  </div>
+
+                  <div class="col-12 col-sm-8">
+                    <label class="form-label fw-bold custom-dark-text small"
+                      >Rua / Logradouro</label
+                    >
+                    <input
+                      type="text"
+                      class="form-control"
+                      placeholder="Ex: Av. Paulista"
+                      [ngModel]="estabelecimentoInfo().logradouro"
+                      (ngModelChange)="atualizarCampo('logradouro', $event)"
+                    />
+                  </div>
+
+                  <div class="col-12 col-sm-4">
+                    <label class="form-label fw-bold custom-dark-text small">Número</label>
+                    <input
+                      type="text"
+                      class="form-control"
+                      placeholder="Ex: 1000"
+                      [ngModel]="estabelecimentoInfo().numero"
+                      (ngModelChange)="atualizarCampo('numero', $event)"
+                    />
+                  </div>
+
+                  <div class="col-12 col-sm-8">
+                    <label class="form-label fw-bold custom-dark-text small"
+                      >Complemento (opcional)</label
+                    >
+                    <input
+                      type="text"
+                      class="form-control"
+                      placeholder="Ex: Sala 42, Bloco B"
+                      [ngModel]="estabelecimentoInfo().complemento"
+                      (ngModelChange)="atualizarCampo('complemento', $event)"
+                    />
+                  </div>
+
+                  <div class="col-12 col-sm-5">
+                    <label class="form-label fw-bold custom-dark-text small">Bairro</label>
+                    <input
+                      type="text"
+                      class="form-control"
+                      placeholder="Ex: Bela Vista"
+                      [ngModel]="estabelecimentoInfo().bairro"
+                      (ngModelChange)="atualizarCampo('bairro', $event)"
+                    />
+                  </div>
+
+                  <div class="col-12 col-sm-5">
+                    <label class="form-label fw-bold custom-dark-text small">Cidade</label>
+                    <input
+                      type="text"
+                      class="form-control"
+                      placeholder="Ex: São Paulo"
+                      [ngModel]="estabelecimentoInfo().cidade"
+                      (ngModelChange)="atualizarCampo('cidade', $event)"
+                    />
+                  </div>
+
+                  <div class="col-12 col-sm-2">
+                    <label class="form-label fw-bold custom-dark-text small">UF</label>
+                    <input
+                      type="text"
+                      class="form-control"
+                      placeholder="SP"
+                      [ngModel]="estabelecimentoInfo().estado"
+                      (ngModelChange)="atualizarCampo('estado', $event)"
+                      maxlength="2"
+                    />
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
 
-        <div
-          class="pt-3 mt-3 border-top d-flex flex-column flex-lg-row align-items-stretch align-items-lg-center justify-content-between gap-3"
-        >
+        @if (temAlteracoesInfo()) {
           <div
-            class="d-flex flex-column flex-lg-row gap-2 w-100 w-lg-auto ms-auto justify-content-lg-end"
+            class="pt-3 mt-3 border-top d-flex flex-column flex-lg-row align-items-stretch align-items-lg-center justify-content-between gap-3"
           >
-            <button
-              type="button"
-              class="btn btn-outline-secondary px-4 py-2 fw-semibold rounded-3 btn-action-responsive"
-              (click)="carregarInfo()"
-              [disabled]="salvandoInfo()"
+            <div
+              class="d-flex flex-column flex-lg-row gap-2 w-100 w-lg-auto ms-auto justify-content-lg-end"
             >
-              <i class="fas fa-times me-2"></i>Cancelar
-            </button>
+              <button
+                type="button"
+                class="btn btn-outline-secondary px-4 py-2 fw-semibold rounded-3 btn-action-responsive"
+                (click)="cancelarAlteracoesInfo()"
+                [disabled]="salvandoInfo()"
+              >
+                <i class="fas fa-times me-2"></i>Cancelar
+              </button>
 
-            <button
-              type="button"
-              class="btn btn-primary px-4 py-2 fw-bold rounded-3 btn-action-responsive"
-              (click)="salvarInfo()"
-              [disabled]="salvandoInfo()"
-            >
-              @if (salvandoInfo()) {
-                <span class="spinner-border spinner-border-sm me-2" role="status"></span>
-              }
-              <i class="fas fa-save me-2"></i>Salvar
-            </button>
+              <button
+                type="button"
+                class="btn btn-primary px-4 py-2 fw-bold rounded-3 btn-action-responsive"
+                (click)="salvarInfo()"
+                [disabled]="salvandoInfo()"
+              >
+                @if (salvandoInfo()) {
+                  <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+                }
+                <i class="fas fa-save me-2"></i>Salvar
+              </button>
+            </div>
           </div>
-        </div>
+        }
       </div>
     }
   </div>
@@ -412,9 +561,7 @@
           <i class="fas fa-file-import fs-4 fs-md-3"></i>
         </div>
         <div class="min-w-0 flex-fill">
-          <h2 class="h6 h5-md fw-bold mb-1 custom-dark-text text-break">
-            Importação de Dados
-          </h2>
+          <h2 class="h6 h5-md fw-bold mb-1 custom-dark-text text-break">Importação de Dados</h2>
           <p class="text-muted mb-0 custom-dark-text small text-break lh-sm">
             Importe a lista de clientes exportada de outras plataformas diretamente para o sistema.
           </p>
@@ -434,8 +581,20 @@
       <div class="card-body p-3 p-md-4 border-top border-secondary-subtle">
         <!-- Passo 1: Selecionar Aplicativo / Plataforma -->
         <div class="mb-4">
-          <label class="form-label fw-bold custom-dark-text small mb-2 d-flex align-items-center gap-1.5">
-            <span class="badge bg-primary rounded-circle me-1" style="width: 20px; height: 20px; display: inline-flex; align-items: center; justify-content: center;">1</span>
+          <label
+            class="form-label fw-bold custom-dark-text small mb-2 d-flex align-items-center gap-1.5"
+          >
+            <span
+              class="badge bg-primary rounded-circle me-1"
+              style="
+                width: 20px;
+                height: 20px;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+              "
+              >1</span
+            >
             Selecione o Aplicativo / Plataforma de Origem
           </label>
           <div class="row g-3">
@@ -446,15 +605,21 @@
                 (click)="selecionarPlataforma('tua-agenda')"
                 role="button"
               >
-                <div class="avatar-circle bg-primary text-white shrink-0 d-flex align-items-center justify-content-center">
+                <div
+                  class="avatar-circle bg-primary text-white shrink-0 d-flex align-items-center justify-content-center"
+                >
                   <i class="fas fa-mobile-alt fs-4"></i>
                 </div>
                 <div class="flex-fill min-w-0">
                   <div class="d-flex align-items-center justify-content-between">
                     <h6 class="fw-bold mb-0 custom-dark-text">Tua Agenda</h6>
-                    <span class="badge bg-primary text-white small"><i class="fas fa-check me-1"></i>Selecionado</span>
+                    <span class="badge bg-primary text-white small"
+                      ><i class="fas fa-check me-1"></i>Selecionado</span
+                    >
                   </div>
-                  <span class="text-muted small d-block mt-0.5">Plataforma de agendamento e gestão para barbearias e salões</span>
+                  <span class="text-muted small d-block mt-0.5"
+                    >Plataforma de agendamento e gestão para barbearias e salões</span
+                  >
                 </div>
               </div>
             </div>
@@ -464,8 +629,20 @@
         <!-- Passo 2: Selecionar Categoria -->
         @if (plataformaSelecionada() === 'tua-agenda') {
           <div class="mb-4">
-            <label class="form-label fw-bold custom-dark-text small mb-2 d-flex align-items-center gap-1.5">
-              <span class="badge bg-primary rounded-circle me-1" style="width: 20px; height: 20px; display: inline-flex; align-items: center; justify-content: center;">2</span>
+            <label
+              class="form-label fw-bold custom-dark-text small mb-2 d-flex align-items-center gap-1.5"
+            >
+              <span
+                class="badge bg-primary rounded-circle me-1"
+                style="
+                  width: 20px;
+                  height: 20px;
+                  display: inline-flex;
+                  align-items: center;
+                  justify-content: center;
+                "
+                >2</span
+              >
               Selecione a Categoria de Dados a Importar
             </label>
             <div class="row g-2 g-md-3">
@@ -476,7 +653,9 @@
                   (click)="selecionarCategoria('clientes')"
                   role="button"
                 >
-                  <div class="avatar-circle bg-success-subtle text-success shrink-0 d-flex align-items-center justify-content-center">
+                  <div
+                    class="avatar-circle bg-success-subtle text-success shrink-0 d-flex align-items-center justify-content-center"
+                  >
                     <i class="fas fa-users fs-4"></i>
                   </div>
                   <div class="flex-fill min-w-0">
@@ -484,7 +663,9 @@
                       <h6 class="fw-bold mb-0 custom-dark-text">Clientes</h6>
                       <i class="fas fa-check-circle text-primary fs-5"></i>
                     </div>
-                    <span class="text-muted extra-small d-block mt-0.5">Importação do arquivo CSV de clientes do app Tua Agenda</span>
+                    <span class="text-muted extra-small d-block mt-0.5"
+                      >Importação do arquivo CSV de clientes do app Tua Agenda</span
+                    >
                   </div>
                 </div>
               </div>
@@ -495,11 +676,29 @@
         <!-- Passo 3: Zona de Envio de Arquivo CSV (Clientes do Tua Agenda) -->
         @if (plataformaSelecionada() === 'tua-agenda' && categoriaSelecionada() === 'clientes') {
           <div class="mb-4">
-            <label class="form-label fw-bold custom-dark-text small mb-2 d-flex align-items-center gap-1.5">
-              <span class="badge bg-primary rounded-circle me-1" style="width: 20px; height: 20px; display: inline-flex; align-items: center; justify-content: center;">3</span>
+            <label
+              class="form-label fw-bold custom-dark-text small mb-2 d-flex align-items-center gap-1.5"
+            >
+              <span
+                class="badge bg-primary rounded-circle me-1"
+                style="
+                  width: 20px;
+                  height: 20px;
+                  display: inline-flex;
+                  align-items: center;
+                  justify-content: center;
+                "
+                >3</span
+              >
               Enviar Arquivo CSV de Clientes (.csv)
             </label>
-            <input #csvInput type="file" class="d-none" accept=".csv" (change)="onArquivoCsvSelecionado($event)" />
+            <input
+              #csvInput
+              type="file"
+              class="d-none"
+              accept=".csv"
+              (change)="onArquivoCsvSelecionado($event)"
+            />
 
             @if (!arquivoSelecionado()) {
               <div
@@ -507,16 +706,27 @@
                 (click)="csvInput.click()"
               >
                 <i class="fas fa-file-csv text-primary display-5 mb-2"></i>
-                <h6 class="fw-bold custom-dark-text mb-1">Clique para selecionar o arquivo CSV de clientes do Tua Agenda</h6>
-                <p class="text-muted small mb-0">Suporta arquivos no formato .csv delimitados por vírgula (,) ou ponto-e-vírgula (;)</p>
+                <h6 class="fw-bold custom-dark-text mb-1">
+                  Clique para selecionar o arquivo CSV de clientes do Tua Agenda
+                </h6>
+                <p class="text-muted small mb-0">
+                  Suporta arquivos no formato .csv delimitados por vírgula (,) ou ponto-e-vírgula
+                  (;)
+                </p>
               </div>
             } @else {
-              <div class="p-3 border rounded-3 bg-light-subtle d-flex align-items-center justify-content-between gap-3">
+              <div
+                class="p-3 border rounded-3 bg-light-subtle d-flex align-items-center justify-content-between gap-3"
+              >
                 <div class="d-flex align-items-center gap-3 min-w-0 flex-fill">
                   <i class="fas fa-file-csv text-primary fs-2 shrink-0"></i>
                   <div class="min-w-0 flex-fill">
-                    <h6 class="fw-bold mb-0 text-truncate custom-dark-text">{{ arquivoSelecionado()?.name }}</h6>
-                    <span class="text-muted small">{{ ((arquivoSelecionado()?.size ?? 0) / 1024).toFixed(1) }} KB</span>
+                    <h6 class="fw-bold mb-0 text-truncate custom-dark-text">
+                      {{ arquivoSelecionado()?.name }}
+                    </h6>
+                    <span class="text-muted small"
+                      >{{ ((arquivoSelecionado()?.size ?? 0) / 1024).toFixed(1) }} KB</span
+                    >
                   </div>
                 </div>
 
@@ -537,9 +747,19 @@
 
           <!-- Resumo do Resultado da Importação -->
           @if (resultadoImportacao(); as res) {
-            <div class="alert alert-subtle rounded-3 mb-4 border p-3" [class.alert-success]="res.totalErros === 0" [class.alert-warning]="res.totalErros > 0 || res.totalIgnoradosPorLimite > 0">
+            <div
+              class="alert alert-subtle rounded-3 mb-4 border p-3"
+              [class.alert-success]="res.totalErros === 0"
+              [class.alert-warning]="res.totalErros > 0 || res.totalIgnoradosPorLimite > 0"
+            >
               <h6 class="fw-bold mb-2 d-flex align-items-center gap-2 custom-dark-text">
-                <i class="fas" [class.fa-check-circle]="res.totalErros === 0" [class.fa-exclamation-triangle]="res.totalErros > 0 || res.totalIgnoradosPorLimite > 0"></i>
+                <i
+                  class="fas"
+                  [class.fa-check-circle]="res.totalErros === 0"
+                  [class.fa-exclamation-triangle]="
+                    res.totalErros > 0 || res.totalIgnoradosPorLimite > 0
+                  "
+                ></i>
                 Resultado da Importação de Clientes (Tua Agenda)
               </h6>
 
@@ -565,16 +785,26 @@
                 <div class="col-6 col-sm-3">
                   <div class="p-2 rounded bg-body border text-danger">
                     <span class="d-block text-muted extra-small">Erros / Limites</span>
-                    <span class="fw-bold fs-5">{{ res.totalErros + res.totalIgnoradosPorLimite }}</span>
+                    <span class="fw-bold fs-5">{{
+                      res.totalErros + res.totalIgnoradosPorLimite
+                    }}</span>
                   </div>
                 </div>
               </div>
 
-              @if (res.clientesDuplicadosPorCelular && res.clientesDuplicadosPorCelular.length > 0) {
-                <div class="mt-3 p-2.5 rounded-3 bg-warning-subtle border border-warning-subtle d-flex align-items-center justify-content-between flex-wrap gap-2">
+              @if (
+                res.clientesDuplicadosPorCelular && res.clientesDuplicadosPorCelular.length > 0
+              ) {
+                <div
+                  class="mt-3 p-2.5 rounded-3 bg-warning-subtle border border-warning-subtle d-flex align-items-center justify-content-between flex-wrap gap-2"
+                >
                   <div class="d-flex align-items-center gap-2 text-warning-emphasis small">
                     <i class="fas fa-exclamation-circle fs-5"></i>
-                    <span>Existem <strong>{{ res.clientesDuplicadosPorCelular.length }} cliente(s)</strong> no CSV com número de telefone já cadastrado no sistema.</span>
+                    <span
+                      >Existem
+                      <strong>{{ res.clientesDuplicadosPorCelular.length }} cliente(s)</strong> no
+                      CSV com número de telefone já cadastrado no sistema.</span
+                    >
                   </div>
                   <button
                     type="button"
@@ -588,7 +818,9 @@
 
               @if (res.erros.length > 0) {
                 <div class="mt-3">
-                  <span class="small fw-bold text-danger d-block mb-1">Detalhes dos Alertas / Erros:</span>
+                  <span class="small fw-bold text-danger d-block mb-1"
+                    >Detalhes dos Alertas / Erros:</span
+                  >
                   <ul class="mb-0 small text-danger ps-3 max-h-150 overflow-y-auto">
                     @for (err of res.erros; track err) {
                       <li>{{ err }}</li>
@@ -623,19 +855,27 @@
 
 <!-- Modal: Clientes com Celular Já Cadastrado (Tema Escuro + Claro) -->
 @if (exibirModalDuplicados()) {
-  <div class="modal fade show d-block backdrop-blur z-modal" tabindex="-1" role="dialog" aria-modal="true">
+  <div
+    class="modal fade show d-block backdrop-blur z-modal"
+    tabindex="-1"
+    role="dialog"
+    aria-modal="true"
+  >
     <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
       <div class="modal-content custom-dark-card border-0 shadow-lg rounded-4 overflow-hidden">
         <!-- Modal Header -->
         <div class="modal-header border-bottom border-secondary-subtle p-3 p-md-4">
           <div class="d-flex align-items-center gap-3">
-            <div class="avatar-circle bg-warning-subtle text-warning d-flex align-items-center justify-content-center shrink-0">
+            <div
+              class="avatar-circle bg-warning-subtle text-warning d-flex align-items-center justify-content-center shrink-0"
+            >
               <i class="fas fa-exclamation-triangle fs-4"></i>
             </div>
             <div>
               <h5 class="fw-bold mb-0 custom-dark-text">Clientes com Celular Já Cadastrado</h5>
               <span class="text-muted small custom-dark-text">
-                Número de telefone do arquivo CSV que já pertence a um cliente cadastrado no sistema.
+                Número de telefone do arquivo CSV que já pertence a um cliente cadastrado no
+                sistema.
               </span>
             </div>
           </div>
@@ -650,40 +890,59 @@
         <!-- Modal Body -->
         <div class="modal-body p-3 p-md-4">
           @if (resultadoImportacao()?.clientesDuplicadosPorCelular; as listaDuplicados) {
-            <div class="alert alert-warning-subtle border border-warning-subtle small rounded-3 mb-3 p-3">
+            <div
+              class="alert alert-warning-subtle border border-warning-subtle small rounded-3 mb-3 p-3"
+            >
               <i class="fas fa-info-circle me-1.5 text-warning"></i>
-              <strong>Nota:</strong> As informações cadastrais dos clientes abaixo foram sincronizadas com os dados do arquivo CSV importado do Tua Agenda, mantendo o histórico existente.
+              <strong>Nota:</strong> As informações cadastrais dos clientes abaixo foram
+              sincronizadas com os dados do arquivo CSV importado do Tua Agenda, mantendo o
+              histórico existente.
             </div>
 
             <div class="table-responsive rounded-3 border border-secondary-subtle">
               <table class="table table-hover align-middle mb-0 custom-dark-table">
                 <thead>
                   <tr>
-                    <th class="small fw-bold py-2 text-center custom-dark-text" style="width: 85px;">Linha CSV</th>
+                    <th class="small fw-bold py-2 text-center custom-dark-text" style="width: 85px">
+                      Linha CSV
+                    </th>
                     <th class="small fw-bold py-2 custom-dark-text">Cliente no CSV (Tua Agenda)</th>
                     <th class="small fw-bold py-2 custom-dark-text">Celular (DDD + Número)</th>
-                    <th class="small fw-bold py-2 custom-dark-text">Cliente Existente no Sistema</th>
+                    <th class="small fw-bold py-2 custom-dark-text">
+                      Cliente Existente no Sistema
+                    </th>
                     <th class="small fw-bold py-2 text-center custom-dark-text">Status</th>
                   </tr>
                 </thead>
                 <tbody>
                   @for (item of listaDuplicados; track item.linhaCsv + '_' + item.celular) {
                     <tr>
-                      <td class="text-center font-monospace small custom-dark-text">#{{ item.linhaCsv }}</td>
+                      <td class="text-center font-monospace small custom-dark-text">
+                        #{{ item.linhaCsv }}
+                      </td>
                       <td>
                         <div class="fw-bold custom-dark-text text-break">{{ item.nomeCsv }}</div>
                       </td>
                       <td>
-                        <span class="badge bg-secondary-subtle text-secondary font-monospace custom-dark-badge">{{ item.celular }}</span>
+                        <span
+                          class="badge bg-secondary-subtle text-secondary font-monospace custom-dark-badge"
+                          >{{ item.celular }}</span
+                        >
                       </td>
                       <td>
-                        <div class="fw-semibold custom-dark-text text-break">{{ item.clienteExistenteNome }}</div>
+                        <div class="fw-semibold custom-dark-text text-break">
+                          {{ item.clienteExistenteNome }}
+                        </div>
                         @if (item.clienteExistenteEmail) {
-                          <div class="text-muted extra-small text-break custom-dark-text">{{ item.clienteExistenteEmail }}</div>
+                          <div class="text-muted extra-small text-break custom-dark-text">
+                            {{ item.clienteExistenteEmail }}
+                          </div>
                         }
                       </td>
                       <td class="text-center">
-                        <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-2 py-1 small">
+                        <span
+                          class="badge bg-primary-subtle text-primary border border-primary-subtle px-2 py-1 small"
+                        >
                           <i class="fas fa-sync-alt me-1"></i>Atualizado
                         </span>
                       </td>

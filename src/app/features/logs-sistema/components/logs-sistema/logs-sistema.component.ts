@@ -14,6 +14,8 @@ import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TableColumn, TmTableComponent, TmTextComponent } from '@techminds-group/tm-angular-lib';
 
+import { LogsService } from '../../../../core/services/logs.service';
+
 export interface LogItem {
   id: string;
   dataHora: string;
@@ -35,6 +37,7 @@ export interface LogItem {
 })
 export class LogsSistemaComponent implements OnInit, AfterViewInit {
   private readonly router = inject(Router);
+  private readonly logsService = inject(LogsService);
 
   @ViewChild('dataHoraTemplate', { static: true })
   dataHoraTemplate!: TemplateRef<{ $implicit: LogItem }>;
@@ -45,66 +48,19 @@ export class LogsSistemaComponent implements OnInit, AfterViewInit {
   @ViewChild('moduloTemplate', { static: true })
   moduloTemplate!: TemplateRef<{ $implicit: LogItem }>;
 
+  @ViewChild('detalhesTemplate', { static: true })
+  detalhesTemplate!: TemplateRef<{ $implicit: LogItem }>;
+
   @ViewChild('statusTemplate', { static: true })
   statusTemplate!: TemplateRef<{ $implicit: LogItem }>;
 
   private readonly templatesReady = signal(false);
+  protected readonly carregando = signal(false);
   protected readonly tamanhoPagina = signal<number>(10);
   protected readonly termoBusca = signal<string>('');
   protected readonly moduloFiltro = signal<string>('todos');
 
-  protected readonly logs = signal<LogItem[]>([
-    {
-      id: '1',
-      dataHora: new Date().toISOString(),
-      usuario: 'Administrador Sistema',
-      modulo: 'Usuários',
-      acao: 'Edição de Usuário',
-      detalhes: 'Alterou nível de acesso e dados cadastrais',
-      ip: '192.168.1.10',
-      status: 'Sucesso',
-    },
-    {
-      id: '2',
-      dataHora: new Date(Date.now() - 3600000 * 2).toISOString(),
-      usuario: 'Administrador Sistema',
-      modulo: 'Assinantes',
-      acao: 'Atualização de Status',
-      detalhes: 'Alterou status da assinatura para Ativo',
-      ip: '192.168.1.10',
-      status: 'Sucesso',
-    },
-    {
-      id: '3',
-      dataHora: new Date(Date.now() - 3600000 * 5).toISOString(),
-      usuario: 'Carlos Silva',
-      modulo: 'Agenda',
-      acao: 'Confirmação de Agendamento',
-      detalhes: 'Confirmou agendamento #AGD-1092',
-      ip: '187.54.12.33',
-      status: 'Sucesso',
-    },
-    {
-      id: '4',
-      dataHora: new Date(Date.now() - 3600000 * 12).toISOString(),
-      usuario: 'WhatsApp Automação',
-      modulo: 'WhatsApp',
-      acao: 'Envio de Lembrete',
-      detalhes: 'Lembrete de 1 dia enviado via Evolution API',
-      ip: '10.0.0.5',
-      status: 'Sucesso',
-    },
-    {
-      id: '5',
-      dataHora: new Date(Date.now() - 3600000 * 24).toISOString(),
-      usuario: 'Sistema',
-      modulo: 'Autenticação',
-      acao: 'Tentativa de Login Inválida',
-      detalhes: 'Senha incorreta para usuário admin@groom.com',
-      ip: '200.189.44.12',
-      status: 'Alerta',
-    },
-  ]);
+  protected readonly logs = this.logsService.logs;
 
   protected readonly logsFiltrados = computed<LogItem[]>(() => {
     const busca = this.termoBusca().toLowerCase().trim();
@@ -128,19 +84,38 @@ export class LogsSistemaComponent implements OnInit, AfterViewInit {
       return [];
     }
     return [
-      { header: 'Data/Hora', template: this.dataHoraTemplate, width: '20%' },
-      { header: 'Usuário', template: this.usuarioTemplate, width: '25%' },
-      { header: 'Módulo', template: this.moduloTemplate, width: '15%' },
-      { header: 'Ação / Detalhes', key: 'acao', width: '25%' },
-      { header: 'Status', template: this.statusTemplate, width: '15%' },
+      { header: 'Data/Hora', template: this.dataHoraTemplate, width: '18%' },
+      { header: 'Usuário', template: this.usuarioTemplate, width: '20%' },
+      { header: 'Módulo', template: this.moduloTemplate, width: '14%' },
+      { header: 'Ação / Detalhes', template: this.detalhesTemplate, width: '36%' },
+      { header: 'Status', template: this.statusTemplate, width: '12%' },
     ];
   });
 
-  protected atualizarBusca(val: string | number | null): void {
-    this.termoBusca.set(val ? String(val) : '');
+  async ngOnInit(): Promise<void> {
+    this.carregando.set(true);
+    try {
+      await this.logsService.carregarLogs();
+    } finally {
+      this.carregando.set(false);
+    }
   }
 
-  ngOnInit(): void {}
+  async onModuloChange(val: string): Promise<void> {
+    this.moduloFiltro.set(val);
+    this.carregando.set(true);
+    try {
+      await this.logsService.carregarLogs(val, this.termoBusca());
+    } finally {
+      this.carregando.set(false);
+    }
+  }
+
+  async atualizarBusca(val: string | number | null): Promise<void> {
+    const termo = val ? String(val) : '';
+    this.termoBusca.set(termo);
+    await this.logsService.carregarLogs(this.moduloFiltro(), termo);
+  }
 
   ngAfterViewInit(): void {
     this.templatesReady.set(true);

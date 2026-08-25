@@ -25,7 +25,16 @@ export interface AgendamentoApi {
   observacoes?: string;
 }
 
-const STATUS_VALIDOS = ['pendente', 'agendado', 'confirmado', 'recusado', 'concluido', 'no-show', 'cancelado', 'nao_compareceu'] as const;
+const STATUS_VALIDOS = [
+  'pendente',
+  'agendado',
+  'confirmado',
+  'recusado',
+  'concluido',
+  'no-show',
+  'cancelado',
+  'nao_compareceu',
+] as const;
 type StatusValido = (typeof STATUS_VALIDOS)[number];
 
 function normalizarStatus(status: string): Agendamento['status'] {
@@ -70,16 +79,23 @@ export class AgendamentosService {
   async carregarAgendamentos(profissionalId?: string): Promise<void> {
     const params = profissionalId ? `?profissionalId=${profissionalId}` : '';
     const data = await firstValueFrom(
-      this.http.get<AgendamentoApi[]>(`${this.apiUrl}${params}`, { withCredentials: true })
+      this.http.get<AgendamentoApi[]>(`${this.apiUrl}${params}`, { withCredentials: true }),
     );
     this._agendamentos.set(data.map(mapearAgendamento));
   }
 
   /** Horários disponíveis de um profissional para a data/serviço (com base na agenda e disponibilidade configurada). */
-  async getHorariosDisponiveis(profissionalId: string, data: string, servicoId: string): Promise<HorarioDisponivel[]> {
+  async getHorariosDisponiveis(
+    profissionalId: string,
+    data: string,
+    servicoId: string,
+  ): Promise<HorarioDisponivel[]> {
     const params = `data=${encodeURIComponent(data)}&servicoId=${encodeURIComponent(servicoId)}`;
     return firstValueFrom(
-      this.http.get<HorarioDisponivel[]>(`${this.apiUrl}/profissionais/${profissionalId}/horarios?${params}`, { withCredentials: true })
+      this.http.get<HorarioDisponivel[]>(
+        `${this.apiUrl}/profissionais/${profissionalId}/horarios?${params}`,
+        { withCredentials: true },
+      ),
     );
   }
 
@@ -92,7 +108,7 @@ export class AgendamentosService {
     observacoes?: string;
   }): Promise<Agendamento> {
     const data = await firstValueFrom(
-      this.http.post<AgendamentoApi>(this.apiUrl, dados, { withCredentials: true })
+      this.http.post<AgendamentoApi>(this.apiUrl, dados, { withCredentials: true }),
     );
     return mapearAgendamento(data);
   }
@@ -104,17 +120,17 @@ export class AgendamentosService {
       dataInicio?: string;
       status: 'confirmado' | 'recusado' | 'nao_compareceu' | 'concluido';
       observacoes?: string;
-    }
+    },
   ): Promise<Agendamento> {
     const data = await firstValueFrom(
-      this.http.put<AgendamentoApi>(`${this.apiUrl}/${id}`, dados, { withCredentials: true })
+      this.http.put<AgendamentoApi>(`${this.apiUrl}/${id}`, dados, { withCredentials: true }),
     );
     return mapearAgendamento(data);
   }
 
   async cancelar(id: string, motivo?: string): Promise<void> {
     await firstValueFrom(
-      this.http.put(`${this.apiUrl}/${id}/cancelar`, { motivo }, { withCredentials: true })
+      this.http.put(`${this.apiUrl}/${id}/cancelar`, { motivo }, { withCredentials: true }),
     );
   }
 }
