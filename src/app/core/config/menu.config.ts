@@ -55,6 +55,7 @@ export const ALL_SIDEBAR_MENU_ITEMS: MenuItem[] = [
       { label: 'Estabelecimento', icon: 'fas fa-store', route: '/configuracoes/estabelecimento' },
       { label: 'WhatsApp', icon: 'fab fa-whatsapp', route: '/configuracoes/whatsapp' },
       { label: 'Minha Assinatura', icon: 'fas fa-credit-card', route: '/assinatura' },
+      { label: 'Logs do Sistema', icon: 'fas fa-history', route: '/configuracoes/logs' },
     ],
   },
   {

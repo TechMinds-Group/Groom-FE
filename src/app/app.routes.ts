@@ -251,6 +251,13 @@ export const routes: Routes = [
                 (m) => m.WhatsappIntegracaoComponent,
               ),
           },
+          {
+            path: 'logs',
+            loadComponent: () =>
+              import('./features/logs-sistema/components/logs-sistema/logs-sistema.component').then(
+                (m) => m.LogsSistemaComponent,
+              ),
+          },
         ],
       },
       {

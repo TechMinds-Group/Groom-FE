@@ -1,7 +1,17 @@
-import { ChangeDetectionStrategy, Component, signal, ViewChild, TemplateRef, AfterViewInit, OnInit, inject } from '@angular/core';
+import {
+  AfterViewInit,
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  inject,
+  OnInit,
+  signal,
+  TemplateRef,
+  ViewChild,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
-import { TmTableComponent, TableColumn } from '@techminds-group/tm-angular-lib';
+import { TableColumn, TmTableComponent } from '@techminds-group/tm-angular-lib';
 import { ClientesService } from '../../../../core/services/clientes.service';
 import { Cliente } from '../../../../core/models/clientes/cliente.model';
 import { StatusClienteBadgePipe } from '../../pipes/status-cliente-badge.pipe';
@@ -25,24 +35,35 @@ export class ClientesComponent implements OnInit, AfterViewInit {
   protected readonly helper = inject(ClientesHelperService);
   private readonly router = inject(Router);
 
-  ngOnInit(): void {
-    this.clientesService.carregarClientes();
-  }
-
   @ViewChild('clienteTemplate', { static: true })
   clienteTemplate!: TemplateRef<{ $implicit: Cliente }>;
+
+  @ViewChild('celularTemplate', { static: true })
+  celularTemplate!: TemplateRef<{ $implicit: Cliente }>;
 
   @ViewChild('statusTemplate', { static: true })
   statusTemplate!: TemplateRef<{ $implicit: Cliente }>;
 
+  private readonly templatesReady = signal(false);
   protected readonly tamanhoPagina = signal<number>(5);
-  protected readonly cols = signal<TableColumn<Cliente>[]>([]);
+
+  protected readonly cols = computed<TableColumn<Cliente>[]>(() => {
+    if (!this.templatesReady()) {
+      return [];
+    }
+    return [
+      { header: 'Cliente', template: this.clienteTemplate, width: '40%' },
+      { header: 'Celular', template: this.celularTemplate, width: '35%' },
+      { header: 'Status', template: this.statusTemplate, width: '25%' },
+    ];
+  });
+
+  async ngOnInit(): Promise<void> {
+    await this.clientesService.carregarClientes();
+  }
 
   ngAfterViewInit(): void {
-    this.cols.set([
-      { header: 'Cliente', template: this.clienteTemplate, width: '65%' },
-      { header: 'Status', template: this.statusTemplate, width: '35%' },
-    ]);
+    this.templatesReady.set(true);
   }
 
   verDetalhes(item: Cliente): void {

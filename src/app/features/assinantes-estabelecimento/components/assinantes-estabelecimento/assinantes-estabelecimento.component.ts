@@ -1,7 +1,17 @@
-import { ChangeDetectionStrategy, Component, signal, ViewChild, TemplateRef, AfterViewInit, OnInit, inject } from '@angular/core';
+import {
+  AfterViewInit,
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  inject,
+  OnInit,
+  signal,
+  TemplateRef,
+  ViewChild,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
-import { TmTableComponent, TableColumn } from '@techminds-group/tm-angular-lib';
+import { TableColumn, TmTableComponent } from '@techminds-group/tm-angular-lib';
 import { AssinantesService, ClienteAssinante } from '../../../../core/services/assinantes.service';
 import { StatusAssinanteBadgePipe } from '../../pipes/status-assinante.pipe';
 import { AssinantesEstabelecimentoHelperService } from '../../services/assinantes-estabelecimento-helper.service';
@@ -24,12 +34,11 @@ export class AssinantesEstabelecimentoComponent implements OnInit, AfterViewInit
   protected readonly helper = inject(AssinantesEstabelecimentoHelperService);
   private readonly router = inject(Router);
 
-  ngOnInit(): void {
-    this.assinantesService.carregarAssinantes();
-  }
-
   @ViewChild('clienteTemplate', { static: true })
   clienteTemplate!: TemplateRef<{ $implicit: ClienteAssinante }>;
+
+  @ViewChild('celularTemplate', { static: true })
+  celularTemplate!: TemplateRef<{ $implicit: ClienteAssinante }>;
 
   @ViewChild('planoTemplate', { static: true })
   planoTemplate!: TemplateRef<{ $implicit: ClienteAssinante }>;
@@ -37,15 +46,31 @@ export class AssinantesEstabelecimentoComponent implements OnInit, AfterViewInit
   @ViewChild('statusTemplate', { static: true })
   statusTemplate!: TemplateRef<{ $implicit: ClienteAssinante }>;
 
+  private readonly templatesReady = signal(false);
   protected readonly tamanhoPagina = signal<number>(5);
-  protected readonly cols = signal<TableColumn<ClienteAssinante>[]>([]);
+
+  protected readonly cols = computed<TableColumn<ClienteAssinante>[]>(() => {
+    if (!this.templatesReady()) {
+      return [];
+    }
+    return [
+      { header: 'Assinante', template: this.clienteTemplate, width: '35%' },
+      { header: 'Celular', template: this.celularTemplate, width: '30%' },
+      { header: 'Plano', template: this.planoTemplate, width: '20%' },
+      { header: 'Status', template: this.statusTemplate, width: '15%' },
+    ];
+  });
+
+  async ngOnInit(): Promise<void> {
+    await this.clientesServiceOrAssinantes();
+  }
+
+  private async clientesServiceOrAssinantes(): Promise<void> {
+    await this.assinantesService.carregarAssinantes();
+  }
 
   ngAfterViewInit(): void {
-    this.cols.set([
-      { header: 'Cliente', template: this.clienteTemplate, width: '40%' },
-      { header: 'Plano', template: this.planoTemplate, width: '35%' },
-      { header: 'Status', template: this.statusTemplate, width: '25%' },
-    ]);
+    this.templatesReady.set(true);
   }
 
   verDetalhes(item: ClienteAssinante): void {
@@ -54,5 +79,12 @@ export class AssinantesEstabelecimentoComponent implements OnInit, AfterViewInit
 
   abrirNovo(): void {
     this.router.navigate(['/gestao/assinantes/novo']);
+  }
+
+  protected obterLinkWhatsapp(celular?: string): string {
+    if (!celular) return '#';
+    const num = celular.replace(/\D/g, '');
+    const comDdi = num.startsWith('55') ? num : `55${num}`;
+    return `https://wa.me/${comDdi}`;
   }
 }

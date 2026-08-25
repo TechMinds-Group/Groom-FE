@@ -1,14 +1,29 @@
-import { ChangeDetectionStrategy, Component, inject, OnInit, signal, computed } from '@angular/core';
+import {
+  AfterViewInit,
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  inject,
+  OnInit,
+  signal,
+  TemplateRef,
+  ViewChild,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
-import { TmTableComponent, TableColumn, TmSelectOption } from '@techminds-group/tm-angular-lib';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import {
+  TableColumn,
+  TmModalComponent,
+  TmSelectOption,
+  TmTableComponent,
+  TmTextComponent,
+  TmToastService,
+} from '@techminds-group/tm-angular-lib';
 import { AssinantesService, ClienteAssinante } from '../../../../core/services/assinantes.service';
 import { ClubesService } from '../../../../core/services/clubes.service';
 import { CompartilharService } from '../../../../core/services/compartilhar.service';
-import { TmToastService } from '@techminds-group/tm-angular-lib';
-import { AssinanteDetalhesGeralComponent } from '../assinante-detalhes-geral/assinante-detalhes-geral.component';
-import { AssinanteDetalhesAcoesComponent } from '../assinante-detalhes-acoes/assinante-detalhes-acoes.component';
-import { AssinanteModalEditarComponent, AssinanteEdicaoPayload } from '../modais/assinante-modal-editar/assinante-modal-editar.component';
+import { StatusAssinanteBadgePipe } from '../../pipes/status-assinante.pipe';
 import { AssinanteModalExcluirComponent } from '../modais/assinante-modal-excluir/assinante-modal-excluir.component';
 import { AssinanteDetalhes, PagamentoAssinante } from '../../models/assinante-config.model';
 import { AssinantesEstabelecimentoHelperService } from '../../services/assinantes-estabelecimento-helper.service';
@@ -18,10 +33,10 @@ import { AssinantesEstabelecimentoHelperService } from '../../services/assinante
   standalone: true,
   imports: [
     CommonModule,
+    ReactiveFormsModule,
+    TmTextComponent,
     TmTableComponent,
-    AssinanteDetalhesGeralComponent,
-    AssinanteDetalhesAcoesComponent,
-    AssinanteModalEditarComponent,
+    StatusAssinanteBadgePipe,
     AssinanteModalExcluirComponent,
   ],
   templateUrl: './assinante-detalhes.component.html',
@@ -29,27 +44,53 @@ import { AssinantesEstabelecimentoHelperService } from '../../services/assinante
   changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [AssinantesEstabelecimentoHelperService],
 })
-export class AssinanteDetalhesComponent implements OnInit {
+export class AssinanteDetalhesComponent implements OnInit, AfterViewInit {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
-  private readonly assinantesService = inject(AssinantesService);
+  private readonly fb = inject(FormBuilder);
+  protected readonly assinantesService = inject(AssinantesService);
   private readonly clubesService = inject(ClubesService);
   private readonly compartilharService = inject(CompartilharService);
+  protected readonly helper = inject(AssinantesEstabelecimentoHelperService);
   private readonly toastService = inject(TmToastService);
 
+  @ViewChild('dataTemplate', { static: true }) dataTemplate!: TemplateRef<{ $implicit: PagamentoAssinante }>;
+  @ViewChild('valorTemplate', { static: true }) valorTemplate!: TemplateRef<{ $implicit: PagamentoAssinante }>;
+  @ViewChild('statusTemplate', { static: true }) statusTemplate!: TemplateRef<{ $implicit: PagamentoAssinante }>;
+
+  private readonly templatesReady = signal(false);
+  protected readonly tamanhoPaginaPagamentos = signal<number>(5);
+
+  protected readonly colsPagamentos = computed<TableColumn<PagamentoAssinante>[]>(() => {
+    if (!this.templatesReady()) {
+      return [];
+    }
+    return [
+      { header: 'Data', template: this.dataTemplate, width: '25%' },
+      { header: 'Descrição', key: 'descricao', width: '35%' },
+      { header: 'Valor', template: this.valorTemplate, width: '20%' },
+      { header: 'Status', template: this.statusTemplate, width: '20%' },
+    ];
+  });
+
   protected readonly assinante = signal<AssinanteDetalhes | null>(null);
-  protected readonly showEditModal = signal<boolean>(false);
+  protected readonly clienteOriginal = signal<ClienteAssinante | null>(null);
+  protected readonly modoEdicao = signal<boolean>(false);
+  protected readonly salvando = signal<boolean>(false);
   protected readonly showDeleteConfirmModal = signal<boolean>(false);
+
   protected readonly linkUrl = signal<string | null>(null);
   protected readonly linkExpiresAt = signal<string | null>(null);
   protected readonly gerandoLink = signal<boolean>(false);
 
-  protected readonly cols = signal<TableColumn<PagamentoAssinante>[]>([
-    { header: 'Data', key: 'data', width: '25%' },
-    { header: 'Descrição', key: 'descricao', width: '35%' },
-    { header: 'Valor', key: 'valor', width: '20%' },
-    { header: 'Status', key: 'status', width: '20%' },
-  ]);
+  protected readonly form: FormGroup = this.fb.group({
+    clienteNome: ['', [Validators.required, Validators.maxLength(60)]],
+    clienteEmail: ['', [Validators.required, Validators.email]],
+    celular: ['', [Validators.required, Validators.maxLength(15)]],
+    clubeId: ['', [Validators.required]],
+    dataInicio: ['', [Validators.required]],
+    status: ['Ativo'],
+  });
 
   protected readonly clubeOptions = computed<TmSelectOption[]>(() => {
     return this.clubesService.clubes().map((clube) => ({
@@ -62,35 +103,86 @@ export class AssinanteDetalhesComponent implements OnInit {
     this.clubesService.carregarClubes().subscribe();
     const id = this.route.snapshot.paramMap.get('id');
     if (id) {
-      this.carregarAssinante(id);
+      void this.carregarAssinante(id);
     }
+  }
+
+  ngAfterViewInit(): void {
+    this.templatesReady.set(true);
   }
 
   voltar(): void {
     this.router.navigate(['/gestao/assinantes']);
   }
 
-  abrirEdicao(): void {
-    this.showEditModal.set(true);
+  protected habilitarEdicao(): void {
+    const orig = this.clienteOriginal();
+    if (orig) {
+      this.preencherFormulario(orig);
+      this.modoEdicao.set(true);
+    }
   }
 
-  async salvarEdicao(payload: AssinanteEdicaoPayload): Promise<void> {
+  protected cancelarEdicao(): void {
+    this.modoEdicao.set(false);
+  }
+
+  protected alternarStatus(event: Event): void {
+    const alvo = event.target as HTMLInputElement;
+    this.form.get('status')?.setValue(alvo.checked ? 'Ativo' : 'Pendente');
+  }
+
+  protected async salvarGeral(): Promise<void> {
+    if (this.form.invalid) {
+      this.form.markAllAsTouched();
+      this.toastService.error('Preencha os campos obrigatórios do formulário.', 'Atenção');
+      return;
+    }
+
     const a = this.assinante();
     if (!a) return;
 
-    await this.assinantesService.atualizar(a.id, {
-      clienteNome: payload.clienteNome,
-      celular: payload.celular,
-      clienteEmail: payload.clienteEmail,
-      clubeId: payload.clubeId,
-      dataInicio: payload.dataInicio,
-    });
-    this.showEditModal.set(false);
-    await this.carregarAssinante(a.id);
+    const digitsCelular = (this.form.value.celular ?? '').replace(/\D/g, '');
+    if (!digitsCelular || digitsCelular.length < 10 || digitsCelular.length > 13) {
+      this.toastService.error('O número de celular / WhatsApp é obrigatório e deve ser válido.', 'Erro');
+      return;
+    }
+
+    this.salvando.set(true);
+    try {
+      const raw = this.form.value;
+      await this.assinantesService.atualizar(a.id, {
+        clienteNome: raw.clienteNome,
+        clienteEmail: raw.clienteEmail,
+        celular: digitsCelular,
+        clubeId: raw.clubeId,
+        dataInicio: raw.dataInicio,
+        status: raw.status,
+      });
+
+      this.toastService.success('Assinatura atualizada com sucesso!', 'Sucesso');
+      await this.carregarAssinante(a.id);
+      this.modoEdicao.set(false);
+    } catch (err) {
+      console.error('Erro ao salvar alterações da assinatura', err);
+      this.toastService.error('Erro ao salvar alterações da assinatura.', 'Erro');
+    } finally {
+      this.salvando.set(false);
+    }
   }
 
   excluir(): void {
     this.showDeleteConfirmModal.set(true);
+  }
+
+  async confirmarExcluir(): Promise<void> {
+    const a = this.assinante();
+    if (!a) return;
+
+    await this.assinantesService.excluir(a.id);
+    this.showDeleteConfirmModal.set(false);
+    this.toastService.success('Assinatura excluída com sucesso!', 'Sucesso');
+    this.voltar();
   }
 
   async gerarLink(): Promise<void> {
@@ -108,6 +200,7 @@ export class AssinanteDetalhesComponent implements OnInit {
     } catch {
       this.linkUrl.set(null);
       this.linkExpiresAt.set(null);
+      this.toastService.error('Erro ao gerar link compartilhável.', 'Erro');
     } finally {
       this.gerandoLink.set(false);
     }
@@ -117,7 +210,7 @@ export class AssinanteDetalhesComponent implements OnInit {
     const url = this.linkUrl();
     if (url) {
       navigator.clipboard.writeText(url);
-      this.toastService.success('Link copiado!', 'Sucesso');
+      this.toastService.success('Link copiado para a área de transferência!', 'Sucesso');
     }
   }
 
@@ -126,18 +219,17 @@ export class AssinanteDetalhesComponent implements OnInit {
     this.linkExpiresAt.set(null);
   }
 
-  async confirmarExcluir(): Promise<void> {
-    const a = this.assinante();
-    if (!a) return;
-
-    await this.assinantesService.excluir(a.id);
-    this.showDeleteConfirmModal.set(false);
-    this.voltar();
+  protected obterLinkWhatsapp(celular?: string): string {
+    if (!celular) return '#';
+    const num = celular.replace(/\D/g, '');
+    const comDdi = num.startsWith('55') ? num : `55${num}`;
+    return `https://wa.me/${comDdi}`;
   }
 
   private async carregarAssinante(id: string): Promise<void> {
     try {
       const cliente: ClienteAssinante = await this.assinantesService.carregarAssinantePorId(id);
+      this.clienteOriginal.set(cliente);
 
       const pagamentos: PagamentoAssinante[] = [];
       const dateInicio = new Date(cliente.dataInicio + 'T00:00:00');
@@ -197,8 +289,30 @@ export class AssinanteDetalhesComponent implements OnInit {
         historicoPagamentos: pagamentos,
       });
     } catch (err) {
-      console.error('Erro ao carregar assinante');
+      console.error('Erro ao carregar assinante', err);
       this.router.navigate(['/gestao/assinantes']);
     }
+  }
+
+  private formatarCelular(numero: string): string {
+    const digits = numero.replace(/\D/g, '');
+    if (digits.length === 11) {
+      return `(${digits.slice(0, 2)}) ${digits.slice(2, 7)}-${digits.slice(7)}`;
+    }
+    if (digits.length === 10) {
+      return `(${digits.slice(0, 2)}) ${digits.slice(2, 6)}-${digits.slice(6)}`;
+    }
+    return numero;
+  }
+
+  private preencherFormulario(orig: ClienteAssinante): void {
+    this.form.patchValue({
+      clienteNome: orig.clienteNome,
+      clienteEmail: orig.clienteEmail ?? '',
+      celular: this.formatarCelular(orig.celular ?? ''),
+      clubeId: orig.clubeId ?? '',
+      dataInicio: this.helper.formatarDataParaInputDate(orig.dataInicio),
+      status: orig.status ?? 'Ativo',
+    });
   }
 }

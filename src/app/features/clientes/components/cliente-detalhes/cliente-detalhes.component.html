@@ -1,22 +1,26 @@
-<div class="container mt-5">
+<div class="container mt-5 mb-5">
   @if (cliente(); as c) {
-    <!-- Header: botão voltar circular + nome + subtítulo — padrão idêntico ao gestao-usuario-detalhes -->
+    <!-- Header: Voltar + Nome do Cliente + Subtítulo — padrão idêntico ao profissional-detalhes -->
     <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between mb-4 gap-3">
       <div class="d-flex align-items-center gap-3">
-        <button (click)="voltar()" class="btn btn-light shadow-sm rounded-circle p-0 d-flex align-items-center justify-content-center btn-voltar" title="Voltar para Clientes">
-          <i class="fas fa-arrow-left text-muted"></i>
+        <button
+          (click)="voltar()"
+          class="btn btn-light shadow-sm rounded-circle p-0 d-flex align-items-center justify-content-center btn-voltar"
+          title="Voltar"
+        >
+          <i class="fas fa-arrow-left custom-dark-text"></i>
         </button>
 
         <div>
-          <h1 class="h2 text-primary fw-bold mb-1 custom-dark-text">
-            Detalhes do Cliente
-          </h1>
-          <p class="text-muted custom-dark-text small mb-0">Informações completas, contato e histórico de agendamentos.</p>
+          <h2 class="h4 mb-0 fw-bold custom-dark-text d-flex align-items-center gap-2">
+            {{ getNomeCompleto(c) }}
+          </h2>
+          <span class="text-muted small custom-dark-text">Detalhes do Cliente</span>
         </div>
       </div>
     </div>
 
-    <!-- Error banner de exclusão bloqueada -->
+    <!-- Banner de erro de exclusão bloqueada -->
     @if (mensagemErroExclusao()) {
       <div class="alert alert-danger alert-dismissible d-flex align-items-start gap-2 mb-4 shadow-sm rounded-3" role="alert">
         <i class="fas fa-exclamation-triangle mt-1 flex-shrink-0"></i>
@@ -28,150 +32,231 @@
       </div>
     }
 
-    <!-- Linha 1: Informações (col-lg-8) + Ações (col-lg-4) -->
-    <div class="row g-4 mb-4">
-      <!-- Card: Informações pessoais -->
-      <div class="col-lg-8 col-12">
-        <div class="card border-0 shadow-sm p-4 h-100 details-card custom-dark-card" style="overflow: hidden;">
-          <!-- Avatar + Nome + E-mail -->
-          <div class="d-flex align-items-center gap-3 border-bottom pb-4 mb-4" style="min-width: 0;">
-            <div class="avatar-circle bg-primary-subtle text-primary d-flex align-items-center justify-content-center">
-              <i class="fas fa-user fs-3"></i>
-            </div>
-            <div style="min-width: 0; flex: 1 1 0;">
-              <h3 class="h5 fw-bold mb-0 custom-dark-text" style="word-break: break-word;">{{ c.nome }}</h3>
-            </div>
-          </div>
+    <!-- Form Wrapper / Grid Principal (row g-4 mb-5) -->
+    <form [formGroup]="form">
+      <div class="row g-4 mb-5">
+        <!-- Coluna Principal: Quando em modoEdicao, expande para col-12 (largura total) ocultando Ações Rápidas -->
+        <div [class]="modoEdicao() ? 'col-12' : 'col-xl-8 col-12'">
+          <div class="card border-0 shadow-sm p-4 details-card custom-dark-card rounded-4">
 
-          <!-- Campos -->
-          <div class="row g-4">
-            <div class="col-sm-6 col-12">
-              <label class="form-label small fw-bold text-muted text-uppercase">Celular / WhatsApp</label>
-              <div class="mt-1 field-value">
-                <span class="fw-medium custom-dark-text"><i class="fab fa-whatsapp text-success me-1"></i>{{ c.celular }}</span>
+            <!-- 1. Header do Perfil (Avatar/Foto e Nome do Cliente) -->
+            <div class="d-flex align-items-center gap-3 border-bottom pb-4 mb-4">
+              <div class="avatar-circle bg-primary-subtle text-primary d-flex align-items-center justify-content-center">
+                <i class="fas fa-user fs-3"></i>
+              </div>
+              <div>
+                <h2 class="h3 fw-bold mb-0 custom-dark-text">{{ getNomeCompleto(c) }}</h2>
               </div>
             </div>
 
-            <!-- Status dentro do card -->
-            <div class="col-sm-6 col-12">
-              <label class="form-label small fw-bold text-muted text-uppercase">Status</label>
-              <div class="mt-1">
-                @if (c.status | statusClienteBadge; as badge) {
-                  <span class="badge border px-3 py-1 rounded-pill fw-semibold" [ngClass]="badge.badgeClass">
-                    <i [class]="badge.iconClass"></i>{{ badge.label }}
-                  </span>
+            <!-- 2. Informações Cadastrais (Leitura vs Edição) -->
+            @if (!modoEdicao()) {
+              <div class="row g-4 mb-2">
+                <!-- Status -->
+                <div class="col-sm-6 col-12">
+                  <label class="form-label small fw-bold text-muted text-uppercase tracking-wider">Status</label>
+                  <div class="mt-1">
+                    @if (c.status | statusClienteBadge; as badge) {
+                      <span class="badge border px-3 py-1.5 rounded-pill fw-semibold" [ngClass]="badge.badgeClass">
+                        <i [class]="badge.iconClass" class="me-1"></i>{{ badge.label }}
+                      </span>
+                    }
+                  </div>
+                </div>
+
+                <!-- Celular / WhatsApp com Ícone do WhatsApp clicável na frente do número -->
+                <div class="col-sm-6 col-12">
+                  <label class="form-label small fw-bold text-muted text-uppercase tracking-wider">Celular / WhatsApp</label>
+                  <div class="mt-1">
+                    @if (c.celular) {
+                      <a
+                        [href]="obterLinkWhatsapp(c.celular)"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="text-success text-decoration-none d-inline-flex align-items-center fw-semibold"
+                        title="Chamar no WhatsApp"
+                      >
+                        <i class="fab fa-whatsapp fs-5 text-success me-2"></i>
+                        <span class="custom-dark-text">{{ c.celular }}</span>
+                      </a>
+                    } @else {
+                      <p class="fw-semibold mb-0 custom-dark-text">—</p>
+                    }
+                  </div>
+                </div>
+
+                <!-- E-mail -->
+                <div class="col-sm-6 col-12">
+                  <label class="form-label small fw-bold text-muted text-uppercase tracking-wider">E-mail</label>
+                  <p class="fw-semibold mb-0 custom-dark-text">
+                    <i class="far fa-envelope text-primary me-2"></i>{{ c.email || '—' }}
+                  </p>
+                </div>
+
+                <!-- CPF -->
+                <div class="col-sm-6 col-12">
+                  <label class="form-label small fw-bold text-muted text-uppercase tracking-wider">CPF</label>
+                  <p class="fw-semibold mb-0 custom-dark-text">
+                    <i class="far fa-id-card text-info me-2"></i>{{ helper.formatarCpf(c.cpf) || '—' }}
+                  </p>
+                </div>
+
+                <!-- Data de Nascimento -->
+                <div class="col-sm-6 col-12">
+                  <label class="form-label small fw-bold text-muted text-uppercase tracking-wider">Data de Nascimento</label>
+                  <p class="fw-semibold mb-0 custom-dark-text">
+                    <i class="far fa-calendar-alt text-warning me-2"></i>{{ helper.formatarData(c.dataNascimento) || '—' }}
+                  </p>
+                </div>
+
+                <!-- Observações -->
+                @if (c.observacoes) {
+                  <div class="col-12">
+                    <label class="form-label small fw-bold text-muted text-uppercase tracking-wider">
+                      <i class="far fa-comment-alt text-secondary me-2"></i>Observações
+                    </label>
+                    <div class="mt-1">
+                      <p class="custom-dark-text custom-dark-highlight rounded p-3 mb-0 small border field-value">
+                        {{ c.observacoes }}
+                      </p>
+                    </div>
+                  </div>
                 }
               </div>
-            </div>
+            } @else {
+              <!-- Formulário Inline de Dados Cadastrais -->
+              <div class="row g-3 mb-4">
+                <div class="col-sm-6 col-12">
+                  <tm-text formControlName="nome" label="Nome *" placeholder="Ex: Maria" class="custom-dark-text"></tm-text>
+                </div>
 
-            @if (c.email) {
-              <div class="col-sm-6 col-12">
-                <label class="form-label small fw-bold text-muted text-uppercase">E-mail</label>
-                <div class="mt-1 field-value">
-                  <span class="custom-dark-text">{{ c.email }}</span>
+                <div class="col-sm-6 col-12">
+                  <tm-text formControlName="sobrenome" label="Sobrenome" placeholder="Ex: Silva" class="custom-dark-text"></tm-text>
+                </div>
+
+                <div class="col-sm-6 col-12">
+                  <tm-text formControlName="email" label="E-mail *" placeholder="exemplo@email.com" type="email" class="custom-dark-text"></tm-text>
+                </div>
+
+                <div class="col-sm-6 col-12">
+                  <tm-text formControlName="celular" label="Celular / WhatsApp *" placeholder="(11) 98888-7777" mask="phone" [maxlength]="15" class="custom-dark-text"></tm-text>
+                </div>
+
+                <div class="col-sm-6 col-12">
+                  <tm-text formControlName="cpf" label="CPF" placeholder="000.000.000-00" mask="cpf" [maxlength]="14" class="custom-dark-text"></tm-text>
+                </div>
+
+                <div class="col-sm-6 col-12">
+                  <tm-text formControlName="dataNascimento" label="Data de Nascimento" type="date" class="custom-dark-text"></tm-text>
+                </div>
+
+                <div class="col-12">
+                  <tm-text formControlName="observacoes" label="Observações" placeholder="Observações internas sobre o cliente" class="custom-dark-text"></tm-text>
                 </div>
               </div>
             }
 
-            @if (c.cpf) {
-              <div class="col-sm-6 col-12">
-                <label class="form-label small fw-bold text-muted text-uppercase">CPF</label>
-                <div class="mt-1 field-value">
-                  <span class="custom-dark-text">{{ helper.formatarCpf(c.cpf) }}</span>
+            <!-- 3. Opção de Cliente Ativo (Último Campo de Edição) -->
+            @if (modoEdicao()) {
+              <div class="border-top pt-4 mt-2">
+                <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 p-3 rounded-3 border border-secondary-subtle">
+                  <div>
+                    <div class="fw-bold custom-dark-text">Cliente ativo</div>
+                    <div class="small text-muted custom-dark-text">Clientes inativos não podem ser selecionados em novos agendamentos.</div>
+                  </div>
+                  <div class="form-check form-switch mb-0 shrink-0">
+                    <input
+                      class="form-check-input"
+                      type="checkbox"
+                      role="switch"
+                      id="switch-status-cliente"
+                      aria-label="Alternar status do cliente"
+                      [checked]="form.get('status')?.value === 'Ativo'"
+                      (change)="alternarStatus($event)"
+                    />
+                  </div>
                 </div>
               </div>
             }
 
-            @if (c.dataNascimento) {
-              <div class="col-sm-6 col-12">
-                <label class="form-label small fw-bold text-muted text-uppercase">Data de Nascimento</label>
-                <div class="mt-1 field-value">
-                  <span class="custom-dark-text">{{ c.dataNascimento | date:'dd/MM/yyyy' }}</span>
-                </div>
-              </div>
-            }
+            <!-- 4. Barra de Ações (Salvar / Cancelar) no Final do Bloco Pai (Quando em modoEdicao) -->
+            @if (modoEdicao()) {
+              <div class="border-top pt-4 mt-4 d-flex align-items-center justify-content-end gap-3">
+                <button
+                  type="button"
+                  class="btn btn-outline-secondary px-4 py-2.5 rounded-3 fw-bold"
+                  (click)="cancelarEdicao()"
+                  [disabled]="salvando()"
+                >
+                  <i class="fas fa-times me-2"></i>Cancelar
+                </button>
 
-            @if (c.observacoes) {
-              <div class="col-12">
-                <label class="form-label small fw-bold text-muted text-uppercase">Observações</label>
-                <div class="mt-1">
-                  <p class="custom-dark-text custom-dark-highlight rounded p-3 mb-0 small border field-value">{{ c.observacoes }}</p>
-                </div>
-              </div>
-            }
-          </div>
-        </div>
-      </div>
-
-      <!-- Card: Ações rápidas -->
-      <div class="col-lg-4 col-12">
-        <div class="card border-0 shadow-sm p-4 h-100 actions-card custom-dark-card">
-          <h4 class="h5 fw-bold mb-4 custom-dark-text">
-            <i class="fas fa-sliders-h me-2 text-primary"></i>Ações Rápidas
-          </h4>
-
-          <div class="d-grid gap-3">
-            <button (click)="abrirEdicao()" class="btn btn-primary py-2 fw-bold w-100 custom-action-btn">
-              <i class="fas fa-edit me-2"></i>Editar
-            </button>
-
-            <button (click)="excluir()" class="btn btn-outline-danger py-2 fw-bold w-100 custom-action-btn">
-              <i class="fas fa-trash-can me-2"></i>Excluir
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Linha 2: Histórico de Agendamentos -->
-    <div class="row g-4 mb-5">
-      <div class="col-12">
-        <div class="card border-0 shadow-sm p-4 custom-dark-card" style="overflow: hidden;">
-          <h4 class="h5 fw-bold mb-4 custom-dark-text d-flex align-items-center justify-content-between">
-            <span><i class="fas fa-calendar-alt me-2 text-primary"></i>Histórico de Agendamentos</span>
-            <span class="badge bg-primary rounded-pill flex-shrink-0">{{ agendamentosCliente().length }}</span>
-          </h4>
-
-          @if (agendamentosCliente().length === 0) {
-            <div class="text-center py-4 text-muted">
-              <i class="far fa-calendar-times fa-2x mb-2 d-block custom-dark-text"></i>
-              <p class="mb-0 small custom-dark-text">Nenhum agendamento encontrado para este cliente.</p>
-            </div>
-          } @else {
-            <div class="table-responsive">
-              <table class="table table-hover align-middle mb-0 small">
-                <thead class="table-light">
-                  <tr>
-                    <th class="text-nowrap">Serviço</th>
-                    <th class="text-nowrap">Profissional</th>
-                    <th class="text-nowrap">Data / Hora</th>
-                    <th class="text-nowrap">Status</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  @for (a of agendamentosCliente(); track a.id) {
-                    <tr>
-                      <td class="fw-semibold custom-dark-text text-nowrap">{{ a.servicoNome }}</td>
-                      <td class="custom-dark-text text-nowrap">{{ a.profissionalNome }}</td>
-                      <td class="custom-dark-text text-nowrap">{{ a.dataInicio | date:'dd/MM/yyyy HH:mm' }}</td>
-                      <td class="text-nowrap">
-                        <span class="badge rounded-pill small fw-semibold border text-nowrap" [ngClass]="{
-                          'bg-success-subtle text-success border-success-subtle': a.status === 'confirmado',
-                          'bg-warning-subtle text-warning border-warning-subtle': a.status === 'agendado' || a.status === 'pendente',
-                          'bg-danger-subtle text-danger border-danger-subtle': a.status === 'recusado' || a.status === 'cancelado',
-                          'bg-secondary-subtle text-secondary border-secondary-subtle': a.status === 'concluido'
-                        }">{{ a.status }}</span>
-                      </td>
-                    </tr>
+                <button
+                  type="button"
+                  class="btn btn-primary px-4 py-2.5 rounded-3 fw-bold shadow-sm"
+                  (click)="salvarGeral()"
+                  [disabled]="salvando()"
+                >
+                  @if (salvando()) {
+                    <span class="spinner-border spinner-border-sm me-2" role="status"></span>Salvando...
+                  } @else {
+                    <i class="fas fa-save me-2"></i>Salvar
                   }
-                </tbody>
-              </table>
-            </div>
-          }
+                </button>
+              </div>
+            }
+
+          </div>
         </div>
+
+        <!-- Coluna Direita: Card Ações Rápidas (Exibido apenas no modo de leitura) -->
+        @if (!modoEdicao()) {
+          <div class="col-xl-4 col-12">
+            <div class="card border-0 shadow-sm p-4 actions-card custom-dark-card">
+              <h4 class="h5 fw-bold mb-4 custom-dark-text">
+                <i class="fas fa-sliders-h me-2 text-primary"></i>Ações Rápidas
+              </h4>
+
+              <div class="d-grid gap-3">
+                <button
+                  type="button"
+                  (click)="habilitarEdicao()"
+                  class="btn btn-primary py-2.5 fw-bold w-100 transition-all custom-action-btn"
+                >
+                  <i class="fas fa-edit me-2"></i>Editar
+                </button>
+
+                <button
+                  type="button"
+                  (click)="excluir()"
+                  class="btn btn-outline-danger py-2.5 fw-bold w-100 transition-all custom-action-btn"
+                >
+                  <i class="fas fa-trash-can me-2"></i>Excluir
+                </button>
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+    </form>
+
+    <!-- Linha 3: Histórico de Agendamentos (Tabela Paginada tm-table - Padrão idêntico ao Profissional Detalhes) -->
+    <div class="row mb-5">
+      <div class="col-12">
+        <h5 class="fw-bold mb-3 custom-dark-text">
+          <i class="fas fa-calendar-alt me-2 text-primary"></i>Histórico de Agendamentos
+        </h5>
+
+        <tm-table
+          [cols]="colsAgendamentos()"
+          [data]="agendamentosCliente()"
+          [paginated]="true"
+          [pageSize]="tamanhoPaginaAgendamentos()"
+          (pageSizeChange)="tamanhoPaginaAgendamentos.set($event)"
+          [showControls]="true"
+        ></tm-table>
       </div>
     </div>
-
   } @else {
     <div class="text-center py-5">
       <div class="spinner-border text-primary" role="status">
@@ -181,6 +266,33 @@
     </div>
   }
 </div>
+
+<!-- Templates para as colunas do Histórico de Agendamentos na tm-table -->
+<ng-template #servicoTemplate let-item>
+  <span class="fw-semibold custom-dark-text">{{ item.servicoNome }}</span>
+</ng-template>
+
+<ng-template #profissionalTemplate let-item>
+  <span class="custom-dark-text">{{ item.profissionalNome }}</span>
+</ng-template>
+
+<ng-template #dataTemplate let-item>
+  <span class="custom-dark-text">{{ item.dataInicio | date:'dd/MM/yyyy HH:mm' }}</span>
+</ng-template>
+
+<ng-template #statusTemplate let-item>
+  <span
+    class="badge rounded-pill small fw-semibold border text-nowrap"
+    [ngClass]="{
+      'bg-success-subtle text-success border-success-subtle': item.status === 'confirmado',
+      'bg-warning-subtle text-warning border-warning-subtle': item.status === 'agendado' || item.status === 'pendente',
+      'bg-danger-subtle text-danger border-danger-subtle': item.status === 'recusado' || item.status === 'cancelado',
+      'bg-secondary-subtle text-secondary border-secondary-subtle': item.status === 'concluido'
+    }"
+  >
+    {{ item.status }}
+  </span>
+</ng-template>
 
 <app-cliente-modal-excluir
   [(show)]="showDeleteConfirmModal"

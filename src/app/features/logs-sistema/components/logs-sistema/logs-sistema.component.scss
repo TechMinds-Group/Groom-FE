@@ -17,27 +17,8 @@
   }
 }
 
-.avatar-circle {
-  width: 60px;
-  height: 60px;
-  border-radius: 50%;
-  flex-shrink: 0;
-}
-
-.details-card,
-.actions-card {
-  background-color: #ffffff;
-  overflow: hidden;
-}
-
-.field-value {
-  word-break: break-word;
-  overflow-wrap: break-word;
-  min-width: 0;
-}
-
-.custom-dark-highlight {
-  background-color: #f8f9fa;
+.extra-small {
+  font-size: 0.75rem;
 }
 
 :host-context([data-theme='dark']) {
@@ -54,16 +35,9 @@
     }
   }
 
-  .details-card,
-  .actions-card,
   .custom-dark-card {
     background-color: #161b22 !important;
     border: 1px solid rgba(255, 255, 255, 0.08) !important;
-  }
-
-  .custom-dark-highlight {
-    background-color: #0d1117 !important;
-    border-color: rgba(255, 255, 255, 0.08) !important;
   }
 
   .custom-dark-text {
@@ -83,30 +57,5 @@
       background-color: #161b22 !important;
       color: #ffffff !important;
     }
-  }
-
-  .modal-content {
-    background-color: #161b22 !important;
-    border: 1px solid rgba(255, 255, 255, 0.1) !important;
-    color: #ffffff !important;
-
-    .modal-title,
-    p,
-    label {
-      color: #ffffff !important;
-    }
-
-    .form-control {
-      background-color: #0d1117 !important;
-      color: #ffffff !important;
-      border-color: rgba(255, 255, 255, 0.15) !important;
-    }
-  }
-}
-
-@media (max-width: 991.98px) {
-  .custom-action-btn {
-    padding-top: 0.65rem !important;
-    padding-bottom: 0.65rem !important;
   }
 }
