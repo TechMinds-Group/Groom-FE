@@ -189,6 +189,13 @@ export class ClienteDetalhesComponent implements OnInit, AfterViewInit {
     return c.nome;
   }
 
+  protected obterLinkWhatsapp(celular?: string): string {
+    if (!celular) return '#';
+    const num = celular.replace(/\D/g, '');
+    const comDdi = num.startsWith('55') ? num : `55${num}`;
+    return `https://wa.me/${comDdi}`;
+  }
+
   private async carregarDados(id: string): Promise<void> {
     try {
       const dadosCliente = await this.clientesService.carregarClientePorId(id);

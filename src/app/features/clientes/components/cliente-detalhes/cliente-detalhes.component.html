@@ -39,18 +39,26 @@
         <div [class]="modoEdicao() ? 'col-12' : 'col-xl-8 col-12'">
           <div class="card border-0 shadow-sm p-4 details-card custom-dark-card rounded-4">
 
-            <!-- 1. Header do Perfil (Avatar/Foto, Nome e E-mail) -->
+            <!-- 1. Header do Perfil (Avatar/Foto, Nome e E-mail / WhatsApp) -->
             <div class="d-flex align-items-center gap-3 border-bottom pb-4 mb-4">
               <div class="avatar-circle bg-primary-subtle text-primary d-flex align-items-center justify-content-center">
                 <i class="fas fa-user fs-3"></i>
               </div>
               <div>
                 <h2 class="h3 fw-bold mb-1 custom-dark-text">{{ getNomeCompleto(c) }}</h2>
-                <p class="text-muted mb-0 custom-dark-text">
+                <p class="text-muted mb-0 custom-dark-text d-flex align-items-center gap-2 flex-wrap">
                   @if (c.email) {
-                    {{ c.email }} • 
+                    <span>{{ c.email }}</span> • 
                   }
-                  <i class="fab fa-whatsapp text-success me-1"></i>{{ c.celular }}
+                  <a
+                    [href]="obterLinkWhatsapp(c.celular)"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="text-success text-decoration-none d-inline-flex align-items-center gap-1 fw-semibold"
+                    title="Chamar no WhatsApp"
+                  >
+                    <i class="fab fa-whatsapp fs-5"></i>{{ c.celular }}
+                  </a>
                 </p>
               </div>
             </div>
@@ -70,12 +78,24 @@
                   </div>
                 </div>
 
-                <!-- Celular / WhatsApp -->
+                <!-- Celular / WhatsApp com Ícone e Botão para abrir conversa no WhatsApp -->
                 <div class="col-sm-6 col-12">
                   <label class="form-label small fw-bold text-muted text-uppercase tracking-wider">Celular / WhatsApp</label>
-                  <p class="fw-semibold mb-0 custom-dark-text">
-                    <i class="fab fa-whatsapp text-success me-1"></i>{{ c.celular || '—' }}
-                  </p>
+                  <div class="d-flex align-items-center gap-2 mt-1 flex-wrap">
+                    <span class="fw-semibold custom-dark-text">{{ c.celular || '—' }}</span>
+                    @if (c.celular) {
+                      <a
+                        [href]="obterLinkWhatsapp(c.celular)"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="btn btn-sm btn-success text-white d-inline-flex align-items-center gap-1.5 px-2.5 py-1 rounded-pill shadow-sm transition-all"
+                        title="Chamar cliente no WhatsApp"
+                      >
+                        <i class="fab fa-whatsapp fs-6"></i>
+                        <span class="small fw-bold">Chamar no WhatsApp</span>
+                      </a>
+                    }
+                  </div>
                 </div>
 
                 <!-- E-mail -->
@@ -94,7 +114,7 @@
                   </p>
                 </div>
 
-                <!-- Data de Nascimento (Formato Brasileiro DD/MM/YYYY com ícone de alto contraste) -->
+                <!-- Data de Nascimento -->
                 <div class="col-sm-6 col-12">
                   <label class="form-label small fw-bold text-muted text-uppercase tracking-wider">Data de Nascimento</label>
                   <p class="fw-semibold mb-0 custom-dark-text">
