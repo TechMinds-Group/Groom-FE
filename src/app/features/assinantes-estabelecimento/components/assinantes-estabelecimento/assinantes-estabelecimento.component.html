@@ -35,12 +35,18 @@
 <ng-template #clienteTemplate let-item>
   <div class="d-flex flex-column text-start">
     <strong class="fw-bold custom-dark-text">{{ item.clienteNome }}</strong>
-    <span class="text-muted small custom-dark-text">
-      @if (item.clienteEmail) {
-        {{ item.clienteEmail }} • 
-      }
-      <i class="fab fa-whatsapp text-success me-1"></i>{{ item.celular }}
-    </span>
+  </div>
+</ng-template>
+
+<ng-template #celularTemplate let-item>
+  <div class="d-flex align-items-center">
+    @if (item.celular) {
+      <span class="custom-dark-text">
+        <i class="fab fa-whatsapp text-success me-2"></i>{{ item.celular }}
+      </span>
+    } @else {
+      <span class="custom-dark-text">—</span>
+    }
   </div>
 </ng-template>
 
