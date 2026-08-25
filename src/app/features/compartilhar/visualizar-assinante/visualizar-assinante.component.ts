@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, inject, OnInit, signal } from '@angular/core';
+import { AfterViewInit, ChangeDetectionStrategy, Component, computed, inject, OnInit, signal, TemplateRef, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
 import { TmTableComponent, TableColumn } from '@techminds-group/tm-angular-lib';
@@ -134,6 +134,28 @@ interface PagamentoVisualizacao {
       </div>
       <app-footer></app-footer>
     </div>
+
+    <!-- Templates para a tabela -->
+    <ng-template #dataTemplate let-item>
+      <span>{{ item.data | date:'dd/MM/yyyy' }}</span>
+    </ng-template>
+
+    <ng-template #valorTemplate let-item>
+      <span class="fw-semibold">R$ {{ item.valor.toFixed(2).replace('.', ',') }}</span>
+    </ng-template>
+
+    <ng-template #statusTemplate let-item>
+      <span
+        class="badge rounded-pill small fw-semibold border text-nowrap"
+        [ngClass]="{
+          'bg-success-subtle text-success border-success-subtle': item.status === 'Pago',
+          'bg-warning-subtle text-warning border-warning-subtle': item.status === 'Pendente',
+          'bg-danger-subtle text-danger border-danger-subtle': item.status === 'Cancelado'
+        }"
+      >
+        {{ item.status }}
+      </span>
+    </ng-template>
   `,
   styles: [`
     .public-view {
@@ -154,9 +176,15 @@ interface PagamentoVisualizacao {
   `],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class VisualizarAssinanteComponent implements OnInit {
+export class VisualizarAssinanteComponent implements OnInit, AfterViewInit {
   private readonly route = inject(ActivatedRoute);
   private readonly compartilharService = inject(CompartilharService);
+
+  @ViewChild('dataTemplate', { static: true }) dataTemplate!: TemplateRef<{ $implicit: PagamentoVisualizacao }>;
+  @ViewChild('valorTemplate', { static: true }) valorTemplate!: TemplateRef<{ $implicit: PagamentoVisualizacao }>;
+  @ViewChild('statusTemplate', { static: true }) statusTemplate!: TemplateRef<{ $implicit: PagamentoVisualizacao }>;
+
+  private readonly templatesReady = signal(false);
 
   protected readonly assinante = signal<AssinantePublico | null>(null);
   protected readonly carregando = signal(true);
@@ -171,12 +199,15 @@ export class VisualizarAssinanteComponent implements OnInit {
     return Math.ceil(diff / (1000 * 60 * 60 * 24));
   });
 
-  protected readonly cols = signal<TableColumn<PagamentoVisualizacao>[]>([
-    { header: 'Data', key: 'data', width: '25%' },
-    { header: 'Descrição', key: 'descricao', width: '35%' },
-    { header: 'Valor', key: 'valor', width: '20%' },
-    { header: 'Status', key: 'status', width: '20%' },
-  ]);
+  protected readonly cols = computed<TableColumn<PagamentoVisualizacao>[]>(() => {
+    if (!this.templatesReady()) return [];
+    return [
+      { header: 'Data', template: this.dataTemplate, width: '25%', key: 'data' },
+      { header: 'Descrição', key: 'descricao', width: '35%' },
+      { header: 'Valor', template: this.valorTemplate, width: '20%', key: 'valor' },
+      { header: 'Status', template: this.statusTemplate, width: '20%', key: 'status' },
+    ];
+  });
 
   ngOnInit(): void {
     const token = this.route.snapshot.paramMap.get('token');
@@ -188,10 +219,37 @@ export class VisualizarAssinanteComponent implements OnInit {
     }
   }
 
+  ngAfterViewInit(): void {
+    this.templatesReady.set(true);
+  }
+
   formatarData(dateStr: string): string {
     if (!dateStr) return '';
-    const date = new Date(dateStr + 'T00:00:00');
-    return date.toLocaleDateString('pt-BR');
+    const clean = dateStr.split('T')[0].trim();
+    const parts = clean.split('-');
+    if (parts.length === 3 && parts[0].length === 4) {
+      const year = parts[0];
+      const month = parts[1].padStart(2, '0');
+      const day = parts[2].padStart(2, '0');
+      return `${day}/${month}/${year}`;
+    }
+    const slashParts = clean.split('/');
+    if (slashParts.length === 3 && slashParts[2].length === 4) {
+      return clean;
+    }
+    const d = new Date(dateStr);
+    return isNaN(d.getTime()) ? '' : d.toLocaleDateString('pt-BR');
+  }
+
+  private parseDateOnly(dateStr: string): Date | null {
+    if (!dateStr) return null;
+    const clean = dateStr.split('T')[0].trim();
+    const parts = clean.split('-');
+    if (parts.length === 3 && parts[0].length === 4) {
+      return new Date(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2]));
+    }
+    const d = new Date(dateStr);
+    return isNaN(d.getTime()) ? null : d;
   }
 
   private carregar(token: string): void {
@@ -209,9 +267,11 @@ export class VisualizarAssinanteComponent implements OnInit {
   }
 
   private gerarHistoricoPagamentos(a: AssinantePublico): void {
+    const dateInicio = this.parseDateOnly(a.dataInicio);
+    const dateFim = this.parseDateOnly(a.dataFim);
+    if (!dateInicio || !dateFim) return;
+
     const historico: PagamentoVisualizacao[] = [];
-    const dateInicio = new Date(a.dataInicio + 'T00:00:00');
-    const dateFim = new Date(a.dataFim + 'T00:00:00');
     const hoje = new Date();
     let currentDate = new Date(dateInicio);
     let count = 1;

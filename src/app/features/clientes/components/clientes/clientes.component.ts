@@ -1,5 +1,4 @@
 import {
-  AfterViewInit,
   ChangeDetectionStrategy,
   Component,
   computed,
@@ -30,7 +29,7 @@ import { ClientesHelperService } from '../../services/clientes-helper.service';
   changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [ClientesHelperService],
 })
-export class ClientesComponent implements OnInit, AfterViewInit {
+export class ClientesComponent implements OnInit {
   protected readonly clientesService = inject(ClientesService);
   protected readonly helper = inject(ClientesHelperService);
   private readonly router = inject(Router);
@@ -44,26 +43,39 @@ export class ClientesComponent implements OnInit, AfterViewInit {
   @ViewChild('statusTemplate', { static: true })
   statusTemplate!: TemplateRef<{ $implicit: Cliente }>;
 
-  private readonly templatesReady = signal(false);
   protected readonly tamanhoPagina = signal<number>(5);
 
-  protected readonly cols = computed<TableColumn<Cliente>[]>(() => {
-    if (!this.templatesReady()) {
-      return [];
-    }
-    return [
-      { header: 'Cliente', template: this.clienteTemplate, width: '40%' },
-      { header: 'Celular', template: this.celularTemplate, width: '35%' },
-      { header: 'Status', template: this.statusTemplate, width: '25%' },
-    ];
-  });
+  protected readonly cols = computed<TableColumn<Cliente>[]>(() => [
+    {
+      header: 'Cliente',
+      template: this.clienteTemplate,
+      width: '40%',
+      sortable: true,
+      sortKey: 'nome',
+      sortFn: (a, b) => {
+        const nomeA = this.helper.getNomeCompleto(a);
+        const nomeB = this.helper.getNomeCompleto(b);
+        return nomeA.localeCompare(nomeB, 'pt-BR', { sensitivity: 'base' });
+      },
+    },
+    {
+      header: 'Celular',
+      template: this.celularTemplate,
+      width: '35%',
+      sortable: true,
+      key: 'celular',
+    },
+    {
+      header: 'Status',
+      template: this.statusTemplate,
+      width: '25%',
+      sortable: true,
+      key: 'status',
+    },
+  ]);
 
   async ngOnInit(): Promise<void> {
     await this.clientesService.carregarClientes();
-  }
-
-  ngAfterViewInit(): void {
-    this.templatesReady.set(true);
   }
 
   verDetalhes(item: Cliente): void {
