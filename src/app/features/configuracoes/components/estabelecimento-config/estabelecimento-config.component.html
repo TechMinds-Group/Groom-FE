@@ -634,7 +634,7 @@
             </div>
             <div>
               <h5 class="fw-bold mb-0 custom-dark-text">Clientes com Celular Já Cadastrado</h5>
-              <span class="text-muted small">
+              <span class="text-muted small custom-dark-text">
                 Número de telefone do arquivo CSV que já pertence a um cliente cadastrado no sistema.
               </span>
             </div>
@@ -650,36 +650,36 @@
         <!-- Modal Body -->
         <div class="modal-body p-3 p-md-4">
           @if (resultadoImportacao()?.clientesDuplicadosPorCelular; as listaDuplicados) {
-            <div class="alert alert-warning-subtle border border-warning-subtle text-dark-emphasis small rounded-3 mb-3 p-3">
+            <div class="alert alert-warning-subtle border border-warning-subtle small rounded-3 mb-3 p-3">
               <i class="fas fa-info-circle me-1.5 text-warning"></i>
               <strong>Nota:</strong> As informações cadastrais dos clientes abaixo foram sincronizadas com os dados do arquivo CSV importado do Tua Agenda, mantendo o histórico existente.
             </div>
 
             <div class="table-responsive rounded-3 border border-secondary-subtle">
               <table class="table table-hover align-middle mb-0 custom-dark-table">
-                <thead class="bg-body-tertiary">
+                <thead>
                   <tr>
-                    <th class="small fw-bold py-2 text-center" style="width: 85px;">Linha CSV</th>
-                    <th class="small fw-bold py-2">Cliente no CSV (Tua Agenda)</th>
-                    <th class="small fw-bold py-2">Celular (DDD + Número)</th>
-                    <th class="small fw-bold py-2">Cliente Existente no Sistema</th>
-                    <th class="small fw-bold py-2 text-center">Status</th>
+                    <th class="small fw-bold py-2 text-center custom-dark-text" style="width: 85px;">Linha CSV</th>
+                    <th class="small fw-bold py-2 custom-dark-text">Cliente no CSV (Tua Agenda)</th>
+                    <th class="small fw-bold py-2 custom-dark-text">Celular (DDD + Número)</th>
+                    <th class="small fw-bold py-2 custom-dark-text">Cliente Existente no Sistema</th>
+                    <th class="small fw-bold py-2 text-center custom-dark-text">Status</th>
                   </tr>
                 </thead>
                 <tbody>
                   @for (item of listaDuplicados; track item.linhaCsv + '_' + item.celular) {
                     <tr>
-                      <td class="text-center font-monospace small">#{{ item.linhaCsv }}</td>
+                      <td class="text-center font-monospace small custom-dark-text">#{{ item.linhaCsv }}</td>
                       <td>
                         <div class="fw-bold custom-dark-text text-break">{{ item.nomeCsv }}</div>
                       </td>
                       <td>
-                        <span class="badge bg-secondary-subtle text-secondary font-monospace">{{ item.celular }}</span>
+                        <span class="badge bg-secondary-subtle text-secondary font-monospace custom-dark-badge">{{ item.celular }}</span>
                       </td>
                       <td>
                         <div class="fw-semibold custom-dark-text text-break">{{ item.clienteExistenteNome }}</div>
                         @if (item.clienteExistenteEmail) {
-                          <div class="text-muted extra-small text-break">{{ item.clienteExistenteEmail }}</div>
+                          <div class="text-muted extra-small text-break custom-dark-text">{{ item.clienteExistenteEmail }}</div>
                         }
                       </td>
                       <td class="text-center">
@@ -699,7 +699,7 @@
         <div class="modal-footer border-top border-secondary-subtle p-3">
           <button
             type="button"
-            class="btn btn-secondary px-4 fw-bold rounded-3 ms-auto"
+            class="btn btn-primary px-4 fw-bold rounded-3 ms-auto"
             (click)="fecharModalDuplicados()"
           >
             Entendido / Fechar
