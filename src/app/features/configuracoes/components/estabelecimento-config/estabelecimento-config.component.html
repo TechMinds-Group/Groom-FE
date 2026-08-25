@@ -451,17 +451,28 @@
 
               @if (dia.ativo) {
                 <div class="mt-2">
-                  <!-- Linha 1: Títulos dos Blocos -->
-                  <div class="row g-2 g-md-3 align-items-center mb-2">
+                  <div class="row g-2 g-md-3">
+                    <!-- Coluna 1: Horário de Funcionamento -->
                     <div class="col-12 col-md-6">
-                      <div class="horario-header">
+                      <div class="horario-header mb-2">
                         <span class="small fw-bold text-uppercase custom-dark-text">
                           Horário de Funcionamento
                         </span>
                       </div>
+                      <div class="d-flex align-items-center gap-2 w-100">
+                        <div class="flex-fill min-w-0">
+                          <tm-time [(ngModel)]="dia.horaAbertura"></tm-time>
+                        </div>
+                        <span class="small text-muted custom-dark-text shrink-0 px-1">até</span>
+                        <div class="flex-fill min-w-0">
+                          <tm-time [(ngModel)]="dia.horaFechamento"></tm-time>
+                        </div>
+                      </div>
                     </div>
-                    <div class="col-12 col-md-6 mt-2 mt-md-0">
-                      <div class="horario-header">
+
+                    <!-- Coluna 2: Intervalo -->
+                    <div class="col-12 col-md-6 mt-3 mt-md-0 intervalo-col-padding">
+                      <div class="horario-header mb-2">
                         <div class="form-check form-switch mb-0 shrink-0">
                           <input
                             class="form-check-input"
@@ -475,26 +486,9 @@
                           class="form-check-label small fw-bold text-uppercase custom-dark-text mb-0 cursor-pointer"
                           [for]="'switch-intervalo-' + dia.diaSemana"
                         >
-                          Intervalo de Almoço
+                          Intervalo
                         </label>
                       </div>
-                    </div>
-                  </div>
-
-                  <!-- Linha 2: Campos de Horário -->
-                  <div class="row g-2 g-md-3 align-items-center">
-                    <div class="col-12 col-md-6">
-                      <div class="d-flex align-items-center gap-2 w-100">
-                        <div class="flex-fill min-w-0">
-                          <tm-time [(ngModel)]="dia.horaAbertura"></tm-time>
-                        </div>
-                        <span class="small text-muted custom-dark-text shrink-0 px-1">até</span>
-                        <div class="flex-fill min-w-0">
-                          <tm-time [(ngModel)]="dia.horaFechamento"></tm-time>
-                        </div>
-                      </div>
-                    </div>
-                    <div class="col-12 col-md-6 mt-2 mt-md-0 intervalo-col-padding">
                       @if (dia.temIntervalo) {
                         <div class="d-flex align-items-center gap-2 w-100">
                           <div class="flex-fill min-w-0">
