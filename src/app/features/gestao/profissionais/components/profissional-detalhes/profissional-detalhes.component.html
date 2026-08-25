@@ -1,12 +1,12 @@
-<div class="container mt-5">
+<div class="container mt-5 mb-5">
   @if (profissional(); as p) {
-    <!-- Header: Voltar + Nome do Profissional + Subtítulo — padrão idêntico ao gestao-usuario-detalhes -->
+    <!-- Header: Voltar + Nome do Profissional + Subtítulo — padrão idêntico ao assinante-detalhes -->
     <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between mb-4 gap-3">
       <div class="d-flex align-items-center gap-3">
         <button
           (click)="voltar()"
           class="btn btn-light shadow-sm rounded-circle p-0 d-flex align-items-center justify-content-center btn-voltar"
-          title="Voltar para Profissionais"
+          title="Voltar"
         >
           <i class="fas fa-arrow-left text-muted"></i>
         </button>
@@ -20,60 +20,42 @@
       </div>
     </div>
 
-    <!-- Grid Principal: Informações do Profissional (col-lg-8) + Ações Rápidas (col-lg-4) -->
-    <div class="row g-4 mb-4">
+    <!-- Grid Principal (row g-4 mb-5): Informações Gerais (col-lg-8) + Ações Rápidas (col-lg-4) -->
+    <div class="row g-4 mb-5">
       <!-- Coluna Esquerda: Informações Gerais -->
       <div class="col-lg-8 col-12">
-        <div class="card border-0 shadow-sm p-4 h-100 details-card custom-dark-card" style="overflow: hidden;">
+        <div class="card border-0 shadow-sm p-4 h-100 details-card custom-dark-card">
           <!-- Avatar + Nome Completo + E-mail -->
-          <div class="d-flex align-items-center gap-3 border-bottom pb-4 mb-4" style="min-width: 0;">
+          <div class="d-flex align-items-center gap-3 border-bottom pb-4 mb-4">
             @if (p.fotoUrl) {
               <img
                 [src]="estabelecimentoService.resolverUrl(p.fotoUrl)"
                 alt="Foto de {{ getNomeCompleto(p) }}"
-                class="rounded-circle border object-fit-cover shadow-sm shrink-0"
+                class="rounded-circle border object-fit-cover shadow-sm"
                 style="width: 60px; height: 60px;"
               />
             } @else {
-              <div class="avatar-circle bg-primary-subtle text-primary d-flex align-items-center justify-content-center shrink-0">
+              <div class="avatar-circle bg-primary-subtle text-primary d-flex align-items-center justify-content-center">
                 <i class="fas fa-user-tie fs-3"></i>
               </div>
             }
-            <div style="min-width: 0; flex: 1 1 0;">
-              <h2 class="h3 fw-bold mb-1 custom-dark-text" style="word-break: break-word;">{{ getNomeCompleto(p) }}</h2>
-              <p class="text-muted mb-0 custom-dark-text field-value">{{ p.email }}</p>
+            <div>
+              <h2 class="h3 fw-bold mb-1 custom-dark-text">{{ getNomeCompleto(p) }}</h2>
+              <p class="text-muted mb-0 custom-dark-text">{{ p.email || p.telefone }}</p>
             </div>
           </div>
 
-          <!-- Campos -->
+          <!-- Campos do Perfil -->
           <div class="row g-4">
-            <!-- Nome -->
+            <!-- Status -->
             <div class="col-sm-6 col-12">
-              <label class="form-label small fw-bold text-muted text-uppercase tracking-wider">Nome</label>
-              <div class="mt-1 field-value">
-                <span class="fw-medium custom-dark-text">
-                  <i class="fas fa-user text-primary me-1"></i>{{ getPrimeiroNome(p) || '—' }}
-                </span>
-              </div>
-            </div>
-
-            <!-- Sobrenome -->
-            <div class="col-sm-6 col-12">
-              <label class="form-label small fw-bold text-muted text-uppercase tracking-wider">Sobrenome</label>
-              <div class="mt-1 field-value">
-                <span class="fw-medium custom-dark-text">
-                  <i class="far fa-user text-primary me-1"></i>{{ getSobrenome(p) || '—' }}
-                </span>
-              </div>
-            </div>
-
-            <!-- Telefone / WhatsApp -->
-            <div class="col-sm-6 col-12">
-              <label class="form-label small fw-bold text-muted text-uppercase tracking-wider">Telefone / WhatsApp</label>
-              <div class="mt-1 field-value">
-                <span class="fw-medium custom-dark-text">
-                  <i class="fab fa-whatsapp text-success me-1"></i>{{ p.telefone || '—' }}
-                </span>
+              <label class="form-label small fw-bold text-muted text-uppercase tracking-wider">Status</label>
+              <div class="mt-1">
+                @if (p.status | statusBadge; as badge) {
+                  <span class="badge border px-3 py-1.5 rounded-pill fw-semibold" [ngClass]="badge.badgeClass">
+                    <i [class]="badge.iconClass" class="me-1"></i>{{ badge.label }}
+                  </span>
+                }
               </div>
             </div>
 
@@ -89,39 +71,29 @@
               </div>
             </div>
 
-            <!-- Status -->
+            <!-- Telefone / WhatsApp -->
             <div class="col-sm-6 col-12">
-              <label class="form-label small fw-bold text-muted text-uppercase tracking-wider">Status</label>
-              <div class="mt-1">
-                @if (p.status | statusBadge; as badge) {
-                  <span class="badge border px-3 py-1.5 rounded-pill fw-semibold" [ngClass]="badge.badgeClass">
-                    <i [class]="badge.iconClass" class="me-1"></i>{{ badge.label }}
-                  </span>
-                }
-              </div>
+              <label class="form-label small fw-bold text-muted text-uppercase tracking-wider">Telefone / WhatsApp</label>
+              <p class="fw-semibold mb-0 custom-dark-text">
+                <i class="fab fa-whatsapp text-success me-1"></i>{{ p.telefone || '—' }}
+              </p>
             </div>
 
             <!-- E-mail -->
-            @if (p.email) {
-              <div class="col-sm-6 col-12">
-                <label class="form-label small fw-bold text-muted text-uppercase tracking-wider">E-mail</label>
-                <div class="mt-1 field-value">
-                  <span class="custom-dark-text">
-                    <i class="far fa-envelope text-primary me-1"></i>{{ p.email }}
-                  </span>
-                </div>
-              </div>
-            }
+            <div class="col-sm-6 col-12">
+              <label class="form-label small fw-bold text-muted text-uppercase tracking-wider">E-mail</label>
+              <p class="fw-semibold mb-0 custom-dark-text">
+                <i class="far fa-envelope text-primary me-1"></i>{{ p.email || '—' }}
+              </p>
+            </div>
 
             <!-- Plano do Sistema -->
             @if (p.planoAssinatura || p.plano) {
               <div class="col-sm-6 col-12">
                 <label class="form-label small fw-bold text-muted text-uppercase tracking-wider">Plano do Sistema</label>
-                <div class="mt-1 field-value">
-                  <span class="custom-dark-text">
-                    <i class="fas fa-crown text-warning me-1"></i>{{ p.planoAssinatura || p.plano }}
-                  </span>
-                </div>
+                <p class="fw-semibold mb-0 custom-dark-text">
+                  <i class="fas fa-crown text-warning me-1"></i>{{ p.planoAssinatura || p.plano }}
+                </p>
               </div>
             }
 
@@ -129,52 +101,54 @@
             @if (p.faturamento) {
               <div class="col-sm-6 col-12">
                 <label class="form-label small fw-bold text-muted text-uppercase tracking-wider">Faturamento</label>
-                <div class="mt-1 field-value">
-                  <span class="custom-dark-text">
-                    <i class="fas fa-money-bill-trend-up text-success me-1"></i>R$ {{ p.faturamento.toFixed(2).replace('.', ',') }}
-                  </span>
-                </div>
+                <p class="fw-semibold mb-0 custom-dark-text">
+                  <i class="fas fa-money-bill-trend-up text-success me-1"></i>R$ {{ p.faturamento.toFixed(2).replace('.', ',') }}
+                </p>
               </div>
             }
 
             <!-- Serviços do catálogo vinculados (atuação) -->
-            <div class="col-12 border-top pt-3 mt-2">
-              <label class="form-label small fw-bold text-muted text-uppercase d-flex align-items-center gap-2 mb-2">
-                <i class="fas fa-cut text-primary"></i>Catálogo de Serviços Atendidos
-              </label>
-              <div class="d-flex flex-wrap gap-2">
-                @for (servico of servicosAtuacao(); track servico) {
-                  <span class="badge border px-3 py-1.5 rounded-pill fw-semibold text-primary border-primary-subtle bg-primary-subtle d-inline-flex align-items-center gap-1">
-                    <i class="fas fa-check-circle me-1"></i>{{ servico }}
-                  </span>
-                } @empty {
-                  <span class="text-muted small custom-dark-text">Nenhum serviço do catálogo vinculado a este profissional.</span>
-                }
+            <div class="col-12">
+              <div class="border-top pt-3 mt-2">
+                <label class="form-label small fw-bold text-muted text-uppercase tracking-wider d-flex align-items-center gap-2 mb-2">
+                  <i class="fas fa-cut text-primary"></i>Catálogo de Serviços Atendidos
+                </label>
+                <div class="d-flex flex-wrap gap-2">
+                  @for (servico of servicosAtuacao(); track servico) {
+                    <span class="badge border px-3 py-1.5 rounded-pill fw-semibold text-primary border-primary-subtle bg-primary-subtle d-inline-flex align-items-center gap-1">
+                      <i class="fas fa-check-circle me-1"></i>{{ servico }}
+                    </span>
+                  } @empty {
+                    <span class="text-muted small custom-dark-text">Nenhum serviço do catálogo vinculado a este profissional.</span>
+                  }
+                </div>
               </div>
             </div>
 
             <!-- Planos do Estabelecimento vinculados (atuação) -->
-            <div class="col-12 border-top pt-3 mt-2">
-              <label class="form-label small fw-bold text-muted text-uppercase d-flex align-items-center gap-2 mb-2">
-                <i class="fas fa-gem text-success"></i>Planos de Assinatura Atendidos (Clube)
-              </label>
-              <div class="d-flex flex-wrap gap-2">
-                @for (plano of planosAtuacao(); track plano) {
-                  <span class="badge border px-3 py-1.5 rounded-pill fw-semibold text-success border-success-subtle bg-success-subtle d-inline-flex align-items-center gap-1">
-                    <i class="fas fa-crown me-1"></i>{{ plano }}
-                  </span>
-                } @empty {
-                  <span class="text-muted small custom-dark-text">Nenhum plano de assinatura do estabelecimento vinculado a este profissional.</span>
-                }
+            <div class="col-12">
+              <div class="border-top pt-3 mt-2">
+                <label class="form-label small fw-bold text-muted text-uppercase tracking-wider d-flex align-items-center gap-2 mb-2">
+                  <i class="fas fa-gem text-success"></i>Planos de Assinatura Atendidos (Clube)
+                </label>
+                <div class="d-flex flex-wrap gap-2">
+                  @for (plano of planosAtuacao(); track plano) {
+                    <span class="badge border px-3 py-1.5 rounded-pill fw-semibold text-success border-success-subtle bg-success-subtle d-inline-flex align-items-center gap-1">
+                      <i class="fas fa-crown me-1"></i>{{ plano }}
+                    </span>
+                  } @empty {
+                    <span class="text-muted small custom-dark-text">Nenhum plano de assinatura do estabelecimento vinculado a este profissional.</span>
+                  }
+                </div>
               </div>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- Coluna Direita: Card Ações Rápidas -->
+      <!-- Coluna Direita: Card Ações Rápidas (Padrão exato de Assinante Detalhes) -->
       <div class="col-lg-4 col-12">
-        <div class="card border-0 shadow-sm p-4 h-100 actions-card custom-dark-card">
+        <div class="card border-0 shadow-sm p-4 actions-card custom-dark-card">
           <h4 class="h5 fw-bold mb-4 custom-dark-text">
             <i class="fas fa-sliders-h me-2 text-primary"></i>Ações Rápidas
           </h4>
@@ -189,58 +163,55 @@
     </div>
 
     <!-- Linha 2: Configuração de Horários / Disponibilidade -->
-    <div class="row g-4 mb-4">
+    <div class="row mb-5">
       <div class="col-12">
-        <app-disponibilidade [embedded]="true" [profissionalId]="p.id"></app-disponibilidade>
+        <app-disponibilidade [embedded]="true" [profissionalId]="p.id" [readOnly]="true"></app-disponibilidade>
       </div>
     </div>
 
-    <!-- Linha 3: Histórico de Agendamentos -->
-    <div class="row g-4 mb-5">
+    <!-- Linha 3: Histórico de Agendamentos (Padrão exato de Assinante Detalhes) -->
+    <div class="row mb-5">
       <div class="col-12">
-        <div class="card border-0 shadow-sm p-4 custom-dark-card" style="overflow: hidden;">
-          <h4 class="h5 fw-bold mb-4 custom-dark-text d-flex align-items-center justify-content-between">
-            <span><i class="fas fa-calendar-alt me-2 text-primary"></i>Histórico de Agendamentos</span>
-            <span class="badge bg-primary rounded-pill flex-shrink-0">{{ agendamentosProfissional().length }}</span>
-          </h4>
+        <h5 class="fw-bold mb-3 custom-dark-text">
+          <i class="fas fa-calendar-alt me-2 text-primary"></i>Histórico de Agendamentos
+        </h5>
 
-          @if (agendamentosProfissional().length === 0) {
-            <div class="text-center py-4 text-muted">
-              <i class="far fa-calendar-times fa-2x mb-2 d-block custom-dark-text"></i>
-              <p class="mb-0 small custom-dark-text">Nenhum agendamento encontrado para este profissional.</p>
-            </div>
-          } @else {
-            <div class="table-responsive">
-              <table class="table table-hover align-middle mb-0 small">
-                <thead class="table-light">
+        @if (agendamentosProfissional().length === 0) {
+          <div class="text-center py-4 text-muted">
+            <i class="far fa-calendar-times fa-2x mb-2 d-block custom-dark-text"></i>
+            <p class="mb-0 small custom-dark-text">Nenhum agendamento encontrado para este profissional.</p>
+          </div>
+        } @else {
+          <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0 small">
+              <thead class="table-light">
+                <tr>
+                  <th class="text-nowrap">Serviço</th>
+                  <th class="text-nowrap">Cliente</th>
+                  <th class="text-nowrap">Data / Hora</th>
+                  <th class="text-nowrap">Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (a of agendamentosProfissional(); track a.id) {
                   <tr>
-                    <th class="text-nowrap">Serviço</th>
-                    <th class="text-nowrap">Cliente</th>
-                    <th class="text-nowrap">Data / Hora</th>
-                    <th class="text-nowrap">Status</th>
+                    <td class="fw-semibold custom-dark-text text-nowrap">{{ a.servicoNome }}</td>
+                    <td class="custom-dark-text text-nowrap">{{ a.clienteNome }}</td>
+                    <td class="custom-dark-text text-nowrap">{{ a.dataInicio | date:'dd/MM/yyyy HH:mm' }}</td>
+                    <td class="text-nowrap">
+                      <span class="badge rounded-pill small fw-semibold border text-nowrap" [ngClass]="{
+                        'bg-success-subtle text-success border-success-subtle': a.status === 'confirmado',
+                        'bg-warning-subtle text-warning border-warning-subtle': a.status === 'agendado' || a.status === 'pendente',
+                        'bg-danger-subtle text-danger border-danger-subtle': a.status === 'recusado' || a.status === 'cancelado',
+                        'bg-secondary-subtle text-secondary border-secondary-subtle': a.status === 'concluido'
+                      }">{{ a.status }}</span>
+                    </td>
                   </tr>
-                </thead>
-                <tbody>
-                  @for (a of agendamentosProfissional(); track a.id) {
-                    <tr>
-                      <td class="fw-semibold custom-dark-text text-nowrap">{{ a.servicoNome }}</td>
-                      <td class="custom-dark-text text-nowrap">{{ a.clienteNome }}</td>
-                      <td class="custom-dark-text text-nowrap">{{ a.dataInicio | date:'dd/MM/yyyy HH:mm' }}</td>
-                      <td class="text-nowrap">
-                        <span class="badge rounded-pill small fw-semibold border text-nowrap" [ngClass]="{
-                          'bg-success-subtle text-success border-success-subtle': a.status === 'confirmado',
-                          'bg-warning-subtle text-warning border-warning-subtle': a.status === 'agendado' || a.status === 'pendente',
-                          'bg-danger-subtle text-danger border-danger-subtle': a.status === 'recusado' || a.status === 'cancelado',
-                          'bg-secondary-subtle text-secondary border-secondary-subtle': a.status === 'concluido'
-                        }">{{ a.status }}</span>
-                      </td>
-                    </tr>
-                  }
-                </tbody>
-              </table>
-            </div>
-          }
-        </div>
+                }
+              </tbody>
+            </table>
+          </div>
+        }
       </div>
     </div>
   } @else {
