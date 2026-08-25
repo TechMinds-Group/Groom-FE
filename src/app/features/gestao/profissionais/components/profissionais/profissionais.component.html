@@ -30,16 +30,6 @@
   </div>
 </ng-template>
 
-<ng-template #perfilTemplate let-item>
-  <div class="d-flex align-items-center gap-1 flex-wrap">
-    @for (badge of (item | perfilBadge); track badge.label) {
-      <span class="badge border px-2.5 py-1 rounded-pill small fw-semibold" [ngClass]="badge.badgeClass">
-        <i [class]="badge.iconClass" class="me-1"></i>{{ badge.label }}
-      </span>
-    }
-  </div>
-</ng-template>
-
 <ng-template #statusTemplate let-item>
   <div class="d-flex align-items-center gap-2">
     @if (item.status | statusBadge; as badge) {

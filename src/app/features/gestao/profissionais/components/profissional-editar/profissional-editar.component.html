@@ -125,9 +125,29 @@
 
               <!-- Atuação: serviços prestados -->
               <div class="col-12">
+                <div class="d-flex align-items-center justify-content-between mb-2 flex-wrap gap-2">
+                  <label class="form-label fw-semibold custom-dark-text mb-0">Serviços Prestados *</label>
+                  <div class="d-flex align-items-center gap-2">
+                    <button
+                      type="button"
+                      class="btn btn-sm btn-outline-primary fw-semibold px-2 py-1"
+                      (click)="selecionarTodosServicos()"
+                    >
+                      <i class="fas fa-check-double me-1"></i>Selecionar Todos
+                    </button>
+                    @if ((form.get('servicoIds')?.value || []).length > 0) {
+                      <button
+                        type="button"
+                        class="btn btn-sm btn-outline-secondary fw-semibold px-2 py-1"
+                        (click)="desmarcarTodosServicos()"
+                      >
+                        <i class="fas fa-times me-1"></i>Limpar Seleção
+                      </button>
+                    }
+                  </div>
+                </div>
                 <tm-select
                   formControlName="servicoIds"
-                  label="Serviços Prestados *"
                   [options]="servicosOptions()"
                   [multiple]="true"
                   [searchable]="true"
@@ -145,9 +165,29 @@
 
               <!-- Atuação: planos do clube -->
               <div class="col-12">
+                <div class="d-flex align-items-center justify-content-between mb-2 flex-wrap gap-2">
+                  <label class="form-label fw-semibold custom-dark-text mb-0">Planos (Clube)</label>
+                  <div class="d-flex align-items-center gap-2">
+                    <button
+                      type="button"
+                      class="btn btn-sm btn-outline-primary fw-semibold px-2 py-1"
+                      (click)="selecionarTodosPlanos()"
+                    >
+                      <i class="fas fa-check-double me-1"></i>Selecionar Todos
+                    </button>
+                    @if ((form.get('planoIds')?.value || []).length > 0) {
+                      <button
+                        type="button"
+                        class="btn btn-sm btn-outline-secondary fw-semibold px-2 py-1"
+                        (click)="desmarcarTodosPlanos()"
+                      >
+                        <i class="fas fa-times me-1"></i>Limpar Seleção
+                      </button>
+                    }
+                  </div>
+                </div>
                 <tm-select
                   formControlName="planoIds"
-                  label="Planos (Clube)"
                   [options]="planosOptions()"
                   [multiple]="true"
                   [searchable]="true"
@@ -211,6 +251,11 @@
             </div>
           </form>
         </div>
+      </div>
+
+      <!-- Bloco de Disponibilidade e Horários de Atendimento -->
+      <div class="col-12 mt-4">
+        <app-disponibilidade [embedded]="true" [profissionalId]="p.id" [readOnly]="false"></app-disponibilidade>
       </div>
     </div>
   } @else {

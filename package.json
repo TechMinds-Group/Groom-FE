@@ -24,7 +24,7 @@
     "@fortawesome/fontawesome-free": "^6.6.0",
     "@mercadopago/sdk-js": "^0.0.3",
     "@microsoft/signalr": "^10.0.11",
-    "@techminds-group/tm-angular-lib": "file:../../TM-Angular-Lib/TM-Angular-Library/dist/tm-angular-lib",
+    "@techminds-group/tm-angular-lib": "^0.0.10",
     "angular-calendar": "^0.31.1",
     "bootstrap": "^5.3.3",
     "calendar-utils": "^0.11.0",

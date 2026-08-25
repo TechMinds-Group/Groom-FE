@@ -15,7 +15,6 @@ import { TmTableComponent, TableColumn } from '@techminds-group/tm-angular-lib';
 import { GestaoUsuariosService } from '../../../../../core/services/gestao-usuarios.service';
 import { Usuario } from '../../../../../core/models/gestao-usuarios/usuario.model';
 import { GestaoUsuariosHelperService } from '../../../../gestao-usuarios/services/gestao-usuarios-helper.service';
-import { PerfilBadgePipe } from '../../../../gestao-usuarios/pipes/perfil-badge.pipe';
 import { StatusBadgePipe } from '../../../../gestao-usuarios/pipes/status-badge.pipe';
 import { LanguageService } from '../../../../../core/services/language.service';
 
@@ -27,7 +26,6 @@ import { AuthService } from '../../../../../core/services/auth.service';
   imports: [
     CommonModule,
     TmTableComponent,
-    PerfilBadgePipe,
     StatusBadgePipe,
   ],
   templateUrl: './profissionais.component.html',
@@ -42,9 +40,6 @@ export class ProfissionaisComponent implements OnInit, AfterViewInit {
   protected readonly languageService = inject(LanguageService);
 
   @ViewChild('usuarioTemplate', { static: true }) usuarioTemplate!: TemplateRef<{
-    $implicit: Usuario;
-  }>;
-  @ViewChild('perfilTemplate', { static: true }) perfilTemplate!: TemplateRef<{
     $implicit: Usuario;
   }>;
   @ViewChild('statusTemplate', { static: true }) statusTemplate!: TemplateRef<{
@@ -74,9 +69,8 @@ export class ProfissionaisComponent implements OnInit, AfterViewInit {
       return [];
     }
     return [
-      { header: this.languageService.translate('USUARIOS.COLUMNS.USER'), template: this.usuarioTemplate, width: '40%' },
-      { header: this.languageService.translate('USUARIOS.COLUMNS.PROFILE'), template: this.perfilTemplate, width: '35%' },
-      { header: this.languageService.translate('USUARIOS.COLUMNS.STATUS'), template: this.statusTemplate, width: '25%' },
+      { header: this.languageService.translate('USUARIOS.COLUMNS.USER'), template: this.usuarioTemplate, width: '60%' },
+      { header: this.languageService.translate('USUARIOS.COLUMNS.STATUS'), template: this.statusTemplate, width: '40%' },
     ];
   });
 

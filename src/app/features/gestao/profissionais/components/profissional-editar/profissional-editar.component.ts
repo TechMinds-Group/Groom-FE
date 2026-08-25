@@ -10,11 +10,12 @@ import { CatalogoService } from '../../../../../core/services/catalogo.service';
 import { ClubesService } from '../../../../../core/services/clubes.service';
 import { EstabelecimentoService } from '../../../../../core/services/estabelecimento.service';
 import { ThemeService } from '../../../../../core/services/theme.service';
+import { DisponibilidadeComponent } from '../../../../disponibilidade/components/disponibilidade/disponibilidade.component';
 
 @Component({
   selector: 'app-profissional-editar',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, TmTextComponent, TmSelectComponent],
+  imports: [CommonModule, ReactiveFormsModule, TmTextComponent, TmSelectComponent, DisponibilidadeComponent],
   templateUrl: './profissional-editar.component.html',
   styleUrl: './profissional-editar.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -78,6 +79,28 @@ export class ProfissionalEditarComponent implements OnInit {
   alternarStatus(event: Event): void {
     const alvo = event.target as HTMLInputElement;
     this.form.get('status')?.setValue(alvo.checked ? 'Ativo' : 'Inativo');
+  }
+
+  protected selecionarTodosServicos(): void {
+    const todos = this.servicosOptions().map((opt) => opt.value);
+    this.form.get('servicoIds')?.setValue(todos);
+    this.form.get('servicoIds')?.markAsDirty();
+  }
+
+  protected desmarcarTodosServicos(): void {
+    this.form.get('servicoIds')?.setValue([]);
+    this.form.get('servicoIds')?.markAsDirty();
+  }
+
+  protected selecionarTodosPlanos(): void {
+    const todos = this.planosOptions().map((opt) => opt.value);
+    this.form.get('planoIds')?.setValue(todos);
+    this.form.get('planoIds')?.markAsDirty();
+  }
+
+  protected desmarcarTodosPlanos(): void {
+    this.form.get('planoIds')?.setValue([]);
+    this.form.get('planoIds')?.markAsDirty();
   }
 
   onFotoSelected(event: Event): void {

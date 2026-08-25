@@ -224,6 +224,68 @@ tm-time {
       color: #ffffff !important;
     }
   }
+
+  /* Estilização para tm-select no tema escuro */
+  tm-select {
+    ::ng-deep .tm-select,
+    ::ng-deep .tm-select-control,
+    ::ng-deep .tm-select-trigger,
+    ::ng-deep .tm-select-container,
+    ::ng-deep .form-select,
+    ::ng-deep input {
+      background-color: #0d1117 !important;
+      border-color: rgba(255, 255, 255, 0.25) !important;
+      color: #ffffff !important;
+
+      &::placeholder {
+        color: #8b949e !important;
+      }
+    }
+
+    ::ng-deep .tm-select-dropdown,
+    ::ng-deep .tm-select-menu,
+    ::ng-deep .dropdown-menu {
+      background-color: #161b22 !important;
+      border: 1px solid rgba(255, 255, 255, 0.15) !important;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6) !important;
+      color: #ffffff !important;
+
+      .tm-select-search,
+      input {
+        background-color: #0d1117 !important;
+        color: #ffffff !important;
+        border-color: rgba(255, 255, 255, 0.2) !important;
+      }
+
+      .tm-select-option,
+      .dropdown-item,
+      li {
+        color: #ffffff !important;
+
+        &:hover,
+        &.active,
+        &.selected,
+        &.highlighted {
+          background-color: #21262d !important;
+          color: #58a6ff !important;
+        }
+      }
+    }
+
+    ::ng-deep .tm-select-placeholder,
+    ::ng-deep .tm-select-value,
+    ::ng-deep .tm-select-text,
+    ::ng-deep .selected-value {
+      color: #ffffff !important;
+    }
+
+    ::ng-deep .tm-select-tag,
+    ::ng-deep .badge-tag {
+      background-color: #21262d !important;
+      color: #ffffff !important;
+      border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    }
+  }
 }
 
 @media (max-width: 575.98px) {
