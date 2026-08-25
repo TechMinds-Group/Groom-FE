@@ -23,10 +23,11 @@
     <!-- Form Wrapper / Grid Principal (row g-4 mb-5) -->
     <form [formGroup]="form">
       <div class="row g-4 mb-5">
-        <!-- Coluna Esquerda: Informações Gerais -->
+        <!-- Coluna Esquerda: BLOCO PAI ÚNICO (Contém TODOS os dados e configurações editáveis da tela) -->
         <div class="col-lg-8 col-12">
-          <div class="card border-0 shadow-sm p-4 h-100 details-card custom-dark-card">
-            <!-- Avatar + Nome Completo + E-mail -->
+          <div class="card border-0 shadow-sm p-4 details-card custom-dark-card rounded-4">
+
+            <!-- 1. Header do Perfil (Foto, Nome e E-mail) -->
             <div class="d-flex align-items-center gap-3 border-bottom pb-4 mb-4">
               @if (modoEdicao()) {
                 <div class="d-flex align-items-center gap-3 w-100">
@@ -85,9 +86,9 @@
               }
             </div>
 
-            <!-- Campos do Perfil: SOMENTE LEITURA vs MODO EDIÇÃO -->
+            <!-- 2. Informações Pessoais & Contatos (Leitura vs Edição) -->
             @if (!modoEdicao()) {
-              <div class="row g-4">
+              <div class="row g-4 mb-4">
                 <!-- Status -->
                 <div class="col-sm-6 col-12">
                   <label class="form-label small fw-bold text-muted text-uppercase tracking-wider">Status</label>
@@ -147,97 +148,31 @@
                     </p>
                   </div>
                 }
-
-                <!-- Serviços do catálogo vinculados (atuação) -->
-                <div class="col-12">
-                  <div class="border-top pt-3 mt-2">
-                    <label class="form-label small fw-bold text-muted text-uppercase tracking-wider d-flex align-items-center gap-2 mb-2">
-                      <i class="fas fa-cut text-primary"></i>Catálogo de Serviços Atendidos
-                    </label>
-                    <div class="d-flex flex-wrap gap-2">
-                      @for (servico of servicosAtuacao(); track servico) {
-                        <span class="badge border px-3 py-1.5 rounded-pill fw-semibold text-primary border-primary-subtle bg-primary-subtle d-inline-flex align-items-center gap-1">
-                          <i class="fas fa-check-circle me-1"></i>{{ servico }}
-                        </span>
-                      } @empty {
-                        <span class="text-muted small custom-dark-text">Nenhum serviço do catálogo vinculado a este profissional.</span>
-                      }
-                    </div>
-                  </div>
-                </div>
-
-                <!-- Planos do Estabelecimento vinculados (atuação) -->
-                <div class="col-12">
-                  <div class="border-top pt-3 mt-2">
-                    <label class="form-label small fw-bold text-muted text-uppercase tracking-wider d-flex align-items-center gap-2 mb-2">
-                      <i class="fas fa-gem text-success"></i>Planos de Assinatura Atendidos (Clube)
-                    </label>
-                    <div class="d-flex flex-wrap gap-2">
-                      @for (plano of planosAtuacao(); track plano) {
-                        <span class="badge border px-3 py-1.5 rounded-pill fw-semibold text-success border-success-subtle bg-success-subtle d-inline-flex align-items-center gap-1">
-                          <i class="fas fa-crown me-1"></i>{{ plano }}
-                        </span>
-                      } @empty {
-                        <span class="text-muted small custom-dark-text">Nenhum plano de assinatura do estabelecimento vinculado a este profissional.</span>
-                      }
-                    </div>
-                  </div>
-                </div>
               </div>
             } @else {
-              <!-- MODO EDIÇÃO INLINE DO FORMULÁRIO -->
-              <div class="row g-3">
-                <!-- Nome -->
+              <!-- Formulário Inline de Dados Cadastrais -->
+              <div class="row g-3 mb-4">
                 <div class="col-sm-6 col-12">
-                  <tm-text
-                    formControlName="nome"
-                    label="Nome *"
-                    placeholder="Ex: Michel"
-                    class="custom-dark-text"
-                  ></tm-text>
+                  <tm-text formControlName="nome" label="Nome *" placeholder="Ex: Michel" class="custom-dark-text"></tm-text>
                 </div>
 
-                <!-- Sobrenome -->
                 <div class="col-sm-6 col-12">
-                  <tm-text
-                    formControlName="sobrenome"
-                    label="Sobrenome *"
-                    placeholder="Ex: Silva"
-                    class="custom-dark-text"
-                  ></tm-text>
+                  <tm-text formControlName="sobrenome" label="Sobrenome *" placeholder="Ex: Silva" class="custom-dark-text"></tm-text>
                 </div>
 
-                <!-- E-mail -->
                 <div class="col-sm-6 col-12">
-                  <tm-text
-                    formControlName="email"
-                    label="E-mail *"
-                    placeholder="exemplo@email.com"
-                    type="email"
-                    class="custom-dark-text"
-                  ></tm-text>
+                  <tm-text formControlName="email" label="E-mail *" placeholder="exemplo@email.com" type="email" class="custom-dark-text"></tm-text>
                 </div>
 
-                <!-- WhatsApp / Telefone -->
                 <div class="col-sm-6 col-12">
-                  <tm-text
-                    formControlName="numeroWhatsApp"
-                    label="Telefone / WhatsApp *"
-                    placeholder="(11) 98888-7777"
-                    mask="phone"
-                    [maxlength]="15"
-                    class="custom-dark-text"
-                  ></tm-text>
+                  <tm-text formControlName="numeroWhatsApp" label="Telefone / WhatsApp *" placeholder="(11) 98888-7777" mask="phone" [maxlength]="15" class="custom-dark-text"></tm-text>
                 </div>
 
-                <!-- Status do profissional -->
                 <div class="col-12">
                   <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 p-3 rounded-3 border border-secondary-subtle">
                     <div>
                       <div class="fw-bold custom-dark-text">Profissional ativo</div>
-                      <div class="small text-muted custom-dark-text">
-                        Profissionais inativos não podem ser selecionados em novos agendamentos.
-                      </div>
+                      <div class="small text-muted custom-dark-text">Profissionais inativos não podem ser selecionados em novos agendamentos.</div>
                     </div>
                     <div class="form-check form-switch mb-0 shrink-0">
                       <input
@@ -252,80 +187,131 @@
                     </div>
                   </div>
                 </div>
-
-                <!-- Atuação: serviços prestados -->
-                <div class="col-12 border-top pt-3 mt-2">
-                  <div class="d-flex align-items-center justify-content-between mb-2 flex-wrap gap-2">
-                    <label class="form-label fw-semibold custom-dark-text mb-0">Catálogo de Serviços Atendidos *</label>
-                    <div class="d-flex align-items-center gap-2">
-                      <button
-                        type="button"
-                        class="btn btn-sm btn-outline-primary fw-semibold px-2 py-1"
-                        (click)="selecionarTodosServicos()"
-                      >
-                        <i class="fas fa-check-double me-1"></i>Selecionar Todos
-                      </button>
-                      @if ((form.get('servicoIds')?.value || []).length > 0) {
-                        <button
-                          type="button"
-                          class="btn btn-sm btn-outline-secondary fw-semibold px-2 py-1"
-                          (click)="desmarcarTodosServicos()"
-                        >
-                          <i class="fas fa-times me-1"></i>Limpar Seleção
-                        </button>
-                      }
-                    </div>
-                  </div>
-                  <tm-select
-                    formControlName="servicoIds"
-                    [options]="servicosOptions()"
-                    [multiple]="true"
-                    [searchable]="true"
-                    placeholder="Selecione os serviços que este profissional realiza"
-                    [darkMode]="themeService.isDarkMode()"
-                    class="custom-dark-text"
-                  ></tm-select>
-                </div>
-
-                <!-- Atuação: planos do clube -->
-                <div class="col-12 border-top pt-3 mt-2">
-                  <div class="d-flex align-items-center justify-content-between mb-2 flex-wrap gap-2">
-                    <label class="form-label fw-semibold custom-dark-text mb-0">Planos de Assinatura Atendidos (Clube)</label>
-                    <div class="d-flex align-items-center gap-2">
-                      <button
-                        type="button"
-                        class="btn btn-sm btn-outline-primary fw-semibold px-2 py-1"
-                        (click)="selecionarTodosPlanos()"
-                      >
-                        <i class="fas fa-check-double me-1"></i>Selecionar Todos
-                      </button>
-                      @if ((form.get('planoIds')?.value || []).length > 0) {
-                        <button
-                          type="button"
-                          class="btn btn-sm btn-outline-secondary fw-semibold px-2 py-1"
-                          (click)="desmarcarTodosPlanos()"
-                        >
-                          <i class="fas fa-times me-1"></i>Limpar Seleção
-                        </button>
-                      }
-                    </div>
-                  </div>
-                  <tm-select
-                    formControlName="planoIds"
-                    [options]="planosOptions()"
-                    [multiple]="true"
-                    [searchable]="true"
-                    placeholder="Selecione os planos atendidos por este profissional"
-                    [darkMode]="themeService.isDarkMode()"
-                    class="custom-dark-text"
-                  ></tm-select>
-                </div>
               </div>
             }
+
+            <!-- 3. Catálogo de Serviços Atendidos (Dentro do Bloco Pai) -->
+            <div class="border-top pt-4 mb-4">
+              @if (!modoEdicao()) {
+                <label class="form-label small fw-bold text-muted text-uppercase tracking-wider d-flex align-items-center gap-2 mb-2">
+                  <i class="fas fa-cut text-primary"></i>Catálogo de Serviços Atendidos
+                </label>
+                <div class="d-flex flex-wrap gap-2">
+                  @for (servico of servicosAtuacao(); track servico) {
+                    <span class="badge border px-3 py-1.5 rounded-pill fw-semibold text-primary border-primary-subtle bg-primary-subtle d-inline-flex align-items-center gap-1">
+                      <i class="fas fa-check-circle me-1"></i>{{ servico }}
+                    </span>
+                  } @empty {
+                    <span class="text-muted small custom-dark-text">Nenhum serviço do catálogo vinculado a este profissional.</span>
+                  }
+                </div>
+              } @else {
+                <div class="d-flex align-items-center justify-content-between mb-2 flex-wrap gap-2">
+                  <label class="form-label fw-semibold custom-dark-text mb-0">Catálogo de Serviços Atendidos *</label>
+                  <div class="d-flex align-items-center gap-2">
+                    <button type="button" class="btn btn-sm btn-outline-primary fw-semibold px-2 py-1" (click)="selecionarTodosServicos()">
+                      <i class="fas fa-check-double me-1"></i>Selecionar Todos
+                    </button>
+                    @if ((form.get('servicoIds')?.value || []).length > 0) {
+                      <button type="button" class="btn btn-sm btn-outline-secondary fw-semibold px-2 py-1" (click)="desmarcarTodosServicos()">
+                        <i class="fas fa-times me-1"></i>Limpar Seleção
+                      </button>
+                    }
+                  </div>
+                </div>
+                <tm-select
+                  formControlName="servicoIds"
+                  [options]="servicosOptions()"
+                  [multiple]="true"
+                  [searchable]="true"
+                  placeholder="Selecione os serviços que este profissional realiza"
+                  [darkMode]="themeService.isDarkMode()"
+                  class="custom-dark-text"
+                ></tm-select>
+              }
+            </div>
+
+            <!-- 4. Planos de Assinatura Atendidos (Clube) (Dentro do Bloco Pai) -->
+            <div class="border-top pt-4 mb-4">
+              @if (!modoEdicao()) {
+                <label class="form-label small fw-bold text-muted text-uppercase tracking-wider d-flex align-items-center gap-2 mb-2">
+                  <i class="fas fa-gem text-success"></i>Planos de Assinatura Atendidos (Clube)
+                </label>
+                <div class="d-flex flex-wrap gap-2">
+                  @for (plano of planosAtuacao(); track plano) {
+                    <span class="badge border px-3 py-1.5 rounded-pill fw-semibold text-success border-success-subtle bg-success-subtle d-inline-flex align-items-center gap-1">
+                      <i class="fas fa-crown me-1"></i>{{ plano }}
+                    </span>
+                  } @empty {
+                    <span class="text-muted small custom-dark-text">Nenhum plano de assinatura do estabelecimento vinculado a este profissional.</span>
+                  }
+                </div>
+              } @else {
+                <div class="d-flex align-items-center justify-content-between mb-2 flex-wrap gap-2">
+                  <label class="form-label fw-semibold custom-dark-text mb-0">Planos de Assinatura Atendidos (Clube)</label>
+                  <div class="d-flex align-items-center gap-2">
+                    <button type="button" class="btn btn-sm btn-outline-primary fw-semibold px-2 py-1" (click)="selecionarTodosPlanos()">
+                      <i class="fas fa-check-double me-1"></i>Selecionar Todos
+                    </button>
+                    @if ((form.get('planoIds')?.value || []).length > 0) {
+                      <button type="button" class="btn btn-sm btn-outline-secondary fw-semibold px-2 py-1" (click)="desmarcarTodosPlanos()">
+                        <i class="fas fa-times me-1"></i>Limpar Seleção
+                      </button>
+                    }
+                  </div>
+                </div>
+                <tm-select
+                  formControlName="planoIds"
+                  [options]="planosOptions()"
+                  [multiple]="true"
+                  [searchable]="true"
+                  placeholder="Selecione os planos atendidos por este profissional"
+                  [darkMode]="themeService.isDarkMode()"
+                  class="custom-dark-text"
+                ></tm-select>
+              }
+            </div>
+
+            <!-- 5. Configuração de Horários / Disponibilidade (Dentro do Bloco Pai) -->
+            <div class="border-top pt-4">
+              <app-disponibilidade
+                [embedded]="true"
+                [profissionalId]="p.id"
+                [readOnly]="!modoEdicao()"
+              ></app-disponibilidade>
+            </div>
+
+            <!-- 6. Barra de Ações (Salvar / Cancelar) no Final do Bloco Pai (Quando em modoEdicao) -->
+            @if (modoEdicao()) {
+              <div class="border-top pt-4 mt-4 d-flex align-items-center justify-content-end gap-3">
+                <button
+                  type="button"
+                  class="btn btn-outline-secondary px-4 py-2.5 rounded-3 fw-bold"
+                  (click)="cancelarEdicao()"
+                  [disabled]="salvando()"
+                >
+                  <i class="fas fa-times me-2"></i>Cancelar
+                </button>
+
+                <button
+                  type="button"
+                  class="btn btn-primary px-4 py-2.5 rounded-3 fw-bold shadow-sm"
+                  (click)="salvarGeral()"
+                  [disabled]="salvando()"
+                >
+                  @if (salvando()) {
+                    <span class="spinner-border spinner-border-sm me-2" role="status"></span>Salvando...
+                  } @else {
+                    <i class="fas fa-save me-2"></i>Salvar Alterações
+                  }
+                </button>
+              </div>
+            }
+
           </div>
         </div>
 
-        <!-- Coluna Direita: Card Ações Rápidas (Botão Único de Editar / Salvar e Cancelar) -->
+        <!-- Coluna Direita: Card Ações Rápidas (Alinhado exatamente como no Assinante Detalhes) -->
         <div class="col-lg-4 col-12">
           <div class="card border-0 shadow-sm p-4 actions-card custom-dark-card">
             <h4 class="h5 fw-bold mb-4 custom-dark-text">
@@ -351,7 +337,7 @@
                   @if (salvando()) {
                     <span class="spinner-border spinner-border-sm me-2" role="status"></span>Salvando...
                   } @else {
-                    <i class="fas fa-save me-2"></i>Salvar
+                    <i class="fas fa-save me-2"></i>Salvar Alterações
                   }
                 </button>
 
@@ -370,100 +356,21 @@
       </div>
     </form>
 
-    <!-- Linha 2: Configuração de Horários / Disponibilidade (Liberada quando modoEdicao = true) -->
-    <div class="row mb-4">
-      <div class="col-12">
-        <app-disponibilidade
-          [embedded]="true"
-          [profissionalId]="p.id"
-          [readOnly]="!modoEdicao()"
-        ></app-disponibilidade>
-      </div>
-    </div>
-
-    <!-- Barra Geral de Ações no final dos blocos editáveis (Salvar Alterações / Cancelar) -->
-    @if (modoEdicao()) {
-      <div class="card border-0 shadow-sm p-4 custom-dark-card rounded-4 mb-5 border-top border-primary border-3">
-        <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
-          <div>
-            <h5 class="fw-bold mb-1 custom-dark-text">
-              <i class="fas fa-save text-primary me-2"></i>Salvar Alterações do Profissional
-            </h5>
-            <p class="text-muted small mb-0 custom-dark-text">
-              Salva o cadastro do profissional, foto, serviços atendidos, planos do clube e a personalização de horários de atendimento.
-            </p>
-          </div>
-
-          <div class="d-flex align-items-center gap-3 w-100 w-sm-auto justify-content-end">
-            <button
-              type="button"
-              class="btn btn-outline-secondary px-4 py-2.5 rounded-3 fw-bold"
-              (click)="cancelarEdicao()"
-              [disabled]="salvando()"
-            >
-              <i class="fas fa-times me-2"></i>Cancelar
-            </button>
-
-            <button
-              type="button"
-              class="btn btn-primary px-4 py-2.5 rounded-3 fw-bold shadow-sm"
-              (click)="salvarGeral()"
-              [disabled]="salvando()"
-            >
-              @if (salvando()) {
-                <span class="spinner-border spinner-border-sm me-2" role="status"></span>Salvando...
-              } @else {
-                <i class="fas fa-save me-2"></i>Salvar Alterações
-              }
-            </button>
-          </div>
-        </div>
-      </div>
-    }
-
-    <!-- Linha 3: Histórico de Agendamentos -->
+    <!-- Linha 3: Histórico de Agendamentos (Tabela Paginada tm-table - Padrão idêntico ao Assinante Detalhes) -->
     <div class="row mb-5">
       <div class="col-12">
         <h5 class="fw-bold mb-3 custom-dark-text">
           <i class="fas fa-calendar-alt me-2 text-primary"></i>Histórico de Agendamentos
         </h5>
 
-        @if (agendamentosProfissional().length === 0) {
-          <div class="text-center py-4 text-muted">
-            <i class="far fa-calendar-times fa-2x mb-2 d-block custom-dark-text"></i>
-            <p class="mb-0 small custom-dark-text">Nenhum agendamento encontrado para este profissional.</p>
-          </div>
-        } @else {
-          <div class="table-responsive">
-            <table class="table table-hover align-middle mb-0 small">
-              <thead class="table-light">
-                <tr>
-                  <th class="text-nowrap">Serviço</th>
-                  <th class="text-nowrap">Cliente</th>
-                  <th class="text-nowrap">Data / Hora</th>
-                  <th class="text-nowrap">Status</th>
-                </tr>
-              </thead>
-              <tbody>
-                @for (a of agendamentosProfissional(); track a.id) {
-                  <tr>
-                    <td class="fw-semibold custom-dark-text text-nowrap">{{ a.servicoNome }}</td>
-                    <td class="custom-dark-text text-nowrap">{{ a.clienteNome }}</td>
-                    <td class="custom-dark-text text-nowrap">{{ a.dataInicio | date:'dd/MM/yyyy HH:mm' }}</td>
-                    <td class="text-nowrap">
-                      <span class="badge rounded-pill small fw-semibold border text-nowrap" [ngClass]="{
-                        'bg-success-subtle text-success border-success-subtle': a.status === 'confirmado',
-                        'bg-warning-subtle text-warning border-warning-subtle': a.status === 'agendado' || a.status === 'pendente',
-                        'bg-danger-subtle text-danger border-danger-subtle': a.status === 'recusado' || a.status === 'cancelado',
-                        'bg-secondary-subtle text-secondary border-secondary-subtle': a.status === 'concluido'
-                      }">{{ a.status }}</span>
-                    </td>
-                  </tr>
-                }
-              </tbody>
-            </table>
-          </div>
-        }
+        <tm-table
+          [cols]="colsAgendamentos()"
+          [data]="agendamentosProfissional()"
+          [paginated]="true"
+          [pageSize]="tamanhoPaginaAgendamentos()"
+          (pageSizeChange)="tamanhoPaginaAgendamentos.set($event)"
+          [showControls]="true"
+        ></tm-table>
       </div>
     </div>
   } @else {
@@ -475,3 +382,30 @@
     </div>
   }
 </div>
+
+<!-- Templates para as colunas do Histórico de Agendamentos na tm-table -->
+<ng-template #servicoTemplate let-item>
+  <span class="fw-semibold custom-dark-text">{{ item.servicoNome }}</span>
+</ng-template>
+
+<ng-template #clienteTemplate let-item>
+  <span class="custom-dark-text">{{ item.clienteNome }}</span>
+</ng-template>
+
+<ng-template #dataTemplate let-item>
+  <span class="custom-dark-text">{{ item.dataInicio | date:'dd/MM/yyyy HH:mm' }}</span>
+</ng-template>
+
+<ng-template #statusTemplate let-item>
+  <span
+    class="badge rounded-pill small fw-semibold border text-nowrap"
+    [ngClass]="{
+      'bg-success-subtle text-success border-success-subtle': item.status === 'confirmado',
+      'bg-warning-subtle text-warning border-warning-subtle': item.status === 'agendado' || item.status === 'pendente',
+      'bg-danger-subtle text-danger border-danger-subtle': item.status === 'recusado' || item.status === 'cancelado',
+      'bg-secondary-subtle text-secondary border-secondary-subtle': item.status === 'concluido'
+    }"
+  >
+    {{ item.status }}
+  </span>
+</ng-template>

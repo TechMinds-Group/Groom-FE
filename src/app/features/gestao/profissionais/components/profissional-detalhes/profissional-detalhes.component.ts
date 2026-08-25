@@ -1,9 +1,9 @@
-import { ChangeDetectionStrategy, Component, computed, inject, OnInit, signal, ViewChild } from '@angular/core';
+import { AfterViewInit, ChangeDetectionStrategy, Component, computed, inject, OnInit, signal, TemplateRef, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { firstValueFrom } from 'rxjs';
-import { TmSelectComponent, TmSelectOption, TmTextComponent, TmToastService } from '@techminds-group/tm-angular-lib';
+import { TableColumn, TmSelectComponent, TmSelectOption, TmTableComponent, TmTextComponent, TmToastService } from '@techminds-group/tm-angular-lib';
 import { GestaoUsuariosService } from '../../../../../core/services/gestao-usuarios.service';
 import { AgendamentosService } from '../../../../../core/services/agendamentos.service';
 import { CatalogoService } from '../../../../../core/services/catalogo.service';
@@ -25,6 +25,7 @@ import { DisponibilidadeComponent } from '../../../../disponibilidade/components
     ReactiveFormsModule,
     TmTextComponent,
     TmSelectComponent,
+    TmTableComponent,
     PerfilBadgePipe,
     StatusBadgePipe,
     DisponibilidadeComponent,
@@ -34,7 +35,7 @@ import { DisponibilidadeComponent } from '../../../../disponibilidade/components
   changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [GestaoUsuariosHelperService],
 })
-export class ProfissionalDetalhesComponent implements OnInit {
+export class ProfissionalDetalhesComponent implements OnInit, AfterViewInit {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly fb = inject(FormBuilder);
@@ -47,6 +48,26 @@ export class ProfissionalDetalhesComponent implements OnInit {
   private readonly toastService = inject(TmToastService);
 
   @ViewChild(DisponibilidadeComponent) availabilityComp?: DisponibilidadeComponent;
+
+  @ViewChild('servicoTemplate', { static: true }) servicoTemplate!: TemplateRef<{ $implicit: Agendamento }>;
+  @ViewChild('clienteTemplate', { static: true }) clienteTemplate!: TemplateRef<{ $implicit: Agendamento }>;
+  @ViewChild('dataTemplate', { static: true }) dataTemplate!: TemplateRef<{ $implicit: Agendamento }>;
+  @ViewChild('statusTemplate', { static: true }) statusTemplate!: TemplateRef<{ $implicit: Agendamento }>;
+
+  private readonly templatesReady = signal(false);
+  protected readonly tamanhoPaginaAgendamentos = signal<number>(5);
+
+  protected readonly colsAgendamentos = computed<TableColumn<Agendamento>[]>(() => {
+    if (!this.templatesReady()) {
+      return [];
+    }
+    return [
+      { header: 'Serviço', template: this.servicoTemplate, width: '30%' },
+      { header: 'Cliente', template: this.clienteTemplate, width: '30%' },
+      { header: 'Data / Hora', template: this.dataTemplate, width: '25%' },
+      { header: 'Status', template: this.statusTemplate, width: '15%' },
+    ];
+  });
 
   protected readonly profissional = signal<Usuario | null>(null);
   protected readonly agendamentosProfissional = signal<Agendamento[]>([]);
@@ -85,6 +106,10 @@ export class ProfissionalDetalhesComponent implements OnInit {
     if (id) {
       void this.carregarDados(id);
     }
+  }
+
+  ngAfterViewInit(): void {
+    this.templatesReady.set(true);
   }
 
   voltar(): void {
