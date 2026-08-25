@@ -12,14 +12,45 @@ export class ClientesHelperService {
     return { primeiroNome, sobrenome };
   }
 
+  getNomeCompleto(c: Cliente): string {
+    const { primeiroNome, sobrenome } = this.separarNome(c);
+    if (sobrenome) {
+      return `${primeiroNome} ${sobrenome}`;
+    }
+    return c.nome || primeiroNome;
+  }
+
   formatarData(dataStr: string | undefined): string {
     if (!dataStr) return '';
-    if (dataStr.includes('/')) return dataStr;
-    const parts = dataStr.split('-');
+    const cleanStr = dataStr.split('T')[0].trim();
+    if (cleanStr.includes('/')) {
+      const parts = cleanStr.split('/');
+      if (parts.length === 3 && parts[2].length === 4) {
+        return `${parts[0].padStart(2, '0')}/${parts[1].padStart(2, '0')}/${parts[2]}`;
+      }
+    }
+    const parts = cleanStr.split('-');
     if (parts.length === 3) {
-      return `${parts[2]}/${parts[1]}/${parts[0]}`;
+      const year = parts[0];
+      const month = parts[1].padStart(2, '0');
+      const day = parts[2].padStart(2, '0');
+      if (year.length === 4) {
+        return `${day}/${month}/${year}`;
+      }
     }
     return dataStr;
+  }
+
+  formatarDataParaInputDate(dataStr: string | undefined): string {
+    if (!dataStr) return '';
+    const cleanStr = dataStr.split('T')[0].trim();
+    if (cleanStr.includes('/')) {
+      const parts = cleanStr.split('/');
+      if (parts.length === 3) {
+        return `${parts[2]}-${parts[1].padStart(2, '0')}-${parts[0].padStart(2, '0')}`;
+      }
+    }
+    return cleanStr;
   }
 
   formatarCpf(cpf: string | undefined): string {

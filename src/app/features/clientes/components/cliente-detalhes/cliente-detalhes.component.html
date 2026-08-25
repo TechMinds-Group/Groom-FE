@@ -8,7 +8,7 @@
           class="btn btn-light shadow-sm rounded-circle p-0 d-flex align-items-center justify-content-center btn-voltar"
           title="Voltar"
         >
-          <i class="fas fa-arrow-left text-muted"></i>
+          <i class="fas fa-arrow-left custom-dark-text"></i>
         </button>
 
         <div>
@@ -90,22 +90,24 @@
                 <div class="col-sm-6 col-12">
                   <label class="form-label small fw-bold text-muted text-uppercase tracking-wider">CPF</label>
                   <p class="fw-semibold mb-0 custom-dark-text">
-                    <i class="far fa-id-card text-muted me-1"></i>{{ helper.formatarCpf(c.cpf) || '—' }}
+                    <i class="far fa-id-card text-info me-1"></i>{{ helper.formatarCpf(c.cpf) || '—' }}
                   </p>
                 </div>
 
-                <!-- Data de Nascimento -->
+                <!-- Data de Nascimento (Formato Brasileiro DD/MM/YYYY com ícone de alto contraste) -->
                 <div class="col-sm-6 col-12">
                   <label class="form-label small fw-bold text-muted text-uppercase tracking-wider">Data de Nascimento</label>
                   <p class="fw-semibold mb-0 custom-dark-text">
-                    <i class="far fa-calendar me-1 text-muted"></i>{{ helper.formatarData(c.dataNascimento) || '—' }}
+                    <i class="far fa-calendar-alt text-warning me-1"></i>{{ helper.formatarData(c.dataNascimento) || '—' }}
                   </p>
                 </div>
 
                 <!-- Observações -->
                 @if (c.observacoes) {
                   <div class="col-12">
-                    <label class="form-label small fw-bold text-muted text-uppercase tracking-wider">Observações</label>
+                    <label class="form-label small fw-bold text-muted text-uppercase tracking-wider">
+                      <i class="far fa-comment-alt text-secondary me-1"></i>Observações
+                    </label>
                     <div class="mt-1">
                       <p class="custom-dark-text custom-dark-highlight rounded p-3 mb-0 small border field-value">
                         {{ c.observacoes }}

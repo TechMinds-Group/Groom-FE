@@ -225,7 +225,7 @@ export class ClienteDetalhesComponent implements OnInit, AfterViewInit {
       email: c.email ?? '',
       celular: this.formatarCelular(c.celular ?? ''),
       cpf: this.helper.formatarCpf(c.cpf),
-      dataNascimento: c.dataNascimento ?? '',
+      dataNascimento: this.helper.formatarDataParaInputDate(c.dataNascimento),
       observacoes: c.observacoes ?? '',
       status: c.status ?? 'Ativo',
     });
