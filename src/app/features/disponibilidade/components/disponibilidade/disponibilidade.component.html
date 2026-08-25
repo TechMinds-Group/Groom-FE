@@ -44,6 +44,17 @@
             <span class="text-muted small custom-dark-text">Configuração de dias e horários de atendimento</span>
           </div>
         </div>
+
+        @if (!modoEdicao()) {
+          <button
+            type="button"
+            class="btn btn-primary fw-bold px-4 py-2 rounded-3 shadow-sm d-inline-flex align-items-center gap-2"
+            (click)="habilitarEdicao()"
+          >
+            <i class="fas fa-edit"></i>
+            <span>Editar</span>
+          </button>
+        }
       </div>
     }
 
@@ -107,8 +118,11 @@
               <i class="fas fa-store fs-5 fs-md-4"></i>
             </div>
             <div class="min-w-0 flex-fill">
-              <h3 class="h6 h5-md fw-bold mb-1 custom-dark-text text-break">
-                Personalizar Horários de Atendimento
+              <h3 class="h6 h5-md fw-bold mb-1 custom-dark-text text-break d-flex align-items-center gap-2">
+                <span>Personalizar Horários de Atendimento</span>
+                @if (!modoEdicao()) {
+                  <span class="badge bg-secondary-subtle text-secondary border fw-normal small ms-1">Somente Leitura</span>
+                }
               </h3>
               <p class="text-muted small mb-0 custom-dark-text text-break lh-sm">
                 Ative a chave para definir horários de atendimento próprios para este profissional. Quando desativado, o profissional segue os horários do estabelecimento.
@@ -116,15 +130,29 @@
             </div>
           </div>
 
-          <div class="form-check form-switch mb-0 shrink-0 ms-2 ms-sm-3">
-            <input
-              class="form-check-input fs-4 cursor-pointer"
-              type="checkbox"
-              role="switch"
-              id="switch-usar-estabelecimento"
-              [checked]="usarHorarioEstabelecimento()"
-              (change)="onToggleUsarHorarioEstabelecimento($event)"
-            />
+          <div class="d-flex align-items-center gap-2 shrink-0 ms-2 ms-sm-3">
+            @if (embedded && !modoEdicao()) {
+              <button
+                type="button"
+                class="btn btn-primary fw-semibold px-3 py-1.5 rounded-3 shadow-sm d-inline-flex align-items-center gap-2"
+                (click)="habilitarEdicao()"
+              >
+                <i class="fas fa-edit"></i>
+                <span>Editar</span>
+              </button>
+            }
+
+            <div class="form-check form-switch mb-0">
+              <input
+                class="form-check-input fs-4 cursor-pointer"
+                type="checkbox"
+                role="switch"
+                id="switch-usar-estabelecimento"
+                [checked]="usarHorarioEstabelecimento()"
+                [disabled]="!modoEdicao()"
+                (change)="onToggleUsarHorarioEstabelecimento($event)"
+              />
+            </div>
           </div>
         </div>
 
@@ -142,6 +170,7 @@
                           role="switch"
                           [id]="'switch-dia-' + dia.diaSemana"
                           [ngModel]="dia.ativo"
+                          [disabled]="!modoEdicao()"
                           (ngModelChange)="onDiaAtivoChange(dia, $event)"
                         />
                       </div>
@@ -162,6 +191,7 @@
                       <button
                         type="button"
                         class="btn btn-outline-secondary btn-sm rounded-3 px-3 py-1 transition-hover btn-action-responsive ms-lg-auto my-2 mt-lg-0"
+                        [disabled]="!modoEdicao()"
                         (click)="copiarParaTodos(dia); $event.stopPropagation()"
                         title="Copiar estes horários para todos os outros dias"
                       >
@@ -190,6 +220,7 @@
                                 role="switch"
                                 [id]="'switch-intervalo-' + dia.diaSemana"
                                 [ngModel]="dia.temIntervalo"
+                                [disabled]="!modoEdicao()"
                                 (ngModelChange)="onIntervaloSwitchChange(dia, $event)"
                               />
                             </div>
@@ -208,11 +239,11 @@
                         <div class="col-12 col-md-6">
                           <div class="d-flex align-items-center gap-2 w-100">
                             <div class="flex-fill min-w-0">
-                              <tm-time [value]="dia.horaAbertura" (valueChange)="setHoraAbertura(dia, $event)"></tm-time>
+                              <tm-time [value]="dia.horaAbertura" [disabled]="!modoEdicao()" (valueChange)="setHoraAbertura(dia, $event)"></tm-time>
                             </div>
                             <span class="small text-muted custom-dark-text shrink-0 px-1">até</span>
                             <div class="flex-fill min-w-0">
-                              <tm-time [value]="dia.horaFechamento" (valueChange)="setHoraFechamento(dia, $event)"></tm-time>
+                              <tm-time [value]="dia.horaFechamento" [disabled]="!modoEdicao()" (valueChange)="setHoraFechamento(dia, $event)"></tm-time>
                             </div>
                           </div>
                         </div>
@@ -220,11 +251,11 @@
                           @if (dia.temIntervalo) {
                             <div class="d-flex align-items-center gap-2 w-100">
                               <div class="flex-fill min-w-0">
-                                <tm-time [value]="getIntervaloInicio(dia)" (valueChange)="setIntervaloInicio(dia, $event)"></tm-time>
+                                <tm-time [value]="getIntervaloInicio(dia)" [disabled]="!modoEdicao()" (valueChange)="setIntervaloInicio(dia, $event)"></tm-time>
                               </div>
                               <span class="small text-muted custom-dark-text shrink-0 px-1">até</span>
                               <div class="flex-fill min-w-0">
-                                <tm-time [value]="getIntervaloFim(dia)" (valueChange)="setIntervaloFim(dia, $event)"></tm-time>
+                                <tm-time [value]="getIntervaloFim(dia)" [disabled]="!modoEdicao()" (valueChange)="setIntervaloFim(dia, $event)"></tm-time>
                               </div>
                             </div>
                           }
@@ -250,6 +281,7 @@
               <button
                 type="button"
                 class="btn btn-sm btn-outline-primary fw-semibold px-2 py-1"
+                [disabled]="!modoEdicao()"
                 (click)="selecionarTodosServicos()"
               >
                 <i class="fas fa-check-double me-1"></i>Selecionar Todos
@@ -258,6 +290,7 @@
                 <button
                   type="button"
                   class="btn btn-sm btn-outline-secondary fw-semibold px-2 py-1"
+                  [disabled]="!modoEdicao()"
                   (click)="desmarcarTodosServicos()"
                 >
                   <i class="fas fa-times me-1"></i>Limpar Seleção
@@ -270,6 +303,7 @@
             [value]="servicosSelecionados()"
             [multiple]="true"
             [searchable]="true"
+            [disabled]="!modoEdicao()"
             [darkMode]="themeService.isDarkMode()"
             class="custom-dark-text"
             placeholder="Selecione os serviços que este profissional realiza..."
@@ -289,6 +323,7 @@
               <button
                 type="button"
                 class="btn btn-sm btn-outline-primary fw-semibold px-2 py-1"
+                [disabled]="!modoEdicao()"
                 (click)="selecionarTodosPlanos()"
               >
                 <i class="fas fa-check-double me-1"></i>Selecionar Todos
@@ -297,6 +332,7 @@
                 <button
                   type="button"
                   class="btn btn-sm btn-outline-secondary fw-semibold px-2 py-1"
+                  [disabled]="!modoEdicao()"
                   (click)="desmarcarTodosPlanos()"
                 >
                   <i class="fas fa-times me-1"></i>Limpar Seleção
@@ -309,6 +345,7 @@
             [value]="planosSelecionados()"
             [multiple]="true"
             [searchable]="true"
+            [disabled]="!modoEdicao()"
             [darkMode]="themeService.isDarkMode()"
             class="custom-dark-text"
             placeholder="Selecione os planos que aceitam este profissional..."
@@ -317,31 +354,33 @@
         </div>
       </div>
 
-      <!-- Barra de Ações (Salvar / Cancelar) -->
-      <div class="d-flex align-items-center justify-content-end gap-3 mt-4">
-        <button
-          type="button"
-          class="btn btn-outline-secondary px-4 py-2 rounded-3 fw-semibold"
-          (click)="cancelar()"
-          [disabled]="salvando()"
-        >
-          Cancelar
-        </button>
+      <!-- Barra de Ações (Salvar / Cancelar) - Exibida somente no modo de edição -->
+      @if (modoEdicao()) {
+        <div class="d-flex align-items-center justify-content-end gap-3 mt-4">
+          <button
+            type="button"
+            class="btn btn-outline-secondary px-4 py-2 rounded-3 fw-semibold"
+            (click)="cancelar()"
+            [disabled]="salvando()"
+          >
+            Cancelar
+          </button>
 
-        <button
-          type="button"
-          class="btn btn-primary px-4 py-2 rounded-3 fw-semibold shadow-sm"
-          (click)="salvar()"
-          [disabled]="salvando() || !temAlteracoes()"
-        >
-          @if (salvando()) {
-            <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
-            Salvando...
-          } @else {
-            <i class="fas fa-save me-2"></i>Salvar Disponibilidade
-          }
-        </button>
-      </div>
+          <button
+            type="button"
+            class="btn btn-primary px-4 py-2 rounded-3 fw-semibold shadow-sm"
+            (click)="salvar()"
+            [disabled]="salvando() || !temAlteracoes()"
+          >
+            @if (salvando()) {
+              <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+              Salvando...
+            } @else {
+              <i class="fas fa-save me-2"></i>Salvar Disponibilidade
+            }
+          </button>
+        </div>
+      }
     }
   }
 </div>

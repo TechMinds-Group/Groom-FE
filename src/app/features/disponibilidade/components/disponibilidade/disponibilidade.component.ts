@@ -106,6 +106,9 @@ export class DisponibilidadeComponent implements OnInit, AfterViewInit {
   protected readonly servicosSelecionados = signal<string[]>([]);
   protected readonly planosSelecionados = signal<string[]>([]);
 
+  /** Controla se os campos da tela estão em modo de edição (true) ou somente leitura (false). */
+  protected readonly modoEdicao = signal<boolean>(false);
+
   /** Agendamentos que ficaram fora da nova disponibilidade. */
   protected readonly conflitos = signal<Agendamento[]>([]);
   protected readonly showConflitosModal = signal(false);
@@ -347,29 +350,39 @@ export class DisponibilidadeComponent implements OnInit, AfterViewInit {
     }
   }
 
+  protected habilitarEdicao(): void {
+    this.modoEdicao.set(true);
+  }
+
   protected onServicosChange(valor: unknown): void {
+    if (!this.modoEdicao()) return;
     this.servicosSelecionados.set(Array.isArray(valor) ? (valor as string[]) : []);
   }
 
   protected selecionarTodosServicos(): void {
+    if (!this.modoEdicao()) return;
     const todos = this.servicoOptions().map((opt) => opt.value);
     this.servicosSelecionados.set(todos);
   }
 
   protected desmarcarTodosServicos(): void {
+    if (!this.modoEdicao()) return;
     this.servicosSelecionados.set([]);
   }
 
   protected onPlanosChange(valor: unknown): void {
+    if (!this.modoEdicao()) return;
     this.planosSelecionados.set(Array.isArray(valor) ? (valor as string[]) : []);
   }
 
   protected selecionarTodosPlanos(): void {
+    if (!this.modoEdicao()) return;
     const todos = this.planoOptions().map((opt) => opt.value);
     this.planosSelecionados.set(todos);
   }
 
   protected desmarcarTodosPlanos(): void {
+    if (!this.modoEdicao()) return;
     this.planosSelecionados.set([]);
   }
 
@@ -381,6 +394,7 @@ export class DisponibilidadeComponent implements OnInit, AfterViewInit {
   /** Carrega a disponibilidade do profissional alvo e popula o formulário. */
   protected async carregarDisponibilidade(profissionalId: string): Promise<void> {
     this.carregando.set(true);
+    this.modoEdicao.set(false);
     try {
       const dados = await this.disponibilidadeService.getDisponibilidade(profissionalId);
       await this.popularForm(dados);
@@ -399,6 +413,7 @@ export class DisponibilidadeComponent implements OnInit, AfterViewInit {
     } else {
       this.voltar();
     }
+    this.modoEdicao.set(false);
   }
 
   protected async salvar(): Promise<void> {
@@ -434,6 +449,7 @@ export class DisponibilidadeComponent implements OnInit, AfterViewInit {
       );
 
       this.atualizarEstadoInicial();
+      this.modoEdicao.set(false);
       this.toastService.success(this.languageService.translate('DISPONIBILIDADE.TOAST_SUCESSO'));
 
       if (resultado.conflitos && resultado.conflitos.length > 0) {
