@@ -242,9 +242,29 @@
       <!-- Checklist de Serviços Atendidos pelo Profissional -->
       <div class="card border-0 shadow-sm custom-dark-card rounded-4 mb-4">
         <div class="card-body p-4">
-          <h3 class="h6 fw-bold mb-3 custom-dark-text d-flex align-items-center gap-2">
-            <i class="fas fa-cut text-primary"></i> Serviços Atendidos por este Profissional
-          </h3>
+          <div class="d-flex align-items-center justify-content-between mb-3 flex-wrap gap-2">
+            <h3 class="h6 fw-bold mb-0 custom-dark-text d-flex align-items-center gap-2">
+              <i class="fas fa-cut text-primary"></i> Serviços Atendidos por este Profissional
+            </h3>
+            <div class="d-flex align-items-center gap-2">
+              <button
+                type="button"
+                class="btn btn-sm btn-outline-primary fw-semibold px-2 py-1"
+                (click)="selecionarTodosServicos()"
+              >
+                <i class="fas fa-check-double me-1"></i>Selecionar Todos
+              </button>
+              @if (servicosSelecionados().length > 0) {
+                <button
+                  type="button"
+                  class="btn btn-sm btn-outline-secondary fw-semibold px-2 py-1"
+                  (click)="desmarcarTodosServicos()"
+                >
+                  <i class="fas fa-times me-1"></i>Limpar Seleção
+                </button>
+              }
+            </div>
+          </div>
           <tm-select
             [options]="servicoOptions()"
             [value]="servicosSelecionados()"
@@ -261,9 +281,29 @@
       <!-- Checklist de Planos Atendidos pelo Profissional -->
       <div class="card border-0 shadow-sm custom-dark-card rounded-4 mb-4">
         <div class="card-body p-4">
-          <h3 class="h6 fw-bold mb-3 custom-dark-text d-flex align-items-center gap-2">
-            <i class="fas fa-award text-primary"></i> Planos / Clubes de Assinatura Atendidos
-          </h3>
+          <div class="d-flex align-items-center justify-content-between mb-3 flex-wrap gap-2">
+            <h3 class="h6 fw-bold mb-0 custom-dark-text d-flex align-items-center gap-2">
+              <i class="fas fa-award text-primary"></i> Planos / Clubes de Assinatura Atendidos
+            </h3>
+            <div class="d-flex align-items-center gap-2">
+              <button
+                type="button"
+                class="btn btn-sm btn-outline-primary fw-semibold px-2 py-1"
+                (click)="selecionarTodosPlanos()"
+              >
+                <i class="fas fa-check-double me-1"></i>Selecionar Todos
+              </button>
+              @if (planosSelecionados().length > 0) {
+                <button
+                  type="button"
+                  class="btn btn-sm btn-outline-secondary fw-semibold px-2 py-1"
+                  (click)="desmarcarTodosPlanos()"
+                >
+                  <i class="fas fa-times me-1"></i>Limpar Seleção
+                </button>
+              }
+            </div>
+          </div>
           <tm-select
             [options]="planoOptions()"
             [value]="planosSelecionados()"

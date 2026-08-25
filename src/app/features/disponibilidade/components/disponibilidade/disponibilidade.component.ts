@@ -351,8 +351,26 @@ export class DisponibilidadeComponent implements OnInit, AfterViewInit {
     this.servicosSelecionados.set(Array.isArray(valor) ? (valor as string[]) : []);
   }
 
+  protected selecionarTodosServicos(): void {
+    const todos = this.servicoOptions().map((opt) => opt.value);
+    this.servicosSelecionados.set(todos);
+  }
+
+  protected desmarcarTodosServicos(): void {
+    this.servicosSelecionados.set([]);
+  }
+
   protected onPlanosChange(valor: unknown): void {
     this.planosSelecionados.set(Array.isArray(valor) ? (valor as string[]) : []);
+  }
+
+  protected selecionarTodosPlanos(): void {
+    const todos = this.planoOptions().map((opt) => opt.value);
+    this.planosSelecionados.set(todos);
+  }
+
+  protected desmarcarTodosPlanos(): void {
+    this.planosSelecionados.set([]);
   }
 
   /** Traduz chaves dinâmicas via serviço de tradução. */

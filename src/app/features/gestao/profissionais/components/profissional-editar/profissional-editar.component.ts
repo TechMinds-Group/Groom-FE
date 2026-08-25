@@ -81,6 +81,28 @@ export class ProfissionalEditarComponent implements OnInit {
     this.form.get('status')?.setValue(alvo.checked ? 'Ativo' : 'Inativo');
   }
 
+  protected selecionarTodosServicos(): void {
+    const todos = this.servicosOptions().map((opt) => opt.value);
+    this.form.get('servicoIds')?.setValue(todos);
+    this.form.get('servicoIds')?.markAsDirty();
+  }
+
+  protected desmarcarTodosServicos(): void {
+    this.form.get('servicoIds')?.setValue([]);
+    this.form.get('servicoIds')?.markAsDirty();
+  }
+
+  protected selecionarTodosPlanos(): void {
+    const todos = this.planosOptions().map((opt) => opt.value);
+    this.form.get('planoIds')?.setValue(todos);
+    this.form.get('planoIds')?.markAsDirty();
+  }
+
+  protected desmarcarTodosPlanos(): void {
+    this.form.get('planoIds')?.setValue([]);
+    this.form.get('planoIds')?.markAsDirty();
+  }
+
   onFotoSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
     if (input.files && input.files[0]) {
