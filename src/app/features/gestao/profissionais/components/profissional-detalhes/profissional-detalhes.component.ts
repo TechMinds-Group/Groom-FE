@@ -81,6 +81,12 @@ export class ProfissionalDetalhesComponent implements OnInit {
     return partes.length > 1 ? partes.slice(1).join(' ') : '';
   }
 
+  protected getWhatsAppLink(telefone?: string): string {
+    if (!telefone) return '#';
+    const digits = telefone.replace(/\D/g, '');
+    return `https://wa.me/55${digits}`;
+  }
+
   private async carregarDados(id: string): Promise<void> {
     try {
       await this.gestaoUsuariosService.carregarUsuarios();

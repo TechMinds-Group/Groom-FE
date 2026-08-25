@@ -1,189 +1,226 @@
-<div class="container mt-5">
+<div class="container mt-4 mb-5">
   @if (profissional(); as p) {
-    <!-- Header: botão voltar circular + nome + subtítulo — padrão idêntico ao cliente-detalhes -->
-    <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between mb-4 gap-3">
+    <!-- Top Header: Voltar + Título + Botão Editar -->
+    <div class="d-flex flex-column flex-sm-row align-items-start align-items-sm-center justify-content-between mb-4 gap-3">
       <div class="d-flex align-items-center gap-3">
-        <button (click)="voltar()" class="btn btn-light shadow-sm rounded-circle p-0 d-flex align-items-center justify-content-center btn-voltar" title="Voltar para Profissionais">
+        <button
+          (click)="voltar()"
+          class="btn btn-light shadow-sm rounded-circle p-0 d-flex align-items-center justify-content-center btn-voltar"
+          title="Voltar para a lista de profissionais"
+        >
           <i class="fas fa-arrow-left text-muted"></i>
         </button>
 
         <div>
-          <h1 class="h2 text-primary fw-bold mb-1 custom-dark-text">
+          <h1 class="h3 text-primary fw-bold mb-0 custom-dark-text">
             Detalhes do Profissional
           </h1>
-          <p class="text-muted custom-dark-text small mb-0">Informações completas, contato e histórico de agendamentos.</p>
+          <p class="text-muted custom-dark-text small mb-0">
+            Perfil, dados de contato, atuação e histórico de agendamentos.
+          </p>
+        </div>
+      </div>
+
+      <button
+        (click)="abrirEdicao()"
+        class="btn btn-primary fw-bold px-4 py-2 rounded-3 shadow-sm d-inline-flex align-items-center gap-2 w-100 w-sm-auto justify-content-center custom-action-btn"
+      >
+        <i class="fas fa-edit"></i>
+        <span>Editar Profissional</span>
+      </button>
+    </div>
+
+    <!-- Hero Card: Perfil Principal -->
+    <div class="card border-0 shadow-sm p-3 p-md-4 mb-4 custom-dark-card rounded-4">
+      <div class="d-flex flex-column flex-md-row align-items-start align-items-md-center justify-content-between gap-4">
+        <div class="d-flex align-items-center gap-3 min-w-0 flex-fill">
+          @if (p.fotoUrl) {
+            <img
+              [src]="estabelecimentoService.resolverUrl(p.fotoUrl)"
+              alt="Foto de {{ getNomeCompleto(p) }}"
+              class="rounded-circle border object-fit-cover shadow-sm shrink-0"
+              style="width: 72px; height: 72px;"
+            />
+          } @else {
+            <div
+              class="rounded-circle bg-primary-subtle text-primary d-flex align-items-center justify-content-center shadow-sm shrink-0"
+              style="width: 72px; height: 72px;"
+            >
+              <i class="fas fa-user-tie fs-2"></i>
+            </div>
+          }
+
+          <div class="min-w-0 flex-fill">
+            <h2 class="h3 fw-bold mb-1 custom-dark-text text-break">
+              {{ getNomeCompleto(p) }}
+            </h2>
+
+            <div class="d-flex flex-wrap align-items-center gap-2 mt-2">
+              @if (p.status | statusBadge; as badge) {
+                <span class="badge border px-3 py-1 rounded-pill fw-semibold" [ngClass]="badge.badgeClass">
+                  <i [class]="badge.iconClass" class="me-1"></i>{{ badge.label }}
+                </span>
+              }
+
+              @for (badge of (p | perfilBadge); track badge.label) {
+                <span class="badge border px-3 py-1 rounded-pill fw-semibold" [ngClass]="badge.badgeClass">
+                  <i [class]="badge.iconClass" class="me-1"></i>{{ badge.label }}
+                </span>
+              }
+            </div>
+          </div>
+        </div>
+
+        <div class="d-flex flex-wrap align-items-center gap-2 w-100 w-md-auto">
+          @if (p.telefone) {
+            <a
+              [href]="getWhatsAppLink(p.telefone)"
+              target="_blank"
+              class="btn btn-outline-success btn-sm rounded-pill px-3 py-1.5 fw-semibold d-inline-flex align-items-center gap-2"
+            >
+              <i class="fab fa-whatsapp"></i>
+              <span>WhatsApp</span>
+            </a>
+          }
+          @if (p.email) {
+            <a
+              [href]="'mailto:' + p.email"
+              class="btn btn-outline-secondary btn-sm rounded-pill px-3 py-1.5 fw-semibold d-inline-flex align-items-center gap-2"
+            >
+              <i class="far fa-envelope"></i>
+              <span>E-mail</span>
+            </a>
+          }
         </div>
       </div>
     </div>
 
-    <!-- Linha 1: Informações (col-lg-8) + Ações (col-lg-4) -->
+    <!-- Grid de Informações e Atuação (2 Colunas no Desktop, 1 Coluna no Mobile) -->
     <div class="row g-4 mb-4">
-      <!-- Card: Informações pessoais -->
-      <div class="col-lg-8 col-12">
-        <div class="card border-0 shadow-sm p-4 h-100 details-card custom-dark-card" style="overflow: hidden;">
-          <!-- Avatar + Nome Completo -->
-          <div class="d-flex align-items-center gap-3 border-bottom pb-4 mb-4" style="min-width: 0;">
-            @if (p.fotoUrl) {
-              <img [src]="estabelecimentoService.resolverUrl(p.fotoUrl)" alt="Foto de {{ getNomeCompleto(p) }}" class="rounded-circle border object-fit-cover shadow-sm" style="width: 56px; height: 56px;" />
-            } @else {
-              <div class="avatar-circle bg-primary-subtle text-primary d-flex align-items-center justify-content-center">
-                <i class="fas fa-user-tie fs-3"></i>
-              </div>
-            }
-            <div style="min-width: 0; flex: 1 1 0;">
-              <h3 class="h5 fw-bold mb-0 custom-dark-text" style="word-break: break-word;">{{ getNomeCompleto(p) }}</h3>
-            </div>
-          </div>
+      <!-- Coluna 1: Dados de Cadastro -->
+      <div class="col-lg-6 col-12">
+        <div class="card border-0 shadow-sm p-3 p-md-4 h-100 custom-dark-card rounded-4">
+          <h3 class="h5 fw-bold mb-4 custom-dark-text d-flex align-items-center gap-2 border-bottom pb-3">
+            <i class="fas fa-id-card text-primary"></i>Informações Pessoais
+          </h3>
 
-          <!-- Campos -->
-          <div class="row g-4">
+          <div class="row g-3">
             <div class="col-sm-6 col-12">
-              <label class="form-label small fw-bold text-muted text-uppercase">Nome</label>
-              <div class="mt-1 field-value">
-                <span class="fw-medium custom-dark-text"><i class="fas fa-user text-primary me-1"></i>{{ getPrimeiroNome(p) || '—' }}</span>
+              <label class="form-label small fw-bold text-muted text-uppercase mb-1">Nome</label>
+              <div class="field-value fw-medium custom-dark-text">
+                <i class="fas fa-user text-primary me-2"></i>{{ getPrimeiroNome(p) || '—' }}
               </div>
             </div>
 
             <div class="col-sm-6 col-12">
-              <label class="form-label small fw-bold text-muted text-uppercase">Sobrenome</label>
-              <div class="mt-1 field-value">
-                <span class="fw-medium custom-dark-text"><i class="far fa-user text-primary me-1"></i>{{ getSobrenome(p) || '—' }}</span>
+              <label class="form-label small fw-bold text-muted text-uppercase mb-1">Sobrenome</label>
+              <div class="field-value fw-medium custom-dark-text">
+                <i class="far fa-user text-primary me-2"></i>{{ getSobrenome(p) || '—' }}
               </div>
             </div>
 
             <div class="col-sm-6 col-12">
-              <label class="form-label small fw-bold text-muted text-uppercase">Telefone / WhatsApp</label>
-              <div class="mt-1 field-value">
-                <span class="fw-medium custom-dark-text"><i class="fab fa-whatsapp text-success me-1"></i>{{ p.telefone || '—' }}</span>
+              <label class="form-label small fw-bold text-muted text-uppercase mb-1">Telefone / WhatsApp</label>
+              <div class="field-value fw-medium custom-dark-text">
+                <i class="fab fa-whatsapp text-success me-2"></i>{{ p.telefone || '—' }}
               </div>
             </div>
 
-            <!-- Status dentro do card -->
             <div class="col-sm-6 col-12">
-              <label class="form-label small fw-bold text-muted text-uppercase">Status</label>
-              <div class="mt-1">
-                @if (p.status | statusBadge; as badge) {
-                  <span class="badge border px-3 py-1 rounded-pill fw-semibold" [ngClass]="badge.badgeClass">
-                    <i [class]="badge.iconClass"></i>{{ badge.label }}
-                  </span>
-                }
+              <label class="form-label small fw-bold text-muted text-uppercase mb-1">E-mail</label>
+              <div class="field-value fw-medium custom-dark-text">
+                <i class="far fa-envelope text-primary me-2"></i>{{ p.email || '—' }}
               </div>
             </div>
-
-            <!-- Perfil -->
-            <div class="col-sm-6 col-12">
-              <label class="form-label small fw-bold text-muted text-uppercase">Perfil</label>
-              <div class="mt-1">
-                @for (badge of (p | perfilBadge); track badge.label) {
-                  <span class="badge border px-3 py-1 rounded-pill fw-semibold" [ngClass]="badge.badgeClass">
-                    <i [class]="badge.iconClass"></i>{{ badge.label }}
-                  </span>
-                }
-              </div>
-            </div>
-
-            @if (p.email) {
-              <div class="col-sm-6 col-12">
-                <label class="form-label small fw-bold text-muted text-uppercase">E-mail</label>
-                <div class="mt-1 field-value">
-                  <span class="custom-dark-text"><i class="far fa-envelope text-primary me-1"></i>{{ p.email }}</span>
-                </div>
-              </div>
-            }
 
             @if (p.planoAssinatura || p.plano) {
               <div class="col-sm-6 col-12">
-                <label class="form-label small fw-bold text-muted text-uppercase">Plano do Sistema</label>
-                <div class="mt-1 field-value">
-                  <span class="custom-dark-text"><i class="fas fa-crown text-warning me-1"></i>{{ p.planoAssinatura || p.plano }}</span>
+                <label class="form-label small fw-bold text-muted text-uppercase mb-1">Plano do Sistema</label>
+                <div class="field-value fw-medium custom-dark-text">
+                  <i class="fas fa-crown text-warning me-2"></i>{{ p.planoAssinatura || p.plano }}
                 </div>
               </div>
             }
 
             @if (p.faturamento) {
               <div class="col-sm-6 col-12">
-                <label class="form-label small fw-bold text-muted text-uppercase">Faturamento</label>
-                <div class="mt-1 field-value">
-                  <span class="custom-dark-text"><i class="fas fa-money-bill-trend-up text-success me-1"></i>R$ {{ p.faturamento.toFixed(2).replace('.', ',') }}</span>
+                <label class="form-label small fw-bold text-muted text-uppercase mb-1">Faturamento</label>
+                <div class="field-value fw-medium custom-dark-text">
+                  <i class="fas fa-money-bill-trend-up text-success me-2"></i>R$ {{ p.faturamento.toFixed(2).replace('.', ',') }}
                 </div>
               </div>
             }
-
-            <!-- Serviços do catálogo vinculados (atuação) -->
-            <div class="col-12 border-top pt-3 mt-2">
-              <label class="form-label small fw-bold text-muted text-uppercase d-flex align-items-center gap-2 mb-2">
-                <i class="fas fa-cut text-primary"></i>Catálogo de Serviços Atendidos
-              </label>
-              <div class="d-flex flex-wrap gap-2">
-                @for (servico of servicosAtuacao(); track servico) {
-                  <span class="badge border px-3 py-1.5 rounded-pill fw-semibold text-primary border-primary-subtle bg-primary-subtle d-inline-flex align-items-center gap-1">
-                    <i class="fas fa-check-circle me-1"></i>{{ servico }}
-                  </span>
-                } @empty {
-                  <span class="text-muted small custom-dark-text">Nenhum serviço do catálogo vinculado a este profissional.</span>
-                }
-              </div>
-            </div>
-
-            <!-- Planos do Estabelecimento vinculados (atuação) -->
-            <div class="col-12 border-top pt-3 mt-2">
-              <label class="form-label small fw-bold text-muted text-uppercase d-flex align-items-center gap-2 mb-2">
-                <i class="fas fa-gem text-success"></i>Planos de Assinatura Atendidos (Clube)
-              </label>
-              <div class="d-flex flex-wrap gap-2">
-                @for (plano of planosAtuacao(); track plano) {
-                  <span class="badge border px-3 py-1.5 rounded-pill fw-semibold text-success border-success-subtle bg-success-subtle d-inline-flex align-items-center gap-1">
-                    <i class="fas fa-crown me-1"></i>{{ plano }}
-                  </span>
-                } @empty {
-                  <span class="text-muted small custom-dark-text">Nenhum plano de assinatura do estabelecimento vinculado a este profissional.</span>
-                }
-              </div>
-            </div>
           </div>
         </div>
       </div>
 
-      <!-- Card: Ações rápidas -->
-      <div class="col-lg-4 col-12">
-        <div class="card border-0 shadow-sm p-4 h-100 actions-card custom-dark-card">
-          <h4 class="h5 fw-bold mb-4 custom-dark-text">
-            <i class="fas fa-sliders-h me-2 text-primary"></i>Ações Rápidas
-          </h4>
+      <!-- Coluna 2: Atuação (Serviços e Planos) -->
+      <div class="col-lg-6 col-12">
+        <div class="card border-0 shadow-sm p-3 p-md-4 h-100 custom-dark-card rounded-4">
+          <h3 class="h5 fw-bold mb-4 custom-dark-text d-flex align-items-center gap-2 border-bottom pb-3">
+            <i class="fas fa-briefcase text-primary"></i>Atuação & Serviços Cadastrados
+          </h3>
 
-          <div class="d-grid gap-3">
-            <button (click)="abrirEdicao()" class="btn btn-primary py-2 fw-bold w-100 custom-action-btn">
-              <i class="fas fa-edit me-2"></i>Editar
-            </button>
+          <!-- Serviços Prestados -->
+          <div class="mb-4">
+            <label class="form-label small fw-bold text-muted text-uppercase d-flex align-items-center gap-2 mb-2">
+              <i class="fas fa-cut text-primary"></i>Catálogo de Serviços Atendidos
+            </label>
+            <div class="d-flex flex-wrap gap-2">
+              @for (servico of servicosAtuacao(); track servico) {
+                <span class="badge border px-3 py-1.5 rounded-pill fw-semibold text-primary border-primary-subtle bg-primary-subtle d-inline-flex align-items-center gap-1">
+                  <i class="fas fa-check-circle me-1"></i>{{ servico }}
+                </span>
+              } @empty {
+                <span class="text-muted small custom-dark-text">Nenhum serviço do catálogo vinculado a este profissional.</span>
+              }
+            </div>
+          </div>
+
+          <!-- Planos Atendidos -->
+          <div>
+            <label class="form-label small fw-bold text-muted text-uppercase d-flex align-items-center gap-2 mb-2">
+              <i class="fas fa-gem text-success"></i>Planos de Assinatura Atendidos (Clube)
+            </label>
+            <div class="d-flex flex-wrap gap-2">
+              @for (plano of planosAtuacao(); track plano) {
+                <span class="badge border px-3 py-1.5 rounded-pill fw-semibold text-success border-success-subtle bg-success-subtle d-inline-flex align-items-center gap-1">
+                  <i class="fas fa-crown me-1"></i>{{ plano }}
+                </span>
+              } @empty {
+                <span class="text-muted small custom-dark-text">Nenhum plano de assinatura do estabelecimento vinculado a este profissional.</span>
+              }
+            </div>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- Linha 1.5: Configuração de Horários / Disponibilidade -->
+    <!-- Linha 3: Horários de Atendimento / Disponibilidade -->
     <div class="row g-4 mb-4">
       <div class="col-12">
         <app-disponibilidade [embedded]="true" [profissionalId]="p.id"></app-disponibilidade>
       </div>
     </div>
 
-    <!-- Linha 2: Histórico de Agendamentos -->
+    <!-- Linha 4: Histórico de Agendamentos (Tabela Desktop + Cards Mobile) -->
     <div class="row g-4 mb-5">
       <div class="col-12">
-        <div class="card border-0 shadow-sm p-4 custom-dark-card" style="overflow: hidden;">
-          <h4 class="h5 fw-bold mb-4 custom-dark-text d-flex align-items-center justify-content-between">
-            <span><i class="fas fa-calendar-alt me-2 text-primary"></i>Histórico de Agendamentos</span>
-            <span class="badge bg-primary rounded-pill flex-shrink-0">{{ agendamentosProfissional().length }}</span>
-          </h4>
+        <div class="card border-0 shadow-sm p-3 p-md-4 custom-dark-card rounded-4">
+          <h3 class="h5 fw-bold mb-4 custom-dark-text d-flex align-items-center justify-content-between">
+            <span><i class="fas fa-calendar-alt text-primary me-2"></i>Histórico de Agendamentos</span>
+            <span class="badge bg-primary rounded-pill flex-shrink-0 fs-6 px-3 py-1">{{ agendamentosProfissional().length }}</span>
+          </h3>
 
           @if (agendamentosProfissional().length === 0) {
-            <div class="text-center py-4 text-muted">
-              <i class="far fa-calendar-times fa-2x mb-2 d-block custom-dark-text"></i>
-              <p class="mb-0 small custom-dark-text">Nenhum agendamento encontrado para este profissional.</p>
+            <div class="text-center py-5 text-muted">
+              <i class="far fa-calendar-times fa-3x mb-3 d-block custom-dark-text text-opacity-50"></i>
+              <p class="mb-0 fw-medium custom-dark-text">Nenhum agendamento encontrado para este profissional.</p>
             </div>
           } @else {
-            <div class="table-responsive">
-              <table class="table table-hover align-middle mb-0 small">
+            <!-- Desktop Table (md ou maior) -->
+            <div class="table-responsive d-none d-md-block">
+              <table class="table table-hover align-middle mb-0 small custom-dark-table">
                 <thead class="table-light">
                   <tr>
                     <th class="text-nowrap">Serviço</th>
@@ -211,17 +248,38 @@
                 </tbody>
               </table>
             </div>
+
+            <!-- Mobile Cards (sm ou menor) -->
+            <div class="d-flex flex-column gap-3 d-md-none">
+              @for (a of agendamentosProfissional(); track a.id) {
+                <div class="p-3 rounded-3 border custom-dark-card shadow-sm">
+                  <div class="d-flex align-items-center justify-content-between mb-2">
+                    <span class="fw-bold custom-dark-text text-break me-2">{{ a.servicoNome }}</span>
+                    <span class="badge rounded-pill small fw-semibold border shrink-0" [ngClass]="{
+                      'bg-success-subtle text-success border-success-subtle': a.status === 'confirmado',
+                      'bg-warning-subtle text-warning border-warning-subtle': a.status === 'agendado' || a.status === 'pendente',
+                      'bg-danger-subtle text-danger border-danger-subtle': a.status === 'recusado' || a.status === 'cancelado',
+                      'bg-secondary-subtle text-secondary border-secondary-subtle': a.status === 'concluido'
+                    }">{{ a.status }}</span>
+                  </div>
+
+                  <div class="d-flex flex-column gap-1 small custom-dark-text">
+                    <div><i class="fas fa-user text-muted me-2"></i>{{ a.clienteNome }}</div>
+                    <div><i class="far fa-clock text-muted me-2"></i>{{ a.dataInicio | date:'dd/MM/yyyy HH:mm' }}</div>
+                  </div>
+                </div>
+              }
+            </div>
           }
         </div>
       </div>
     </div>
-
   } @else {
     <div class="text-center py-5">
       <div class="spinner-border text-primary" role="status">
         <span class="visually-hidden">Carregando...</span>
       </div>
-      <p class="text-muted mt-3">Carregando informações do profissional...</p>
+      <p class="text-muted mt-3 fw-medium">Carregando informações do profissional...</p>
     </div>
   }
 </div>
