@@ -167,26 +167,6 @@
                 <div class="col-sm-6 col-12">
                   <tm-text formControlName="numeroWhatsApp" label="Telefone / WhatsApp *" placeholder="(11) 98888-7777" mask="phone" [maxlength]="15" class="custom-dark-text"></tm-text>
                 </div>
-
-                <div class="col-12">
-                  <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 p-3 rounded-3 border border-secondary-subtle">
-                    <div>
-                      <div class="fw-bold custom-dark-text">Profissional ativo</div>
-                      <div class="small text-muted custom-dark-text">Profissionais inativos não podem ser selecionados em novos agendamentos.</div>
-                    </div>
-                    <div class="form-check form-switch mb-0 shrink-0">
-                      <input
-                        class="form-check-input"
-                        type="checkbox"
-                        role="switch"
-                        id="switch-status-detalhes"
-                        aria-label="Alternar status do profissional"
-                        [checked]="form.get('status')?.value === 'Ativo'"
-                        (change)="alternarStatus($event)"
-                      />
-                    </div>
-                  </div>
-                </div>
               </div>
             }
 
@@ -281,6 +261,29 @@
               ></app-disponibilidade>
             </div>
 
+            <!-- 6. Opção de Profissional Ativo (Último Campo de Edição) -->
+            @if (modoEdicao()) {
+              <div class="border-top pt-4 mt-4">
+                <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 p-3 rounded-3 border border-secondary-subtle">
+                  <div>
+                    <div class="fw-bold custom-dark-text">Profissional ativo</div>
+                    <div class="small text-muted custom-dark-text">Profissionais inativos não podem ser selecionados em novos agendamentos.</div>
+                  </div>
+                  <div class="form-check form-switch mb-0 shrink-0">
+                    <input
+                      class="form-check-input"
+                      type="checkbox"
+                      role="switch"
+                      id="switch-status-detalhes"
+                      aria-label="Alternar status do profissional"
+                      [checked]="form.get('status')?.value === 'Ativo'"
+                      (change)="alternarStatus($event)"
+                    />
+                  </div>
+                </div>
+              </div>
+            }
+
             <!-- 6. Barra de Ações (Salvar / Cancelar) no Final do Bloco Pai (Quando em modoEdicao) -->
             @if (modoEdicao()) {
               <div class="border-top pt-4 mt-4 d-flex align-items-center justify-content-end gap-3">
@@ -302,7 +305,7 @@
                   @if (salvando()) {
                     <span class="spinner-border spinner-border-sm me-2" role="status"></span>Salvando...
                   } @else {
-                    <i class="fas fa-save me-2"></i>Salvar Alterações
+                    <i class="fas fa-save me-2"></i>Salvar
                   }
                 </button>
               </div>
