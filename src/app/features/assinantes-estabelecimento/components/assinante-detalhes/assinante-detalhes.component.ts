@@ -22,11 +22,14 @@ import {
 } from '@techminds-group/tm-angular-lib';
 import { AssinantesService, ClienteAssinante } from '../../../../core/services/assinantes.service';
 import { ClubesService } from '../../../../core/services/clubes.service';
+import { ClientesService } from '../../../../core/services/clientes.service';
 import { CompartilharService } from '../../../../core/services/compartilhar.service';
 import { StatusAssinanteBadgePipe } from '../../pipes/status-assinante.pipe';
 import { AssinanteModalExcluirComponent } from '../modais/assinante-modal-excluir/assinante-modal-excluir.component';
 import { AssinanteDetalhes, PagamentoAssinante } from '../../models/assinante-config.model';
 import { AssinantesEstabelecimentoHelperService } from '../../services/assinantes-estabelecimento-helper.service';
+
+const NOVO_CLIENTE_VALUE = '__novo_cliente__';
 
 @Component({
   selector: 'app-assinante-detalhes',
@@ -50,6 +53,7 @@ export class AssinanteDetalhesComponent implements OnInit, AfterViewInit {
   private readonly fb = inject(FormBuilder);
   protected readonly assinantesService = inject(AssinantesService);
   private readonly clubesService = inject(ClubesService);
+  private readonly clientesService = inject(ClientesService);
   private readonly compartilharService = inject(CompartilharService);
   protected readonly helper = inject(AssinantesEstabelecimentoHelperService);
   private readonly toastService = inject(TmToastService);
@@ -84,12 +88,18 @@ export class AssinanteDetalhesComponent implements OnInit, AfterViewInit {
   protected readonly gerandoLink = signal<boolean>(false);
 
   protected readonly form: FormGroup = this.fb.group({
-    clienteNome: ['', [Validators.required, Validators.maxLength(60)]],
-    clienteEmail: ['', [Validators.required, Validators.email]],
-    celular: ['', [Validators.required, Validators.maxLength(15)]],
+    clienteId: ['', [Validators.required]],
     clubeId: ['', [Validators.required]],
     dataInicio: ['', [Validators.required]],
     status: ['Ativo'],
+  });
+
+  protected readonly clienteOptions = computed<TmSelectOption[]>(() => {
+    const opcoes = this.clientesService.clientes().map((c) => ({
+      value: c.id,
+      label: `${c.nome} (${c.celular})`,
+    }));
+    return [...opcoes, { value: NOVO_CLIENTE_VALUE, label: '+ Cadastrar novo cliente' }];
   });
 
   protected readonly clubeOptions = computed<TmSelectOption[]>(() => {
@@ -99,7 +109,14 @@ export class AssinanteDetalhesComponent implements OnInit, AfterViewInit {
     }));
   });
 
+  protected readonly clienteSelecionadoInfo = computed(() => {
+    const id = this.form.get('clienteId')?.value;
+    if (!id || id === NOVO_CLIENTE_VALUE) return null;
+    return this.clientesService.clientes().find((c) => c.id === id) || null;
+  });
+
   ngOnInit(): void {
+    this.clientesService.carregarClientes();
     this.clubesService.carregarClubes().subscribe();
     const id = this.route.snapshot.paramMap.get('id');
     if (id) {
@@ -113,6 +130,14 @@ export class AssinanteDetalhesComponent implements OnInit, AfterViewInit {
 
   voltar(): void {
     this.router.navigate(['/gestao/assinantes']);
+  }
+
+  protected onClienteChange(event: Event): void {
+    const alvo = event.target as HTMLSelectElement;
+    if (alvo.value === NOVO_CLIENTE_VALUE) {
+      this.form.get('clienteId')?.setValue('');
+      this.router.navigate(['/gestao/clientes/novo'], { queryParams: { origem: 'assinantes' } });
+    }
   }
 
   protected habilitarEdicao(): void {
@@ -135,26 +160,27 @@ export class AssinanteDetalhesComponent implements OnInit, AfterViewInit {
   protected async salvarGeral(): Promise<void> {
     if (this.form.invalid) {
       this.form.markAllAsTouched();
-      this.toastService.error('Preencha os campos obrigatórios do formulário.', 'Atenção');
+      this.toastService.error('Selecione um cliente já cadastrado e preencha os campos obrigatórios.', 'Atenção');
       return;
     }
 
     const a = this.assinante();
     if (!a) return;
 
-    const digitsCelular = (this.form.value.celular ?? '').replace(/\D/g, '');
-    if (!digitsCelular || digitsCelular.length < 10 || digitsCelular.length > 13) {
-      this.toastService.error('O número de celular / WhatsApp é obrigatório e deve ser válido.', 'Erro');
-      return;
-    }
+    const raw = this.form.value;
+    const cliente = this.clientesService.clientes().find((c) => c.id === raw.clienteId);
+    const orig = this.clienteOriginal();
+
+    const clienteNome = cliente ? cliente.nome : orig?.clienteNome || '';
+    const clienteEmail = cliente ? cliente.email : orig?.clienteEmail || '';
+    const celular = cliente ? cliente.celular : orig?.celular || '';
 
     this.salvando.set(true);
     try {
-      const raw = this.form.value;
       await this.assinantesService.atualizar(a.id, {
-        clienteNome: raw.clienteNome,
-        clienteEmail: raw.clienteEmail,
-        celular: digitsCelular,
+        clienteNome,
+        clienteEmail,
+        celular,
         clubeId: raw.clubeId,
         dataInicio: raw.dataInicio,
         status: raw.status,
@@ -288,28 +314,23 @@ export class AssinanteDetalhesComponent implements OnInit, AfterViewInit {
         receitaGeradaLtv,
         historicoPagamentos: pagamentos,
       });
+
+      if (this.modoEdicao()) {
+        this.preencherFormulario(cliente);
+      }
     } catch (err) {
       console.error('Erro ao carregar assinante', err);
       this.router.navigate(['/gestao/assinantes']);
     }
   }
 
-  private formatarCelular(numero: string): string {
-    const digits = numero.replace(/\D/g, '');
-    if (digits.length === 11) {
-      return `(${digits.slice(0, 2)}) ${digits.slice(2, 7)}-${digits.slice(7)}`;
-    }
-    if (digits.length === 10) {
-      return `(${digits.slice(0, 2)}) ${digits.slice(2, 6)}-${digits.slice(6)}`;
-    }
-    return numero;
-  }
-
   private preencherFormulario(orig: ClienteAssinante): void {
+    const clienteEncontrado = this.clientesService.clientes().find(
+      (c) => c.nome.toLowerCase() === orig.clienteNome.toLowerCase() || c.celular === orig.celular
+    );
+
     this.form.patchValue({
-      clienteNome: orig.clienteNome,
-      clienteEmail: orig.clienteEmail ?? '',
-      celular: this.formatarCelular(orig.celular ?? ''),
+      clienteId: clienteEncontrado ? clienteEncontrado.id : '',
       clubeId: orig.clubeId ?? '',
       dataInicio: this.helper.formatarDataParaInputDate(orig.dataInicio),
       status: orig.status ?? 'Ativo',

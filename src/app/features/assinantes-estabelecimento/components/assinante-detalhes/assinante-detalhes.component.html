@@ -119,18 +119,16 @@
                 </div>
               </div>
             } @else {
-              <!-- Formulário Inline de Dados da Assinatura -->
+              <!-- Formulário Inline de Edição da Assinatura: Seleção de Cliente Cadastrado via Select -->
               <div class="row g-3 mb-4">
                 <div class="col-sm-6 col-12">
-                  <tm-text formControlName="clienteNome" label="Nome do Assinante *" placeholder="Ex: João da Silva" class="custom-dark-text"></tm-text>
-                </div>
-
-                <div class="col-sm-6 col-12">
-                  <tm-text formControlName="clienteEmail" label="E-mail *" placeholder="exemplo@email.com" type="email" class="custom-dark-text"></tm-text>
-                </div>
-
-                <div class="col-sm-6 col-12">
-                  <tm-text formControlName="celular" label="Celular / WhatsApp *" placeholder="(11) 98888-7777" mask="phone" [maxlength]="15" class="custom-dark-text"></tm-text>
+                  <label class="form-label small fw-bold text-muted text-uppercase tracking-wider custom-dark-text">Cliente / Assinante *</label>
+                  <select formControlName="clienteId" (change)="onClienteChange($event)" class="form-select custom-dark-card custom-dark-text rounded-3">
+                    <option value="" disabled>Selecione um cliente já cadastrado...</option>
+                    @for (opt of clienteOptions(); track opt.value) {
+                      <option [value]="opt.value">{{ opt.label }}</option>
+                    }
+                  </select>
                 </div>
 
                 <div class="col-sm-6 col-12">
