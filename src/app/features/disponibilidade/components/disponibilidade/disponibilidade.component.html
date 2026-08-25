@@ -329,8 +329,8 @@
         </div>
       </div>
 
-      <!-- Barra de Ações (Salvar / Cancelar) - Exibida somente no modo de edição -->
-      @if (modoEdicao()) {
+      <!-- Barra de Ações (Salvar / Cancelar) - Exibida somente fora do modo embedded quando em edição -->
+      @if (!embedded && modoEdicao()) {
         <div class="d-flex align-items-center justify-content-end gap-3 mt-4">
           <button
             type="button"
