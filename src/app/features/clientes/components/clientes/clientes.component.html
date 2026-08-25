@@ -34,11 +34,13 @@
 
 <ng-template #clienteTemplate let-item>
   <div class="d-flex flex-column text-start">
-    <strong class="fw-bold custom-dark-text">{{ item.nome }}</strong>
-    <span class="text-muted small custom-dark-text">
-      @if (item.email) {
-        {{ item.email }} • 
-      }
+    <strong class="fw-bold custom-dark-text">{{ helper.getNomeCompleto(item) }}</strong>
+  </div>
+</ng-template>
+
+<ng-template #celularTemplate let-item>
+  <div class="d-flex align-items-center">
+    <span class="custom-dark-text">
       <i class="fab fa-whatsapp text-success me-1"></i>{{ item.celular }}
     </span>
   </div>

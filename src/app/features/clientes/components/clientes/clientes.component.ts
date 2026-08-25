@@ -38,6 +38,9 @@ export class ClientesComponent implements OnInit, AfterViewInit {
   @ViewChild('clienteTemplate', { static: true })
   clienteTemplate!: TemplateRef<{ $implicit: Cliente }>;
 
+  @ViewChild('celularTemplate', { static: true })
+  celularTemplate!: TemplateRef<{ $implicit: Cliente }>;
+
   @ViewChild('statusTemplate', { static: true })
   statusTemplate!: TemplateRef<{ $implicit: Cliente }>;
 
@@ -49,8 +52,9 @@ export class ClientesComponent implements OnInit, AfterViewInit {
       return [];
     }
     return [
-      { header: 'Cliente', template: this.clienteTemplate, width: '60%' },
-      { header: 'Status', template: this.statusTemplate, width: '40%' },
+      { header: 'Cliente', template: this.clienteTemplate, width: '40%' },
+      { header: 'Celular', template: this.celularTemplate, width: '35%' },
+      { header: 'Status', template: this.statusTemplate, width: '25%' },
     ];
   });
 
