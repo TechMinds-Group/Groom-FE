@@ -119,30 +119,42 @@
                 </div>
               </div>
             } @else {
-              <!-- Formulário Inline de Edição da Assinatura: Seleção de Cliente Cadastrado via Select -->
+              <!-- Formulário Inline de Edição da Assinatura: Seleção de Cliente Cadastrado via tm-select -->
               <div class="row g-3 mb-4">
                 <div class="col-sm-6 col-12">
-                  <label class="form-label small fw-bold text-muted text-uppercase tracking-wider custom-dark-text">Cliente / Assinante *</label>
-                  <select formControlName="clienteId" (change)="onClienteChange($event)" class="form-select custom-dark-card custom-dark-text rounded-3">
-                    <option value="" disabled>Selecione um cliente já cadastrado...</option>
-                    @for (opt of clienteOptions(); track opt.value) {
-                      <option [value]="opt.value">{{ opt.label }}</option>
-                    }
-                  </select>
+                  <tm-select
+                    formControlName="clienteId"
+                    [options]="clienteOptions()"
+                    label="Cliente / Assinante *"
+                    placeholder="Selecione um cliente já cadastrado..."
+                    [searchable]="true"
+                    [darkMode]="themeService.isDarkMode()"
+                    icon="fas fa-user"
+                    class="custom-dark-text"
+                    (valueChange)="onClienteSelectChange($event)"
+                  ></tm-select>
                 </div>
 
                 <div class="col-sm-6 col-12">
-                  <label class="form-label small fw-bold text-muted text-uppercase tracking-wider custom-dark-text">Plano / Clube *</label>
-                  <select formControlName="clubeId" class="form-select custom-dark-card custom-dark-text rounded-3">
-                    <option value="" disabled>Selecione um plano...</option>
-                    @for (opt of clubeOptions(); track opt.value) {
-                      <option [value]="opt.value">{{ opt.label }}</option>
-                    }
-                  </select>
+                  <tm-select
+                    formControlName="clubeId"
+                    [options]="clubeOptions()"
+                    label="Plano / Clube *"
+                    placeholder="Selecione um plano..."
+                    [darkMode]="themeService.isDarkMode()"
+                    icon="fas fa-crown"
+                    class="custom-dark-text"
+                  ></tm-select>
                 </div>
 
                 <div class="col-sm-6 col-12">
-                  <tm-text formControlName="dataInicio" label="Início da Assinatura *" type="date" class="custom-dark-text"></tm-text>
+                  <tm-date
+                    formControlName="dataInicio"
+                    label="Início da Assinatura *"
+                    placeholder="DD/MM/AAAA"
+                    [includeTime]="false"
+                    class="custom-dark-text"
+                  ></tm-date>
                 </div>
               </div>
             }

@@ -35,7 +35,7 @@
 
 14. **Verificação de Library (Proatividade)**: Sempre verifique se um componente necessário já existe na Library do workspace (`TM-Angular-Library-Workspace`). Caso não exista e você identifique que seria um bom candidato a componente personalizado (reusável/premium), você **deve avisar o usuário** para decidirem entre criar na Lib ou seguir com implementação local.
 
-14. **Documentação de Código (TypeScript)**: Documentar métodos, componentes e serviços em **pt-BR** utilizando JSDoc conciso (`/** ... */`). Documentar **apenas** quando houver contexto não-óbvio: pré-condições e permissões (ex: "Requer perfil de Administrador"), efeitos colaterais críticos (ex: "Dispara reset de senha e redireciona"), ou regras de negócio de interface. **Proibido** usar `@param` ou `@returns`. Métodos simples ou autoexplicativos **não** devem ser documentados. Use `//` comentários inline para lógica complexa. Use `// TODO:` para marcar código temporário ou agendado para expansão futura.
+14b. **Documentação de Código (TypeScript)**: Documentar métodos, componentes e serviços em **pt-BR** utilizando JSDoc conciso (`/** ... */`). Documentar **apenas** quando houver contexto não-óbvio: pré-condições e permissões (ex: "Requer perfil de Administrador"), efeitos colaterais críticos (ex: "Dispara reset de senha e redireciona"), ou regras de negócio de interface. **Proibido** usar `@param` ou `@returns`. Métodos simples ou autoexplicativos **não** devem ser documentados. Use `//` comentários inline para lógica complexa. Use `// TODO:` para marcar código temporário ou agendado para expansão futura.
 
 15. **Organização de Componentes**: Cada feature segue a estrutura de pastas obrigatória abaixo. O componente principal da feature fica em `components/<nome-feature>/`. Sub-componentes de detalhes ficam em `components/<nome-feature>-detalhes/<sub-componente>/`. Modais ficam em `components/modais/<nome-modal>/`. Componentes pai orquestram modais e chamadas de serviço; sub-componentes recebem dados via `input.required()` e emitem ações via `output()`.
 
@@ -87,6 +87,8 @@ features/<nome-da-feature>/
 8. Adicionar menu em `menu.config.ts` se necessário
 9. Adicionar traduções em `core/i18n/*.ts`
 10. Atualizar `FUNCIONAL.md`
+
+20. **Proibição de Commit / Push Automático**: O agente **jamais** deve executar `git commit` ou `git push` por iniciativa própria ou automaticamente após finalizada uma tarefa. Commits e pushes devem ser executados **exclusivamente quando o usuário solicitar explicitamente**.
 
 ## Manutenção de Documentação
 

@@ -14,7 +14,9 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import {
   TableColumn,
+  TmDateComponent,
   TmModalComponent,
+  TmSelectComponent,
   TmSelectOption,
   TmTableComponent,
   TmTextComponent,
@@ -24,6 +26,7 @@ import { AssinantesService, ClienteAssinante } from '../../../../core/services/a
 import { ClubesService } from '../../../../core/services/clubes.service';
 import { ClientesService } from '../../../../core/services/clientes.service';
 import { CompartilharService } from '../../../../core/services/compartilhar.service';
+import { ThemeService } from '../../../../core/services/theme.service';
 import { StatusAssinanteBadgePipe } from '../../pipes/status-assinante.pipe';
 import { AssinanteModalExcluirComponent } from '../modais/assinante-modal-excluir/assinante-modal-excluir.component';
 import { AssinanteDetalhes, PagamentoAssinante } from '../../models/assinante-config.model';
@@ -37,7 +40,8 @@ const NOVO_CLIENTE_VALUE = '__novo_cliente__';
   imports: [
     CommonModule,
     ReactiveFormsModule,
-    TmTextComponent,
+    TmSelectComponent,
+    TmDateComponent,
     TmTableComponent,
     StatusAssinanteBadgePipe,
     AssinanteModalExcluirComponent,
@@ -56,6 +60,7 @@ export class AssinanteDetalhesComponent implements OnInit, AfterViewInit {
   private readonly clientesService = inject(ClientesService);
   private readonly compartilharService = inject(CompartilharService);
   protected readonly helper = inject(AssinantesEstabelecimentoHelperService);
+  protected readonly themeService = inject(ThemeService);
   private readonly toastService = inject(TmToastService);
 
   @ViewChild('dataTemplate', { static: true }) dataTemplate!: TemplateRef<{ $implicit: PagamentoAssinante }>;
@@ -132,9 +137,8 @@ export class AssinanteDetalhesComponent implements OnInit, AfterViewInit {
     this.router.navigate(['/gestao/assinantes']);
   }
 
-  protected onClienteChange(event: Event): void {
-    const alvo = event.target as HTMLSelectElement;
-    if (alvo.value === NOVO_CLIENTE_VALUE) {
+  protected onClienteSelectChange(valor: unknown): void {
+    if (valor === NOVO_CLIENTE_VALUE) {
       this.form.get('clienteId')?.setValue('');
       this.router.navigate(['/gestao/clientes/novo'], { queryParams: { origem: 'assinantes' } });
     }
