@@ -1,16 +1,18 @@
-<div class="container-fluid p-4 mb-5 pb-5">
-  <!-- Header Principal da Dashboard -->
-  <div class="mb-4">
-    <h1 class="h2 text-primary fw-bold mb-1 custom-dark-title d-flex align-items-center gap-2">
-      <i class="fas fa-chart-line text-primary"></i>Dashboard & Gestão
-    </h1>
-    <p class="custom-dark-subtitle mb-0">
-      Visão clara do seu faturamento, atendimentos e inteligência de crescimento.
-    </p>
+<div class="container mt-5 mb-5">
+  <!-- Header Principal da Dashboard (Padrão de Gestão de Usuários) -->
+  <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between mb-4 gap-3">
+    <div>
+      <h1 class="h2 text-primary fw-bold mb-2 custom-dark-text d-flex align-items-center gap-2">
+        <i class="fas fa-chart-line custom-dark-title-icon me-2"></i>Dashboard & Gestão
+      </h1>
+      <p class="text-muted custom-dark-text mb-0">
+        Visão clara do seu faturamento, atendimentos e inteligência de crescimento.
+      </p>
+    </div>
   </div>
 
   <!-- Barra de Filtros Enxuta -->
-  <div class="card border-0 shadow-sm rounded-4 p-4 mb-4 custom-dark-card dash-filter-bar">
+  <div class="card border-0 shadow-sm p-4 details-card custom-dark-card rounded-4 mb-4">
     <div class="row g-3 align-items-center">
       <div class="col-12 col-md-6">
         <label class="form-label extra-small fw-bold text-uppercase custom-dark-label mb-2 d-flex align-items-center gap-2">
@@ -21,6 +23,7 @@
           [ngModel]="filtroPeriodo()"
           (ngModelChange)="filtroPeriodo.set($event)"
         >
+          <option value="hoje">Hoje</option>
           <option value="7d">Últimos 7 Dias</option>
           <option value="30d">Últimos 30 Dias</option>
           <option value="90d">Últimos 90 Dias</option>
@@ -47,20 +50,20 @@
     </div>
   </div>
 
-  <!-- OS 4 KPIS ESSENCIAIS DO TOPO -->
+  <!-- OS 4 KPIS ESSENCIAIS DO TOPO (DINÂMICOS, CENTRALIZADOS E RESPONSIVOS) -->
   <div class="row g-4 mb-4">
     <!-- Card 1: Faturamento Total -->
-    <div class="col-12 col-lg-6 col-xl-3">
+    <div class="col-12 col-md-6 col-lg-6 col-xl-3">
       <div class="card tm-card border-0 shadow-sm rounded-4 h-100 position-relative overflow-hidden custom-dark-card">
-        <div class="card-body p-4 d-flex flex-column">
-          <div class="d-flex align-items-center justify-content-between mb-3">
-            <span class="text-uppercase extra-small fw-bold custom-dark-muted">Faturamento Total</span>
-            <div class="icon-circle bg-success-subtle text-success">
+        <div class="card-body p-3.5 p-xl-4 d-flex flex-column">
+          <div class="d-flex align-items-center justify-content-between mb-3 gap-2">
+            <span class="text-uppercase extra-small fw-bold custom-dark-muted text-truncate" [title]="'Faturamento (' + filtroPeriodoRotulo() + ')'">Faturamento ({{ filtroPeriodoRotulo() }})</span>
+            <div class="icon-circle bg-success-subtle text-success flex-shrink-0">
               <i class="fas fa-dollar-sign"></i>
             </div>
           </div>
           <h3 class="fw-bold text-success mb-2">{{ faturamentoTotalCombinadoFormatted() }}</h3>
-          <span class="extra-small custom-dark-muted mt-auto">
+          <span class="extra-small custom-dark-muted text-truncate mt-auto">
             <i class="fas fa-receipt me-1"></i>Serviços + Assinaturas
           </span>
         </div>
@@ -69,18 +72,24 @@
     </div>
 
     <!-- Card 2: Atendimentos Realizados -->
-    <div class="col-12 col-lg-6 col-xl-3">
+    <div class="col-12 col-md-6 col-lg-6 col-xl-3">
       <div class="card tm-card border-0 shadow-sm rounded-4 h-100 position-relative overflow-hidden custom-dark-card">
-        <div class="card-body p-4 d-flex flex-column">
-          <div class="d-flex align-items-center justify-content-between mb-3">
-            <span class="text-uppercase extra-small fw-bold custom-dark-muted">Atendimentos</span>
-            <div class="icon-circle bg-primary-subtle text-primary">
+        <div class="card-body p-3.5 p-xl-4 d-flex flex-column">
+          <div class="d-flex align-items-center justify-content-between mb-3 gap-2">
+            <span class="text-uppercase extra-small fw-bold custom-dark-muted text-truncate" [title]="'Agendamentos (' + filtroPeriodoRotulo() + ')'">Agendamentos ({{ filtroPeriodoRotulo() }})</span>
+            <div class="icon-circle bg-primary-subtle text-primary flex-shrink-0">
               <i class="fas fa-cut"></i>
             </div>
           </div>
-          <h3 class="fw-bold text-primary mb-2">{{ agendamentosAtendidos().length }}</h3>
-          <span class="extra-small custom-dark-muted mt-auto">
-            <i class="fas fa-check-circle me-1 text-success"></i>Cortes e serviços concluídos
+          <h3 class="fw-bold text-primary mb-2">
+            {{ filtroPeriodo() === 'hoje' ? resumoHoje().totalQtd : agendamentosAtendidos().length }}
+          </h3>
+          <span class="extra-small custom-dark-muted text-truncate mt-auto">
+            @if (filtroPeriodo() === 'hoje') {
+              <i class="fas fa-check-circle me-1 text-success"></i>{{ resumoHoje().concluidosQtd }} concluídos | {{ resumoHoje().pendentesQtd }} pendentes
+            } @else {
+              <i class="fas fa-check-circle me-1 text-success"></i>Cortes e serviços concluídos
+            }
           </span>
         </div>
         <div class="accent-bar bg-primary"></div>
@@ -88,17 +97,17 @@
     </div>
 
     <!-- Card 3: Assinantes Ativos -->
-    <div class="col-12 col-lg-6 col-xl-3">
+    <div class="col-12 col-md-6 col-lg-6 col-xl-3">
       <div class="card tm-card border-0 shadow-sm rounded-4 h-100 position-relative overflow-hidden custom-dark-card">
-        <div class="card-body p-4 d-flex flex-column">
-          <div class="d-flex align-items-center justify-content-between mb-3">
-            <span class="text-uppercase extra-small fw-bold custom-dark-muted">Assinantes Ativos</span>
-            <div class="icon-circle bg-purple-subtle text-purple">
+        <div class="card-body p-3.5 p-xl-4 d-flex flex-column">
+          <div class="d-flex align-items-center justify-content-between mb-3 gap-2">
+            <span class="text-uppercase extra-small fw-bold custom-dark-muted text-truncate" title="Assinantes Ativos">Assinantes Ativos</span>
+            <div class="icon-circle bg-purple-subtle text-purple flex-shrink-0">
               <i class="fas fa-users"></i>
             </div>
           </div>
-          <h3 class="fw-bold custom-dark-title mb-2">{{ assinantesAtivos().length }}</h3>
-          <span class="extra-small custom-dark-muted mt-auto">
+          <h3 class="fw-bold custom-dark-text mb-2">{{ assinantesAtivos().length }}</h3>
+          <span class="extra-small custom-dark-muted text-truncate mt-auto">
             Ticket médio: <strong>{{ ticketMedioFormatted() }}</strong>
           </span>
         </div>
@@ -107,12 +116,12 @@
     </div>
 
     <!-- Card 4: Ocupação da Agenda Hoje -->
-    <div class="col-12 col-lg-6 col-xl-3">
+    <div class="col-12 col-md-6 col-lg-6 col-xl-3">
       <div class="card tm-card border-0 shadow-sm rounded-4 h-100 position-relative overflow-hidden custom-dark-card">
-        <div class="card-body p-4 d-flex flex-column">
-          <div class="d-flex align-items-center justify-content-between mb-3">
-            <span class="text-uppercase extra-small fw-bold custom-dark-muted">Ocupação Hoje</span>
-            <div class="icon-circle bg-warning-subtle text-warning">
+        <div class="card-body p-3.5 p-xl-4 d-flex flex-column">
+          <div class="d-flex align-items-center justify-content-between mb-3 gap-2">
+            <span class="text-uppercase extra-small fw-bold custom-dark-muted text-truncate" title="Ocupação Hoje">Ocupação Hoje</span>
+            <div class="icon-circle bg-warning-subtle text-warning flex-shrink-0">
               <i class="fas fa-calendar-day"></i>
             </div>
           </div>
@@ -152,69 +161,116 @@
   <!-- CONTEÚDO DA ABA 1: DESEMPENHO & OPERAÇÃO -->
   @if (abaAtiva() === 'desempenho') {
     <div class="row g-4 mb-4">
-      <!-- Line Chart: Evolução do Faturamento -->
-      <div class="col-12 col-lg-8">
-        <div class="card tm-card border-0 shadow-sm rounded-4 h-100 custom-dark-card">
-          <div class="card-header bg-transparent border-0 pt-4 px-4 pb-0">
-            <h5 class="fw-bold custom-dark-title mb-1">Evolução do Faturamento & Projeção</h5>
-            <p class="custom-dark-muted extra-small mb-0">Histórico dos últimos meses e curva de tendência</p>
-          </div>
-          <div class="card-body p-4">
-            <div style="height: 290px;">
-              <canvas baseChart [data]="lineChartData()" [options]="lineChartOptions()" [type]="'line'"></canvas>
+      <!-- QUANDO "HOJE" ESTÁ SELECIONADO: TABELA DA AGENDA DO DIA -->
+      @if (filtroPeriodo() === 'hoje') {
+        <div class="col-12">
+          <div class="card border-0 shadow-sm rounded-4 p-4 custom-dark-card">
+            <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4">
+              <div>
+                <h4 class="h5 fw-bold custom-dark-text mb-1 d-flex align-items-center gap-2">
+                  <i class="fas fa-calendar-check text-primary"></i>Visão Diária — {{ formatarDataHojeExtenso() }}
+                </h4>
+                <p class="text-muted custom-dark-text extra-small mb-0">
+                  Agenda detalhada de hoje com horários, clientes e status dos atendimentos.
+                </p>
+              </div>
+              <div class="d-flex align-items-center gap-2">
+                <span class="badge bg-primary-subtle text-primary rounded-pill px-3 py-2 fw-bold small">
+                  <i class="fas fa-user-clock me-1"></i>{{ resumoHoje().totalQtd }} Agendamento(s) • {{ resumoHoje().faturamentoTotalPrevistoFormatted }} Previstos
+                </span>
+              </div>
+            </div>
+
+            <!-- Tabela da Agenda do Dia -->
+            <div class="table-responsive">
+              <table class="table table-hover align-middle mb-0 custom-dark-table text-nowrap">
+                <thead>
+                  <tr class="extra-small text-uppercase">
+                    <th>Horário</th>
+                    <th>Cliente</th>
+                    <th>Atendimento / Tipo</th>
+                    <th>Profissional</th>
+                    <th class="text-end">Valor</th>
+                    <th class="text-center">Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @if (agendamentosHoje().length === 0) {
+                    <tr>
+                      <td colspan="6" class="text-center py-4 text-muted custom-dark-text">
+                        <i class="far fa-calendar-times me-2 fs-5"></i>Nenhum agendamento cadastrado para hoje.
+                      </td>
+                    </tr>
+                  } @else {
+                    @for (a of agendamentosHoje(); track a.id) {
+                      <tr>
+                        <td>
+                          <span class="badge custom-dark-time-badge fw-bold border py-1.5 px-2.5 fs-6 shadow-sm">
+                            <i class="far fa-clock me-1 text-primary"></i>{{ formatarHora(a.dataInicio) }}
+                          </span>
+                        </td>
+                        <td>
+                          <div class="fw-bold custom-dark-text">{{ a.clienteNome }}</div>
+                          @if (a.clienteTelefone) {
+                            <div class="extra-small custom-dark-text">
+                              <i class="fab fa-whatsapp me-1 text-success"></i>{{ a.clienteTelefone }}
+                            </div>
+                          }
+                        </td>
+                        <td>
+                          <div class="fw-semibold custom-dark-text">{{ a.planoNome || a.servicoNome || 'Serviço' }}</div>
+                          <span
+                            class="badge rounded-pill extra-small px-2 py-0.5"
+                            [class.bg-purple-subtle]="a.planoNome"
+                            [class.text-purple]="a.planoNome"
+                            [class.bg-secondary-subtle]="!a.planoNome"
+                            [class.text-secondary]="!a.planoNome"
+                          >
+                            {{ a.planoNome ? 'Plano de Assinatura' : 'Serviço Avulso' }}
+                          </span>
+                        </td>
+                        <td>
+                          <span class="small custom-dark-text fw-semibold">{{ a.profissionalNome || 'Qualquer profissional' }}</span>
+                        </td>
+                        <td class="text-end fw-bold text-success">
+                          R$ {{ (a.preco || 0).toFixed(2).replace('.', ',') }}
+                        </td>
+                        <td class="text-center">
+                          <span
+                            class="badge rounded-pill px-3 py-1.5 fw-semibold small"
+                            [class]="obterStatusInfo(a.status).class"
+                          >
+                            <i [class]="'fas ' + obterStatusInfo(a.status).icon + ' me-1'"></i>{{ obterStatusInfo(a.status).label }}
+                          </span>
+                        </td>
+                      </tr>
+                    }
+                  }
+                </tbody>
+              </table>
             </div>
           </div>
         </div>
-      </div>
+      }
 
-      <!-- Pie Chart: Mix de Receita -->
-      <div class="col-12 col-lg-4">
-        <div class="card tm-card border-0 shadow-sm rounded-4 h-100 custom-dark-card">
-          <div class="card-header bg-transparent border-0 pt-4 px-4 pb-0">
-            <h5 class="fw-bold custom-dark-title mb-1">Origem da Receita</h5>
-            <p class="custom-dark-muted extra-small mb-0">Assinaturas vs Serviços Avulsos</p>
-          </div>
-          <div class="card-body p-4 d-flex flex-column align-items-center justify-content-center">
-            <div style="height: 240px; width: 100%;">
-              <canvas baseChart [data]="pieMixChartData()" [options]="pieMixChartOptions()" [type]="'pie'"></canvas>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Bar Chart: Status de Agendamentos -->
-      <div class="col-12 col-lg-6">
-        <div class="card tm-card border-0 shadow-sm rounded-4 h-100 custom-dark-card">
-          <div class="card-header bg-transparent border-0 pt-4 px-4 pb-0">
-            <h5 class="fw-bold custom-dark-title mb-1">Status dos Agendamentos</h5>
-            <p class="custom-dark-muted extra-small mb-0">Concluídos, Cancelamentos e Faltas</p>
-          </div>
-          <div class="card-body p-4">
-            <div style="height: 250px;">
-              <canvas baseChart [data]="barChartData()" [options]="barChartOptions()" [type]="'bar'"></canvas>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Ranking de Profissionais -->
-      <div class="col-12 col-lg-6">
-        <div class="card tm-card border-0 shadow-sm rounded-4 h-100 custom-dark-card">
+      <!-- RANKING DE PROFISSIONAIS (LARGURA TOTAL EMPILHADO) -->
+      <div class="col-12">
+        <div class="card tm-card border-0 shadow-sm rounded-4 custom-dark-card">
           <div class="card-header bg-transparent border-0 pt-4 px-4 pb-0 d-flex align-items-center justify-content-between">
             <div>
-              <h5 class="fw-bold custom-dark-title mb-1">Ranking de Profissionais</h5>
-              <p class="custom-dark-muted extra-small mb-0">Desempenho da equipe no período</p>
+              <h5 class="fw-bold custom-dark-text mb-1">Ranking de Profissionais</h5>
+              <p class="text-muted custom-dark-text extra-small mb-0">Desempenho da equipe no período</p>
             </div>
             <span class="badge bg-primary-subtle text-primary rounded-pill px-3 py-1.5 fw-bold extra-small">
-              <i class="fas fa-trophy me-1"></i>Top Profissionais
+              <i class="fas fa-trophy me-1"></i>Top Equipe
             </span>
           </div>
           <div class="card-body p-4">
             @if (rankingProfissionais().length === 0) {
-              <p class="custom-dark-muted text-center py-4 my-auto">Nenhum atendimento registrado no período.</p>
+              <p class="text-muted custom-dark-text text-center py-4 my-auto">Nenhum atendimento registrado no período.</p>
             } @else {
               <div class="table-responsive">
-                <table class="table table-hover align-middle mb-0 custom-dark-table">
+                <table class="table table-hover align-middle mb-0 custom-dark-table text-nowrap">
                   <thead>
                     <tr class="extra-small text-uppercase">
                       <th>Profissional</th>
@@ -234,10 +290,10 @@
                             >
                               {{ i + 1 }}
                             </span>
-                            <span class="fw-semibold custom-dark-title">{{ p.nome }}</span>
+                            <span class="fw-semibold custom-dark-text">{{ p.nome }}</span>
                           </div>
                         </td>
-                        <td class="text-center fw-bold custom-dark-title">{{ p.quantidade }}</td>
+                        <td class="text-center fw-bold custom-dark-text">{{ p.quantidade }}</td>
                         <td class="text-end fw-bold text-success">R$ {{ p.faturamento.toFixed(2).replace('.', ',') }}</td>
                       </tr>
                     }
@@ -249,41 +305,69 @@
         </div>
       </div>
 
-      <!-- Top Serviços Procurados (Espaço Interno Expandido & Visual Limpo) -->
+      <!-- SERVIÇOS MAIS PROCURADOS (LARGURA TOTAL LOGO ABAIXO DO RANKING) -->
       <div class="col-12">
         <div class="card tm-card border-0 shadow-sm rounded-4 custom-dark-card">
-          <div class="card-header bg-transparent border-0 pt-4 px-4 pb-0">
-            <h5 class="fw-bold custom-dark-title mb-1">Serviços Mais Procurados</h5>
-            <p class="custom-dark-muted extra-small mb-0">Principais cortes e procedimentos realizados</p>
+          <div class="card-header bg-transparent border-0 pt-4 px-4 pb-0 d-flex align-items-center justify-content-between">
+            <div>
+              <h5 class="fw-bold custom-dark-text mb-1">Serviços Mais Procurados</h5>
+              <p class="text-muted custom-dark-text extra-small mb-0">Principais cortes e procedimentos</p>
+            </div>
+            <span class="badge bg-primary-subtle text-primary rounded-pill px-3 py-1.5 fw-bold extra-small">
+              <i class="fas fa-cut me-1"></i>Serviços
+            </span>
           </div>
           <div class="card-body p-4">
             @if (rankingServicos().length === 0) {
-              <p class="custom-dark-muted text-center py-3 my-auto">Nenhum serviço registrado.</p>
+              <p class="text-muted custom-dark-text text-center py-4 my-auto">Nenhum serviço registrado no período.</p>
             } @else {
-              <div class="row g-4">
-                @for (s of rankingServicos(); track s.nome) {
-                  <div class="col-12 col-sm-6 col-lg-4">
-                    <div class="p-4 rounded-4 border custom-dark-card h-100 d-flex flex-column justify-content-between servico-card shadow-sm">
-                      <div class="d-flex justify-content-between align-items-center gap-3 mb-3">
-                        <div class="d-flex align-items-center gap-3 overflow-hidden">
-                          <div class="icon-circle-sm bg-primary-subtle text-primary flex-shrink-0">
-                            <i class="fas fa-cut"></i>
+              <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0 custom-dark-table text-nowrap">
+                  <thead>
+                    <tr class="extra-small text-uppercase">
+                      <th>Serviço</th>
+                      <th class="text-center">Quantidade</th>
+                      <th class="text-end">Receita Total</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    @for (s of rankingServicos(); track s.nome) {
+                      <tr>
+                        <td>
+                          <div class="d-flex align-items-center gap-2">
+                            <i class="fas fa-cut text-primary me-1"></i>
+                            <span class="fw-semibold custom-dark-text">{{ s.nome }}</span>
                           </div>
-                          <span class="fw-bold custom-dark-title text-truncate" [title]="s.nome">{{ s.nome }}</span>
-                        </div>
-                        <span class="badge bg-primary-subtle text-primary rounded-pill px-3 py-1.5 extra-small fw-bold flex-shrink-0">
-                          {{ s.quantidade }}x
-                        </span>
-                      </div>
-                      <div class="d-flex justify-content-between align-items-center extra-small pt-3 border-top border-light-subtle">
-                        <span class="custom-dark-muted">Total gerado no período:</span>
-                        <strong class="text-success fw-bold fs-6">R$ {{ s.faturamento.toFixed(2).replace('.', ',') }}</strong>
-                      </div>
-                    </div>
-                  </div>
-                }
+                        </td>
+                        <td class="text-center">
+                          <span class="badge bg-primary-subtle text-primary rounded-pill px-3 py-1 fw-bold">
+                            {{ s.quantidade }}x
+                          </span>
+                        </td>
+                        <td class="text-end fw-bold text-success">
+                          R$ {{ s.faturamento.toFixed(2).replace('.', ',') }}
+                        </td>
+                      </tr>
+                    }
+                  </tbody>
+                </table>
               </div>
             }
+          </div>
+        </div>
+      </div>
+
+      <!-- GRÁFICO DE STATUS DOS AGENDAMENTOS (LARGURA TOTAL CENTRALIZADA) -->
+      <div class="col-12">
+        <div class="card tm-card border-0 shadow-sm rounded-4 custom-dark-card">
+          <div class="card-header bg-transparent border-0 pt-4 px-4 pb-0">
+            <h5 class="fw-bold custom-dark-text mb-1">Distribuição e Status dos Agendamentos</h5>
+            <p class="text-muted custom-dark-text extra-small mb-0">Relação entre concluídos, cancelamentos e faltas no período</p>
+          </div>
+          <div class="card-body p-4">
+            <div style="height: 260px;">
+              <canvas baseChart [data]="barChartData()" [options]="barChartOptions()" [type]="'bar'"></canvas>
+            </div>
           </div>
         </div>
       </div>
@@ -293,19 +377,49 @@
   <!-- CONTEÚDO DA ABA 2: PREVISÃO & SIMULADOR -->
   @if (abaAtiva() === 'previsao') {
     <div class="row g-4 mb-4">
+      <!-- Line Chart: Evolução do Faturamento -->
+      <div class="col-12 col-xl-8">
+        <div class="card tm-card border-0 shadow-sm rounded-4 h-100 custom-dark-card">
+          <div class="card-header bg-transparent border-0 pt-4 px-4 pb-0">
+            <h5 class="fw-bold custom-dark-text mb-1">Evolução do Faturamento & Projeção</h5>
+            <p class="text-muted custom-dark-text extra-small mb-0">Histórico dos últimos meses e curva de tendência</p>
+          </div>
+          <div class="card-body p-4">
+            <div style="height: 290px;">
+              <canvas baseChart [data]="lineChartData()" [options]="lineChartOptions()" [type]="'line'"></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Pie Chart: Mix de Receita -->
+      <div class="col-12 col-xl-4">
+        <div class="card tm-card border-0 shadow-sm rounded-4 h-100 custom-dark-card">
+          <div class="card-header bg-transparent border-0 pt-4 px-4 pb-0">
+            <h5 class="fw-bold custom-dark-text mb-1">Origem da Receita</h5>
+            <p class="text-muted custom-dark-text extra-small mb-0">Assinaturas vs Serviços Avulsos</p>
+          </div>
+          <div class="card-body p-4 d-flex flex-column align-items-center justify-content-center">
+            <div style="height: 240px; width: 100%;">
+              <canvas baseChart [data]="pieMixChartData()" [options]="pieMixChartOptions()" [type]="'pie'"></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <!-- Simulador de Metas & Crescimento -->
-      <div class="col-12 col-lg-7">
+      <div class="col-12 col-xl-7">
         <div class="card tm-card border-0 shadow-sm rounded-4 h-100 custom-dark-card">
           <div class="card-header bg-transparent border-0 pt-4 px-4 pb-0">
             <h5 class="fw-bold text-primary mb-1 d-flex align-items-center gap-2">
               <i class="fas fa-calculator text-primary"></i>Simulador de Metas de Crescimento
             </h5>
-            <p class="custom-dark-muted extra-small mb-0">Projete o impacto financeiro de novos assinantes na sua receita</p>
+            <p class="text-muted custom-dark-text extra-small mb-0">Projete o impacto financeiro de novos assinantes na sua receita</p>
           </div>
           <div class="card-body p-4">
             <div class="row g-4 mb-4">
               <div class="col-12 col-md-6">
-                <label class="form-label fw-semibold small custom-dark-title d-flex justify-content-between mb-2">
+                <label class="form-label fw-semibold small custom-dark-text d-flex justify-content-between mb-2">
                   <span>Novos Assinantes / Mês:</span>
                   <span class="fw-bold text-primary">+{{ simularNovosAssinantes() }}</span>
                 </label>
@@ -321,13 +435,13 @@
               </div>
 
               <div class="col-12 col-md-6">
-                <label class="form-label fw-semibold small custom-dark-title d-flex justify-content-between mb-2">
+                <label class="form-label fw-semibold small custom-dark-text d-flex justify-content-between mb-2">
                   <span>Reajuste no Ticket:</span>
                   <span
                     class="fw-bold"
                     [class.text-success]="simularAumentoTicketPct() > 0"
                     [class.text-danger]="simularAumentoTicketPct() < 0"
-                    [class.custom-dark-muted]="simularAumentoTicketPct() === 0"
+                    [class.text-muted]="simularAumentoTicketPct() === 0"
                   >
                     {{ simularAumentoTicketPct() > 0 ? '+' : '' }}{{ simularAumentoTicketPct() }}%
                   </span>
@@ -372,11 +486,11 @@
       </div>
 
       <!-- Receita Garantida & Distribuição de Planos -->
-      <div class="col-12 col-lg-5">
+      <div class="col-12 col-xl-5">
         <div class="card tm-card border-0 shadow-sm rounded-4 h-100 custom-dark-card">
           <div class="card-header bg-transparent border-0 pt-4 px-4 pb-0">
-            <h5 class="fw-bold custom-dark-title mb-1">Receita Futura Garantida</h5>
-            <p class="custom-dark-muted extra-small mb-0">Agendamentos confirmados e distribuição de assinantes</p>
+            <h5 class="fw-bold custom-dark-text mb-1">Receita Futura Garantida</h5>
+            <p class="text-muted custom-dark-text extra-small mb-0">Agendamentos confirmados e distribuição de assinantes</p>
           </div>
           <div class="card-body p-4 d-flex flex-column gap-3">
             <div class="p-3 rounded-4 border custom-dark-card d-flex align-items-center justify-content-between">
@@ -385,7 +499,7 @@
                   <i class="fas fa-calendar-check"></i>
                 </div>
                 <div>
-                  <span class="extra-small custom-dark-muted d-block">Agendamentos Confirmados</span>
+                  <span class="extra-small text-muted custom-dark-text d-block">Agendamentos Confirmados</span>
                   <h5 class="fw-bold text-success mb-0">{{ agendamentosFuturosConfirmados().valorFormatted }}</h5>
                 </div>
               </div>
@@ -400,7 +514,7 @@
                   <i class="fas fa-sync-alt"></i>
                 </div>
                 <div>
-                  <span class="extra-small custom-dark-muted d-block">Renovações em 30 Dias</span>
+                  <span class="extra-small text-muted custom-dark-text d-block">Renovações em 30 Dias</span>
                   <h5 class="fw-bold text-purple mb-0">{{ renovacoesProximos30Dias().valorFormatted }}</h5>
                 </div>
               </div>
@@ -421,8 +535,8 @@
         <div class="card tm-card border-0 shadow-sm rounded-4 custom-dark-card">
           <div class="card-header bg-transparent border-0 pt-4 px-4 pb-0 d-flex align-items-center justify-content-between">
             <div>
-              <h5 class="fw-bold custom-dark-title mb-1">Clientes Reincidentes em Faltas</h5>
-              <p class="custom-dark-muted extra-small mb-0">Acompanhamento de faltas e cancelamentos para retenção</p>
+              <h5 class="fw-bold custom-dark-text mb-1">Clientes Reincidentes em Faltas</h5>
+              <p class="text-muted custom-dark-text extra-small mb-0">Acompanhamento de faltas e cancelamentos para retenção</p>
             </div>
             <div class="d-flex align-items-center gap-2 position-relative">
               <span class="badge bg-warning-subtle text-warning rounded-pill px-3 py-1.5 fw-bold extra-small">
@@ -446,7 +560,7 @@
                   (click)="$event.stopPropagation()"
                 >
                   <div class="d-flex align-items-center justify-content-between mb-2 pb-2 border-bottom border-light-subtle">
-                    <h6 class="fw-bold custom-dark-title mb-0 d-flex align-items-center gap-2 small">
+                    <h6 class="fw-bold custom-dark-text mb-0 d-flex align-items-center gap-2 small">
                       <i class="fas fa-info-circle text-primary"></i>Para que serve esta tabela?
                     </h6>
                     <button
@@ -455,10 +569,10 @@
                       (click)="exibeAjudaReincidencia.set(false)"
                     ></button>
                   </div>
-                  <p class="extra-small custom-dark-subtitle mb-2">
+                  <p class="extra-small text-muted custom-dark-text mb-2">
                     Esta tabela identifica automaticamente os clientes com histórico recente de <strong>faltas (sem avisar)</strong> ou <strong>cancelamentos reincidentes</strong>.
                   </p>
-                  <p class="extra-small custom-dark-subtitle mb-0">
+                  <p class="extra-small text-muted custom-dark-text mb-0">
                     <i class="fab fa-whatsapp text-success me-1"></i>Utilize o botão do WhatsApp para entrar em contato direto, entender o motivo, remarcar o horário e evitar perder o cliente!
                   </p>
                 </div>
@@ -467,10 +581,10 @@
           </div>
           <div class="card-body p-4">
             @if (clientesFaltasECancelamentos().length === 0) {
-              <p class="custom-dark-muted text-center py-3 my-auto">Nenhum histórico de faltas reincidentes.</p>
+              <p class="text-muted custom-dark-text text-center py-3 my-auto">Nenhum histórico de faltas reincidentes.</p>
             } @else {
               <div class="table-responsive">
-                <table class="table table-hover align-middle mb-0 custom-dark-table">
+                <table class="table table-hover align-middle mb-0 custom-dark-table text-nowrap">
                   <thead>
                     <tr class="extra-small text-uppercase">
                       <th>Cliente</th>
@@ -482,7 +596,7 @@
                   <tbody>
                     @for (c of clientesFaltasECancelamentos(); track c.nome) {
                       <tr>
-                        <td class="fw-semibold custom-dark-title">{{ c.nome }}</td>
+                        <td class="fw-semibold custom-dark-text">{{ c.nome }}</td>
                         <td class="text-center">
                           <span class="badge bg-danger-subtle text-danger fw-bold rounded-pill px-2.5 py-1">
                             {{ c.faltas }}
@@ -503,7 +617,7 @@
                               <i class="fab fa-whatsapp me-1"></i>WhatsApp
                             </a>
                           } @else {
-                            <span class="custom-dark-muted extra-small">—</span>
+                            <span class="text-muted custom-dark-text extra-small">—</span>
                           }
                         </td>
                       </tr>
