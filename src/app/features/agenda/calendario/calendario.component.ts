@@ -289,8 +289,8 @@ export class CalendarioComponent implements OnInit, OnDestroy {
     const bloqueiosEvents = this.bloqueios()
       .filter((b) => !b.profissionalId || profIdFiltro === 'todos' || b.profissionalId === profIdFiltro)
       .map((b) => {
-        const inicio = new Date(b.dataInicio);
-        const fim = new Date(b.dataFim);
+        const inicio = agendamentoParaDateLocal(b.dataInicio);
+        const fim = agendamentoParaDateLocal(b.dataFim);
         const ehFeriado = b.origem === 'feriado_nacional';
         const prefixo = ehFeriado ? '🚩 Feriado: ' : '🚫 Bloqueio: ';
         return {
