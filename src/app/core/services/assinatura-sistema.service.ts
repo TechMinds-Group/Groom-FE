@@ -3,15 +3,48 @@ import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { PlanoAssinatura } from '../models/assinatura-sistema/plano-assinatura.model';
-import { PagamentoPixResponse } from '../models/assinatura-sistema/pagamento-pix-response.model';
-import { StatusPagamentoResponse } from '../models/assinatura-sistema/status-pagamento-response.model';
 
 export type { PlanoAssinatura } from '../models/assinatura-sistema/plano-assinatura.model';
-export type { PagamentoPixResponse } from '../models/assinatura-sistema/pagamento-pix-response.model';
-export type { StatusPagamentoResponse } from '../models/assinatura-sistema/status-pagamento-response.model';
+
+export interface CartaoCreditoRequest {
+  holderName: string;
+  number: string;
+  expiryMonth: string;
+  expiryYear: string;
+  ccv: string;
+  cpfCnpj: string;
+  phone: string;
+  email: string;
+  postalCode: string;
+  addressNumber: string;
+}
+
+export interface CheckoutAsaasRequest {
+  planoId: string;
+  formaPagamento: 'PIX' | 'BOLETO' | 'CREDIT_CARD';
+  diaVencimento: number;
+  email?: string;
+  cnpj?: string;
+  telefone?: string;
+  cartao?: CartaoCreditoRequest;
+}
+
+export interface CheckoutAsaasResponse {
+  subscriptionId: string;
+  paymentId: string;
+  formaPagamento: string;
+  valorPlano: number;
+  taxaGateway: number;
+  valorTotal: number;
+  pixCopiaECola?: string;
+  pixQrCodeBase64?: string;
+  linhaDigitavelBoleto?: string;
+  boletoPdfUrl?: string;
+  status: string;
+}
 
 /**
- * Serviço responsável pela comunicação HTTP com todos os endpoints do módulo de Assinatura do Sistema e Checkout Pix.
+ * Serviço responsável pela comunicação HTTP com todos os endpoints do módulo de Assinatura do Sistema Asaas.
  */
 @Injectable({
   providedIn: 'root',
@@ -20,8 +53,8 @@ export class AssinaturaSistemaService {
   private readonly http = inject(HttpClient);
   private readonly apiUrl = `${environment.apiUrl}/assinatura-sistema`;
 
-  public getMercadoPagoConfig(): Observable<{ publicKey: string }> {
-    return this.http.get<{ publicKey: string }>(`${this.apiUrl}/config`, {
+  public checkoutAsaas(request: CheckoutAsaasRequest): Observable<CheckoutAsaasResponse> {
+    return this.http.post<CheckoutAsaasResponse>(`${this.apiUrl}/checkout-asaas`, request, {
       withCredentials: true,
     });
   }
@@ -38,26 +71,7 @@ export class AssinaturaSistemaService {
     return this.http.get<PlanoAssinatura>(`${this.apiUrl}/${encodeURIComponent(nome)}`, { withCredentials: true });
   }
 
-  public gerarPixAssinatura(
-    meses: number,
-    nomePlano?: string,
-    email?: string,
-    firstName?: string,
-    lastName?: string,
-    cpf?: string,
-    deviceId?: string,
-  ): Observable<PagamentoPixResponse> {
-    return this.http.post<PagamentoPixResponse>(
-      `${this.apiUrl}/pix`,
-      { meses, nomePlano, email, firstName, lastName, cpf, deviceId },
-      { withCredentials: true },
-    );
-  }
-
-  public obterStatusPagamento(id: number): Observable<StatusPagamentoResponse> {
-    return this.http.get<StatusPagamentoResponse>(
-      `${this.apiUrl}/status/${id}`,
-      { withCredentials: true },
-    );
+  public sincronizarPagamento(): Observable<{ sincronizado: boolean }> {
+    return this.http.post<{ sincronizado: boolean }>(`${this.apiUrl}/sincronizar`, {}, { withCredentials: true });
   }
 }

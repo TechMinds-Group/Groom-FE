@@ -30,20 +30,7 @@ export const routes: Routes = [
                 (c) => c.CalendarioComponent,
               ),
           },
-          {
-            path: 'disponibilidade',
-            loadComponent: () =>
-              import(
-                './features/disponibilidade/components/disponibilidade/disponibilidade.component'
-              ).then((m) => m.DisponibilidadeComponent),
-          },
-          {
-            path: 'disponibilidade/:id',
-            loadComponent: () =>
-              import(
-                './features/disponibilidade/components/disponibilidade/disponibilidade.component'
-              ).then((m) => m.DisponibilidadeComponent),
-          },
+
         ],
       },
       {
@@ -250,6 +237,13 @@ export const routes: Routes = [
               import('./features/whatsapp-integracao/components/whatsapp-integracao/whatsapp-integracao.component').then(
                 (m) => m.WhatsappIntegracaoComponent,
               ),
+          },
+          {
+            path: 'feriados',
+            loadComponent: () =>
+              import(
+                './features/configuracoes/components/feriados-config/feriados-config.component'
+              ).then((m) => m.FeriadosConfigComponent),
           },
           {
             path: 'logs',

@@ -1,0 +1,22 @@
+.gestao-bloqueios {
+  .max-width-500 {
+    max-width: 500px;
+  }
+  .max-height-350 {
+    max-height: 350px;
+  }
+  .cursor-pointer {
+    cursor: pointer;
+  }
+  .icon-circle {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .border-dashed {
+    border-style: dashed !important;
+  }
+}

@@ -100,11 +100,13 @@ export class AgendamentosService {
   }
 
   async criarManual(dados: {
+    clienteId?: string;
     clienteNome: string;
     clienteTelefone: string;
     profissionalId: string;
     servicoId: string;
     dataInicio: string;
+    tipo?: string;
     observacoes?: string;
   }): Promise<Agendamento> {
     const data = await firstValueFrom(
@@ -118,7 +120,8 @@ export class AgendamentosService {
     dados: {
       servicoId?: string;
       dataInicio?: string;
-      status: 'confirmado' | 'recusado' | 'nao_compareceu' | 'concluido';
+      status?: 'confirmado' | 'recusado' | 'nao_compareceu' | 'concluido' | 'agendado';
+      tipo?: string;
       observacoes?: string;
     },
   ): Promise<Agendamento> {
@@ -131,6 +134,12 @@ export class AgendamentosService {
   async cancelar(id: string, motivo?: string): Promise<void> {
     await firstValueFrom(
       this.http.put(`${this.apiUrl}/${id}/cancelar`, { motivo }, { withCredentials: true }),
+    );
+  }
+
+  async remover(id: string): Promise<void> {
+    await firstValueFrom(
+      this.http.delete(`${this.apiUrl}/${id}`, { withCredentials: true }),
     );
   }
 }

@@ -1,28 +1,55 @@
 <div [class]="embedded ? '' : 'container mt-5'">
   @if (!embedded && !profissionalAlvo()) {
-    <!-- Visão 1: Tabela de Lista de Profissionais -->
+    <!-- Visão 1: Tabela de Lista de Profissionais + Aba de Bloqueios -->
     <div class="row mb-4 align-items-center">
       <div class="col-lg-8 col-12">
         <h1 class="h2 text-primary fw-bold mb-2 custom-dark-text">
-          <i class="fas fa-clock me-2"></i>Disponibilidade dos Profissionais
+          <i class="fas fa-clock me-2"></i>Disponibilidade e Feriados
         </h1>
-        <p class="text-muted custom-dark-text">
-          Selecione um profissional da lista abaixo para visualizar e configurar os seus dias e horários de atendimento.
+        <p class="text-muted custom-dark-text mb-0">
+          Configure a grade de atendimento semanal dos profissionais e gerencie feriados e folgas da agenda.
         </p>
       </div>
     </div>
 
-    <div class="mb-5">
-      <tm-table
-        [cols]="cols()"
-        [data]="profissionais()"
-        [paginated]="true"
-        [pageSize]="tamanhoPagina()"
-        (pageSizeChange)="tamanhoPagina.set($event)"
-        [showControls]="true"
-        (rowClick)="selecionarProfissional($event)"
-      ></tm-table>
-    </div>
+    <ul class="nav nav-tabs mb-4 border-bottom">
+      <li class="nav-item">
+        <button
+          type="button"
+          class="nav-link fw-semibold px-4 cursor-pointer"
+          [class.active]="abaAtiva() === 'horarios'"
+          (click)="abaAtiva.set('horarios')"
+        >
+          <i class="fas fa-calendar-week me-2"></i>Grade Semanal
+        </button>
+      </li>
+      <li class="nav-item">
+        <button
+          type="button"
+          class="nav-link fw-semibold px-4 cursor-pointer"
+          [class.active]="abaAtiva() === 'bloqueios'"
+          (click)="abaAtiva.set('bloqueios')"
+        >
+          <i class="fas fa-calendar-minus me-2"></i>Feriados e Bloqueios
+        </button>
+      </li>
+    </ul>
+
+    @if (abaAtiva() === 'horarios') {
+      <div class="mb-5">
+        <tm-table
+          [cols]="cols()"
+          [data]="profissionais()"
+          [paginated]="true"
+          [pageSize]="tamanhoPagina()"
+          (pageSizeChange)="tamanhoPagina.set($event)"
+          [showControls]="true"
+          (rowClick)="selecionarProfissional($event)"
+        ></tm-table>
+      </div>
+    } @else {
+      <app-gestao-bloqueios></app-gestao-bloqueios>
+    }
   } @else {
     <!-- Visão 2: Configuração de Disponibilidade do Profissional Selecionado -->
     @if (!embedded) {

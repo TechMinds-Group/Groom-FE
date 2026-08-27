@@ -123,13 +123,15 @@
                 </div>
 
                 <div class="col-sm-6 col-12">
-                  <label class="form-label small fw-bold text-muted text-uppercase tracking-wider custom-dark-text">Perfil / Nível de Acesso *</label>
-                  <select formControlName="nivelAcessoId" class="form-select custom-dark-card custom-dark-text rounded-3">
-                    <option value="" disabled>Selecione um perfil...</option>
-                    @for (n of niveisAcesso(); track n.id) {
-                      <option [value]="n.id">{{ n.nome }}</option>
-                    }
-                  </select>
+                  <tm-select
+                    label="Perfil / Nível de Acesso * (Até 2 perfis)"
+                    [options]="perfilOptions()"
+                    [multiple]="true"
+                    [value]="perfisSelecionados()"
+                    (valueChange)="onPerfisChange($event)"
+                    [darkMode]="themeService.isDarkMode()"
+                    class="custom-dark-text"
+                  ></tm-select>
                 </div>
               </div>
             }

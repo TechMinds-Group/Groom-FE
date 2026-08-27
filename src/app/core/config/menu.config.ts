@@ -54,6 +54,7 @@ export const ALL_SIDEBAR_MENU_ITEMS: MenuItem[] = [
     subItems: [
       { label: 'Estabelecimento', icon: 'fas fa-store', route: '/configuracoes/estabelecimento' },
       { label: 'WhatsApp', icon: 'fab fa-whatsapp', route: '/configuracoes/whatsapp' },
+      { label: 'Feriados e Bloqueios', icon: 'fas fa-calendar-times', route: '/configuracoes/feriados' },
       { label: 'Minha Assinatura', icon: 'fas fa-credit-card', route: '/assinatura' },
       { label: 'Logs do Sistema', icon: 'fas fa-history', route: '/configuracoes/logs' },
     ],

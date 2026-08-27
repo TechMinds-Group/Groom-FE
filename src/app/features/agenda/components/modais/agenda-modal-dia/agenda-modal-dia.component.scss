@@ -129,6 +129,18 @@
     color: #ffffff !important;
   }
 
+  .badge.bg-warning-subtle {
+    background-color: rgba(255, 193, 7, 0.2) !important;
+    color: #ffda6a !important;
+    border-color: rgba(255, 193, 7, 0.4) !important;
+  }
+
+  .badge.bg-info-subtle {
+    background-color: rgba(13, 202, 240, 0.2) !important;
+    color: #6edff6 !important;
+    border-color: rgba(13, 202, 240, 0.4) !important;
+  }
+
   .time-chip {
     background: rgba(var(--tm-primary-rgb, 13, 110, 253), 0.85);
 

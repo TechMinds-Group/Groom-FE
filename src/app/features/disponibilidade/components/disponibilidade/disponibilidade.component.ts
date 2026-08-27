@@ -39,6 +39,7 @@ import { GestaoUsuariosService } from '../../../../core/services/gestao-usuarios
 import { LanguageService } from '../../../../core/services/language.service';
 import { ThemeService } from '../../../../core/services/theme.service';
 import { DIAS_SEMANA_FORM, INTERVALO_PADRAO } from '../../models/disponibilidade-form.config.model';
+import { GestaoBloqueiosComponent } from '../gestao-bloqueios/gestao-bloqueios.component';
 import { DisponibilidadeConflitosComponent } from '../modais/disponibilidade-conflitos/disponibilidade-conflitos.component';
 import { GestaoUsuariosHelperService } from '../../../gestao-usuarios/services/gestao-usuarios-helper.service';
 import { PerfilBadgePipe } from '../../../gestao-usuarios/pipes/perfil-badge.pipe';
@@ -55,6 +56,7 @@ import { StatusBadgePipe } from '../../../gestao-usuarios/pipes/status-badge.pip
     TmTimeComponent,
     TmTableComponent,
     DisponibilidadeConflitosComponent,
+    GestaoBloqueiosComponent,
     PerfilBadgePipe,
     StatusBadgePipe,
   ],
@@ -64,6 +66,7 @@ import { StatusBadgePipe } from '../../../gestao-usuarios/pipes/status-badge.pip
   providers: [GestaoUsuariosHelperService],
 })
 export class DisponibilidadeComponent implements OnInit, AfterViewInit {
+  readonly abaAtiva = signal<'horarios' | 'bloqueios'>('horarios');
   private readonly location = inject(Location);
   private readonly route = inject(ActivatedRoute);
   private readonly authService = inject(AuthService);

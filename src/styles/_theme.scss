@@ -29,9 +29,15 @@ body {
   body .custom-dark-text,
   body .custom-dark-text label,
   body .custom-dark-text input,
+  body .custom-dark-text span,
+  body .custom-dark-text td,
   body .text-dark.custom-dark-text,
-  body .text-muted.custom-dark-text {
-    color: var(--tm-text-primary) !important;
+  body .text-muted.custom-dark-text,
+  body .text-muted,
+  tm-table,
+  .tm-table-cell-text,
+  .tm-table-card {
+    color: #ffffff !important;
   }
 
   .alert-warning {
