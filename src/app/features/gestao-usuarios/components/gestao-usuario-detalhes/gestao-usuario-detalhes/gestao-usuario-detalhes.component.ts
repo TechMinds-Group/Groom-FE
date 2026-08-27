@@ -10,11 +10,12 @@ import {
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { TmTextComponent, TmToastService } from '@techminds-group/tm-angular-lib';
+import { TmSelectComponent, TmTextComponent, TmToastService } from '@techminds-group/tm-angular-lib';
 import { GestaoUsuariosService } from '../../../../../core/services/gestao-usuarios.service';
 import { Usuario } from '../../../../../core/models/gestao-usuarios/usuario.model';
 import { NivelAcesso } from '../../../../../core/models/gestao-usuarios/nivel-acesso.model';
 import { AuthService } from '../../../../../core/services/auth.service';
+import { ThemeService } from '../../../../../core/services/theme.service';
 import { PerfilBadgePipe } from '../../../pipes/perfil-badge.pipe';
 import { StatusBadgePipe } from '../../../pipes/status-badge.pipe';
 import { GestaoUsuariosHelperService } from '../../../services/gestao-usuarios-helper.service';
@@ -31,6 +32,7 @@ import { UsuarioModalExcluirComponent } from '../../modais/usuario-modal-excluir
     CommonModule,
     ReactiveFormsModule,
     TmTextComponent,
+    TmSelectComponent,
     PerfilBadgePipe,
     StatusBadgePipe,
     UsuarioModalAlterarSenhaComponent,
@@ -47,12 +49,15 @@ export class GestaoUsuarioDetalhesComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
   protected readonly gestaoUsuariosService = inject(GestaoUsuariosService);
   protected readonly helper = inject(GestaoUsuariosHelperService);
+  protected readonly themeService = inject(ThemeService);
   private readonly authService = inject(AuthService);
   private readonly toastService = inject(TmToastService);
 
   protected readonly id = signal<string | null>(null);
   protected readonly usuario = signal<Usuario | null>(null);
   protected readonly niveisAcesso = signal<NivelAcesso[]>([]);
+  protected readonly perfilOptions = signal<{ value: string; label: string }[]>([]);
+  protected readonly perfisSelecionados = signal<string[]>([]);
   protected readonly modoEdicao = signal<boolean>(false);
   protected readonly salvando = signal<boolean>(false);
 
@@ -67,7 +72,7 @@ export class GestaoUsuarioDetalhesComponent implements OnInit {
     sobrenome: ['', [Validators.maxLength(60)]],
     email: ['', [Validators.required, Validators.email]],
     telefone: ['', [Validators.required, Validators.maxLength(15)]],
-    nivelAcessoId: ['', [Validators.required]],
+    nivelAcessoId: [''],
     status: ['Ativo'],
   });
 
@@ -80,6 +85,7 @@ export class GestaoUsuarioDetalhesComponent implements OnInit {
     try {
       const niveis = await this.gestaoUsuariosService.carregarNiveis();
       this.niveisAcesso.set(niveis);
+      this.perfilOptions.set(niveis.map((n) => ({ value: n.id, label: n.nome })));
     } catch {
       // Ignora erro se níveis já carregados
     }
@@ -106,6 +112,19 @@ export class GestaoUsuarioDetalhesComponent implements OnInit {
     this.form.get('status')?.setValue(alvo.checked ? 'Ativo' : 'Inativo');
   }
 
+  protected onPerfisChange(val: unknown): void {
+    const selected = Array.isArray(val)
+      ? (val as string[])
+      : typeof val === 'string'
+      ? [val]
+      : [];
+    let sliced = selected.slice(0, 2);
+    if (sliced.length === 0 && this.perfilOptions().length > 0) {
+      sliced = [this.perfilOptions()[0].value];
+    }
+    this.perfisSelecionados.set(sliced);
+  }
+
   protected async salvarGeral(): Promise<void> {
     if (this.form.invalid) {
       this.form.markAllAsTouched();
@@ -120,13 +139,15 @@ export class GestaoUsuarioDetalhesComponent implements OnInit {
     try {
       const raw = this.form.value;
       const digitsTelefone = (raw.telefone ?? '').replace(/\D/g, '');
+      const selectedPerfis = this.perfisSelecionados();
 
       await this.gestaoUsuariosService.atualizar(userId, {
         nome: raw.nome,
         sobrenome: raw.sobrenome,
         email: raw.email,
         telefone: digitsTelefone,
-        nivelAcessoId: raw.nivelAcessoId,
+        nivelAcessoId: selectedPerfis.length > 0 ? selectedPerfis[0] : (raw.nivelAcessoId || ''),
+        secundarioNivelAcessoId: selectedPerfis.length > 1 ? selectedPerfis[1] : null,
         status: raw.status,
       });
 
@@ -162,9 +183,10 @@ export class GestaoUsuarioDetalhesComponent implements OnInit {
         this.toastService.success('Senha alterada com sucesso!', 'Sucesso');
       }
       this.showChangePasswordModal.set(false);
-    } catch (err) {
+    } catch (err: any) {
       console.error('Erro ao alterar senha', err);
-      this.toastService.error('Erro ao alterar senha.', 'Erro');
+      const mensagem = err?.error?.message || err?.error?.Message || err?.error?.detail || (typeof err?.error === 'string' ? err.error : null) || err?.message || 'Erro ao alterar senha.';
+      this.toastService.error(mensagem, 'Falha ao alterar senha');
     }
   }
 
@@ -221,6 +243,26 @@ export class GestaoUsuarioDetalhesComponent implements OnInit {
   }
 
   private preencherFormulario(u: Usuario): void {
+    const selectedValues: string[] = [];
+    if (u.nivelAcessoId) selectedValues.push(u.nivelAcessoId);
+    if (u.secundarioNivelAcessoId) selectedValues.push(u.secundarioNivelAcessoId);
+
+    if (selectedValues.length === 0 && u.perfil) {
+      const userPerfis = u.perfil.split(',').map((p) => p.trim()).filter(Boolean);
+      for (const pName of userPerfis) {
+        const matched = this.perfilOptions().find((n) => n.label === pName || n.value === pName);
+        if (matched && !selectedValues.includes(matched.value)) {
+          selectedValues.push(matched.value);
+        }
+      }
+    }
+
+    if (selectedValues.length === 0 && this.perfilOptions().length > 0) {
+      selectedValues.push(this.perfilOptions()[0].value);
+    }
+
+    this.perfisSelecionados.set(selectedValues.slice(0, 2));
+
     this.form.patchValue({
       nome: u.nome ?? '',
       sobrenome: u.sobrenome ?? '',

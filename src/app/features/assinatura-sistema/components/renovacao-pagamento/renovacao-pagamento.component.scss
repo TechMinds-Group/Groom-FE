@@ -13,7 +13,7 @@
 
 .renew-card-option {
   cursor: pointer;
-  border: 2px solid var(--tm-border-color, rgba(0, 0, 0, 0.12));
+  border: 2px solid rgba(0, 0, 0, 0.12);
   border-radius: 14px;
   background-color: var(--tm-surface-color, #ffffff);
   transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
@@ -28,8 +28,26 @@
 
   &.active {
     border-color: var(--bs-primary, #0d6efd);
-    background-color: rgba(13, 110, 253, 0.05);
+    background-color: rgba(13, 110, 253, 0.06);
     box-shadow: 0 0 0 1px var(--bs-primary, #0d6efd), 0 10px 24px rgba(13, 110, 253, 0.18) !important;
+  }
+}
+
+.payment-method-card {
+  cursor: pointer;
+  border: 2px solid rgba(0, 0, 0, 0.12);
+  border-radius: 12px;
+  background-color: var(--tm-surface-color, #ffffff);
+  transition: all 0.2s ease;
+
+  &:hover {
+    border-color: var(--bs-primary, #0d6efd);
+    transform: translateY(-2px);
+  }
+
+  &.active {
+    border-color: var(--bs-primary, #0d6efd);
+    background-color: rgba(13, 110, 253, 0.08);
   }
 }
 
@@ -55,20 +73,61 @@
 :host-context(.dark-theme),
 :host-context(.dark) {
   .renew-card-option {
-    border-color: var(--tm-border-color, rgba(255, 255, 255, 0.15));
+    border-color: rgba(255, 255, 255, 0.15);
+    background-color: #1e293b;
+    color: #f8fafc;
+
+    &:hover {
+      border-color: #3b82f6;
+      box-shadow: 0 8px 20px rgba(59, 130, 246, 0.25) !important;
+    }
 
     &.active {
-      background-color: rgba(13, 110, 253, 0.18);
+      background-color: rgba(59, 130, 246, 0.2);
+      border-color: #3b82f6;
+    }
+  }
+
+  .payment-method-card {
+    background-color: #1e293b;
+    border-color: rgba(255, 255, 255, 0.15);
+    color: #f8fafc;
+
+    &.active {
+      background-color: rgba(59, 130, 246, 0.25);
+      border-color: #3b82f6;
     }
   }
 
   .summary-box {
-    background-color: rgba(255, 255, 255, 0.03);
-    border-color: rgba(13, 110, 253, 0.4);
+    background-color: #1a2333;
+    border-color: rgba(59, 130, 246, 0.4);
+    color: #f8fafc;
   }
 
   .bg-primary-subtle {
-    background-color: rgba(13, 110, 253, 0.15) !important;
+    background-color: rgba(59, 130, 246, 0.2) !important;
+    color: #93c5fd !important;
+  }
+
+  .text-muted {
+    color: #94a3b8 !important;
+  }
+
+  .custom-dark-text {
+    color: #f8fafc !important;
+  }
+
+  .form-select,
+  .form-control {
+    background-color: #1e293b;
+    color: #f8fafc;
+    border-color: rgba(255, 255, 255, 0.2);
+
+    &:focus {
+      border-color: #3b82f6;
+      box-shadow: 0 0 0 0.25rem rgba(59, 130, 246, 0.25);
+    }
   }
 }
 
@@ -78,4 +137,33 @@
 
 .mb-2\.5 {
   margin-bottom: 0.65rem !important;
+}
+
+.custom-dark-card {
+  background-color: #1e293b !important;
+  border-color: #3b82f6 !important;
+  color: #f8fafc !important;
+
+  .border-secondary {
+    border-color: rgba(255, 255, 255, 0.15) !important;
+  }
+
+  .text-secondary {
+    color: #94a3b8 !important;
+  }
+
+  .text-light {
+    color: #f8fafc !important;
+  }
+
+  .form-control {
+    background-color: #0f172a !important;
+    color: #f8fafc !important;
+    border-color: rgba(255, 255, 255, 0.2) !important;
+
+    &:focus {
+      border-color: #3b82f6 !important;
+      box-shadow: 0 0 0 0.25rem rgba(59, 130, 246, 0.25) !important;
+    }
+  }
 }

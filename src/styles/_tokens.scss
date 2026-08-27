@@ -138,6 +138,67 @@ tm-sidebar, .sidebar-column {
   }
 }
 
+.bg-primary-subtle {
+  background-color: rgba(13, 110, 253, 0.1) !important;
+  color: #0d6efd !important;
+  border: 1px solid rgba(13, 110, 253, 0.15) !important;
+
+  [data-theme='dark'] & {
+    background-color: rgba(13, 110, 253, 0.2) !important;
+    color: #6ea8fe !important;
+    border-color: rgba(13, 110, 253, 0.3) !important;
+  }
+}
+
+.bg-info-subtle {
+  background-color: rgba(13, 202, 240, 0.1) !important;
+  color: #0aa2c0 !important;
+  border: 1px solid rgba(13, 202, 240, 0.15) !important;
+
+  [data-theme='dark'] & {
+    background-color: rgba(13, 202, 240, 0.2) !important;
+    color: #6edff6 !important;
+    border-color: rgba(13, 202, 240, 0.3) !important;
+  }
+}
+
+.bg-secondary-subtle {
+  background-color: rgba(108, 117, 125, 0.1) !important;
+  color: #495057 !important;
+  border: 1px solid rgba(108, 117, 125, 0.15) !important;
+
+  [data-theme='dark'] & {
+    background-color: rgba(255, 255, 255, 0.08) !important;
+    color: #cbd5e1 !important;
+    border-color: rgba(255, 255, 255, 0.12) !important;
+  }
+}
+
+[data-theme='dark'] {
+  .form-select,
+  .form-control {
+    background-color: var(--tm-input-bg) !important;
+    color: var(--tm-text-primary) !important;
+    border-color: var(--tm-border-color) !important;
+
+    option {
+      background-color: var(--tm-surface-color) !important;
+      color: var(--tm-text-primary) !important;
+    }
+  }
+
+  .list-group-item {
+    background-color: var(--tm-surface-color) !important;
+    color: var(--tm-text-primary) !important;
+    border-color: var(--tm-border-color) !important;
+
+    &:hover {
+      background-color: var(--tm-hover-bg) !important;
+    }
+  }
+}
+
 .text-success { color: var(--tm-success) !important; }
 .text-danger { color: var(--tm-danger) !important; }
 .text-warning { color: var(--tm-warning) !important; }
+

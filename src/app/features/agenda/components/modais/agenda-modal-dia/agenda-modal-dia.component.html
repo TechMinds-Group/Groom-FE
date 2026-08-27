@@ -38,12 +38,12 @@
                   {{ detalhe.clienteNome }}
                 </div>
                 @if (detalhe.tipo === 'plano' || detalhe.planoId || detalhe.planoNome) {
-                  <span class="badge bg-warning text-dark fw-bold px-2 py-1 small">
+                  <span class="badge bg-warning-subtle text-warning border border-warning-subtle fw-bold px-2.5 py-1 small">
                     <i class="fas fa-crown me-1"></i
                     >{{ 'AGENDA_MODAL.DETALHES.PLANO_LABEL' | translate }}
                   </span>
                 } @else {
-                  <span class="badge bg-secondary text-white fw-semibold px-2 py-1 small">
+                  <span class="badge bg-info-subtle text-info border border-info-subtle fw-semibold px-2.5 py-1 small">
                     <i class="fas fa-cut me-1"></i
                     >{{ 'AGENDA_MODAL.DETALHES.SERVICO_AVULSO_LABEL' | translate }}
                   </span>
@@ -102,7 +102,7 @@
             </dt>
             <dd class="col-7 col-sm-8 mb-2 custom-dark-text">
               @if (detalhe.tipo === 'plano' || detalhe.planoId || detalhe.planoNome) {
-                <span class="badge bg-warning text-dark fw-bold px-2 py-1">
+                <span class="badge bg-warning-subtle text-warning border border-warning-subtle fw-bold px-2.5 py-1">
                   <i class="fas fa-crown me-1"></i
                   >{{
                     detalhe.planoNome
@@ -111,7 +111,7 @@
                   }}
                 </span>
               } @else {
-                <span class="badge bg-light text-dark border px-2 py-1">
+                <span class="badge bg-info-subtle text-info border border-info-subtle fw-semibold px-2.5 py-1">
                   <i class="fas fa-tag me-1"></i
                   >{{ 'AGENDA_MODAL.DETALHES.SERVICO_AVULSO_LABEL' | translate }}
                 </span>
@@ -142,90 +142,125 @@
       </div>
 
       <!-- Ações de decisão (botões grandes, confortáveis para toque em mobile) -->
-      @if (podeDecidir()) {
-        @if (confirmandoRecusa()) {
-          <div class="alert alert-warning small py-2 px-3 mb-2 d-flex align-items-center gap-2">
-            <i class="fas fa-exclamation-triangle"></i>
-            <span>{{ 'AGENDA_MODAL.DETALHES.CONFIRM_RECUSA_MSG' | translate }}</span>
-          </div>
-          <div class="detalhe-acoes d-flex flex-column flex-md-row gap-3 mb-3">
-            <tm-button
-              variant="primary"
-              icon="fas fa-arrow-left"
-              [isFullWidth]="true"
-              [label]="'AGENDA_MODAL.DETALHES.BTN_NAO' | translate"
-              [disabled]="salvando()"
-              (onClick)="confirmandoRecusa.set(false)"
-            ></tm-button>
-            <tm-button
-              class="acao-recusar"
-              variant="outline-danger"
-              icon="fas fa-times"
-              [isFullWidth]="true"
-              [label]="'AGENDA_MODAL.DETALHES.BTN_SIM' | translate"
-              [disabled]="salvando()"
-              (onClick)="salvarDecisao('recusado')"
-            ></tm-button>
-          </div>
-        } @else {
-          <div class="detalhe-acoes d-flex flex-column flex-md-row gap-3 mb-3">
-            @if (podeConfirmar()) {
+      @if (confirmandoRemocao()) {
+        <div class="alert alert-danger small py-2 px-3 mb-2 d-flex align-items-center gap-2">
+          <i class="fas fa-exclamation-triangle"></i>
+          <span>Deseja remover este agendamento permanentemente? Ele sumirá da agenda.</span>
+        </div>
+        <div class="detalhe-acoes d-flex flex-column flex-md-row gap-3 mb-3">
+          <tm-button
+            variant="outline-secondary"
+            icon="fas fa-arrow-left"
+            [isFullWidth]="true"
+            [label]="'Não, cancelar'"
+            [disabled]="salvando()"
+            (onClick)="confirmandoRemocao.set(false)"
+          ></tm-button>
+          <tm-button
+            class="acao-recusar"
+            variant="danger"
+            icon="fas fa-trash-alt"
+            [isFullWidth]="true"
+            [label]="'Sim, remover'"
+            [loading]="salvando()"
+            (onClick)="removerAgendamentoDetalhes(detalhe.id)"
+          ></tm-button>
+        </div>
+      } @else {
+        <!-- Ações de decisão (botões grandes, confortáveis para toque em mobile) -->
+        @if (podeDecidir()) {
+          @if (confirmandoRecusa()) {
+            <div class="alert alert-warning small py-2 px-3 mb-2 d-flex align-items-center gap-2">
+              <i class="fas fa-exclamation-triangle"></i>
+              <span>{{ 'AGENDA_MODAL.DETALHES.CONFIRM_RECUSA_MSG' | translate }}</span>
+            </div>
+            <div class="detalhe-acoes d-flex flex-column flex-md-row gap-3 mb-3">
               <tm-button
-                class="acao-confirmar"
-                variant="success"
-                icon="fas fa-check"
+                variant="primary"
+                icon="fas fa-arrow-left"
                 [isFullWidth]="true"
-                [label]="'AGENDA_MODAL.DETALHES.BTN_CONFIRMAR' | translate"
+                [label]="'AGENDA_MODAL.DETALHES.BTN_NAO' | translate"
                 [disabled]="salvando()"
-                (onClick)="salvarDecisao('confirmado')"
+                (onClick)="confirmandoRecusa.set(false)"
               ></tm-button>
-            }
-            @if (podeMarcarNaoCompareceu(detalhe)) {
-              <tm-button
-                class="acao-nao-compareceu"
-                variant="outline-warning"
-                icon="fas fa-user-slash"
-                [isFullWidth]="true"
-                [label]="'Não Compareceu'"
-                [disabled]="salvando()"
-                (onClick)="salvarDecisao('nao_compareceu')"
-              ></tm-button>
-            }
-            @if (podeRecusar(detalhe)) {
               <tm-button
                 class="acao-recusar"
                 variant="outline-danger"
                 icon="fas fa-times"
                 [isFullWidth]="true"
-                [label]="'AGENDA_MODAL.DETALHES.BTN_RECUSAR' | translate"
+                [label]="'AGENDA_MODAL.DETALHES.BTN_SIM' | translate"
                 [disabled]="salvando()"
-                (onClick)="confirmandoRecusa.set(true)"
+                (onClick)="salvarDecisao('recusado')"
               ></tm-button>
-            }
+            </div>
+          } @else {
+            <div class="detalhe-acoes d-flex flex-column flex-md-row gap-3 mb-3">
+              @if (podeConfirmar()) {
+                <tm-button
+                  class="acao-confirmar"
+                  variant="success"
+                  icon="fas fa-check"
+                  [isFullWidth]="true"
+                  [label]="'AGENDA_MODAL.DETALHES.BTN_CONFIRMAR' | translate"
+                  [disabled]="salvando()"
+                  (onClick)="salvarDecisao('confirmado')"
+                ></tm-button>
+              }
+              @if (podeMarcarNaoCompareceu(detalhe)) {
+                <tm-button
+                  class="acao-nao-compareceu"
+                  variant="outline-warning"
+                  icon="fas fa-user-slash"
+                  [isFullWidth]="true"
+                  [label]="'Não Compareceu'"
+                  [disabled]="salvando()"
+                  (onClick)="salvarDecisao('nao_compareceu')"
+                ></tm-button>
+              }
+              @if (podeRecusar(detalhe)) {
+                <tm-button
+                  class="acao-recusar"
+                  variant="outline-danger"
+                  icon="fas fa-times"
+                  [isFullWidth]="true"
+                  [label]="'AGENDA_MODAL.DETALHES.BTN_RECUSAR' | translate"
+                  [disabled]="salvando()"
+                  (onClick)="confirmandoRecusa.set(true)"
+                ></tm-button>
+              }
+            </div>
+          }
+        } @else {
+          <div class="alert alert-warning small py-2 px-3 mb-3">
+            <i class="fas fa-lock me-1"></i>{{ 'AGENDA_MODAL.DETALHES.STATUS_FINAL_MSG' | translate }}
           </div>
         }
-      } @else {
-        <div class="alert alert-warning small py-2 px-3 mb-3">
-          <i class="fas fa-lock me-1"></i>{{ 'AGENDA_MODAL.DETALHES.STATUS_FINAL_MSG' | translate }}
+
+        <div class="detalhe-acoes d-flex flex-column flex-md-row gap-3">
+          <tm-button
+            variant="outline-secondary"
+            icon="fas fa-pen"
+            [isFullWidth]="true"
+            [label]="'AGENDA_MODAL.DETALHES.BTN_EDITAR' | translate"
+            (onClick)="abrirEdicao(detalhe)"
+          ></tm-button>
+          <tm-button
+            variant="outline-danger"
+            icon="fas fa-trash-alt"
+            [isFullWidth]="true"
+            [label]="'Remover'"
+            [disabled]="salvando()"
+            (onClick)="confirmandoRemocao.set(true)"
+          ></tm-button>
+          <tm-button
+            variant="outline-secondary"
+            icon="fas fa-arrow-left"
+            [isFullWidth]="true"
+            [label]="'AGENDA_MODAL.DETALHES.BTN_VOLTAR' | translate"
+            (onClick)="fecharDetalhes()"
+          ></tm-button>
         </div>
       }
-
-      <div class="detalhe-acoes d-flex flex-column flex-md-row gap-3">
-        <tm-button
-          variant="outline-secondary"
-          icon="fas fa-pen"
-          [isFullWidth]="true"
-          [label]="'AGENDA_MODAL.DETALHES.BTN_EDITAR' | translate"
-          (onClick)="abrirEdicao(detalhe)"
-        ></tm-button>
-        <tm-button
-          variant="outline-secondary"
-          icon="fas fa-arrow-left"
-          [isFullWidth]="true"
-          [label]="'AGENDA_MODAL.DETALHES.BTN_VOLTAR' | translate"
-          (onClick)="fecharDetalhes()"
-        ></tm-button>
-      </div>
     } @else if (!exibeForm()) {
       <!-- Cabeçalho da lista -->
       <div
@@ -253,6 +288,17 @@
           ></tm-button>
         </div>
       </div>
+
+      <!-- Alertas de Feriados e Bloqueios do Dia -->
+      @for (b of bloqueiosDoDia(); track b.id) {
+        <div class="alert alert-danger d-flex align-items-center gap-2 mb-3 rounded-3 shadow-sm" role="alert">
+          <i class="fas fa-ban fs-5"></i>
+          <div>
+            <strong class="d-block">{{ b.titulo }} ({{ b.origem === 'feriado_nacional' ? 'Feriado Nacional' : 'Bloqueio/Folga' }})</strong>
+            <span class="small">{{ b.diaInteiro ? 'Bloqueio de dia inteiro (sem atendimento).' : 'Bloqueio parcial de horário.' }} {{ b.profissionalId ? 'Apenas para ' + b.nomeProfissional : 'Para toda a barbearia.' }}</span>
+          </div>
+        </div>
+      }
 
       <!-- Lista de agendamentos -->
       @if (agendamentosDoDia().length === 0) {
@@ -343,6 +389,7 @@
 
         <form [formGroup]="form" (ngSubmit)="salvarAgendamento()">
           @if (!agendamentoEditando()) {
+            <!-- Row 1: Cliente e Celular -->
             <div class="row g-3 mb-3">
               <div class="col-md-6">
                 <label
@@ -378,6 +425,39 @@
               </div>
             </div>
 
+            <!-- Row 2: Tipo de Agendamento e Serviço/Plano -->
+            <div class="row g-3 mb-3">
+              <div class="col-md-6 col-12">
+                <label
+                  class="form-label small fw-bold text-muted text-uppercase tracking-wider mb-2 custom-dark-text"
+                >
+                  Tipo de Agendamento *
+                </label>
+                <tm-select
+                  [options]="tipoOptions"
+                  [value]="form.get('tipo')?.value"
+                  [darkMode]="themeService.isDarkMode()"
+                  placeholder="Selecione o tipo..."
+                  (valueChange)="form.patchValue({ tipo: $event })"
+                ></tm-select>
+              </div>
+              <div class="col-md-6 col-12">
+                <label
+                  class="form-label small fw-bold text-muted text-uppercase tracking-wider mb-2 custom-dark-text"
+                >
+                  {{ tipoSelecionado() === 'plano' ? 'Plano *' : ('AGENDA_MODAL.FORM.SERVICO' | translate) + ' *' }}
+                </label>
+                <tm-select
+                  [options]="servicoOptions()"
+                  [value]="form.get('servicoId')?.value"
+                  [darkMode]="themeService.isDarkMode()"
+                  [placeholder]="tipoSelecionado() === 'plano' ? 'Selecione o plano...' : ('AGENDA_MODAL.FORM.SERVICO_PLACEHOLDER' | translate)"
+                  (valueChange)="form.patchValue({ servicoId: $event })"
+                ></tm-select>
+              </div>
+            </div>
+
+            <!-- Row 3: Profissional e Horário -->
             <div class="row g-3 mb-3">
               <div class="col-md-6">
                 <label
@@ -399,54 +479,7 @@
                 <label
                   class="form-label small fw-bold text-muted text-uppercase tracking-wider mb-2 custom-dark-text"
                 >
-                  {{ 'AGENDA_MODAL.FORM.SERVICO' | translate }} *
-                </label>
-                <tm-select
-                  [options]="servicoOptions()"
-                  [value]="form.get('servicoId')?.value"
-                  [darkMode]="themeService.isDarkMode()"
-                  [placeholder]="'AGENDA_MODAL.FORM.SERVICO_PLACEHOLDER' | translate"
-                  (valueChange)="form.patchValue({ servicoId: $event })"
-                ></tm-select>
-              </div>
-            </div>
-          }
-
-          @if (agendamentoEditando()) {
-            <div class="row g-3 mb-3">
-              <div class="col-md-6">
-                <label
-                  class="form-label small fw-bold text-muted text-uppercase tracking-wider mb-2 custom-dark-text"
-                >
-                  {{ 'AGENDA_MODAL.FORM.SERVICO' | translate }} *
-                </label>
-                <tm-select
-                  [options]="servicoOptions()"
-                  [value]="form.get('servicoId')?.value"
-                  [darkMode]="themeService.isDarkMode()"
-                  [placeholder]="'AGENDA_MODAL.FORM.SERVICO_PLACEHOLDER' | translate"
-                  (valueChange)="form.patchValue({ servicoId: $event })"
-                ></tm-select>
-              </div>
-              <div class="col-md-6">
-                <label
-                  class="form-label small fw-bold text-muted text-uppercase tracking-wider mb-2 custom-dark-text"
-                >
-                  {{ 'AGENDA_MODAL.FORM.HORA_INICIO' | translate }}
-                </label>
-                <tm-time
-                  [value]="form.get('horaInicio')?.value"
-                  (valueChange)="form.patchValue({ horaInicio: $event })"
-                ></tm-time>
-              </div>
-            </div>
-          } @else {
-            <div class="row g-3 mb-3">
-              <div class="col-md-6">
-                <label
-                  class="form-label small fw-bold text-muted text-uppercase tracking-wider mb-2 custom-dark-text"
-                >
-                  {{ 'AGENDA_MODAL.FORM.HORA_INICIO' | translate }}
+                  {{ 'AGENDA_MODAL.FORM.HORA_INICIO' | translate }} *
                 </label>
                 <tm-select
                   [options]="horaOptions()"
@@ -467,19 +500,65 @@
           }
 
           @if (agendamentoEditando()) {
-            <div class="mb-3">
-              <label
-                class="form-label small fw-bold text-muted text-uppercase tracking-wider mb-2 custom-dark-text"
-              >
-                {{ 'AGENDA_MODAL.FORM.STATUS_DECISAO' | translate }}
-              </label>
-              <tm-select
-                [options]="statusDecisionOptions"
-                [value]="form.get('statusDecisao')?.value"
-                [disabled]="statusDecisaoBloqueado()"
-                [darkMode]="themeService.isDarkMode()"
-                (valueChange)="form.patchValue({ statusDecisao: $event })"
-              ></tm-select>
+            <!-- Row 1 (Edição): Tipo de Agendamento e Serviço/Plano -->
+            <div class="row g-3 mb-3">
+              <div class="col-md-6 col-12">
+                <label
+                  class="form-label small fw-bold text-muted text-uppercase tracking-wider mb-2 custom-dark-text"
+                >
+                  Tipo de Agendamento *
+                </label>
+                <tm-select
+                  [options]="tipoOptions"
+                  [value]="form.get('tipo')?.value"
+                  [darkMode]="themeService.isDarkMode()"
+                  placeholder="Selecione o tipo..."
+                  (valueChange)="form.patchValue({ tipo: $event })"
+                ></tm-select>
+              </div>
+              <div class="col-md-6 col-12">
+                <label
+                  class="form-label small fw-bold text-muted text-uppercase tracking-wider mb-2 custom-dark-text"
+                >
+                  {{ tipoSelecionado() === 'plano' ? 'Plano *' : ('AGENDA_MODAL.FORM.SERVICO' | translate) + ' *' }}
+                </label>
+                <tm-select
+                  [options]="servicoOptions()"
+                  [value]="form.get('servicoId')?.value"
+                  [darkMode]="themeService.isDarkMode()"
+                  [placeholder]="tipoSelecionado() === 'plano' ? 'Selecione o plano...' : ('AGENDA_MODAL.FORM.SERVICO_PLACEHOLDER' | translate)"
+                  (valueChange)="form.patchValue({ servicoId: $event })"
+                ></tm-select>
+              </div>
+            </div>
+
+            <!-- Row 2 (Edição): Horário e Status -->
+            <div class="row g-3 mb-3">
+              <div class="col-md-6">
+                <label
+                  class="form-label small fw-bold text-muted text-uppercase tracking-wider mb-2 custom-dark-text"
+                >
+                  {{ 'AGENDA_MODAL.FORM.HORA_INICIO' | translate }}
+                </label>
+                <tm-time
+                  [value]="form.get('horaInicio')?.value"
+                  (valueChange)="form.patchValue({ horaInicio: $event })"
+                ></tm-time>
+              </div>
+              <div class="col-md-6">
+                <label
+                  class="form-label small fw-bold text-muted text-uppercase tracking-wider mb-2 custom-dark-text"
+                >
+                  {{ 'AGENDA_MODAL.FORM.STATUS_DECISAO' | translate }}
+                </label>
+                <tm-select
+                  [options]="statusDecisionOptions"
+                  [value]="form.get('statusDecisao')?.value"
+                  [disabled]="statusDecisaoBloqueado()"
+                  [darkMode]="themeService.isDarkMode()"
+                  (valueChange)="form.patchValue({ statusDecisao: $event })"
+                ></tm-select>
+              </div>
             </div>
           }
 
@@ -508,9 +587,9 @@
                   variant="outline-danger"
                   icon="fas fa-trash-alt"
                   [isFullWidth]="false"
-                  [label]="'Excluir Agendamento'"
+                  [label]="'Remover Agendamento'"
                   [disabled]="salvando()"
-                  (onClick)="confirmarCancelar(agendamentoEditando()!)"
+                  (onClick)="removerAgendamentoDetalhes(agendamentoEditando()!.id)"
                 ></tm-button>
               }
             } @else {
@@ -536,6 +615,7 @@
                 [isFullWidth]="true"
                 [label]="'AGENDA_MODAL.FORM.SALVAR' | translate"
                 [loading]="salvando()"
+                (onClick)="salvarAgendamento()"
               ></tm-button>
             </div>
           </div>

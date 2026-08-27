@@ -1,0 +1,361 @@
+@if (bloqueioSelecionado(); as b) {
+  <!-- Visão de Detalhes (Padrão idêntico a gestao-usuario-detalhes) -->
+  <div class="container mt-5 mb-5">
+    <!-- Header: Voltar + Nome do Bloqueio + Subtítulo -->
+    <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between mb-4 gap-3">
+      <div class="d-flex align-items-center gap-3">
+        <button
+          (click)="voltar()"
+          class="btn btn-light shadow-sm rounded-circle p-0 d-flex align-items-center justify-content-center btn-voltar"
+          style="width: 40px; height: 40px;"
+          title="Voltar"
+        >
+          <i class="fas fa-arrow-left custom-dark-text"></i>
+        </button>
+
+        <div>
+          <h2 class="h4 mb-0 fw-bold custom-dark-text d-flex align-items-center gap-2">
+            {{ b.titulo }}
+          </h2>
+          <span class="text-muted small custom-dark-text">Detalhes do Bloqueio / Feriado</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Grid Principal (row g-4 mb-5) -->
+    <div class="row g-4 mb-5">
+      <!-- Coluna Principal -->
+      <div class="col-xl-8 col-12">
+        <div class="card border-0 shadow-sm p-4 details-card custom-dark-card rounded-4">
+
+          <!-- 1. Header do Card (Avatar/Ícone e Título) -->
+          <div class="d-flex align-items-center gap-3 border-bottom pb-4 mb-4">
+            <div class="avatar-circle bg-primary-subtle text-primary d-flex align-items-center justify-content-center">
+              <i class="fas fa-calendar-times fs-3"></i>
+            </div>
+            <div>
+              <h2 class="h3 fw-bold mb-0 custom-dark-text">{{ b.titulo }}</h2>
+              <span class="text-muted small custom-dark-text">ID: {{ b.id }}</span>
+            </div>
+          </div>
+
+          <!-- 2. Informações Cadastrais em Grid -->
+          <div class="row g-4">
+            <!-- Data Início -->
+            <div class="col-sm-6 col-12">
+              <label class="form-label small fw-bold text-muted text-uppercase tracking-wider">Data Início</label>
+              <div class="mt-1 custom-dark-text fw-medium">
+                <i class="far fa-calendar-alt text-primary me-2"></i>{{ formatarData(b.dataInicio) }}
+              </div>
+            </div>
+
+            <!-- Data Fim -->
+            <div class="col-sm-6 col-12">
+              <label class="form-label small fw-bold text-muted text-uppercase tracking-wider">Data Fim</label>
+              <div class="mt-1 custom-dark-text fw-medium">
+                <i class="far fa-calendar-alt text-primary me-2"></i>{{ formatarData(b.dataFim) }}
+              </div>
+            </div>
+
+            <!-- Duração / Dia Inteiro -->
+            <div class="col-sm-6 col-12">
+              <label class="form-label small fw-bold text-muted text-uppercase tracking-wider">Duração</label>
+              <div class="mt-1">
+                @if (b.diaInteiro) {
+                  <span class="badge bg-secondary-subtle text-secondary border px-3 py-1.5 rounded-pill fw-semibold">
+                    <i class="fas fa-clock me-1"></i>Dia Inteiro
+                  </span>
+                } @else {
+                  <span class="badge bg-info-subtle text-info border px-3 py-1.5 rounded-pill fw-semibold">
+                    <i class="fas fa-hourglass-half me-1"></i>Horário Parcial
+                  </span>
+                }
+              </div>
+            </div>
+
+            <!-- Escopo -->
+            <div class="col-sm-6 col-12">
+              <label class="form-label small fw-bold text-muted text-uppercase tracking-wider">Escopo</label>
+              <div class="mt-1">
+                @if (b.nomeProfissional) {
+                  <span class="badge bg-info-subtle text-info border px-3 py-1.5 rounded-pill fw-semibold">
+                    <i class="fas fa-user-tie me-1"></i>{{ b.nomeProfissional }}
+                  </span>
+                } @else {
+                  <span class="badge bg-primary-subtle text-primary border px-3 py-1.5 rounded-pill fw-semibold">
+                    <i class="fas fa-store me-1"></i>Estabelecimento
+                  </span>
+                }
+              </div>
+            </div>
+
+            <!-- Tipo / Origem -->
+            <div class="col-sm-6 col-12">
+              <label class="form-label small fw-bold text-muted text-uppercase tracking-wider">Tipo</label>
+              <div class="mt-1">
+                @if (b.origem === 'feriado_nacional') {
+                  <span class="badge bg-warning-subtle text-warning-emphasis border px-3 py-1.5 rounded-pill fw-semibold">
+                    <i class="fas fa-flag me-1"></i>Feriado Nacional
+                  </span>
+                } @else {
+                  <span class="badge bg-secondary-subtle text-secondary border px-3 py-1.5 rounded-pill fw-semibold">
+                    <i class="fas fa-user-clock me-1"></i>Manual
+                  </span>
+                }
+              </div>
+            </div>
+
+            <!-- Data de Criação -->
+            <div class="col-sm-6 col-12">
+              <label class="form-label small fw-bold text-muted text-uppercase tracking-wider">Cadastrado em</label>
+              <div class="mt-1 custom-dark-text small">
+                {{ b.createdAtUtc | date: 'dd/MM/yyyy HH:mm' }}
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Coluna Lateral: Ações Rápidas (idêntico a gestao-usuario-detalhes) -->
+      <div class="col-xl-4 col-12">
+        <div class="card border-0 shadow-sm p-4 rounded-4 details-card custom-dark-card">
+          <h4 class="h6 fw-bold text-uppercase text-muted tracking-wider mb-3">
+            <i class="fas fa-sliders-h me-2 text-primary"></i>Ações Rápidas
+          </h4>
+          <div class="d-grid gap-3">
+            <button
+              type="button"
+              (click)="solicitarExclusao(b)"
+              class="btn btn-outline-danger py-2.5 fw-bold w-100 transition-all custom-action-btn"
+            >
+              <i class="fas fa-trash-can me-2"></i>Excluir
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+} @else {
+  <!-- Visão de Tabela Principal -->
+  <div class="container mt-5 mb-5">
+    <!-- Header: Título e Descrição (Topo) -->
+    <div class="row mb-3">
+      <div class="col-12">
+        <h1 class="h2 text-primary fw-bold mb-2 custom-dark-text d-flex align-items-center gap-2">
+          <i class="fas fa-calendar-times me-2"></i>Feriados e Bloqueios
+        </h1>
+        <p class="text-muted custom-dark-text mb-0">
+          Gerencie os feriados nacionais e bloqueios de agenda do seu estabelecimento.
+        </p>
+      </div>
+    </div>
+
+    <!-- Barra de Ações (Abaixo do Título, 100% responsiva para celular) -->
+    <div class="row mb-4 g-2 align-items-center">
+      <!-- Select de Ano -->
+      <div class="col-12 col-sm-auto">
+        <select class="form-select w-100 w-sm-auto shadow-sm custom-dark-text" [value]="anoSelecionado()" (change)="mudarAno($event)">
+          @for (a of anos; track a) {
+            <option [value]="a">{{ a }}</option>
+          }
+        </select>
+      </div>
+
+      <!-- Botão Importar Feriados -->
+      <div class="col-12 col-sm-auto">
+        <button (click)="abrirImportar()" class="btn btn-outline-primary w-100 w-sm-auto px-3 py-2 shadow-sm fw-semibold d-inline-flex align-items-center justify-content-center gap-2">
+          <i class="fas fa-file-import"></i><span>Importar Feriados</span>
+        </button>
+      </div>
+
+      <!-- Botão Cadastrar -->
+      <div class="col-12 col-sm-auto ms-sm-auto">
+        <button (click)="abrirBloqueio()" class="btn btn-primary w-100 w-sm-auto px-4 py-2.5 shadow-sm fw-bold rounded-3 d-inline-flex align-items-center justify-content-center gap-2">
+          <i class="fas fa-plus"></i><span>Cadastrar</span>
+        </button>
+      </div>
+    </div>
+
+
+
+    <!-- Tabela Padrão (tm-table) com clique na linha (rowClick) e sem coluna de ações -->
+    <div class="mb-5">
+      <tm-table
+        [cols]="cols()"
+        [data]="bloqueios()"
+        [paginated]="true"
+        [pageSize]="tamanhoPagina()"
+        (pageSizeChange)="tamanhoPagina.set($event)"
+        [showControls]="true"
+        (rowClick)="verDetalhes($event)"
+      ></tm-table>
+    </div>
+  </div>
+}
+
+<!-- Templates das colunas da tabela -->
+<ng-template #tituloTemplate let-item>
+  <div class="d-flex flex-column text-start">
+    <strong class="fw-bold custom-dark-text">{{ item.titulo }}</strong>
+  </div>
+</ng-template>
+
+<ng-template #periodoTemplate let-item>
+  <div class="text-start custom-dark-text">
+    <span><i class="far fa-calendar-alt text-primary me-1"></i>{{ formatarData(item.dataInicio) }}</span>
+    @if (!item.diaInteiro || item.dataInicio !== item.dataFim) {
+      <span class="text-muted mx-1">até</span>
+      <span>{{ formatarData(item.dataFim) }}</span>
+    }
+  </div>
+</ng-template>
+
+<ng-template #escopoTemplate let-item>
+  <div class="d-flex align-items-center">
+    @if (item.nomeProfissional) {
+      <span class="badge bg-info-subtle text-info border border-info-subtle px-2.5 py-1 rounded-pill small fw-semibold">
+        <i class="fas fa-user-tie me-1"></i>{{ item.nomeProfissional }}
+      </span>
+    } @else {
+      <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-2.5 py-1 rounded-pill small fw-semibold">
+        <i class="fas fa-store me-1"></i>Estabelecimento
+      </span>
+    }
+  </div>
+</ng-template>
+
+<ng-template #tipoTemplate let-item>
+  <div class="d-flex align-items-center">
+    @if (item.origem === 'feriado_nacional') {
+      <span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle px-2.5 py-1 rounded-pill small fw-semibold">
+        <i class="fas fa-flag me-1"></i>Feriado Nacional
+      </span>
+    } @else {
+      <span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle px-2.5 py-1 rounded-pill small fw-semibold">
+        <i class="fas fa-user-clock me-1"></i>Manual
+      </span>
+    }
+  </div>
+</ng-template>
+
+<!-- Modal: Novo Bloqueio (tm-modal da lib) -->
+<tm-modal
+  title="Cadastrar Bloqueio / Folga"
+  confirmLabel="Cadastrar"
+  cancelLabel="Cancelar"
+  [show]="modalBloqueioAberto()"
+  (showChange)="modalBloqueioAberto.set($event)"
+  (confirm)="salvarBloqueio()"
+  (cancel)="fecharBloqueio()"
+  confirmClass="btn-primary"
+  icon="fas fa-calendar-plus"
+  size="md"
+>
+  <form [formGroup]="formBloqueio" class="p-1 text-start">
+    <div class="mb-3">
+      <tm-text formControlName="titulo" label="Título / Motivo *" placeholder="Ex: Folga coletiva, Manutenção..." class="custom-dark-text"></tm-text>
+      @if (formBloqueio.get('titulo')?.touched && formBloqueio.get('titulo')?.invalid) {
+        <div class="text-danger extra-small mt-1">Título é obrigatório (mínimo 2 caracteres).</div>
+      }
+    </div>
+
+    <div class="row mb-3">
+      <div class="col-6">
+        <label class="form-label small fw-bold text-muted text-uppercase tracking-wider mb-1 custom-dark-text">Data Início *</label>
+        <input type="date" class="form-control custom-dark-text" formControlName="dataInicio" />
+        @if (formBloqueio.get('dataInicio')?.touched && formBloqueio.get('dataInicio')?.invalid) {
+          <div class="text-danger extra-small mt-1">Data início é obrigatória.</div>
+        }
+      </div>
+      <div class="col-6">
+        <label class="form-label small fw-bold text-muted text-uppercase tracking-wider mb-1 custom-dark-text">Data Fim *</label>
+        <input type="date" class="form-control custom-dark-text" formControlName="dataFim" />
+        @if (formBloqueio.get('dataFim')?.touched && formBloqueio.get('dataFim')?.invalid) {
+          <div class="text-danger extra-small mt-1">Data fim é obrigatória.</div>
+        }
+      </div>
+    </div>
+
+    <div class="form-check mb-2">
+      <input class="form-check-input" type="checkbox" id="diaInteiroCheck" formControlName="diaInteiro" />
+      <label class="form-check-label small custom-dark-text" for="diaInteiroCheck">
+        Bloquear o dia inteiro (impede todos os agendamentos no período)
+      </label>
+    </div>
+  </form>
+</tm-modal>
+
+<!-- Modal: Importar Feriados (tm-modal da lib) -->
+<tm-modal
+  [title]="'Importar Feriados Nacionais — ' + anoSelecionado()"
+  confirmLabel="Importar Selecionados"
+  cancelLabel="Cancelar"
+  [show]="modalImportarAberto()"
+  (showChange)="modalImportarAberto.set($event)"
+  (confirm)="confirmarImportar()"
+  (cancel)="fecharImportar()"
+  confirmClass="btn-primary"
+  icon="fas fa-file-import"
+  size="md"
+>
+  <div class="p-1 text-start">
+    @if (importando()) {
+      <div class="text-center py-4">
+        <div class="spinner-border text-primary me-2" role="status"></div>
+        <span class="text-muted custom-dark-text">Consultando feriados nacionais...</span>
+      </div>
+    } @else if (feriadosParaImportar().length === 0) {
+      <div class="text-center py-4 text-muted custom-dark-text">
+        Nenhum feriado encontrado para {{ anoSelecionado() }}.
+      </div>
+    } @else {
+      <div class="d-flex align-items-center justify-content-between mb-3 pb-2 border-bottom">
+        <div class="form-check">
+          <input class="form-check-input" type="checkbox" id="selectAllFeriados" checked (change)="toggleTodos($event)" />
+          <label class="form-check-label fw-semibold small custom-dark-text" for="selectAllFeriados">
+            Selecionar todos
+          </label>
+        </div>
+        <span class="badge bg-secondary-subtle text-secondary small fw-semibold">
+          {{ feriadosParaImportar().length }} feriados
+        </span>
+      </div>
+
+      <div class="list-group list-group-flush border rounded-3 overflow-auto" style="max-height: 320px;">
+        @for (f of feriadosParaImportar(); track f.date; let i = $index) {
+          <label class="list-group-item list-group-item-action d-flex align-items-center gap-3 py-2 cursor-pointer">
+            <input class="form-check-input flex-shrink-0" type="checkbox" [(ngModel)]="feriadosParaImportar()[i].selecionado" />
+            <span class="badge bg-primary-subtle text-primary fw-bold font-monospace px-2 py-1">
+              {{ f.date | date: 'dd/MM' }}
+            </span>
+            <span class="custom-dark-text fw-medium small">{{ f.name }}</span>
+          </label>
+        }
+      </div>
+    }
+  </div>
+</tm-modal>
+
+<!-- Modal: Excluir Bloqueio (tm-modal da lib) -->
+<tm-modal
+  title="Excluir Bloqueio"
+  icon="fas fa-exclamation-triangle"
+  iconClass="text-danger"
+  confirmClass="btn-danger"
+  confirmLabel="Excluir"
+  cancelLabel="Cancelar"
+  [show]="modalExcluirAberto()"
+  (showChange)="modalExcluirAberto.set($event)"
+  (confirm)="confirmarExcluir()"
+  (cancel)="fecharExcluir()"
+>
+  <div class="p-1 text-start">
+    <p class="mb-0 custom-dark-text">
+      Deseja realmente excluir o bloqueio <strong>{{ bloqueioParaExcluir()?.titulo }}</strong>?
+    </p>
+    <p class="text-danger small mt-2 mb-0">
+      <i class="fas fa-exclamation-triangle me-1"></i>Esta ação não poderá ser desfeita.
+    </p>
+  </div>
+</tm-modal>

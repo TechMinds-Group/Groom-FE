@@ -64,6 +64,10 @@ export class AuthService {
     return this.http.post<any>(`${this.apiUrl}?useCookies=true&useSessionCookies=${!rememberMe}`, body, {
       withCredentials: true // Crucial for receiving and sending secure cookies
     }).pipe(
+      tap(() => {
+        // Limpa tenant_id antigo do localStorage para evitar conflito no getMe()
+        localStorage.removeItem('tenant_id');
+      }),
       switchMap(() => this.getMe()),
       tap(user => {
         if (user && user.tenantId) {

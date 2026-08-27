@@ -1,0 +1,234 @@
+<div class="gestao-bloqueios mt-4">
+  <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-3 mb-4">
+    <div>
+      <h3 class="h5 fw-bold mb-1 custom-dark-text">
+        <i class="fas fa-calendar-times me-2 text-danger"></i>Feriados, Folgas e Bloqueios
+      </h3>
+      <p class="text-muted small mb-0 custom-dark-text">
+        Gerencie os dias e horários em que a barbearia ou profissionais específicos estarão indisponíveis.
+      </p>
+    </div>
+
+    <div class="d-flex gap-2 flex-wrap">
+      <button type="button" class="btn btn-outline-success fw-semibold shadow-sm btn-action-responsive" (click)="abrirModalFeriados()">
+        <i class="fas fa-cloud-download-alt me-1"></i> Importar Feriados {{ anoFeriados() }}
+      </button>
+      <button type="button" class="btn btn-primary fw-semibold shadow-sm btn-action-responsive" (click)="abrirModalNovoBloqueio()">
+        <i class="fas fa-plus me-1"></i> Novo Bloqueio / Folga
+      </button>
+    </div>
+  </div>
+
+  @if (mensagemSucesso()) {
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+      <i class="fas fa-check-circle me-2"></i>{{ mensagemSucesso() }}
+      <button type="button" class="btn-close" (click)="mensagemSucesso.set(null)"></button>
+    </div>
+  }
+
+  @if (mensagemErro()) {
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+      <i class="fas fa-exclamation-triangle me-2"></i>{{ mensagemErro() }}
+      <button type="button" class="btn-close" (click)="mensagemErro.set(null)"></button>
+    </div>
+  }
+
+  @if (carregando()) {
+    <div class="text-center py-5">
+      <div class="spinner-border text-primary mb-2" role="status"></div>
+      <p class="text-muted small">Carregando bloqueios da agenda...</p>
+    </div>
+  } @else {
+    @if (bloqueios().length === 0) {
+      <div class="card card-body text-center py-5 border-dashed shadow-sm rounded-4">
+        <div class="icon-circle mx-auto mb-3 bg-light text-muted">
+          <i class="fas fa-calendar-check fa-2x"></i>
+        </div>
+        <h5 class="fw-bold text-dark mb-1">Nenhum bloqueio ou feriado cadastrado</h5>
+        <p class="text-muted small max-width-500 mx-auto mb-3">
+          Clique no botão "Importar Feriados" para buscar feriados nacionais via BrasilAPI ou adicione folgas manuais para seus profissionais.
+        </p>
+      </div>
+    } @else {
+      <div class="table-responsive shadow-sm rounded-3 border">
+        <table class="table table-hover align-middle mb-0">
+          <thead class="table-light">
+            <tr>
+              <th>Título / Motivo</th>
+              <th>Escopo / Profissional</th>
+              <th>Período</th>
+              <th>Tipo</th>
+              <th class="text-end">Ações</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (b of bloqueios(); track b.id) {
+              <tr>
+                <td>
+                  <div class="fw-semibold text-dark">{{ b.titulo }}</div>
+                  @if (b.origem === 'feriado_nacional') {
+                    <span class="badge bg-success-subtle text-success border border-success-subtle small">Feriado Nacional</span>
+                  } @else {
+                    <span class="badge bg-primary-subtle text-primary border border-primary-subtle small">Manual</span>
+                  }
+                </td>
+                <td>
+                  @if (!b.profissionalId) {
+                    <span class="badge bg-secondary text-white fw-medium">Toda a Empresa (Geral)</span>
+                  } @else {
+                    <span class="fw-medium text-dark"><i class="fas fa-user-tie me-1 opacity-75"></i>{{ b.nomeProfissional }}</span>
+                  }
+                </td>
+                <td>
+                  <div class="small fw-semibold text-dark">
+                    {{ formatarDataBr(b.dataInicio) }}
+                    @if (b.dataInicio !== b.dataFim) {
+                      até {{ formatarDataBr(b.dataFim) }}
+                    }
+                  </div>
+                </td>
+                <td>
+                  @if (b.diaInteiro) {
+                    <span class="badge bg-info-subtle text-info-emphasis border border-info-subtle">Dia Inteiro</span>
+                  } @else {
+                    <span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle">Horário Parcial</span>
+                  }
+                </td>
+                <td class="text-end">
+                  <button type="button" class="btn btn-sm btn-outline-danger" (click)="remover(b)" title="Excluir bloqueio">
+                    <i class="fas fa-trash-alt"></i>
+                  </button>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  }
+</div>
+
+<!-- Modal Importar Feriados da BrasilAPI -->
+@if (modalFeriadosAberto()) {
+  <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0, 0, 0, 0.5);">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+      <div class="modal-content shadow-lg border-0 rounded-4">
+        <div class="modal-header border-bottom py-3">
+          <h5 class="modal-title fw-bold text-primary d-flex align-items-center gap-2">
+            <i class="fas fa-cloud-download-alt"></i> Importar Feriados Nacionais (BrasilAPI)
+          </h5>
+          <button type="button" class="btn-close" (click)="fecharModalFeriados()"></button>
+        </div>
+
+        <div class="modal-body p-4">
+          <div class="d-flex align-items-center justify-content-between mb-3">
+            <div class="d-flex align-items-center gap-2">
+              <label class="fw-semibold text-muted small">Ano:</label>
+              <select class="form-select form-select-sm w-auto fw-bold" [ngModel]="anoFeriados()" (ngModelChange)="carregarFeriadosAno($event)">
+                <option [value]="2025">2025</option>
+                <option [value]="2026">2026</option>
+                <option [value]="2027">2027</option>
+              </select>
+            </div>
+
+            <div class="form-check me-2">
+              <input class="form-check-input" type="checkbox" id="checkTodos" checked (change)="alternarSelecionarTodosFeriados($event)">
+              <label class="form-check-label fw-semibold small" for="checkTodos">Selecionar Todos</label>
+            </div>
+          </div>
+
+          @if (importando()) {
+            <div class="text-center py-4">
+              <div class="spinner-border text-success mb-2" role="status"></div>
+              <p class="text-muted small">Consultando BrasilAPI...</p>
+            </div>
+          } @else {
+            <div class="list-group max-height-350 overflow-auto border rounded-3">
+              @for (item of feriadosImportacao(); track item.date) {
+                <label class="list-group-item list-group-item-action d-flex align-items-center justify-content-between cursor-pointer py-2">
+                  <div class="d-flex align-items-center gap-3">
+                    <input class="form-check-input flex-shrink-0" type="checkbox" [(ngModel)]="item.selecionado">
+                    <div>
+                      <span class="fw-bold text-dark d-block">{{ item.name }}</span>
+                      <span class="text-muted small"><i class="far fa-calendar me-1"></i>{{ formatarDataBr(item.date) }}</span>
+                    </div>
+                  </div>
+                  <span class="badge bg-success-subtle text-success small">Feriado Nacional</span>
+                </label>
+              }
+            </div>
+          }
+        </div>
+
+        <div class="modal-footer border-top py-3">
+          <button type="button" class="btn btn-light" (click)="fecharModalFeriados()">Cancelar</button>
+          <button type="button" class="btn btn-success fw-bold px-4" [disabled]="importando()" (click)="confirmarImportacaoFeriados()">
+            <i class="fas fa-check me-1"></i> Confirmar Importação
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- Modal Cadastrar Novo Bloqueio / Folga -->
+@if (modalNovoBloqueioAberto()) {
+  <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0, 0, 0, 0.5);">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content shadow-lg border-0 rounded-4">
+        <div class="modal-header border-bottom py-3">
+          <h5 class="modal-title fw-bold text-primary d-flex align-items-center gap-2">
+            <i class="fas fa-calendar-minus"></i> Novo Bloqueio / Folga
+          </h5>
+          <button type="button" class="btn-close" (click)="fecharModalNovoBloqueio()"></button>
+        </div>
+
+        <form [formGroup]="formNovoBloqueio" (ngSubmit)="salvarNovoBloqueio()">
+          <div class="modal-body p-4">
+            <div class="mb-3">
+              <label class="form-label fw-semibold small">Escopo do Bloqueio</label>
+              <select class="form-select" formControlName="profissionalId">
+                <option value="">Toda a Empresa (Feriado/Geral)</option>
+                @for (p of profissionais(); track p.id) {
+                  <option [value]="p.id">Apenas Profissional: {{ p.nome }}</option>
+                }
+              </select>
+            </div>
+
+            <div class="mb-3">
+              <tm-text
+                formControlName="titulo"
+                [control]="formNovoBloqueio.controls.titulo"
+                label="Título / Motivo"
+                placeholder="Ex: Férias, Carnaval, Manutenção"
+              ></tm-text>
+            </div>
+
+            <div class="row g-3 mb-3">
+              <div class="col-6">
+                <label class="form-label fw-semibold small">Data Início</label>
+                <input type="date" class="form-control" formControlName="dataInicio">
+              </div>
+              <div class="col-6">
+                <label class="form-label fw-semibold small">Data Fim</label>
+                <input type="date" class="form-control" formControlName="dataFim">
+              </div>
+            </div>
+
+            <div class="form-check mb-2">
+              <input class="form-check-input" type="checkbox" formControlName="diaInteiro" id="diaInteiro">
+              <label class="form-check-label fw-semibold small" for="diaInteiro">Dia Inteiro (Bloqueia todos os horários)</label>
+            </div>
+          </div>
+
+          <div class="modal-footer border-top py-3">
+            <button type="button" class="btn btn-light" (click)="fecharModalNovoBloqueio()">Cancelar</button>
+            <button type="submit" class="btn btn-primary fw-bold px-4" [disabled]="salvando()">
+              <i class="fas fa-save me-1"></i> Salvar Bloqueio
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+}

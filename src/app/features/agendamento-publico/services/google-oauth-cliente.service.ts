@@ -6,7 +6,14 @@ interface GoogleCredentialResponse {
 }
 
 interface GoogleAccountsId {
-  initialize: (options: { client_id: string; callback: (response: GoogleCredentialResponse) => void }) => void;
+  initialize: (options: {
+    client_id: string;
+    callback: (response: GoogleCredentialResponse) => void;
+    ux_mode?: 'popup' | 'redirect';
+    context?: 'signin' | 'signup' | 'use';
+    itp_support?: boolean;
+    auto_select?: boolean;
+  }) => void;
   renderButton: (parent: Element, options: { theme: string; size: string; width: number; text: string; shape: string }) => void;
 }
 
@@ -89,6 +96,10 @@ export class GoogleOAuthClienteService {
     id.initialize({
       client_id: clientId,
       callback: (response: GoogleCredentialResponse) => onToken(response.credential),
+      ux_mode: 'popup',
+      context: 'signin',
+      itp_support: true,
+      auto_select: false,
     });
     id.renderButton(container, {
       theme: 'outline',

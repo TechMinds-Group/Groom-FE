@@ -74,16 +74,16 @@ export class UsuarioEditarComponent implements OnInit {
   }
 
   onPerfisChange(val: unknown): void {
-    if (Array.isArray(val)) {
-      let selected = val as string[];
-      if (selected.length > 2) {
-        selected = selected.slice(0, 2);
-      }
-      if (selected.length === 0 && this.perfilOptions().length > 0) {
-        selected = [this.perfilOptions()[0].value];
-      }
-      this.perfisSelecionados.set(selected);
+    const selected = Array.isArray(val)
+      ? (val as string[])
+      : typeof val === 'string'
+      ? [val]
+      : [];
+    let sliced = selected.slice(0, 2);
+    if (sliced.length === 0 && this.perfilOptions().length > 0) {
+      sliced = [this.perfilOptions()[0].value];
     }
+    this.perfisSelecionados.set(sliced);
   }
 
   alternarStatus(event: Event): void {
