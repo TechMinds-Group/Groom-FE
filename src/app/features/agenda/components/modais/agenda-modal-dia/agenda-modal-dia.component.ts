@@ -291,8 +291,11 @@ export class AgendaModalDiaComponent implements OnChanges, OnDestroy {
       return;
     }
     try {
-      const inicio = new Date(data.getFullYear(), data.getMonth(), data.getDate(), 0, 0, 0).toISOString();
-      const fim = new Date(data.getFullYear(), data.getMonth(), data.getDate(), 23, 59, 59).toISOString();
+      const ano = data.getFullYear();
+      const mes = String(data.getMonth() + 1).padStart(2, '0');
+      const dia = String(data.getDate()).padStart(2, '0');
+      const inicio = `${ano}-${mes}-${dia}T00:00:00`;
+      const fim = `${ano}-${mes}-${dia}T23:59:59`;
       const dados = await this.bloqueioService.listarBloqueios(inicio, fim);
       this.bloqueiosDoDia.set(dados);
     } catch {
