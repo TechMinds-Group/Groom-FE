@@ -192,7 +192,7 @@
 /* ==========================================================================
    Ajustes de Responsividade (Mobile xs/sm, Tablet md, Desktop lg/xl/xxl)
    ========================================================================== */
-@media (max-width: 575.98px) {
+@media (max-width: 767.98px) {
   .icon-circle {
     width: 36px !important;
     height: 36px !important;
@@ -204,8 +204,44 @@
   }
 
   .btn-tab-pill {
-    font-size: 0.82rem !important;
-    padding: 0.4rem 0.85rem !important;
+    font-size: 0.85rem !important;
+    padding: 0.5rem 1rem !important;
+    width: 100%;
+    text-align: center;
+  }
+
+  .dash-tabs-wrapper {
+    .d-flex {
+      flex-direction: column !important;
+      gap: 0.5rem !important;
+    }
+  }
+
+  .table-responsive {
+    border-radius: 0.75rem;
+    overflow-x: auto;
+  }
+
+  .h2 {
+    font-size: 1.4rem !important;
+  }
+}
+
+@media (min-width: 1200px) and (max-width: 1399.98px) {
+  .tm-card {
+    .extra-small {
+      font-size: 0.7rem !important;
+    }
+
+    .icon-circle {
+      width: 36px !important;
+      height: 36px !important;
+      min-width: 36px !important;
+      min-height: 36px !important;
+      max-width: 36px !important;
+      max-height: 36px !important;
+      font-size: 0.88rem !important;
+    }
   }
 }
 
@@ -219,6 +255,14 @@
     color: #f8fafc !important;
     border: 1px solid rgba(255, 255, 255, 0.1) !important;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
+  }
+
+  .custom-dark-title-icon {
+    color: #ffffff !important;
+  }
+
+  .custom-dark-text {
+    color: #ffffff !important;
   }
 
   .custom-dark-title {
@@ -274,6 +318,10 @@
     background-color: transparent !important;
     color: #f8fafc !important;
 
+    th, td {
+      white-space: nowrap !important;
+    }
+
     thead th {
       background-color: #0d1117 !important;
       color: #cbd5e1 !important;
@@ -289,6 +337,23 @@
 
     tbody tr:hover td {
       background-color: rgba(255, 255, 255, 0.04) !important;
+    }
+  }
+
+  /* Subcards Operacionais do Dia */
+  .custom-dark-subcard {
+    background-color: #0d1117 !important;
+    border-color: rgba(255, 255, 255, 0.12) !important;
+    color: #f8fafc !important;
+  }
+
+  .custom-dark-time-badge {
+    background-color: #1e293b !important;
+    color: #f8fafc !important;
+    border-color: rgba(255, 255, 255, 0.2) !important;
+
+    i {
+      color: #60a5fa !important;
     }
   }
 
@@ -328,4 +393,27 @@
     color: #e2e8f0 !important;
     border: 1px solid rgba(226, 232, 240, 0.25) !important;
   }
+}
+
+/* Regras Padrão (Tema Claro) para subcards e badges */
+.custom-dark-subcard {
+  background-color: var(--tm-bg-secondary, #f8fafc);
+  border: 1px solid var(--tm-border-color, #e2e8f0);
+  color: var(--tm-text-primary, #0f172a);
+}
+
+.custom-dark-time-badge {
+  background-color: #f1f5f9;
+  color: #0f172a;
+  border: 1px solid #cbd5e1;
+}
+
+.custom-dark-table {
+  th, td {
+    white-space: nowrap !important;
+  }
+}
+
+.custom-dark-title-icon {
+  color: #ffffff !important;
 }

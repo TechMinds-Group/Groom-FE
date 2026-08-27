@@ -13,7 +13,7 @@ import { ThemeService } from '../../core/services/theme.service';
 import { AgendamentosService } from '../../core/services/agendamentos.service';
 import { GestaoUsuariosService } from '../../core/services/gestao-usuarios.service';
 
-export type FiltroPeriodo = '7d' | '30d' | '90d' | 'mes' | 'ano';
+export type FiltroPeriodo = 'hoje' | '7d' | '30d' | '90d' | 'mes' | 'ano';
 export type AbaDashboard = 'desempenho' | 'previsao';
 
 @Component({
@@ -42,8 +42,8 @@ export class InicioComponent implements OnInit, OnDestroy {
   /** ABA ATIVA DA DASHBOARD ('desempenho' | 'previsao') */
   public abaAtiva = signal<AbaDashboard>('desempenho');
 
-  /** FILTROS GLOBAIS ENXUTOS */
-  public filtroPeriodo = signal<FiltroPeriodo>('30d');
+  /** FILTROS GLOBAIS ENXUTOS (Padrão: Hoje) */
+  public filtroPeriodo = signal<FiltroPeriodo>('hoje');
   public filtroProfissionalId = signal<string>('todos');
 
   /** SIMULADOR PREDITIVO DE CRESCIMENTO */
@@ -75,21 +75,27 @@ export class InicioComponent implements OnInit, OnDestroy {
   protected readonly dataInicioFiltro = computed(() => {
     const agora = new Date();
     const p = this.filtroPeriodo();
+    if (p === 'hoje') return new Date(agora.getFullYear(), agora.getMonth(), agora.getDate(), 0, 0, 0);
     if (p === '7d') return new Date(agora.getFullYear(), agora.getMonth(), agora.getDate() - 7);
     if (p === '30d') return new Date(agora.getFullYear(), agora.getMonth(), agora.getDate() - 30);
     if (p === '90d') return new Date(agora.getFullYear(), agora.getMonth(), agora.getDate() - 90);
     if (p === 'mes') return new Date(agora.getFullYear(), agora.getMonth(), 1);
     if (p === 'ano') return new Date(agora.getFullYear(), 0, 1);
-    return new Date(agora.getFullYear(), agora.getMonth(), agora.getDate() - 30);
+    return new Date(agora.getFullYear(), agora.getMonth(), agora.getDate(), 0, 0, 0);
   });
 
   /** Agendamentos filtrados por Período e Profissional */
   protected readonly agendamentosFiltrados = computed(() => {
+    const p = this.filtroPeriodo();
     const inicio = this.dataInicioFiltro();
     const profId = this.filtroProfissionalId();
 
+    const agora = new Date();
+    const fimHoje = p === 'hoje' ? new Date(agora.getFullYear(), agora.getMonth(), agora.getDate(), 23, 59, 59, 999) : null;
+
     return this.todosAgendamentos().filter(a => {
       if (a.dataInicio < inicio) return false;
+      if (fimHoje && a.dataInicio > fimHoje) return false;
       if (profId !== 'todos' && a.profissionalId !== profId) return false;
       return true;
     });
@@ -104,6 +110,61 @@ export class InicioComponent implements OnInit, OnDestroy {
       if (st === 'concluido') return true;
       return a.dataInicio <= agora;
     });
+  });
+
+  /** Lista ordenada de todos os agendamentos do dia atual (Hoje) */
+  protected readonly agendamentosHoje = computed(() => {
+    const hoje = new Date();
+    const inicioDia = new Date(hoje.getFullYear(), hoje.getMonth(), hoje.getDate(), 0, 0, 0);
+    const fimDia = new Date(hoje.getFullYear(), hoje.getMonth(), hoje.getDate(), 23, 59, 59, 999);
+    const profId = this.filtroProfissionalId();
+
+    return this.todosAgendamentos()
+      .filter(a => {
+        if (a.dataInicio < inicioDia || a.dataInicio > fimDia) return false;
+        if (profId !== 'todos' && a.profissionalId !== profId) return false;
+        return true;
+      })
+      .sort((a, b) => a.dataInicio.getTime() - b.dataInicio.getTime());
+  });
+
+  /** Resumo estatístico e financeiro do dia atual */
+  protected readonly resumoHoje = computed(() => {
+    const lista = this.agendamentosHoje();
+    const totalQtd = lista.length;
+
+    const concluidos = lista.filter(a => a.status === 'concluido');
+    const pendentes = lista.filter(a => a.status === 'agendado' || a.status === 'confirmado' || a.status === 'pendente');
+    const canceladosFaltas = lista.filter(a => a.status === 'cancelado' || a.status === 'recusado' || a.status === 'nao_compareceu' || a.status === 'no-show');
+
+    const faturamentoRealizado = concluidos.reduce((sum, a) => sum + (a.preco || 0), 0);
+    const faturamentoPendente = pendentes.reduce((sum, a) => sum + (a.preco || 0), 0);
+    const faturamentoTotalPrevisto = faturamentoRealizado + faturamentoPendente;
+
+    return {
+      totalQtd,
+      concluidosQtd: concluidos.length,
+      pendentesQtd: pendentes.length,
+      canceladosFaltasQtd: canceladosFaltas.length,
+      faturamentoRealizadoVal: faturamentoRealizado,
+      faturamentoRealizadoFormatted: `R$ ${faturamentoRealizado.toFixed(2).replace('.', ',')}`,
+      faturamentoPendenteVal: faturamentoPendente,
+      faturamentoPendenteFormatted: `R$ ${faturamentoPendente.toFixed(2).replace('.', ',')}`,
+      faturamentoTotalPrevistoVal: faturamentoTotalPrevisto,
+      faturamentoTotalPrevistoFormatted: `R$ ${faturamentoTotalPrevisto.toFixed(2).replace('.', ',')}`,
+    };
+  });
+
+  /** Rótulo legível do filtro de período selecionado */
+  protected readonly filtroPeriodoRotulo = computed(() => {
+    const p = this.filtroPeriodo();
+    if (p === 'hoje') return 'Hoje';
+    if (p === '7d') return 'Últimos 7 dias';
+    if (p === '30d') return 'Últimos 30 dias';
+    if (p === '90d') return 'Últimos 90 dias';
+    if (p === 'mes') return 'Este Mês';
+    if (p === 'ano') return 'Ano Atual';
+    return 'Período Selecionado';
   });
 
   /** Faturamento total dos Atendimentos Realizados no Período */
@@ -121,10 +182,29 @@ export class InicioComponent implements OnInit, OnDestroy {
     this.assinantesAtivos().reduce((sum, a) => sum + a.valor, 0)
   );
 
-  /** Faturamento Total Combinado (Atendimentos + Assinaturas) */
-  protected readonly faturamentoTotalCombinadoVal = computed(() =>
-    this.faturamentoAtendimentosVal() + this.faturamentoMensalVal()
-  );
+  /** Faturamento Total Dinâmico de Acordo com o Período Selecionado */
+  protected readonly faturamentoTotalCombinadoVal = computed(() => {
+    const p = this.filtroPeriodo();
+    const atendimentosVal = this.faturamentoAtendimentosVal();
+    const mrr = this.faturamentoMensalVal();
+
+    if (p === 'hoje') {
+      const resumo = this.resumoHoje();
+      const receitaAssinaturasHoje = mrr / 30;
+      return resumo.faturamentoTotalPrevistoVal + receitaAssinaturasHoje;
+    }
+    if (p === '7d') {
+      return atendimentosVal + ((mrr / 30) * 7);
+    }
+    if (p === '90d') {
+      return atendimentosVal + (mrr * 3);
+    }
+    if (p === 'ano') {
+      return atendimentosVal + (mrr * 12);
+    }
+    // mes ou 30d
+    return atendimentosVal + mrr;
+  });
 
   protected readonly faturamentoTotalCombinadoFormatted = computed(() =>
     `R$ ${this.faturamentoTotalCombinadoVal().toFixed(2).replace('.', ',')}`
@@ -139,6 +219,31 @@ export class InicioComponent implements OnInit, OnDestroy {
   protected readonly ticketMedioFormatted = computed(() =>
     `R$ ${this.ticketMedioVal().toFixed(2).replace('.', ',')}`
   );
+
+  /** Formatador de Horários HH:mm para exibição */
+  protected formatarHora(data: Date | string): string {
+    const d = typeof data === 'string' ? new Date(data) : data;
+    if (!d || isNaN(d.getTime())) return '--:--';
+    return d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+  }
+
+  /** Retorna a data de hoje formatada por extenso */
+  protected formatarDataHojeExtenso(): string {
+    const hoje = new Date();
+    const str = hoje.toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long' });
+    return str.charAt(0).toUpperCase() + str.slice(1);
+  }
+
+  /** Retorna classes CSS e rótulo traduzido do status do agendamento */
+  protected obterStatusInfo(status: string): { label: string; class: string; icon: string } {
+    const st = status?.toLowerCase() ?? '';
+    if (st === 'concluido') return { label: 'Concluído', class: 'bg-success-subtle text-success border border-success-subtle', icon: 'fa-check-circle' };
+    if (st === 'confirmado') return { label: 'Confirmado', class: 'bg-primary-subtle text-primary border border-primary-subtle', icon: 'fa-user-check' };
+    if (st === 'agendado' || st === 'pendente') return { label: 'Pendente', class: 'bg-warning-subtle text-warning border border-warning-subtle', icon: 'fa-clock' };
+    if (st === 'cancelado' || st === 'recusado') return { label: 'Cancelado', class: 'bg-danger-subtle text-danger border border-danger-subtle', icon: 'fa-times-circle' };
+    if (st === 'nao_compareceu' || st === 'no-show') return { label: 'Falta (No-show)', class: 'bg-secondary-subtle text-secondary border border-secondary-subtle', icon: 'fa-user-slash' };
+    return { label: 'Confirmado', class: 'bg-primary-subtle text-primary border border-primary-subtle', icon: 'fa-user-check' };
+  }
 
   /** Taxa de Ocupação da Equipe no Dia Atual (%) */
   protected readonly ocupacaoHojePct = computed(() => {
