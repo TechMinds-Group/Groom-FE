@@ -67,7 +67,7 @@ interface PagamentoVisualizacao {
                     <div class="col-sm-6 col-12">
                       <label class="form-label small fw-bold text-muted text-uppercase">Status</label>
                       <div>
-                        <span class="badge border px-3 py-1.5 rounded-pill fw-semibold"
+                        <span class="badge border px-3 py-2 rounded-pill fw-semibold"
                           [class.bg-success-subtle]="a.status === 'Ativo'"
                           [class.text-success]="a.status === 'Ativo'"
                           [class.border-success-subtle]="a.status === 'Ativo'"
@@ -85,7 +85,7 @@ interface PagamentoVisualizacao {
                     <div class="col-sm-6 col-12">
                       <label class="form-label small fw-bold text-muted text-uppercase">Plano</label>
                       <div>
-                        <span class="badge border px-3 py-1.5 rounded-pill fw-semibold bg-primary-subtle text-primary border-primary-subtle">
+                        <span class="badge border px-3 py-2 rounded-pill fw-semibold bg-primary-subtle text-primary border-primary-subtle">
                           <i class="fas fa-crown me-1"></i>{{ a.clubeNome }}
                         </span>
                         <span class="d-block small text-muted mt-1">R$ {{ a.valor.toFixed(2).replace('.', ',') }}/mês</span>

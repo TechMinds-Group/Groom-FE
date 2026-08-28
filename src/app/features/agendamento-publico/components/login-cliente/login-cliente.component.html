@@ -1,127 +1,207 @@
 <div class="agendamento-login-page">
   <div class="agendamento-login">
-    <div class="agendamento-login__container">
-    <!-- Card de Login / Cadastro -->
-    <div class="agendamento-login__card">
-      <button
-        type="button"
-        class="agendamento-login__tema"
-        (click)="alternarTema()"
-        [attr.aria-label]="temaAtivo() === 'dark' ? 'Ativar tema claro' : 'Ativar tema escuro'"
-        title="Alternar tema"
-      >
-        @if (temaAtivo() === 'dark') {
-          <i class="fa-solid fa-sun"></i>
-        } @else {
-          <i class="fa-solid fa-moon"></i>
-        }
-      </button>
+    <div class="agendamento-login__wrapper">
+      <!-- Coluna Hero Esquerda (Capa, Logo e Informações em Destaque) -->
+      <!-- Coluna Hero Esquerda (Informações do Estabelecimento em Tela Cheia) -->
+      <div class="agendamento-login__hero">
+        <div class="agendamento-login__hero-content">
+          <!-- Topo: Logo Avatar com Badge Agendamento Online alinhada ao topo -->
+          <div class="d-flex align-items-start gap-3 mb-3">
+            <div class="agendamento-login__logo-wrapper shrink-0">
+              <div
+                class="agendamento-login__logo"
+                [style.backgroundImage]="
+                  logoUrlExibicao() ? 'url(' + logoUrlExibicao() + ')' : 'none'
+                "
+                [class.agendamento-login__logo--has-image]="!!logoUrlExibicao()"
+              >
+                @if (!logoUrlExibicao()) {
+                  <div class="agendamento-login__logo-icon">
+                    <i [class]="logoIconePadrao()"></i>
+                  </div>
+                }
+              </div>
+            </div>
 
-      <!-- Header do Estabelecimento com Logo Redonda no Canto e Nome ao Lado -->
-      <div class="agendamento-login__brand-header mb-4">
-        <div
-          class="agendamento-login__logo-avatar"
-          [style.backgroundImage]="logoUrlExibicao() ? 'url(' + logoUrlExibicao() + ')' : 'none'"
-        >
-          @if (!logoUrlExibicao()) {
-            <i [class]="logoIconePadrao()"></i>
-          }
-        </div>
-        <div class="agendamento-login__brand-text">
-          <h1 class="agendamento-login__nome-estabelecimento mb-0">
-            {{ estabelecimentoInfo()?.nomeExibicao || estabelecimentoInfo()?.nome || 'Agendamento Online' }}
+            <div class="pt-1">
+              <span class="agendamento-login__eyebrow">
+                <i class="fa-solid fa-calendar-check me-2"></i>Agendamento Online
+              </span>
+            </div>
+          </div>
+
+          <!-- Título do Estabelecimento -->
+          <h1 class="agendamento-login__titulo mb-1">
+            {{
+              estabelecimentoInfo()?.nomeExibicao ||
+                estabelecimentoInfo()?.nome ||
+                'Agendamento Online'
+            }}
           </h1>
+
+          <!-- Descrição do Estabelecimento -->
           @if (estabelecimentoInfo()?.descricao) {
-            <p class="agendamento-login__descricao-estabelecimento mb-0">{{ estabelecimentoInfo()?.descricao }}</p>
+            <p class="agendamento-login__subtitulo mb-4">
+              {{ estabelecimentoInfo()?.descricao }}
+            </p>
           }
-          @if (estabelecimentoInfo()?.telefone) {
-            <span class="agendamento-login__telefone-text d-block">
-              <i class="fa-solid fa-phone me-1"></i>{{ estabelecimentoInfo()?.telefone }}
-            </span>
-          }
-          @if (estabelecimentoInfo()?.endereco; as endereco) {
-            <div class="agendamento-login__endereco-wrapper mt-2">
+
+          <!-- Barra de Ações Rápidas (WhatsApp e Endereço) -->
+          <div class="agendamento-login__meta-bar d-flex flex-wrap align-items-center gap-2 mb-4">
+            @if (estabelecimentoInfo()?.telefone; as fone) {
+              <a
+                [href]="obterUrlWhatsApp(fone)"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="agendamento-login__whatsapp-badge text-decoration-none"
+                title="Falar diretamente no WhatsApp"
+              >
+                <i class="fa-brands fa-whatsapp me-2 flex-shrink-0 fs-5"></i>
+                <span
+                  >WhatsApp: <strong>{{ fone }}</strong></span
+                >
+                <i
+                  class="fa-solid fa-arrow-up-right-from-square extra-small opacity-75 ms-1 flex-shrink-0"
+                ></i>
+              </a>
+            }
+
+            @if (estabelecimentoInfo()?.endereco; as endereco) {
               <a
                 [href]="obterUrlGoogleMaps(endereco)"
                 target="_blank"
                 rel="noopener noreferrer"
-                class="agendamento-login__endereco-badge text-decoration-none"
-                title="Abrir rota no Google Maps"
+                class="agendamento-login__hero-endereco-link text-decoration-none"
+                title="Abrir no Google Maps"
               >
                 <i class="fa-solid fa-location-dot text-danger flex-shrink-0"></i>
-                <span class="agendamento-login__endereco-texto">{{ endereco }}</span>
-                <i class="fa-solid fa-arrow-up-right-from-square extra-small opacity-75 flex-shrink-0"></i>
+                <span class="agendamento-login__hero-endereco-texto">{{ endereco }}</span>
+                <i
+                  class="fa-solid fa-arrow-up-right-from-square extra-small opacity-75 ms-1 flex-shrink-0"
+                ></i>
               </a>
-            </div>
-          }
+            }
+          </div>
+
+          <!-- Destaques / Highlights -->
+          <div
+            class="agendamento-login__highlights d-flex flex-wrap gap-2 pt-3 border-top border-white border-opacity-10"
+          >
+            <span class="agendamento-login__highlight-pill">
+              <i class="fa-solid fa-bolt text-warning me-2"></i>Disponibilidade
+            </span>
+            <span class="agendamento-login__highlight-pill">
+              <i class="fa-solid fa-shield-check text-success me-2"></i>Confirmação Rápida
+            </span>
+          </div>
         </div>
       </div>
-      @if (aba() === 'login') {
-        <form [formGroup]="form" (ngSubmit)="onLogin()" novalidate>
-          <div class="mb-3">
-            <tm-text
-              formControlName="email"
-              [control]="form.controls.email"
-              label="E-mail"
-              type="email"
-              icon="fa-solid fa-envelope"
-              placeholder="voce@email.com"
-              autocomplete="email"
-            ></tm-text>
-          </div>
 
-          <div class="mb-3">
-            <tm-text
-              formControlName="senha"
-              [control]="form.controls.senha"
-              label="Senha"
-              type="password"
-              icon="fa-solid fa-lock"
-              placeholder="Sua senha"
-              autocomplete="current-password"
-            ></tm-text>
-          </div>
-
-          <div class="form-check mb-3">
-            <input
-              class="form-check-input"
-              type="checkbox"
-              formControlName="rememberMe"
-              id="rememberMe"
-            />
-            <label class="form-check-label" for="rememberMe">Manter conectado</label>
-          </div>
-
-          @if (errorMessage()) {
-            <div class="alert alert-danger py-2">{{ errorMessage() }}</div>
+      <!-- Coluna Formulário Direita (Login / Cadastro) -->
+      <div class="agendamento-login__form-container">
+        <!-- Alternador de Tema Flutuante -->
+        <button
+          type="button"
+          class="agendamento-login__tema"
+          (click)="alternarTema()"
+          [attr.aria-label]="temaAtivo() === 'dark' ? 'Ativar tema claro' : 'Ativar tema escuro'"
+          title="Alternar tema"
+        >
+          @if (temaAtivo() === 'dark') {
+            <i class="fa-solid fa-sun"></i>
+          } @else {
+            <i class="fa-solid fa-moon"></i>
           }
+        </button>
 
-          <tm-button
-            type="submit"
-            variant="primary"
-            [isFullWidth]="true"
-            label="Entrar"
-            icon="fa-solid fa-right-to-bracket me-2"
-            [loading]="isLoading()"
-            class="agendamento-login__submit"
-          ></tm-button>
-        </form>
-
-        <div class="agendamento-login__divisor">
-          <span>ou continue com</span>
+        <!-- Seletor de Abas Login / Cadastro -->
+        <div class="agendamento-login__tabs mt-4 mt-lg-0">
+          <button
+            type="button"
+            class="agendamento-login__tab"
+            [class.agendamento-login__tab--active]="aba() === 'login'"
+            (click)="setAba('login')"
+          >
+            <i class="fa-solid fa-right-to-bracket me-1"></i>Entrar
+          </button>
+          <button
+            type="button"
+            class="agendamento-login__tab"
+            [class.agendamento-login__tab--active]="aba() === 'cadastro'"
+            (click)="setAba('cadastro')"
+          >
+            <i class="fa-solid fa-user-plus me-1"></i>Criar Conta
+          </button>
         </div>
 
-        <div #googleButton class="d-flex justify-content-center"></div>
+        @if (aba() === 'login') {
+          <form
+            [formGroup]="form"
+            (ngSubmit)="onLogin()"
+            novalidate
+            class="agendamento-login__form"
+          >
+            <div class="mb-3">
+              <tm-text
+                formControlName="email"
+                [control]="form.controls.email"
+                label="E-mail"
+                type="email"
+                icon="fa-solid fa-envelope"
+                placeholder="voce@email.com"
+                autocomplete="email"
+              ></tm-text>
+            </div>
 
-        <p class="agendamento-login__cadastro-link mb-0">
-          Não tem uma conta?
-          <button type="button" class="agendamento-login__cadastro-link-btn" (click)="setAba('cadastro')">
-            Cadastre-se
-          </button>
-        </p>
-      } @else {
-        <app-cadastro-cliente (cadastrado)="onCadastrado()" (voltarLogin)="setAba('login')" />
-      }
+            <div class="mb-3">
+              <tm-text
+                formControlName="senha"
+                [control]="form.controls.senha"
+                label="Senha"
+                type="password"
+                icon="fa-solid fa-lock"
+                placeholder="Sua senha"
+                autocomplete="current-password"
+              ></tm-text>
+            </div>
+
+            <div class="d-flex align-items-center justify-content-between mb-3">
+              <div class="form-check mb-0">
+                <input
+                  class="form-check-input"
+                  type="checkbox"
+                  formControlName="rememberMe"
+                  id="rememberMe"
+                />
+                <label class="form-check-label small custom-dark-muted" for="rememberMe"
+                  >Manter conectado</label
+                >
+              </div>
+            </div>
+
+            @if (errorMessage()) {
+              <div class="alert alert-danger py-2 mb-3 small">{{ errorMessage() }}</div>
+            }
+
+            <tm-button
+              type="submit"
+              variant="primary"
+              [isFullWidth]="true"
+              label="Entrar"
+              icon="fa-solid fa-right-to-bracket me-2"
+              [loading]="isLoading()"
+              class="agendamento-login__submit mb-3"
+            ></tm-button>
+          </form>
+
+          <div class="agendamento-login__divisor my-3">
+            <span>ou continue com</span>
+          </div>
+
+          <div #googleButton class="d-flex justify-content-center mb-2"></div>
+        } @else {
+          <app-cadastro-cliente (cadastrado)="onCadastrado()" (voltarLogin)="setAba('login')" />
+        }
       </div>
     </div>
   </div>

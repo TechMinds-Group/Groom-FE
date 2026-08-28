@@ -59,27 +59,37 @@
                   </div>
                 }
               </div>
-              <span class="agendamento-wizard__logo-badge" title="Barbearia Verificada">
-                <i class="fa-solid fa-circle-check"></i>
-              </span>
             </div>
             <div class="agendamento-wizard__header-textos">
-              <span class="agendamento-wizard__eyebrow mb-1">
-                <i class="fa-solid fa-calendar-check me-1"></i>Agendamento Online
+              <span class="agendamento-wizard__eyebrow mb-2">
+                <i class="fa-solid fa-calendar-check me-2"></i>Agendamento Online
               </span>
               <h1 class="agendamento-wizard__titulo mb-1">
                 {{
                   estabelecimentoInfo()?.nomeExibicao || estabelecimentoInfo()?.nome || 'Barbearia'
                 }}
               </h1>
-              <p class="agendamento-wizard__subtitulo mb-0">
+              <p class="agendamento-wizard__subtitulo mb-3">
                 {{
                   estabelecimentoInfo()?.descricao ||
                     'Escolha o profissional, o serviço e o melhor horário para você.'
                 }}
               </p>
-              @if (estabelecimentoInfo()?.endereco; as endereco) {
-                <div class="mt-2 agendamento-wizard__endereco-wrapper">
+              <div class="agendamento-wizard__meta-bar d-flex flex-column align-items-start gap-2 mt-3">
+                @if (estabelecimentoInfo()?.telefone; as fone) {
+                  <a
+                    [href]="obterUrlWhatsApp(fone)"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="agendamento-wizard__whatsapp-badge text-decoration-none"
+                    title="Clique para falar diretamente no WhatsApp"
+                  >
+                    <i class="fa-brands fa-whatsapp me-2 flex-shrink-0"></i>
+                    <span class="agendamento-wizard__whatsapp-texto">WhatsApp: <strong>{{ fone }}</strong></span>
+                    <i class="fa-solid fa-arrow-up-right-from-square extra-small opacity-75 ms-1 flex-shrink-0"></i>
+                  </a>
+                }
+                @if (estabelecimentoInfo()?.endereco; as endereco) {
                   <a
                     [href]="obterUrlGoogleMaps(endereco)"
                     target="_blank"
@@ -87,14 +97,14 @@
                     class="agendamento-wizard__endereco-badge text-decoration-none"
                     title="Clique para abrir a rota direta no Google Maps"
                   >
-                    <i class="fa-solid fa-location-dot text-danger me-1 flex-shrink-0"></i>
+                    <i class="fa-solid fa-location-dot text-danger me-2 flex-shrink-0"></i>
                     <span class="agendamento-wizard__endereco-texto">{{ endereco }}</span>
                     <i
-                      class="fa-solid fa-arrow-up-right-from-square extra-small opacity-75 ms-1 flex-shrink-0"
+                      class="fa-solid fa-arrow-up-right-from-square extra-small opacity-75 ms-2 flex-shrink-0"
                     ></i>
                   </a>
-                </div>
-              }
+                }
+              </div>
             </div>
           </div>
         </header>
