@@ -73,6 +73,14 @@ export class NovoAgendamentoComponent implements OnInit, OnDestroy {
     return this.estabelecimentoService.obterUrlGoogleMaps(endereco);
   }
 
+  obterUrlWhatsApp(telefone?: string): string {
+    if (!telefone) return '#';
+    const digitos = telefone.replace(/\D/g, '');
+    if (!digitos) return '#';
+    const numeroCompleto = digitos.length <= 11 ? `55${digitos}` : digitos;
+    return `https://wa.me/${numeroCompleto}?text=${encodeURIComponent('Olá! Gostaria de informações sobre o agendamento.')}`;
+  }
+
   readonly passo = signal(1);
   readonly isLoading = signal(false);
   readonly errorMessage = signal<string | null>(null);

@@ -3,9 +3,9 @@
     <div class="d-flex justify-content-between align-items-start mb-3">
       <h3 class="h5 card-title fw-bold mb-0 pe-5 text-start">{{ clube().nome }}</h3>
       @if (clube().status === 'Ativo') {
-        <span class="badge bg-success-subtle text-success border border-success-subtle px-2.5 py-1 position-absolute top-0 end-0 mt-4 me-4 z-3">Ativo</span>
+        <span class="badge bg-success-subtle text-success border border-success-subtle px-3 py-1 position-absolute top-0 end-0 mt-4 me-4 z-3">Ativo</span>
       } @else {
-        <span class="badge bg-danger-subtle text-danger border border-danger-subtle px-2.5 py-1 position-absolute top-0 end-0 mt-4 me-4 z-3">Inativo</span>
+        <span class="badge bg-danger-subtle text-danger border border-danger-subtle px-3 py-1 position-absolute top-0 end-0 mt-4 me-4 z-3">Inativo</span>
       }
     </div>
 
@@ -27,7 +27,7 @@
       }
       @if (recursosExibicao().length > 5) {
         <li class="mb-2 small d-flex align-items-center mt-1">
-          <span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle rounded-pill px-2.5 py-1" style="cursor: help;" [title]="recursosExibicao().slice(5).join(', ')">
+          <span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle rounded-pill px-3 py-1" style="cursor: help;" [title]="recursosExibicao().slice(5).join(', ')">
             + {{ recursosExibicao().length - 5 }} ver mais
           </span>
         </li>
@@ -42,10 +42,10 @@
         <strong>{{ clube().totalAssinantes }}</strong> assinantes
       </span>
       <div class="d-flex gap-2">
-        <button (click)="editar.emit(clube())" class="btn btn-outline-secondary btn-sm px-2.5" title="Editar">
+        <button (click)="editar.emit(clube())" class="btn btn-outline-secondary btn-sm px-3" title="Editar">
           <i class="fas fa-edit"></i>
         </button>
-        <button (click)="excluir.emit(clube())" class="btn btn-outline-danger btn-sm px-2.5" title="Excluir">
+        <button (click)="excluir.emit(clube())" class="btn btn-outline-danger btn-sm px-3" title="Excluir">
           <i class="fas fa-trash-alt"></i>
         </button>
       </div>

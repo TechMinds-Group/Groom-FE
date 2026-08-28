@@ -35,20 +35,20 @@ export class GoogleOAuthClienteService {
   readonly disponivel = this._disponivel.asReadonly();
 
   /** Inicializa o GIS com o clientId do environment; sem clientId, o login Google fica indisponível. */
-  inicializar(container: Element, onToken: (idToken: string) => void): void {
+  inicializar(container: Element, onToken: (idToken: string) => void, theme: 'outline' | 'filled_black' = 'outline'): void {
     const clientId = environment.googleClientId;
     if (!clientId) {
       return;
     }
 
     if (this.apiDisponivel()) {
-      this.renderButton(clientId, container, onToken);
+      this.renderButton(clientId, container, onToken, theme);
       return;
     }
 
     const existingScript = document.getElementById(SCRIPT_ID);
     if (existingScript) {
-      this.aguardarApi(() => this.renderButton(clientId, container, onToken));
+      this.aguardarApi(() => this.renderButton(clientId, container, onToken, theme));
       return;
     }
 
@@ -57,7 +57,7 @@ export class GoogleOAuthClienteService {
     script.src = 'https://accounts.google.com/gsi/client';
     script.async = true;
     script.defer = true;
-    script.onload = () => this.aguardarApi(() => this.renderButton(clientId, container, onToken));
+    script.onload = () => this.aguardarApi(() => this.renderButton(clientId, container, onToken, theme));
     document.head.appendChild(script);
   }
 
@@ -88,11 +88,12 @@ export class GoogleOAuthClienteService {
     verificar();
   }
 
-  private renderButton(clientId: string, container: Element, onToken: (idToken: string) => void): void {
+  private renderButton(clientId: string, container: Element, onToken: (idToken: string) => void, theme: 'outline' | 'filled_black' = 'outline'): void {
     const id = this.getGoogle().accounts?.id;
     if (!id) {
       return;
     }
+    container.innerHTML = '';
     id.initialize({
       client_id: clientId,
       callback: (response: GoogleCredentialResponse) => onToken(response.credential),
@@ -102,7 +103,7 @@ export class GoogleOAuthClienteService {
       auto_select: false,
     });
     id.renderButton(container, {
-      theme: 'outline',
+      theme: theme,
       size: 'large',
       width: 300,
       text: 'continue_with',

@@ -3,7 +3,7 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TmButtonComponent, TmTextComponent } from '@techminds-group/tm-angular-lib';
 import { AgendamentoPublicoService } from '../../../../core/services/agendamento-publico.service';
-import { EstabelecimentoInfo, EstabelecimentoService, obterIconeAleatorioLogo } from '../../../../core/services/estabelecimento.service';
+import { EstabelecimentoInfo, EstabelecimentoService, obterIconeAleatorioLogo, obterIconeAleatorioCapa } from '../../../../core/services/estabelecimento.service';
 import { AuthClienteHelperService } from '../../services/auth-cliente-helper.service';
 import { GoogleOAuthClienteService } from '../../services/google-oauth-cliente.service';
 import { TemaPublicoService } from '../../services/tema-publico.service';
@@ -32,6 +32,10 @@ export class LoginClienteComponent implements OnInit, OnDestroy {
   /** Tema ativo (claro/escuro) para exibir o ícone sol/lua correspondente. */
   readonly temaAtivo = this.temaPublico.tema;
 
+  alternarTema(): void {
+    this.temaPublico.alternarTema();
+  }
+
   /** Dados da marca/identidade do estabelecimento */
   readonly estabelecimentoInfo = signal<EstabelecimentoInfo | null>(null);
 
@@ -43,6 +47,14 @@ export class LoginClienteComponent implements OnInit, OnDestroy {
     obterIconeAleatorioLogo(this.estabelecimentoInfo()?.nomeExibicao || this.estabelecimentoInfo()?.nome)
   );
 
+  /** Capa com URL absoluta da API */
+  readonly capaUrlExibicao = computed(() => this.estabelecimentoService.resolverUrl(this.estabelecimentoInfo()?.capaUrl));
+
+  /** Ícone aleatório para capa */
+  readonly capaIconePadrao = computed(() =>
+    obterIconeAleatorioCapa(this.estabelecimentoInfo()?.nomeExibicao || this.estabelecimentoInfo()?.nome)
+  );
+
   private readonly googleButton = viewChild<ElementRef<HTMLDivElement>>('googleButton');
 
   readonly aba = signal<'login' | 'cadastro'>('login');
@@ -52,6 +64,14 @@ export class LoginClienteComponent implements OnInit, OnDestroy {
   obterUrlGoogleMaps(endereco?: string): string {
     if (!endereco) return '';
     return this.estabelecimentoService.obterUrlGoogleMaps(endereco);
+  }
+
+  obterUrlWhatsApp(telefone?: string): string {
+    if (!telefone) return '#';
+    const digitos = telefone.replace(/\D/g, '');
+    if (!digitos) return '#';
+    const numeroCompleto = digitos.length <= 11 ? `55${digitos}` : digitos;
+    return `https://wa.me/${numeroCompleto}?text=${encodeURIComponent('Olá! Gostaria de informações sobre o estabelecimento.')}`;
   }
 
   readonly form = this.fb.group({
@@ -116,11 +136,6 @@ export class LoginClienteComponent implements OnInit, OnDestroy {
   setAba(aba: 'login' | 'cadastro'): void {
     this.aba.set(aba);
     this.errorMessage.set(null);
-  }
-
-  /** Alterna entre tema claro e escuro na tela pública. */
-  alternarTema(): void {
-    this.temaPublico.alternarTema();
   }
 
   async onLogin(): Promise<void> {

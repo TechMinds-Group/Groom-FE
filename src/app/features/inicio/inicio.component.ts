@@ -65,8 +65,12 @@ export class InicioComponent implements OnInit, OnDestroy {
     }
   }
 
-  /** Lista de Profissionais cadastrados para os Filtros */
-  protected readonly profissionais = computed(() => this.gestaoUsuariosService.usuarios());
+  /** Lista de Profissionais cadastrados para os Filtros (apenas usuários com nível/perfil Profissional) */
+  protected readonly profissionais = computed(() =>
+    this.gestaoUsuariosService.usuarios().filter(u =>
+      u.perfil === 'Profissional' || (u.perfil && u.perfil.toLowerCase().includes('profissional'))
+    )
+  );
 
   /** Todos os Agendamentos */
   protected readonly todosAgendamentos = computed(() => this.agendamentosService.agendamentos());
@@ -91,11 +95,10 @@ export class InicioComponent implements OnInit, OnDestroy {
     const profId = this.filtroProfissionalId();
 
     const agora = new Date();
-    const fimHoje = p === 'hoje' ? new Date(agora.getFullYear(), agora.getMonth(), agora.getDate(), 23, 59, 59, 999) : null;
+    const fimFiltro = new Date(agora.getFullYear(), agora.getMonth(), agora.getDate(), 23, 59, 59, 999);
 
     return this.todosAgendamentos().filter(a => {
-      if (a.dataInicio < inicio) return false;
-      if (fimHoje && a.dataInicio > fimHoje) return false;
+      if (a.dataInicio < inicio || a.dataInicio > fimFiltro) return false;
       if (profId !== 'todos' && a.profissionalId !== profId) return false;
       return true;
     });
@@ -105,9 +108,9 @@ export class InicioComponent implements OnInit, OnDestroy {
   protected readonly agendamentosAtendidos = computed(() => {
     const agora = new Date();
     return this.agendamentosFiltrados().filter(a => {
-      const st = a.status;
+      const st = a.status?.toLowerCase() ?? '';
       if (st === 'nao_compareceu' || st === 'cancelado' || st === 'recusado' || st === 'no-show') return false;
-      if (st === 'concluido') return true;
+      if (st === 'concluido' || st === 'confirmado') return true;
       return a.dataInicio <= agora;
     });
   });
@@ -132,10 +135,25 @@ export class InicioComponent implements OnInit, OnDestroy {
   protected readonly resumoHoje = computed(() => {
     const lista = this.agendamentosHoje();
     const totalQtd = lista.length;
+    const agora = new Date();
 
-    const concluidos = lista.filter(a => a.status === 'concluido');
-    const pendentes = lista.filter(a => a.status === 'agendado' || a.status === 'confirmado' || a.status === 'pendente');
-    const canceladosFaltas = lista.filter(a => a.status === 'cancelado' || a.status === 'recusado' || a.status === 'nao_compareceu' || a.status === 'no-show');
+    const concluidos = lista.filter(a => {
+      const st = a.status?.toLowerCase() ?? '';
+      if (st === 'nao_compareceu' || st === 'cancelado' || st === 'recusado' || st === 'no-show') return false;
+      if (st === 'concluido' || st === 'confirmado') return true;
+      return a.dataInicio <= agora;
+    });
+
+    const pendentes = lista.filter(a => {
+      const st = a.status?.toLowerCase() ?? '';
+      if (st === 'nao_compareceu' || st === 'cancelado' || st === 'recusado' || st === 'no-show' || st === 'concluido' || st === 'confirmado') return false;
+      return a.dataInicio > agora;
+    });
+
+    const canceladosFaltas = lista.filter(a => {
+      const st = a.status?.toLowerCase() ?? '';
+      return st === 'cancelado' || st === 'recusado' || st === 'nao_compareceu' || st === 'no-show';
+    });
 
     const faturamentoRealizado = concluidos.reduce((sum, a) => sum + (a.preco || 0), 0);
     const faturamentoPendente = pendentes.reduce((sum, a) => sum + (a.preco || 0), 0);
@@ -182,28 +200,13 @@ export class InicioComponent implements OnInit, OnDestroy {
     this.assinantesAtivos().reduce((sum, a) => sum + a.valor, 0)
   );
 
-  /** Faturamento Total Dinâmico de Acordo com o Período Selecionado */
+  /** Faturamento Total Real de Acordo com o Período Selecionado */
   protected readonly faturamentoTotalCombinadoVal = computed(() => {
     const p = this.filtroPeriodo();
-    const atendimentosVal = this.faturamentoAtendimentosVal();
-    const mrr = this.faturamentoMensalVal();
-
     if (p === 'hoje') {
-      const resumo = this.resumoHoje();
-      const receitaAssinaturasHoje = mrr / 30;
-      return resumo.faturamentoTotalPrevistoVal + receitaAssinaturasHoje;
+      return this.resumoHoje().faturamentoRealizadoVal;
     }
-    if (p === '7d') {
-      return atendimentosVal + ((mrr / 30) * 7);
-    }
-    if (p === '90d') {
-      return atendimentosVal + (mrr * 3);
-    }
-    if (p === 'ano') {
-      return atendimentosVal + (mrr * 12);
-    }
-    // mes ou 30d
-    return atendimentosVal + mrr;
+    return this.faturamentoAtendimentosVal();
   });
 
   protected readonly faturamentoTotalCombinadoFormatted = computed(() =>
@@ -249,16 +252,36 @@ export class InicioComponent implements OnInit, OnDestroy {
   protected readonly ocupacaoHojePct = computed(() => {
     const hoje = new Date();
     const inicioDia = new Date(hoje.getFullYear(), hoje.getMonth(), hoje.getDate(), 0, 0, 0);
-    const fimDia = new Date(hoje.getFullYear(), hoje.getMonth(), hoje.getDate(), 23, 59, 59);
+    const fimDia = new Date(hoje.getFullYear(), hoje.getMonth(), hoje.getDate(), 23, 59, 59, 999);
+    const profId = this.filtroProfissionalId();
 
-    const agendamentosHoje = this.todosAgendamentos().filter(a =>
-      a.dataInicio >= inicioDia && a.dataInicio <= fimDia &&
-      a.status !== 'cancelado' && a.status !== 'recusado'
-    );
+    const agendamentosHoje = this.todosAgendamentos().filter(a => {
+      if (a.dataInicio < inicioDia || a.dataInicio > fimDia) return false;
+      const st = a.status?.toLowerCase() ?? '';
+      if (st === 'cancelado' || st === 'recusado') return false;
+      if (profId !== 'todos' && a.profissionalId !== profId) return false;
+      return true;
+    });
 
-    const numProfissionais = Math.max(1, this.profissionais().length);
-    const capacidadeMaxMinutos = numProfissionais * 8 * 60; // 8h por barbeiro por dia
-    const minutosOcupados = agendamentosHoje.length * 30; // 30min por slot
+    const minutosOcupados = agendamentosHoje.reduce((sum, a) => {
+      let durMin = 30;
+      if (a.dataFim && a.dataInicio && a.dataFim.getTime() > a.dataInicio.getTime()) {
+        durMin = Math.round((a.dataFim.getTime() - a.dataInicio.getTime()) / 60000);
+      }
+      return sum + Math.max(15, durMin);
+    }, 0);
+
+    let numProfissionais = 1;
+    if (profId === 'todos') {
+      const profissionaisAtivos = this.profissionais().filter(p => {
+        const st = (p.status || '').toLowerCase();
+        return st === '' || st === 'ativo';
+      });
+      numProfissionais = Math.max(1, profissionaisAtivos.length);
+    }
+
+    const capacidadeMaxMinutos = numProfissionais * 8 * 60; // 8h de jornada por profissional ativo (480 minutos)
+    if (capacidadeMaxMinutos <= 0) return 0;
 
     return Math.min(100, Math.round((minutosOcupados / capacidadeMaxMinutos) * 100));
   });

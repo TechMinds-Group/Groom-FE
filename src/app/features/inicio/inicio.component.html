@@ -55,7 +55,7 @@
     <!-- Card 1: Faturamento Total -->
     <div class="col-12 col-md-6 col-lg-6 col-xl-3">
       <div class="card tm-card border-0 shadow-sm rounded-4 h-100 position-relative overflow-hidden custom-dark-card">
-        <div class="card-body p-3.5 p-xl-4 d-flex flex-column">
+        <div class="card-body p-4 p-xl-4 d-flex flex-column">
           <div class="d-flex align-items-center justify-content-between mb-3 gap-2">
             <span class="text-uppercase extra-small fw-bold custom-dark-muted text-truncate" [title]="'Faturamento (' + filtroPeriodoRotulo() + ')'">Faturamento ({{ filtroPeriodoRotulo() }})</span>
             <div class="icon-circle bg-success-subtle text-success flex-shrink-0">
@@ -74,7 +74,7 @@
     <!-- Card 2: Atendimentos Realizados -->
     <div class="col-12 col-md-6 col-lg-6 col-xl-3">
       <div class="card tm-card border-0 shadow-sm rounded-4 h-100 position-relative overflow-hidden custom-dark-card">
-        <div class="card-body p-3.5 p-xl-4 d-flex flex-column">
+        <div class="card-body p-4 p-xl-4 d-flex flex-column">
           <div class="d-flex align-items-center justify-content-between mb-3 gap-2">
             <span class="text-uppercase extra-small fw-bold custom-dark-muted text-truncate" [title]="'Agendamentos (' + filtroPeriodoRotulo() + ')'">Agendamentos ({{ filtroPeriodoRotulo() }})</span>
             <div class="icon-circle bg-primary-subtle text-primary flex-shrink-0">
@@ -99,7 +99,7 @@
     <!-- Card 3: Assinantes Ativos -->
     <div class="col-12 col-md-6 col-lg-6 col-xl-3">
       <div class="card tm-card border-0 shadow-sm rounded-4 h-100 position-relative overflow-hidden custom-dark-card">
-        <div class="card-body p-3.5 p-xl-4 d-flex flex-column">
+        <div class="card-body p-4 p-xl-4 d-flex flex-column">
           <div class="d-flex align-items-center justify-content-between mb-3 gap-2">
             <span class="text-uppercase extra-small fw-bold custom-dark-muted text-truncate" title="Assinantes Ativos">Assinantes Ativos</span>
             <div class="icon-circle bg-purple-subtle text-purple flex-shrink-0">
@@ -118,7 +118,7 @@
     <!-- Card 4: Ocupação da Agenda Hoje -->
     <div class="col-12 col-md-6 col-lg-6 col-xl-3">
       <div class="card tm-card border-0 shadow-sm rounded-4 h-100 position-relative overflow-hidden custom-dark-card">
-        <div class="card-body p-3.5 p-xl-4 d-flex flex-column">
+        <div class="card-body p-4 p-xl-4 d-flex flex-column">
           <div class="d-flex align-items-center justify-content-between mb-3 gap-2">
             <span class="text-uppercase extra-small fw-bold custom-dark-muted text-truncate" title="Ocupação Hoje">Ocupação Hoje</span>
             <div class="icon-circle bg-warning-subtle text-warning flex-shrink-0">
@@ -205,7 +205,7 @@
                     @for (a of agendamentosHoje(); track a.id) {
                       <tr>
                         <td>
-                          <span class="badge custom-dark-time-badge fw-bold border py-1.5 px-2.5 fs-6 shadow-sm">
+                          <span class="badge custom-dark-time-badge fw-bold border py-2 px-3 fs-6 shadow-sm">
                             <i class="far fa-clock me-1 text-primary"></i>{{ formatarHora(a.dataInicio) }}
                           </span>
                         </td>
@@ -220,7 +220,7 @@
                         <td>
                           <div class="fw-semibold custom-dark-text">{{ a.planoNome || a.servicoNome || 'Serviço' }}</div>
                           <span
-                            class="badge rounded-pill extra-small px-2 py-0.5"
+                            class="badge rounded-pill extra-small px-2 py-1"
                             [class.bg-purple-subtle]="a.planoNome"
                             [class.text-purple]="a.planoNome"
                             [class.bg-secondary-subtle]="!a.planoNome"
@@ -237,7 +237,7 @@
                         </td>
                         <td class="text-center">
                           <span
-                            class="badge rounded-pill px-3 py-1.5 fw-semibold small"
+                            class="badge rounded-pill px-3 py-2 fw-semibold small"
                             [class]="obterStatusInfo(a.status).class"
                           >
                             <i [class]="'fas ' + obterStatusInfo(a.status).icon + ' me-1'"></i>{{ obterStatusInfo(a.status).label }}
@@ -261,7 +261,7 @@
               <h5 class="fw-bold custom-dark-text mb-1">Ranking de Profissionais</h5>
               <p class="text-muted custom-dark-text extra-small mb-0">Desempenho da equipe no período</p>
             </div>
-            <span class="badge bg-primary-subtle text-primary rounded-pill px-3 py-1.5 fw-bold extra-small">
+            <span class="badge bg-primary-subtle text-primary rounded-pill px-3 py-2 fw-bold extra-small">
               <i class="fas fa-trophy me-1"></i>Top Equipe
             </span>
           </div>
@@ -313,7 +313,7 @@
               <h5 class="fw-bold custom-dark-text mb-1">Serviços Mais Procurados</h5>
               <p class="text-muted custom-dark-text extra-small mb-0">Principais cortes e procedimentos</p>
             </div>
-            <span class="badge bg-primary-subtle text-primary rounded-pill px-3 py-1.5 fw-bold extra-small">
+            <span class="badge bg-primary-subtle text-primary rounded-pill px-3 py-2 fw-bold extra-small">
               <i class="fas fa-cut me-1"></i>Serviços
             </span>
           </div>
@@ -461,21 +461,21 @@
             <!-- Projeções da Simulação -->
             <div class="row g-3">
               <div class="col-12 col-sm-4">
-                <div class="py-3 px-2.5 rounded-4 bg-primary-subtle text-primary border border-primary-subtle text-center h-100 d-flex flex-column justify-content-center">
+                <div class="py-3 px-3 rounded-4 bg-primary-subtle text-primary border border-primary-subtle text-center h-100 d-flex flex-column justify-content-center">
                   <span class="extra-small fw-bold text-uppercase d-block mb-1">MRR Projetado</span>
                   <h4 class="fw-bold mb-0 fs-5">{{ resultadoSimulacao().mrrProjetadoFormatted }}</h4>
                 </div>
               </div>
 
               <div class="col-12 col-sm-4">
-                <div class="py-3 px-2.5 rounded-4 bg-success-subtle text-success border border-success-subtle text-center h-100 d-flex flex-column justify-content-center">
+                <div class="py-3 px-3 rounded-4 bg-success-subtle text-success border border-success-subtle text-center h-100 d-flex flex-column justify-content-center">
                   <span class="extra-small fw-bold text-uppercase d-block mb-1">Projeção 6 Meses</span>
                   <h4 class="fw-bold mb-0 fs-5">{{ resultadoSimulacao().projecao6MesesFormatted }}</h4>
                 </div>
               </div>
 
               <div class="col-12 col-sm-4">
-                <div class="py-3 px-2.5 rounded-4 bg-purple-subtle text-purple border border-purple-subtle text-center h-100 d-flex flex-column justify-content-center">
+                <div class="py-3 px-3 rounded-4 bg-purple-subtle text-purple border border-purple-subtle text-center h-100 d-flex flex-column justify-content-center">
                   <span class="extra-small fw-bold text-uppercase d-block mb-1">ARR Anual</span>
                   <h4 class="fw-bold mb-0 fs-5">{{ resultadoSimulacao().projecao12MesesFormatted }}</h4>
                 </div>
@@ -503,7 +503,7 @@
                   <h5 class="fw-bold text-success mb-0">{{ agendamentosFuturosConfirmados().valorFormatted }}</h5>
                 </div>
               </div>
-              <span class="badge bg-success-subtle text-success rounded-pill px-3 py-1.5 fw-bold extra-small flex-shrink-0">
+              <span class="badge bg-success-subtle text-success rounded-pill px-3 py-2 fw-bold extra-small flex-shrink-0">
                 {{ agendamentosFuturosConfirmados().qtd }} horário(s)
               </span>
             </div>
@@ -518,7 +518,7 @@
                   <h5 class="fw-bold text-purple mb-0">{{ renovacoesProximos30Dias().valorFormatted }}</h5>
                 </div>
               </div>
-              <span class="badge bg-purple-subtle text-purple rounded-pill px-3 py-1.5 fw-bold extra-small flex-shrink-0">
+              <span class="badge bg-purple-subtle text-purple rounded-pill px-3 py-2 fw-bold extra-small flex-shrink-0">
                 {{ renovacoesProximos30Dias().qtd }} cliente(s)
               </span>
             </div>
@@ -539,7 +539,7 @@
               <p class="text-muted custom-dark-text extra-small mb-0">Acompanhamento de faltas e cancelamentos para retenção</p>
             </div>
             <div class="d-flex align-items-center gap-2 position-relative">
-              <span class="badge bg-warning-subtle text-warning rounded-pill px-3 py-1.5 fw-bold extra-small">
+              <span class="badge bg-warning-subtle text-warning rounded-pill px-3 py-2 fw-bold extra-small">
                 <i class="fas fa-user-shield me-1"></i>Retenção de Clientes
               </span>
               <button
@@ -598,12 +598,12 @@
                       <tr>
                         <td class="fw-semibold custom-dark-text">{{ c.nome }}</td>
                         <td class="text-center">
-                          <span class="badge bg-danger-subtle text-danger fw-bold rounded-pill px-2.5 py-1">
+                          <span class="badge bg-danger-subtle text-danger fw-bold rounded-pill px-3 py-1">
                             {{ c.faltas }}
                           </span>
                         </td>
                         <td class="text-center">
-                          <span class="badge bg-warning-subtle text-warning fw-bold rounded-pill px-2.5 py-1">
+                          <span class="badge bg-warning-subtle text-warning fw-bold rounded-pill px-3 py-1">
                             {{ c.cancelamentos }}
                           </span>
                         </td>
