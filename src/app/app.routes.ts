@@ -328,6 +328,13 @@ export const routes: Routes = [
           ),
       },
       {
+        path: 'sg-pagamentos-x7k9p',
+        loadComponent: () =>
+          import('./features/sg/components/sg-pagamentos-x7k9p/sg-pagamentos-x7k9p.component').then(
+            (m) => m.SgPagamentosX7k9pComponent,
+          ),
+      },
+      {
         path: 'sg-perfil-x7k9p',
         loadComponent: () =>
           import('./features/sg/components/sg-perfil-x7k9p/sg-perfil-x7k9p.component').then(

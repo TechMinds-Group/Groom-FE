@@ -79,6 +79,11 @@ export class SidebarComponent {
           route: '/sg-planos-x7k9p',
         },
         {
+          label: 'Pagamentos',
+          icon: 'fas fa-wallet',
+          route: '/sg-pagamentos-x7k9p',
+        },
+        {
           label: 'Perfil',
           icon: 'fas fa-user-shield',
           route: '/sg-perfil-x7k9p',

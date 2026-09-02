@@ -175,31 +175,17 @@ export class AssinaturaSistemaComponent implements OnInit, OnDestroy {
     this.assinaturaService.getPlanosDisponiveis().subscribe({
       next: (planos: PlanoAssinatura[]) => {
         if (Array.isArray(planos) && planos.length > 0) {
-          this.planosDisponiveis.set(planos);
-          const planoAtual = planos.find((p) => p.nome === this.planoGroom().nome) || planos[0];
-          this.planoSelecionado.set(planoAtual);
+          const planoAtual = planos.find((p) => p.nome === this.planoGroom().nome);
+          if (planoAtual) {
+            this.planosDisponiveis.set([planoAtual]);
+            this.planoSelecionado.set(planoAtual);
+          } else {
+            this.planosDisponiveis.set([]);
+          }
         }
       },
       error: () => {
-        if (this.planosDisponiveis().length === 0) {
-          const e = this.planoGroom();
-          const fallback: PlanoAssinatura = {
-            id: '1',
-            nome: e.nome,
-            valor: e.valor,
-            ciclo: e.ciclo,
-            status: e.status,
-            limiteProfissionais: e.limiteProfissionais,
-            limiteClientes: e.limiteClientes,
-            usoProfissionais: e.usoProfissionais,
-            usoClientes: e.usoClientes,
-            cnpj: e.cnpj,
-            telefone: e.telefone,
-            email: e.email,
-          };
-          this.planosDisponiveis.set([fallback]);
-          this.planoSelecionado.set(fallback);
-        }
+        this.planosDisponiveis.set([]);
       },
     });
   }

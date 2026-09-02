@@ -77,3 +77,41 @@ body.sidebar-collapsed tm-sidebar .sidebar {
   color: rgba(255, 255, 255, 0.88) !important;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5) !important;
 }
+
+/* Alinhamento vertical perfeito à direita de todos os ícones de collapse (chevron) do menu sidebar */
+html body tm-sidebar .sidebar .btn-toggle,
+html body tm-sidebar .sidebar .nav-link {
+  display: flex !important;
+  width: 100% !important;
+  min-width: 100% !important;
+  box-sizing: border-box !important;
+  position: relative !important;
+  padding-right: 36px !important;
+
+  .transition-label,
+  span.text-nowrap,
+  span {
+    flex: 1 1 auto !important;
+    min-width: 0 !important;
+    text-align: left !important;
+  }
+
+  .toggle-icon,
+  i.toggle-icon,
+  i.fa-chevron-down,
+  i.fa-chevron-up,
+  i.fa-chevron-right {
+    position: absolute !important;
+    right: 12px !important;
+    left: auto !important;
+    top: 50% !important;
+    transform: translateY(-50%) !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    flex-shrink: 0 !important;
+
+    &.rotate-180 {
+      transform: translateY(-50%) rotate(180deg) !important;
+    }
+  }
+}
