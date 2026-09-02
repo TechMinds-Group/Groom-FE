@@ -1,0 +1,46 @@
+.sg-estabelecimentos-page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--tm-bg-color, #0f172a);
+  color: #f8fafc;
+}
+
+.custom-dark-card {
+  background: var(--tm-surface-color, #1e293b) !important;
+  border: 1px solid var(--tm-border-color, #334155) !important;
+  color: #f8fafc !important;
+}
+
+.custom-dark-text {
+  color: #ffffff !important;
+}
+
+.text-muted {
+  color: #94a3b8 !important;
+}
+
+.search-box {
+  min-width: 320px;
+}
+
+.empresa-card {
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5) !important;
+    border-color: #8b5cf6 !important;
+  }
+}
+
+.empresa-icon-circle {
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
+  flex-shrink: 0;
+}
+
+.cursor-pointer {
+  cursor: pointer;
+}

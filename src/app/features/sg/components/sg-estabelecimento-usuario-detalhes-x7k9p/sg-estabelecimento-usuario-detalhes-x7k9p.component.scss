@@ -1,0 +1,112 @@
+.btn-voltar {
+  width: 40px !important;
+  height: 40px !important;
+  min-width: 40px !important;
+  border-radius: 50% !important;
+  flex-shrink: 0;
+  padding: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  line-height: 1 !important;
+  transition: all 0.2s ease;
+  background-color: #21262d !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  color: #c9d1d9 !important;
+
+  i {
+    color: #c9d1d9 !important;
+  }
+
+  &:hover {
+    background-color: #30363d !important;
+    transform: translateX(-2px);
+  }
+}
+
+.avatar-circle {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.details-card,
+.actions-card {
+  background-color: #ffffff;
+  overflow: hidden;
+}
+
+.field-value {
+  word-break: break-word;
+  overflow-wrap: break-word;
+  min-width: 0;
+}
+
+.custom-dark-highlight {
+  background-color: #f8f9fa;
+}
+
+/* Suporte a modo escuro via data-theme ou classe dark */
+:host-context([data-theme='dark']),
+:host-context(.dark-mode),
+body[data-theme='dark'] {
+  .btn-voltar {
+    background-color: #21262d !important;
+    border-color: rgba(255, 255, 255, 0.1) !important;
+
+    i {
+      color: #c9d1d9 !important;
+    }
+
+    &:hover {
+      background-color: #30363d !important;
+    }
+  }
+
+  .details-card,
+  .actions-card,
+  .custom-dark-card {
+    background-color: #161b22 !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  }
+
+  .custom-dark-highlight {
+    background-color: #0d1117 !important;
+    border-color: rgba(255, 255, 255, 0.08) !important;
+  }
+
+  .custom-dark-text {
+    color: #ffffff !important;
+  }
+
+  label,
+  .tracking-wider,
+  .text-muted {
+    color: #8b949e !important;
+  }
+
+  .form-select {
+    background-color: #161b22 !important;
+    color: #ffffff !important;
+    border-color: rgba(255, 255, 255, 0.15) !important;
+
+    option {
+      background-color: #161b22 !important;
+      color: #ffffff !important;
+    }
+  }
+}
+
+/* Fallback para forçar escuro se o container usar custom-dark-card */
+.custom-dark-card {
+  background-color: #161b22 !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  color: #ffffff;
+
+  label,
+  .tracking-wider,
+  .text-muted {
+    color: #8b949e !important;
+  }
+}

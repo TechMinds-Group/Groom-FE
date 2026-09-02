@@ -1,0 +1,145 @@
+<div class="sg-planos-page">
+  <div class="container mt-5 mb-5">
+    <!-- Header -->
+    <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between mb-4 gap-3">
+      <div class="d-flex align-items-center gap-3">
+        <div class="d-inline-flex align-items-center justify-content-center bg-primary-subtle text-primary rounded-circle p-3 shadow-sm">
+          <i class="fas fa-crown fs-3"></i>
+        </div>
+        <div>
+          <h2 class="h4 mb-0 fw-bold custom-dark-text d-flex align-items-center gap-2">
+            Gerenciamento SG • Planos de Assinatura
+          </h2>
+          <span class="text-muted small custom-dark-text">Cadastre e gerencie os planos oferecidos aos estabelecimentos</span>
+        </div>
+      </div>
+
+      <!-- Barra de Pesquisa e Botão Novo Plano -->
+      <div class="d-flex align-items-center gap-3">
+        <div class="search-box">
+          <div class="input-group shadow-sm rounded-3">
+            <span class="input-group-text bg-dark border-secondary text-muted">
+              <i class="fas fa-search"></i>
+            </span>
+            <input
+              type="text"
+              class="form-control bg-dark text-white border-secondary"
+              placeholder="Buscar plano por nome ou ciclo..."
+              [ngModel]="searchTerm()"
+              (ngModelChange)="searchTerm.set($event)"
+            />
+          </div>
+        </div>
+        <button type="button" (click)="novoPlano()" class="btn btn-primary px-4 py-2 fw-bold rounded-3 shadow-sm d-inline-flex align-items-center gap-2" style="white-space:nowrap;">
+          <i class="fas fa-plus-circle"></i><span>Novo Plano</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Feedback Banner -->
+    @if (errorMessage()) {
+      <div class="alert alert-danger border-0 shadow-sm rounded-3 mb-4 d-flex align-items-center gap-2">
+        <i class="fas fa-exclamation-triangle fs-5"></i>
+        <span>{{ errorMessage() }}</span>
+      </div>
+    }
+
+    <!-- Loading State -->
+    @if (isLoading()) {
+      <div class="text-center py-5">
+        <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
+          <span class="visually-hidden">Carregando planos...</span>
+        </div>
+        <p class="text-muted mt-3 fw-semibold">Carregando planos cadastrados...</p>
+      </div>
+    } @else {
+      <!-- Empty State -->
+      @if (planosFiltrados().length === 0) {
+        <div class="card border-0 shadow-sm p-5 text-center custom-dark-card rounded-4">
+          <i class="fas fa-box-open fs-1 text-muted mb-3"></i>
+          <h3 class="h5 fw-bold custom-dark-text">Nenhum plano encontrado</h3>
+          <p class="text-muted mb-0">Não foram encontrados planos com o termo pesquisado.</p>
+        </div>
+      } @else {
+        <!-- Grid de Cards de Planos -->
+        <div class="row g-4 mb-5">
+          @for (plano of planosFiltrados(); track plano.id) {
+            <div class="col-xl-4 col-md-6 col-12">
+              <div class="card border-0 shadow-sm h-100 plano-card custom-dark-card rounded-4 p-4 d-flex flex-column justify-content-between">
+                <div>
+                  <!-- Badges Topo -->
+                  <div class="d-flex align-items-center justify-content-between mb-3">
+                    <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-3 py-1.5 rounded-pill fw-bold">
+                      <i class="fas fa-arrows-rotate me-1"></i>{{ plano.ciclo || 'Mensal' }}
+                    </span>
+                    <span
+                      class="badge px-3 py-1.5 rounded-pill fw-semibold"
+                      [ngClass]="{
+                        'bg-success-subtle text-success border border-success-subtle': plano.status === 'Ativo',
+                        'bg-secondary-subtle text-muted border border-secondary': plano.status !== 'Ativo'
+                      }"
+                    >
+                      <i class="fas fa-circle me-1 small"></i>{{ plano.status || 'Ativo' }}
+                    </span>
+                  </div>
+
+                  <!-- Nome do Plano -->
+                  <h3 class="h4 fw-bold mb-1 custom-dark-text">{{ plano.nome }}</h3>
+                  @if (plano.descricao) {
+                    <p class="text-muted small mb-3 text-truncate-2">{{ plano.descricao }}</p>
+                  }
+
+                  <!-- Preço -->
+                  <div class="price-box my-4 p-3 bg-dark rounded-3 border border-secondary text-center">
+                    <span class="fs-6 text-muted fw-normal">R$&nbsp;</span>
+                    <span class="display-6 fw-bold text-white">{{ plano.valor | number:'1.2-2' }}</span>
+                    <span class="text-muted small"> / {{ plano.ciclo | lowercase }}</span>
+                  </div>
+
+                  <!-- Recursos / Limites -->
+                  <div class="limits-list mb-4">
+                    <div class="d-flex align-items-center gap-2 mb-2">
+                      <i class="fas fa-check text-success me-1"></i>
+                      <span class="small custom-dark-text">Até <strong>{{ plano.limiteProfissionais }}</strong> Profissionais</span>
+                    </div>
+                    <div class="d-flex align-items-center gap-2 mb-2">
+                      <i class="fas fa-check text-success me-1"></i>
+                      <span class="small custom-dark-text">Até <strong>{{ plano.limiteClientes }}</strong> Clientes</span>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Botões de Ação -->
+                <div class="d-flex align-items-center justify-content-end gap-2 border-top border-secondary pt-3 mt-auto">
+                  <button type="button" (click)="editarPlano(plano)" class="btn btn-outline-primary btn-sm rounded-3 fw-bold px-3">
+                    <i class="fas fa-edit me-1"></i>Editar
+                  </button>
+                  <button type="button" (click)="confirmarExclusao(plano, $event)" class="btn btn-outline-danger btn-sm rounded-3 fw-bold px-3">
+                    <i class="fas fa-trash-can me-1"></i>Excluir
+                  </button>
+                </div>
+              </div>
+            </div>
+          }
+        </div>
+      }
+    }
+  </div>
+</div>
+
+<tm-modal
+  [show]="showDeleteModal()"
+  (confirm)="executarExclusao()"
+  (cancel)="cancelarExclusao()"
+  confirmLabel="Excluir Plano"
+  cancelLabel="Cancelar"
+  title="Excluir Plano de Assinatura"
+  confirmClass="btn-danger"
+>
+  <div class="p-1">
+    <p class="mb-0 text-white">Tem certeza que deseja excluir o plano <strong>{{ planoParaExcluir()?.nome }}</strong>?</p>
+    <p class="text-danger small mt-2 mb-0">
+      <i class="fas fa-exclamation-triangle me-1"></i>Esta ação não poderá ser desfeita.
+    </p>
+  </div>
+</tm-modal>

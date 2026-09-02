@@ -1,0 +1,83 @@
+<div class="container mt-5 mb-5">
+  <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between mb-4 gap-3">
+    <div>
+      <h1 class="h2 text-primary fw-bold mb-2 custom-dark-text d-flex align-items-center gap-2">
+        <i class="fas fa-users-cog me-2"></i>Gestão de Usuários
+      </h1>
+      <p class="text-muted custom-dark-text mb-0">
+        Gerencie os usuários do estabelecimento <strong>{{ empresa()?.nomeExibicao || empresa()?.nome }}</strong>. Clique no usuário para visualizar detalhes ou editar.
+      </p>
+    </div>
+
+    <div>
+      <button
+        (click)="abrirNovo()"
+        class="btn btn-primary px-4 py-2.5 shadow-sm fw-bold rounded-3 d-inline-flex align-items-center gap-2"
+      >
+        <i class="fas fa-user-plus"></i><span>Cadastrar</span>
+      </button>
+    </div>
+  </div>
+
+  <div class="mb-5">
+    <tm-table
+      [cols]="cols()"
+      [data]="usuarios()"
+      [paginated]="true"
+      [pageSize]="tamanhoPagina()"
+      (pageSizeChange)="tamanhoPagina.set($event)"
+      [showControls]="true"
+      (rowClick)="verDetalhes($event)"
+    ></tm-table>
+  </div>
+</div>
+
+<ng-template #usuarioTemplate let-item>
+  <div class="d-flex flex-column text-start">
+    <strong class="fw-bold custom-dark-text">{{ item.nome }} {{ item.sobrenome }}</strong>
+    <span class="small text-muted custom-dark-text">{{ item.email }}</span>
+  </div>
+</ng-template>
+
+<ng-template #celularTemplate let-item>
+  <div class="d-flex align-items-center">
+    @if (item.telefone) {
+      <span class="custom-dark-text">
+        <i class="fab fa-whatsapp text-success me-2"></i>{{ item.telefone }}
+      </span>
+    } @else {
+      <span class="custom-dark-text">—</span>
+    }
+  </div>
+</ng-template>
+
+<ng-template #perfilTemplate let-item>
+  <div class="d-flex align-items-center gap-1 flex-wrap">
+    @if (item.nivelAcesso) {
+      <span
+        class="badge border px-2.5 py-1 rounded-pill small fw-semibold text-white d-inline-flex align-items-center gap-1"
+        [style.backgroundColor]="item.nivelAcesso.corHex || '#0d6efd'"
+      >
+        <i [class]="item.nivelAcesso.iconeClass || 'fas fa-user'"></i>{{ item.nivelAcesso.nome }}
+      </span>
+    } @else {
+      <span class="badge bg-secondary border border-secondary px-2.5 py-1 rounded-pill small fw-semibold text-white">
+        Sem perfil
+      </span>
+    }
+  </div>
+</ng-template>
+
+<ng-template #statusTemplate let-item>
+  <div class="d-flex align-items-center gap-2">
+    @if (item.status === 'Ativo') {
+      <span class="badge bg-success-subtle text-success border border-success-subtle px-2.5 py-1 rounded-pill small fw-semibold">
+        <i class="fas fa-check-circle me-1"></i>Ativo
+      </span>
+    } @else {
+      <span class="badge bg-danger-subtle text-danger border border-danger-subtle px-2.5 py-1 rounded-pill small fw-semibold">
+        <i class="fas fa-times-circle me-1"></i>Inativo
+      </span>
+    }
+  </div>
+</ng-template>

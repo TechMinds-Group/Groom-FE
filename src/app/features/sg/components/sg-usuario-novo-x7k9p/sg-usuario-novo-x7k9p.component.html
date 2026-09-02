@@ -1,0 +1,71 @@
+<div class="container mt-5 mb-5">
+  <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between mb-4 gap-3">
+    <div class="d-flex align-items-center gap-3">
+      <button (click)="voltar()" class="btn btn-light shadow-sm rounded-circle p-0 d-flex align-items-center justify-content-center btn-voltar" title="Voltar">
+        <i class="fas fa-arrow-left custom-dark-text"></i>
+      </button>
+      <div>
+        <h2 class="h4 mb-0 fw-bold custom-dark-text d-flex align-items-center gap-2">
+          Gerenciamento SG • Novo Usuário
+        </h2>
+        <span class="text-muted small custom-dark-text">Cadastre um usuário no estabelecimento {{ empresa()?.nomeExibicao || empresa()?.nome || '' }}</span>
+      </div>
+    </div>
+  </div>
+
+  <form [formGroup]="form" (ngSubmit)="salvar()">
+    <div class="card border-0 shadow-sm p-4 custom-dark-card rounded-4">
+      <div class="d-flex align-items-center gap-3 border-bottom pb-4 mb-4">
+        <div class="avatar-circle bg-success-subtle text-success d-flex align-items-center justify-content-center">
+          <i class="fas fa-user-plus fs-3"></i>
+        </div>
+        <div>
+          <h3 class="h4 fw-bold mb-0 custom-dark-text">Dados do Novo Usuário</h3>
+          <span class="text-muted small">Insira as credenciais e defina o perfil de acesso</span>
+        </div>
+      </div>
+
+      <div class="row g-3 mb-4">
+        <div class="col-sm-6 col-12">
+          <tm-text formControlName="nome" label="Nome *" placeholder="João" class="custom-dark-text"></tm-text>
+        </div>
+        <div class="col-sm-6 col-12">
+          <tm-text formControlName="sobrenome" label="Sobrenome" placeholder="Silva" class="custom-dark-text"></tm-text>
+        </div>
+        <div class="col-sm-6 col-12">
+          <tm-text formControlName="email" label="E-mail *" placeholder="joao@exemplo.com" class="custom-dark-text"></tm-text>
+        </div>
+        <div class="col-sm-6 col-12">
+          <tm-text formControlName="senha" label="Senha Inicial *" type="password" placeholder="Senha temporária" class="custom-dark-text"></tm-text>
+        </div>
+        <div class="col-sm-6 col-12">
+          <tm-text formControlName="telefone" label="Telefone" placeholder="(11) 99999-9999" mask="phone" [maxlength]="20" class="custom-dark-text"></tm-text>
+        </div>
+        <div class="col-sm-6 col-12">
+          <tm-select
+            label="Perfil de Acesso * (Até 2 perfis)"
+            [options]="niveisOptions()"
+            [multiple]="true"
+            [value]="perfisSelecionados()"
+            (valueChange)="onPerfisChange($event)"
+            [darkMode]="themeService.isDarkMode()"
+            class="custom-dark-text"
+          ></tm-select>
+        </div>
+      </div>
+
+      <div class="border-top pt-4 d-flex align-items-center justify-content-end gap-3">
+        <button type="button" class="btn btn-outline-secondary px-4 py-2.5 rounded-3 fw-bold" (click)="voltar()" [disabled]="salvando()">
+          <i class="fas fa-times me-2"></i>Cancelar
+        </button>
+        <button type="submit" class="btn btn-success px-4 py-2.5 rounded-3 fw-bold shadow-sm" [disabled]="salvando()">
+          @if (salvando()) {
+            <span class="spinner-border spinner-border-sm me-2" role="status"></span>Criando...
+          } @else {
+            <i class="fas fa-user-plus me-2"></i>Criar Usuário
+          }
+        </button>
+      </div>
+    </div>
+  </form>
+</div>

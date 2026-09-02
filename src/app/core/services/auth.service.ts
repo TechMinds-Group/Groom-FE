@@ -23,6 +23,7 @@ export interface UserContext {
   roleColor?: string;
   roleIconClass?: string;
   estabelecimento?: string;
+  acessosMenu?: any;
 }
 
 @Injectable({
@@ -117,5 +118,145 @@ export class AuthService {
         this._logout$.next();
       })
     );
+  }
+
+  sgLogin(emailOrUsername: string, password: string, rememberMe = true): Observable<any> {
+    const body = { emailOrUsername, password, rememberMe };
+    return this.http.post<any>(`${environment.apiUrl}/sg-login?useCookies=true&useSessionCookies=${!rememberMe}`, body, {
+      withCredentials: true,
+    }).pipe(
+      tap(() => {
+        this._currentUser.set({
+          id: 'sg-master',
+          nome: 'SuperAdmin SG',
+          email: `${emailOrUsername}@fasto.com`,
+          tenantId: 'sg-master',
+          role: 'SuperAdmin',
+          roles: ['SuperAdmin'],
+        });
+      })
+    );
+  }
+
+  sgUpdateProfile(currentUsername: string, newUsername: string, newEmail: string): Observable<any> {
+    const body = { currentUsername, newUsername, newEmail };
+    return this.http.post<any>(`${environment.apiUrl}/sg-update-profile`, body, {
+      withCredentials: true,
+    });
+  }
+
+  sgChangePassword(username: string, currentPassword: string, newPassword: string): Observable<any> {
+    const body = { username, currentPassword, newPassword };
+    return this.http.post<any>(`${environment.apiUrl}/sg-change-password`, body, {
+      withCredentials: true,
+    });
+  }
+
+  getSgEmpresas(): Observable<any[]> {
+    return this.http.get<any[]>(`${environment.apiUrl}/sg-empresas`, {
+      withCredentials: true,
+    });
+  }
+
+  getSgEmpresaById(id: string): Observable<any> {
+    return this.http.get<any>(`${environment.apiUrl}/sg-empresas/${id}`, {
+      withCredentials: true,
+    });
+  }
+
+  createSgEmpresa(data: any): Observable<any> {
+    return this.http.post<any>(`${environment.apiUrl}/sg-empresas`, data, {
+      withCredentials: true,
+    });
+  }
+
+  getSgNiveisAcesso(empresaId: string): Observable<any[]> {
+    return this.http.get<any[]>(`${environment.apiUrl}/sg-empresas/${empresaId}/niveis-acesso`, {
+      withCredentials: true,
+    });
+  }
+
+  createSgUsuario(empresaId: string, data: any): Observable<any> {
+    return this.http.post<any>(`${environment.apiUrl}/sg-empresas/${empresaId}/usuarios`, data, {
+      withCredentials: true,
+    });
+  }
+
+  getSgUsuarios(empresaId: string): Observable<any[]> {
+    return this.http.get<any[]>(`${environment.apiUrl}/sg-empresas/${empresaId}/usuarios`, {
+      withCredentials: true,
+    });
+  }
+
+  getSgUsuarioById(id: string): Observable<any> {
+    return this.http.get<any>(`${environment.apiUrl}/sg-usuarios/${id}`, {
+      withCredentials: true,
+    });
+  }
+
+  updateSgUsuario(id: string, data: any): Observable<any> {
+    return this.http.put<any>(`${environment.apiUrl}/sg-usuarios/${id}`, data, {
+      withCredentials: true,
+    });
+  }
+
+  deleteSgUsuario(id: string): Observable<any> {
+    return this.http.delete<any>(`${environment.apiUrl}/sg-usuarios/${id}`, {
+      withCredentials: true,
+    });
+  }
+
+  toggleSgUsuarioStatus(id: string): Observable<any> {
+    return this.http.put<any>(`${environment.apiUrl}/sg-usuarios/${id}/toggle-status`, {}, {
+      withCredentials: true,
+    });
+  }
+
+  getSgPlanos(): Observable<any[]> {
+    return this.http.get<any[]>(`${environment.apiUrl}/sg-planos`, {
+      withCredentials: true,
+    });
+  }
+
+  getSgPlanoById(id: string): Observable<any> {
+    return this.http.get<any>(`${environment.apiUrl}/sg-planos/${id}`, {
+      withCredentials: true,
+    });
+  }
+
+  createSgPlano(data: any): Observable<any> {
+    return this.http.post<any>(`${environment.apiUrl}/sg-planos`, data, {
+      withCredentials: true,
+    });
+  }
+
+  updateSgPlano(id: string, data: any): Observable<any> {
+    return this.http.put<any>(`${environment.apiUrl}/sg-planos/${id}`, data, {
+      withCredentials: true,
+    });
+  }
+
+  deleteSgPlano(id: string): Observable<any> {
+    return this.http.delete<any>(`${environment.apiUrl}/sg-planos/${id}`, {
+      withCredentials: true,
+    });
+  }
+
+  updateSgEmpresaPlano(empresaId: string, data: any): Observable<any> {
+    return this.http.put<any>(`${environment.apiUrl}/sg-empresas/${empresaId}/plano`, data, {
+      withCredentials: true,
+    });
+  }
+
+  updateSgEmpresa(id: string, data: any): Observable<any> {
+    return this.http.put<any>(`${environment.apiUrl}/sg-empresas/${id}`, data, {
+      withCredentials: true,
+    });
+  }
+
+  deleteSgEmpresa(id: string): Observable<any> {
+    return this.http.delete<any>(`${environment.apiUrl}/sg-empresas/${id}`, {
+      withCredentials: true,
+    });
   }
 }

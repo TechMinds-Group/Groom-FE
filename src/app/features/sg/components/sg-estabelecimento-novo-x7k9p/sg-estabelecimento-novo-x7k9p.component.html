@@ -1,0 +1,63 @@
+<div class="container mt-5 mb-5">
+  <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between mb-4 gap-3">
+    <div class="d-flex align-items-center gap-3">
+      <button (click)="voltar()" class="btn btn-light shadow-sm rounded-circle p-0 d-flex align-items-center justify-content-center btn-voltar" title="Voltar">
+        <i class="fas fa-arrow-left custom-dark-text"></i>
+      </button>
+      <div>
+        <h2 class="h4 mb-0 fw-bold custom-dark-text d-flex align-items-center gap-2">
+          Gerenciamento SG • Novo Estabelecimento
+        </h2>
+        <span class="text-muted small custom-dark-text">Cadastre uma nova empresa na plataforma Groom</span>
+      </div>
+    </div>
+  </div>
+
+  <form [formGroup]="form" (ngSubmit)="salvar()">
+    <div class="card border-0 shadow-sm p-4 custom-dark-card rounded-4">
+      <div class="d-flex align-items-center gap-3 border-bottom pb-4 mb-4">
+        <div class="avatar-circle bg-primary-subtle text-primary d-flex align-items-center justify-content-center">
+          <i class="fas fa-store-slash fs-3"></i>
+        </div>
+        <div>
+          <h3 class="h4 fw-bold mb-0 custom-dark-text">Dados do Novo Estabelecimento</h3>
+          <span class="text-muted small">Preencha as informações para criar a empresa e a conta de usuário Administrador</span>
+        </div>
+      </div>
+
+      <div class="row g-3 mb-4">
+        <div class="col-sm-6 col-12">
+          <tm-text formControlName="nome" label="Nome do Estabelecimento *" placeholder="Ex: BARBEARIA DO ZE" class="custom-dark-text"></tm-text>
+        </div>
+        <div class="col-sm-6 col-12">
+          <tm-text formControlName="nomeExibicao" label="Nome de Exibição" placeholder="Ex: Barbearia do Zé Ltda" class="custom-dark-text"></tm-text>
+        </div>
+        <div class="col-sm-6 col-12">
+          <tm-text formControlName="cnpj" label="CNPJ *" placeholder="00.000.000/0000-00" [maxlength]="18" class="custom-dark-text"></tm-text>
+        </div>
+        <div class="col-sm-6 col-12">
+          <tm-text formControlName="telefone" label="Telefone / WhatsApp *" placeholder="(11) 99999-9999" mask="phone" [maxlength]="20" class="custom-dark-text"></tm-text>
+        </div>
+        <div class="col-sm-6 col-12">
+          <tm-select formControlName="planoAssinatura" label="Plano de Assinatura *" [options]="planosOptions()" [darkMode]="themeService.isDarkMode()" class="custom-dark-text"></tm-select>
+        </div>
+        <div class="col-sm-6 col-12">
+          <tm-text formControlName="password" label="Senha Padrão do Admin *" type="password" placeholder="Admin@123" class="custom-dark-text"></tm-text>
+        </div>
+      </div>
+
+      <div class="border-top pt-4 d-flex align-items-center justify-content-end gap-3">
+        <button type="button" class="btn btn-outline-secondary px-4 py-2.5 rounded-3 fw-bold" (click)="voltar()" [disabled]="salvando()">
+          <i class="fas fa-times me-2"></i>Cancelar
+        </button>
+        <button type="submit" class="btn btn-primary px-4 py-2.5 rounded-3 fw-bold shadow-sm" [disabled]="salvando()">
+          @if (salvando()) {
+            <span class="spinner-border spinner-border-sm me-2" role="status"></span>Cadastrando...
+          } @else {
+            <i class="fas fa-plus-circle me-2"></i>Cadastrar Estabelecimento
+          }
+        </button>
+      </div>
+    </div>
+  </form>
+</div>
