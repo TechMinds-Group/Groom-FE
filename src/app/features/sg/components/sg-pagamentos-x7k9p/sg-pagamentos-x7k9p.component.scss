@@ -1,0 +1,55 @@
+.sg-pagamentos-page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--tm-bg-color, #0f172a);
+  color: #f8fafc;
+}
+
+.max-w-7xl {
+  max-width: 80rem;
+}
+
+.custom-dark-card {
+  background: var(--tm-surface-color, #1e293b) !important;
+  border: 1px solid var(--tm-border-color, #334155) !important;
+  color: #f8fafc !important;
+}
+
+.custom-dark-input {
+  background-color: #0f172a !important;
+  border: 1px solid #334155 !important;
+  color: #ffffff !important;
+  font-size: 0.95rem;
+
+  &:focus {
+    background-color: #0f172a !important;
+    border-color: #8b5cf6 !important;
+    color: #ffffff !important;
+    box-shadow: 0 0 0 0.25rem rgba(139, 92, 246, 0.25) !important;
+  }
+
+  &::placeholder {
+    color: #64748b !important;
+  }
+}
+
+.text-slate-300 {
+  color: #cbd5e1 !important;
+}
+
+.text-slate-400 {
+  color: #94a3b8 !important;
+}
+
+.border-slate-700 {
+  border-color: #334155 !important;
+}
+
+.extra-small {
+  font-size: 0.78rem;
+}
+
+.cursor-pointer {
+  cursor: pointer;
+}

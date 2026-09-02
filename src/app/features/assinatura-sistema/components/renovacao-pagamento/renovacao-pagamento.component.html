@@ -12,7 +12,7 @@
     </div>
 
     <div class="row g-4 g-xl-5 align-items-stretch">
-      <!-- Coluna da Esquerda: Seleção de Plano + Forma de Pagamento + Vencimento -->
+      <!-- Coluna da Esquerda: Seleção de Plano + Forma de Pagamento + Dados do Pagador -->
       <div class="col-12 col-xl-7 col-xxl-8 d-flex flex-column justify-content-between mb-4 mb-xl-0">
         <div>
           <!-- 1. Seleção de Plano -->
@@ -84,13 +84,13 @@
             }
           </div>
 
-          <!-- 2. Forma de Pagamento (PIX, Boleto, Cartão) -->
+          <!-- 2. Forma de Pagamento (PIX, Boleto) -->
           <label class="form-label small fw-bold text-muted text-uppercase tracking-wider mb-3 custom-dark-text d-block">
             2. Escolha a Forma de Pagamento *
           </label>
           <div class="row g-3 mb-4">
             <!-- Opção PIX -->
-            <div class="col-sm-4 col-12">
+            <div class="col-sm-6 col-12">
               <div
                 class="payment-method-card p-3 text-center cursor-pointer h-100 d-flex flex-column justify-content-center align-items-center"
                 [class.active]="formaPagamento() === 'PIX'"
@@ -103,7 +103,7 @@
             </div>
 
             <!-- Opção Boleto -->
-            <div class="col-sm-4 col-12">
+            <div class="col-sm-6 col-12">
               <div
                 class="payment-method-card p-3 text-center cursor-pointer h-100 d-flex flex-column justify-content-center align-items-center"
                 [class.active]="formaPagamento() === 'BOLETO'"
@@ -114,147 +114,44 @@
                 <div class="extra-small text-muted custom-dark-text mt-1">Taxa: + R$ 1,99</div>
               </div>
             </div>
-
-            <!-- Opção Cartão -->
-            <div class="col-sm-4 col-12">
-              <div
-                class="payment-method-card p-3 text-center cursor-pointer h-100 d-flex flex-column justify-content-center align-items-center"
-                [class.active]="formaPagamento() === 'CREDIT_CARD'"
-                (click)="selecionarFormaPagamento('CREDIT_CARD')"
-              >
-                <i class="far fa-credit-card text-warning fs-3 mb-2"></i>
-                <div class="fw-bold custom-dark-text">Cartão de Crédito</div>
-                <div class="extra-small text-muted custom-dark-text mt-1">Taxa: + 3,49% + R$ 0,49</div>
-              </div>
-            </div>
           </div>
 
-          <!-- 3. Formulário de Dados do Pagador (se faltar algum dado) -->
-          @if (!cnpj() || !telefone()) {
-            <label class="form-label small fw-bold text-muted text-uppercase tracking-wider mb-2 mt-4 custom-dark-text d-block border-top pt-3">
-              3. Dados de Identificação do Pagador *
-            </label>
-            <div class="row g-3 mb-4">
-              @if (!cnpj()) {
-                <div class="col-sm-6 col-12">
-                  <tm-text
-                    [value]="pagadorCnpj()"
-                    (valueChange)="setPagadorCnpj($event)"
-                    label="CPF ou CNPJ do Pagador *"
-                    placeholder="000.000.000-00 ou 00.000.000/0001-00"
-                    class="custom-dark-text"
-                  ></tm-text>
-                </div>
-              }
-              @if (!telefone()) {
-                <div class="col-sm-6 col-12">
-                  <tm-text
-                    [value]="pagadorTelefone()"
-                    (valueChange)="setPagadorTelefone($event)"
-                    label="Telefone / Celular *"
-                    placeholder="(00) 00000-0000"
-                    class="custom-dark-text"
-                  ></tm-text>
-                </div>
-              }
+          <!-- 3. Formulário de Dados de Identificação do Pagador -->
+          <label class="form-label small fw-bold text-muted text-uppercase tracking-wider mb-2 mt-4 custom-dark-text d-block border-top pt-3">
+            3. Dados de Identificação do Pagador *
+          </label>
+          <p class="text-muted small mb-3 custom-dark-text">
+            Preenchidos automaticamente com os dados cadastrados do seu estabelecimento. Altere se necessário antes de gerar a cobrança.
+          </p>
+          <div class="row g-3 mb-4">
+            <div class="col-sm-6 col-12">
+              <tm-text
+                [value]="pagadorCnpj()"
+                (valueChange)="setPagadorCnpj($event)"
+                label="CPF ou CNPJ do Pagador *"
+                placeholder="000.000.000-00 ou 00.000.000/0001-00"
+                class="custom-dark-text"
+              ></tm-text>
             </div>
-          }
-
-          <!-- 4. Formulário de Cartão de Crédito (exibido apenas se formaPagamento === 'CREDIT_CARD') -->
-          @if (formaPagamento() === 'CREDIT_CARD') {
-            <div class="card border-warning border-opacity-25 bg-warning bg-opacity-10 p-3 p-sm-4 rounded-3 mb-4 mt-4">
-              <div class="d-flex align-items-center mb-3">
-                <i class="far fa-credit-card text-warning fs-4 me-2"></i>
-                <h5 class="fw-bold mb-0 custom-dark-text">Dados do Cartão de Crédito</h5>
-              </div>
-              <p class="small text-muted custom-dark-text mb-3">
-                <i class="fas fa-lock text-success me-1"></i>Seus dados de cartão transitarão com segurança e <strong>não serão salvos no sistema</strong>.
-              </p>
-              <div class="row g-3">
-                <div class="col-sm-6 col-12">
-                  <tm-text
-                    [value]="holderName()"
-                    (valueChange)="setHolderName($event)"
-                    label="Nome Impresso no Cartão *"
-                    placeholder="NOME COMO ESTÁ NO CARTÃO"
-                    class="custom-dark-text"
-                  ></tm-text>
-                </div>
-                <div class="col-sm-6 col-12">
-                  <tm-text
-                    [value]="holderEmail()"
-                    (valueChange)="setHolderEmail($event)"
-                    label="E-mail do Titular *"
-                    placeholder="email@titular.com.br"
-                    class="custom-dark-text"
-                  ></tm-text>
-                </div>
-                <div class="col-sm-8 col-12">
-                  <tm-text
-                    [value]="cardNumber()"
-                    (valueChange)="setCardNumber($event)"
-                    label="Número do Cartão *"
-                    placeholder="0000 0000 0000 0000"
-                    class="custom-dark-text"
-                  ></tm-text>
-                </div>
-                <div class="col-sm-4 col-12">
-                  <tm-text
-                    [value]="ccv()"
-                    (valueChange)="setCcv($event)"
-                    label="CVV *"
-                    placeholder="123"
-                    class="custom-dark-text"
-                  ></tm-text>
-                </div>
-                <div class="col-sm-6 col-6">
-                  <tm-text
-                    [value]="expiryMonth()"
-                    (valueChange)="setExpiryMonth($event)"
-                    label="Mês Venc. (MM) *"
-                    placeholder="05"
-                    class="custom-dark-text"
-                  ></tm-text>
-                </div>
-                <div class="col-sm-6 col-6">
-                  <tm-text
-                    [value]="expiryYear()"
-                    (valueChange)="setExpiryYear($event)"
-                    label="Ano Venc. (AAAA) *"
-                    placeholder="2028"
-                    class="custom-dark-text"
-                  ></tm-text>
-                </div>
-                <div class="col-sm-6 col-12">
-                  <tm-text
-                    [value]="holderCpfCnpj()"
-                    (valueChange)="setHolderCpfCnpj($event)"
-                    label="CPF/CNPJ do Titular *"
-                    placeholder="000.000.000-00"
-                    class="custom-dark-text"
-                  ></tm-text>
-                </div>
-                <div class="col-sm-3 col-6">
-                  <tm-text
-                    [value]="postalCode()"
-                    (valueChange)="setPostalCode($event)"
-                    label="CEP *"
-                    placeholder="00000-000"
-                    class="custom-dark-text"
-                  ></tm-text>
-                </div>
-                <div class="col-sm-3 col-6">
-                  <tm-text
-                    [value]="addressNumber()"
-                    (valueChange)="setAddressNumber($event)"
-                    label="Nº *"
-                    placeholder="123"
-                    class="custom-dark-text"
-                  ></tm-text>
-                </div>
-              </div>
+            <div class="col-sm-6 col-12">
+              <tm-text
+                [value]="pagadorTelefone()"
+                (valueChange)="setPagadorTelefone($event)"
+                label="Telefone / Celular *"
+                placeholder="(00) 00000-0000"
+                class="custom-dark-text"
+              ></tm-text>
             </div>
-          }
+            <div class="col-12">
+              <tm-text
+                [value]="pagadorEmail()"
+                (valueChange)="setPagadorEmail($event)"
+                label="E-mail do Pagador *"
+                placeholder="seuemail@dominio.com"
+                class="custom-dark-text"
+              ></tm-text>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -268,7 +165,7 @@
 
             <!-- Plano Selecionado -->
             <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-1">
-              <span class="text-muted custom-dark-text">Plano (Tabela PlanosSistema):</span>
+              <span class="text-muted custom-dark-text">Plano:</span>
               <strong class="text-primary-emphasis fs-6 custom-dark-text text-break">
                 {{ planoSelecionado()?.nome || '—' }}
               </strong>
@@ -290,12 +187,12 @@
 
             <!-- Taxa Discriminada -->
             <div class="d-flex justify-content-between align-items-center mb-1 flex-wrap gap-1">
-              <span class="text-muted custom-dark-text">Taxa do Gateway (Asaas):</span>
+              <span class="text-muted custom-dark-text">Taxa do Gateway:</span>
               <strong class="text-warning">+ {{ taxaGatewayFormatada() }}</strong>
             </div>
             <div class="text-end mb-3">
               <small class="text-secondary custom-dark-text" style="font-size: 0.75rem;">
-                (Tarifa fixa de transação cobrada pelo Asaas)
+                (Tarifa fixa de transação)
               </small>
             </div>
 
@@ -318,7 +215,7 @@
             @if (carregando()) {
               <span class="spinner-border spinner-border-sm me-2" role="status"></span>Gerando Cobrança...
             } @else {
-              <i class="fas fa-check-circle me-2"></i>Gerar Cobrança Asaas
+              <i class="fas fa-check-circle me-2"></i>Gerar Cobrança
             }
           </button>
         </div>
@@ -326,12 +223,12 @@
     </div>
   </div>
 
-  <!-- Modal / Bloco do Resultado da Cobrança Asaas Gerada -->
+  <!-- Modal / Bloco do Resultado da Cobrança Gerada -->
   @if (resultadoAsaas(); as res) {
     <div class="card border-primary shadow-lg p-4 p-md-5 mt-4 custom-dark-card rounded-4">
       <div class="d-flex align-items-center justify-content-between border-bottom border-secondary pb-3 mb-4">
         <h4 class="h5 fw-bold mb-0 text-primary d-flex align-items-center gap-2">
-          <i class="fas fa-qrcode text-primary fs-4"></i>Cobrança Gerada no Asaas
+          <i class="fas fa-qrcode text-primary fs-4"></i>Cobrança Gerada
         </h4>
         <span class="badge bg-warning-subtle text-warning border border-warning-subtle px-3 py-1.5 rounded-pill fw-bold">
           {{ res.status }}

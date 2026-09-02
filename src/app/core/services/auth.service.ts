@@ -259,4 +259,34 @@ export class AuthService {
       withCredentials: true,
     });
   }
+
+  getSgPagamentosConfig(): Observable<any> {
+    return this.http.get<any>(`${environment.apiUrl}/sg-pagamentos-config`, {
+      withCredentials: true,
+    });
+  }
+
+  updateSgPagamentosConfig(data: any): Observable<any> {
+    return this.http.put<any>(`${environment.apiUrl}/sg-pagamentos-config`, data, {
+      withCredentials: true,
+    });
+  }
+
+  getAvisoAssinaturaStatus(): Observable<any> {
+    return this.http.get<any>(`${environment.apiUrl}/aviso-assinatura-status`, {
+      withCredentials: true,
+    });
+  }
+
+  registraExibicaoAviso(slotId: string): Observable<any> {
+    return this.http.post<any>(`${environment.apiUrl}/registra-exibicao-aviso`, { slotId }, {
+      withCredentials: true,
+    });
+  }
+
+  resetSgExibicoesAvisos(): Observable<any> {
+    return this.http.post<any>(`${environment.apiUrl}/sg-pagamentos-reset-exibicoes`, {}, {
+      withCredentials: true,
+    });
+  }
 }

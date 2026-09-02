@@ -71,3 +71,53 @@
 </div>
 
 <app-sidebar-modal-idioma [(show)]="showIdiomaModal" />
+
+<!-- Modal Personalizado de Aviso de Assinatura (Configurado via SG) -->
+@if (avisoModalData(); as aviso) {
+  <tm-modal
+    [(show)]="showAvisoModal"
+    [title]="aviso.titulo"
+    size="md"
+    [showFooter]="false"
+  >
+    <div class="p-3 text-center">
+      <div class="mb-4">
+        <div
+          class="rounded-circle d-inline-flex align-items-center justify-content-center p-3 shadow-lg"
+          [class]="aviso.tipo === 'proximo' ? 'bg-warning-subtle text-warning' : 'bg-danger-subtle text-danger'"
+          style="width: 70px; height: 70px;"
+        >
+          <i [class]="aviso.tipo === 'proximo' ? 'fas fa-exclamation-triangle fs-1' : 'fas fa-lock fs-1'"></i>
+        </div>
+      </div>
+
+      <h4 class="h5 fw-bold mb-3 custom-dark-text">
+        {{ aviso.titulo }}
+      </h4>
+
+      <p class="text-muted custom-dark-text mb-4 fs-6 leading-relaxed">
+        {{ aviso.mensagem }}
+      </p>
+
+      <div class="d-flex flex-column flex-sm-row justify-content-center gap-2 pt-3 border-top border-secondary">
+        @if (!bloqueioTotal() && aviso.labelBotaoFechar) {
+          <button
+            type="button"
+            class="btn btn-secondary px-4 py-2.5 fw-semibold"
+            (click)="fecharAvisoModal()"
+          >
+            {{ aviso.labelBotaoFechar }}
+          </button>
+        }
+        <button
+          type="button"
+          class="btn btn-primary px-4 py-2.5 fw-bold shadow-sm"
+          (click)="irParaAssinatura()"
+        >
+          <i class="fas fa-credit-card me-2"></i> {{ aviso.labelBotaoIrParaAssinatura || 'Ir para Assinatura' }}
+        </button>
+      </div>
+    </div>
+  </tm-modal>
+}
+
