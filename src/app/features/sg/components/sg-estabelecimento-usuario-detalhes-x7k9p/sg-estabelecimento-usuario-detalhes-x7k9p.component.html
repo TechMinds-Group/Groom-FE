@@ -1,0 +1,257 @@
+<div class="container mt-5 mb-5">
+  @if (usuario(); as user) {
+    <!-- Header: Voltar + Nome do Usuário + Subtítulo -->
+    <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between mb-4 gap-3">
+      <div class="d-flex align-items-center gap-3">
+        <button
+          (click)="voltar()"
+          class="btn btn-light shadow-sm rounded-circle p-0 d-flex align-items-center justify-content-center btn-voltar"
+          title="Voltar"
+        >
+          <i class="fas fa-arrow-left custom-dark-text"></i>
+        </button>
+
+        <div>
+          <h2 class="h4 mb-0 fw-bold custom-dark-text d-flex align-items-center gap-2">
+            {{ user.nome }} {{ user.sobrenome }}
+          </h2>
+          <span class="text-muted small custom-dark-text">Detalhes do Usuário (SG)</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Form Wrapper / Grid Principal -->
+    <form [formGroup]="form">
+      <div class="row g-4 mb-5">
+        <div [class]="modoEdicao() ? 'col-12' : 'col-xl-8 col-12'">
+          <div class="card border-0 shadow-sm p-4 details-card custom-dark-card rounded-4">
+
+            <!-- 1. Header do Perfil -->
+            <div class="d-flex align-items-center gap-3 border-bottom pb-4 mb-4">
+              <div class="avatar-circle bg-primary-subtle text-primary d-flex align-items-center justify-content-center">
+                <i class="fas fa-user fs-3"></i>
+              </div>
+              <div>
+                <h2 class="h3 fw-bold mb-0 custom-dark-text">{{ user.nome }} {{ user.sobrenome }}</h2>
+              </div>
+            </div>
+
+            <!-- 2. Informações Cadastrais (Leitura vs Edição) -->
+            @if (!modoEdicao()) {
+              <div class="row g-4 mb-2">
+                <!-- Status -->
+                <div class="col-sm-6 col-12">
+                  <label class="form-label small fw-bold text-muted text-uppercase tracking-wider">Status</label>
+                  <div class="mt-1">
+                    @if (user.status === 'Ativo') {
+                      <span class="badge bg-success-subtle text-success border border-success-subtle px-3 py-1.5 rounded-pill fw-semibold">
+                        <i class="fas fa-check-circle me-1"></i>Ativo
+                      </span>
+                    } @else {
+                      <span class="badge bg-danger-subtle text-danger border border-danger-subtle px-3 py-1.5 rounded-pill fw-semibold">
+                        <i class="fas fa-times-circle me-1"></i>Inativo
+                      </span>
+                    }
+                  </div>
+                </div>
+
+                <!-- Perfil -->
+                <div class="col-sm-6 col-12">
+                  <label class="form-label small fw-bold text-muted text-uppercase tracking-wider">Perfil</label>
+                  <div class="mt-1 d-flex flex-wrap gap-2">
+                    @if (user.nivelAcesso) {
+                      <span
+                        class="badge border px-3 py-1.5 rounded-pill fw-semibold text-white d-inline-flex align-items-center gap-1"
+                        [style.backgroundColor]="user.nivelAcesso.corHex || '#0d6efd'"
+                      >
+                        <i [class]="user.nivelAcesso.iconeClass || 'fas fa-user'"></i>{{ user.nivelAcesso.nome }}
+                      </span>
+                    } @else {
+                      <span class="badge bg-secondary border border-secondary px-3 py-1.5 rounded-pill fw-semibold text-white">
+                        Sem perfil
+                      </span>
+                    }
+                    @if (user.secundarioNivelAcesso) {
+                      <span
+                        class="badge border px-3 py-1.5 rounded-pill fw-semibold text-white d-inline-flex align-items-center gap-1"
+                        [style.backgroundColor]="user.secundarioNivelAcesso.corHex || '#6c757d'"
+                      >
+                        <i [class]="user.secundarioNivelAcesso.iconeClass || 'fas fa-user'"></i>{{ user.secundarioNivelAcesso.nome }}
+                      </span>
+                    }
+                  </div>
+                </div>
+
+                <!-- Celular / WhatsApp -->
+                <div class="col-sm-6 col-12">
+                  <label class="form-label small fw-bold text-muted text-uppercase tracking-wider">Celular / WhatsApp</label>
+                  <div class="mt-1">
+                    @if (user.telefone) {
+                      <a
+                        [href]="obterLinkWhatsapp(user.telefone)"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="text-success text-decoration-none d-inline-flex align-items-center fw-semibold"
+                        title="Chamar no WhatsApp"
+                      >
+                        <i class="fab fa-whatsapp fs-5 text-success me-2"></i>
+                        <span class="custom-dark-text">{{ user.telefone }}</span>
+                      </a>
+                    } @else {
+                      <p class="fw-semibold mb-0 custom-dark-text">—</p>
+                    }
+                  </div>
+                </div>
+
+                <!-- E-mail -->
+                <div class="col-sm-6 col-12">
+                  <label class="form-label small fw-bold text-muted text-uppercase tracking-wider">E-mail</label>
+                  <p class="fw-semibold mb-0 custom-dark-text">
+                    <i class="far fa-envelope text-primary me-2"></i>{{ user.email || '—' }}
+                  </p>
+                </div>
+              </div>
+            } @else {
+              <!-- Formulário Inline de Edição -->
+              <div class="row g-3 mb-4">
+                <div class="col-sm-6 col-12">
+                  <tm-text formControlName="nome" label="Nome *" placeholder="Ex: Carlos" class="custom-dark-text"></tm-text>
+                </div>
+
+                <div class="col-sm-6 col-12">
+                  <tm-text formControlName="sobrenome" label="Sobrenome" placeholder="Ex: Ferreira" class="custom-dark-text"></tm-text>
+                </div>
+
+                <div class="col-sm-6 col-12">
+                  <tm-text formControlName="email" label="E-mail *" placeholder="exemplo@email.com" class="custom-dark-text"></tm-text>
+                </div>
+
+                <div class="col-sm-6 col-12">
+                  <tm-text formControlName="telefone" label="Celular / WhatsApp" placeholder="(11) 98888-7777" mask="phone" [maxlength]="20" class="custom-dark-text"></tm-text>
+                </div>
+
+                <div class="col-sm-6 col-12">
+                  <tm-text formControlName="senha" label="Nova Senha" type="password" placeholder="Deixe em branco para manter" class="custom-dark-text"></tm-text>
+                </div>
+
+                <div class="col-sm-6 col-12">
+                  <tm-select
+                    label="Perfil de Acesso * (Até 2 perfis)"
+                    [options]="niveisOptions()"
+                    [multiple]="true"
+                    [value]="perfisSelecionados()"
+                    (valueChange)="onPerfisChange($event)"
+                    [darkMode]="themeService.isDarkMode()"
+                    class="custom-dark-text"
+                  ></tm-select>
+                </div>
+              </div>
+            }
+
+            <!-- Status (Edição) -->
+            @if (modoEdicao()) {
+              <div class="border-top pt-4 mt-2">
+                <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 p-3 rounded-3 border border-secondary-subtle">
+                  <div>
+                    <div class="fw-bold custom-dark-text">Usuário ativo</div>
+                    <div class="small text-muted custom-dark-text">Usuários inativos não podem realizar login no sistema.</div>
+                  </div>
+                  <div class="form-check form-switch mb-0 shrink-0">
+                    <input
+                      class="form-check-input"
+                      type="checkbox"
+                      role="switch"
+                      id="switch-status-usuario-sg"
+                      aria-label="Alternar status do usuário"
+                      [checked]="form.get('status')?.value === 'Ativo'"
+                      (change)="alternarStatus($event)"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <!-- Barra de Salvar / Cancelar -->
+              <div class="border-top pt-4 mt-4 d-flex align-items-center justify-content-end gap-3">
+                <button
+                  type="button"
+                  class="btn btn-outline-secondary px-4 py-2.5 rounded-3 fw-bold"
+                  (click)="cancelarEdicao()"
+                  [disabled]="salvando()"
+                >
+                  <i class="fas fa-times me-2"></i>Cancelar
+                </button>
+
+                <button
+                  type="button"
+                  class="btn btn-primary px-4 py-2.5 rounded-3 fw-bold shadow-sm"
+                  (click)="salvarGeral()"
+                  [disabled]="salvando()"
+                >
+                  @if (salvando()) {
+                    <span class="spinner-border spinner-border-sm me-2" role="status"></span>Salvando...
+                  } @else {
+                    <i class="fas fa-save me-2"></i>Salvar
+                  }
+                </button>
+              </div>
+            }
+
+          </div>
+        </div>
+
+        <!-- Coluna Direita: Card Ações Rápidas -->
+        @if (!modoEdicao()) {
+          <div class="col-xl-4 col-12">
+            <div class="card border-0 shadow-sm p-4 actions-card custom-dark-card">
+              <h4 class="h5 fw-bold mb-4 custom-dark-text">
+                <i class="fas fa-sliders-h me-2 text-primary"></i>Ações Rápidas
+              </h4>
+
+              <div class="d-grid gap-3">
+                <button
+                  type="button"
+                  (click)="habilitarEdicao()"
+                  class="btn btn-primary py-2.5 fw-bold w-100 transition-all custom-action-btn"
+                >
+                  <i class="fas fa-edit me-2"></i>Editar
+                </button>
+
+                <button
+                  type="button"
+                  (click)="excluir()"
+                  class="btn btn-outline-danger py-2.5 fw-bold w-100 transition-all custom-action-btn"
+                >
+                  <i class="fas fa-trash-can me-2"></i>Excluir
+                </button>
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+    </form>
+  } @else {
+    <div class="text-center py-5">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Carregando...</span>
+      </div>
+      <p class="text-muted mt-3">Carregando informações do usuário...</p>
+    </div>
+  }
+</div>
+
+<tm-modal
+  [show]="showDeleteModal()"
+  (confirm)="confirmarExcluir()"
+  (cancel)="cancelarExcluir()"
+  confirmLabel="Excluir"
+  cancelLabel="Cancelar"
+  title="Excluir Usuário"
+  confirmClass="btn-danger"
+>
+  <div class="p-1">
+    <p class="mb-0 text-white">Tem certeza que deseja excluir o usuário <strong>{{ usuario()?.nome }} {{ usuario()?.sobrenome }}</strong>?</p>
+    <p class="text-danger small mt-2 mb-0">
+      <i class="fas fa-exclamation-triangle me-1"></i>O acesso deste usuário ao estabelecimento será removido permanentemente.
+    </p>
+  </div>
+</tm-modal>

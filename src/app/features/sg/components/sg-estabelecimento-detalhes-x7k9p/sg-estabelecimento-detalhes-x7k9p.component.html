@@ -1,0 +1,224 @@
+<div class="container mt-5 mb-5">
+  @if (empresa(); as emp) {
+    <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between mb-4 gap-3">
+      <div class="d-flex align-items-center gap-3">
+        <button (click)="voltar()" class="btn btn-light shadow-sm rounded-circle p-0 d-flex align-items-center justify-content-center btn-voltar" title="Voltar">
+          <i class="fas fa-arrow-left custom-dark-text"></i>
+        </button>
+        <div>
+          <h2 class="h4 mb-0 fw-bold custom-dark-text d-flex align-items-center gap-2">
+            {{ emp.nomeExibicao || emp.nome }}
+          </h2>
+          <span class="text-muted small custom-dark-text">Detalhes do Estabelecimento</span>
+        </div>
+      </div>
+    </div>
+
+    <form [formGroup]="form">
+      <div class="row g-4 mb-5">
+        <div [class]="modoEdicao() ? 'col-12' : 'col-xl-8 col-12'">
+          <div class="card border-0 shadow-sm p-4 details-card custom-dark-card rounded-4">
+
+            <div class="d-flex align-items-center gap-3 border-bottom pb-4 mb-4">
+              <div class="avatar-circle bg-primary-subtle text-primary d-flex align-items-center justify-content-center">
+                <i class="fas fa-store fs-3"></i>
+              </div>
+              <div>
+                <h2 class="h3 fw-bold mb-0 custom-dark-text">{{ emp.nomeExibicao || emp.nome }}</h2>
+              </div>
+            </div>
+
+            @if (!modoEdicao()) {
+              <div class="row g-4 mb-2">
+                <div class="col-sm-6 col-12">
+                  <label class="form-label small fw-bold text-muted text-uppercase tracking-wider">Nome Oficial</label>
+                  <p class="fw-semibold mb-0 custom-dark-text">{{ emp.nome }}</p>
+                </div>
+                <div class="col-sm-6 col-12">
+                  <label class="form-label small fw-bold text-muted text-uppercase tracking-wider">Nome de Exibição</label>
+                  <p class="fw-semibold mb-0 custom-dark-text">{{ emp.nomeExibicao || '—' }}</p>
+                </div>
+                <div class="col-sm-6 col-12">
+                  <label class="form-label small fw-bold text-muted text-uppercase tracking-wider">CNPJ</label>
+                  <p class="fw-semibold mb-0 custom-dark-text">{{ emp.cnpj || '—' }}</p>
+                </div>
+                <div class="col-sm-6 col-12">
+                  <label class="form-label small fw-bold text-muted text-uppercase tracking-wider">Telefone / WhatsApp</label>
+                  <p class="fw-semibold mb-0 custom-dark-text">{{ emp.telefone || '—' }}</p>
+                </div>
+                @if (emp.descricao) {
+                  <div class="col-12">
+                    <label class="form-label small fw-bold text-muted text-uppercase tracking-wider">Descrição</label>
+                    <p class="fw-semibold mb-0 custom-dark-text">{{ emp.descricao }}</p>
+                  </div>
+                }
+                <div class="col-sm-6 col-12">
+                  <label class="form-label small fw-bold text-muted text-uppercase tracking-wider">CEP</label>
+                  <p class="fw-semibold mb-0 custom-dark-text">{{ emp.cep || '—' }}</p>
+                </div>
+                <div class="col-sm-6 col-12">
+                  <label class="form-label small fw-bold text-muted text-uppercase tracking-wider">Logradouro</label>
+                  <p class="fw-semibold mb-0 custom-dark-text">{{ emp.logradouro || '—' }}</p>
+                </div>
+                <div class="col-sm-4 col-12">
+                  <label class="form-label small fw-bold text-muted text-uppercase tracking-wider">Número</label>
+                  <p class="fw-semibold mb-0 custom-dark-text">{{ emp.numero || '—' }}</p>
+                </div>
+                <div class="col-sm-4 col-12">
+                  <label class="form-label small fw-bold text-muted text-uppercase tracking-wider">Complemento</label>
+                  <p class="fw-semibold mb-0 custom-dark-text">{{ emp.complemento || '—' }}</p>
+                </div>
+                <div class="col-sm-4 col-12">
+                  <label class="form-label small fw-bold text-muted text-uppercase tracking-wider">Bairro</label>
+                  <p class="fw-semibold mb-0 custom-dark-text">{{ emp.bairro || '—' }}</p>
+                </div>
+                <div class="col-sm-6 col-12">
+                  <label class="form-label small fw-bold text-muted text-uppercase tracking-wider">Cidade</label>
+                  <p class="fw-semibold mb-0 custom-dark-text">{{ emp.cidade || '—' }}</p>
+                </div>
+                <div class="col-sm-6 col-12">
+                  <label class="form-label small fw-bold text-muted text-uppercase tracking-wider">Estado</label>
+                  <p class="fw-semibold mb-0 custom-dark-text">{{ emp.estado || '—' }}</p>
+                </div>
+              </div>
+            } @else {
+              <div class="row g-3 mb-4">
+                <div class="col-sm-6 col-12">
+                  <tm-text formControlName="nome" label="Nome Oficial *" placeholder="Ex: MINHAEMPRESA" class="custom-dark-text"></tm-text>
+                </div>
+                <div class="col-sm-6 col-12">
+                  <tm-text formControlName="nomeExibicao" label="Nome de Exibição" placeholder="Ex: Minha Empresa Ltda" class="custom-dark-text"></tm-text>
+                </div>
+                <div class="col-sm-6 col-12">
+                  <tm-text formControlName="cnpj" label="CNPJ" placeholder="00.000.000/0000-00" [maxlength]="18" class="custom-dark-text"></tm-text>
+                </div>
+                <div class="col-sm-6 col-12">
+                  <tm-text formControlName="telefone" label="Telefone / WhatsApp" placeholder="(11) 99999-9999" mask="phone" [maxlength]="20" class="custom-dark-text"></tm-text>
+                </div>
+                <div class="col-12">
+                  <tm-text formControlName="descricao" label="Descrição" placeholder="Breve descrição do estabelecimento..." class="custom-dark-text"></tm-text>
+                </div>
+                <div class="col-sm-4 col-12">
+                  <tm-text formControlName="cep" label="CEP" placeholder="00000-000" class="custom-dark-text"></tm-text>
+                </div>
+                <div class="col-sm-8 col-12">
+                  <tm-text formControlName="logradouro" label="Logradouro" placeholder="Rua, Avenida..." class="custom-dark-text"></tm-text>
+                </div>
+                <div class="col-sm-4 col-12">
+                  <tm-text formControlName="numero" label="Número" placeholder="123" class="custom-dark-text"></tm-text>
+                </div>
+                <div class="col-sm-4 col-12">
+                  <tm-text formControlName="complemento" label="Complemento" placeholder="Sala, Bloco..." class="custom-dark-text"></tm-text>
+                </div>
+                <div class="col-sm-4 col-12">
+                  <tm-text formControlName="bairro" label="Bairro" placeholder="Centro" class="custom-dark-text"></tm-text>
+                </div>
+                <div class="col-sm-6 col-12">
+                  <tm-text formControlName="cidade" label="Cidade" placeholder="São Paulo" class="custom-dark-text"></tm-text>
+                </div>
+                <div class="col-sm-6 col-12">
+                  <tm-text formControlName="estado" label="Estado" placeholder="SP" class="custom-dark-text"></tm-text>
+                </div>
+              </div>
+              <div class="border-top pt-4 mt-4">
+                <h5 class="fw-bold mb-3 custom-dark-text"><i class="fas fa-crown text-warning me-2"></i>Plano de Assinatura</h5>
+                <div class="row g-3">
+                  <div class="col-sm-6 col-12">
+                    <tm-select formControlName="planoSistemaId" label="Selecione um plano" [options]="planosOptionsComNenhum()" [darkMode]="themeService.isDarkMode()" class="custom-dark-text"></tm-select>
+                  </div>
+                  <div class="col-sm-3 col-12">
+                    <tm-date formControlName="assinaturaValidaInicio" label="Início da Vigência" class="custom-dark-text"></tm-date>
+                  </div>
+                  <div class="col-sm-3 col-12">
+                    <tm-date formControlName="assinaturaValidaAte" label="Fim da Vigência" class="custom-dark-text"></tm-date>
+                  </div>
+                </div>
+              </div>
+            }
+
+            @if (modoEdicao()) {
+              <div class="border-top pt-4 mt-4 d-flex align-items-center justify-content-end gap-3">
+                <button type="button" class="btn btn-outline-secondary px-4 py-2.5 rounded-3 fw-bold" (click)="cancelarEdicao()" [disabled]="salvando()">
+                  <i class="fas fa-times me-2"></i>Cancelar
+                </button>
+                <button type="button" class="btn btn-primary px-4 py-2.5 rounded-3 fw-bold shadow-sm" (click)="salvarGeral()" [disabled]="salvando()">
+                  @if (salvando()) {
+                    <span class="spinner-border spinner-border-sm me-2" role="status"></span>Salvando...
+                  } @else {
+                    <i class="fas fa-save me-2"></i>Salvar
+                  }
+                </button>
+              </div>
+            }
+
+          </div>
+        </div>
+
+        @if (!modoEdicao()) {
+          <div class="col-xl-4 col-12">
+            <div class="card border-0 shadow-sm p-4 actions-card custom-dark-card">
+              <h4 class="h5 fw-bold mb-4 custom-dark-text">
+                <i class="fas fa-sliders-h me-2 text-primary"></i>Ações Rápidas
+              </h4>
+              <div class="d-grid gap-3">
+                <button type="button" (click)="habilitarEdicao()" class="btn btn-primary py-2.5 fw-bold w-100 transition-all custom-action-btn">
+                  <i class="fas fa-edit me-2"></i>Editar
+                </button>
+                <button type="button" (click)="excluir()" class="btn btn-outline-danger py-2.5 fw-bold w-100 transition-all custom-action-btn">
+                  <i class="fas fa-trash-can me-2"></i>Excluir
+                </button>
+              </div>
+            </div>
+
+            <!-- Card de Plano -->
+            <div class="card border-0 shadow-sm p-4 actions-card custom-dark-card mt-4">
+              <h4 class="h5 fw-bold mb-4 custom-dark-text">
+                <i class="fas fa-crown text-warning me-2"></i>Plano de Assinatura
+              </h4>
+              <div class="mb-3">
+                <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-3 py-1.5 rounded-pill fw-bold d-inline-block mb-2">
+                  {{ emp.planoAssinatura || 'Sem plano' }}
+                </span>
+                @if (emp.assinaturaValidaInicio) {
+                  <p class="text-muted small mb-0"><span class="text-white">Início:</span> {{ emp.assinaturaValidaInicio | date:'dd/MM/yyyy' }}</p>
+                }
+                @if (emp.assinaturaValidaAte) {
+                  <p class="text-muted small mb-0"><span class="text-white">Término:</span> {{ emp.assinaturaValidaAte | date:'dd/MM/yyyy' }}</p>
+                }
+                @if (!emp.assinaturaValidaInicio && !emp.assinaturaValidaAte) {
+                  <p class="text-muted small mb-0">Período não definido</p>
+                }
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+    </form>
+
+
+  } @else {
+    <div class="text-center py-5">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Carregando...</span>
+      </div>
+      <p class="text-muted mt-3">Carregando informações do estabelecimento...</p>
+    </div>
+  }
+</div>
+
+<tm-modal
+  [show]="showDeleteConfirmModal()"
+  (confirm)="confirmarExcluir()"
+  (cancel)="cancelarExcluir()"
+  confirmLabel="Excluir"
+  cancelLabel="Cancelar"
+  title="Excluir Estabelecimento"
+  confirmClass="btn-danger"
+>
+  <div class="p-1">
+    <p class="mb-0 text-white">Tem certeza que deseja excluir o estabelecimento <strong>{{ empresa()?.nomeExibicao || empresa()?.nome }}</strong>?</p>
+    <p class="text-danger small mt-2 mb-0">
+      <i class="fas fa-exclamation-triangle me-1"></i>Todos os dados associados (usuários, agendamentos, clientes) serão excluídos permanentemente.
+    </p>
+  </div>
+</tm-modal>

@@ -1,0 +1,60 @@
+<div class="login-page">
+  <div class="login-container">
+    <div class="login-card">
+      <div class="login-header">
+        <div class="d-inline-flex align-items-center justify-content-center bg-primary-subtle text-primary rounded-circle mb-3 p-3 shadow-sm">
+          <i class="fas fa-user-shield fs-2"></i>
+        </div>
+        <h1>Groom • SG System</h1>
+        <p>Sistema de Gerenciamento Master</p>
+      </div>
+
+      @if (errorMessage()) {
+        <div class="error-banner">
+          {{ errorMessage() }}
+        </div>
+      }
+
+      <form [formGroup]="sgLoginForm" (ngSubmit)="onSubmit()" class="login-form" autocomplete="on">
+        <div class="form-group">
+          <tm-text
+            formControlName="usuario"
+            label="Usuário / E-mail Master"
+            placeholder="Digite seu usuário ou e-mail"
+            name="usuario"
+            autocomplete="username"
+            [control]="sgLoginForm.get('usuario')">
+          </tm-text>
+        </div>
+
+        <div class="form-group">
+          <tm-text
+            formControlName="password"
+            label="Senha Master"
+            type="password"
+            placeholder="Digite sua senha"
+            name="password"
+            autocomplete="current-password"
+            [control]="sgLoginForm.get('password')">
+          </tm-text>
+        </div>
+
+        <div class="form-actions">
+          <label class="remember-me">
+            <input type="checkbox" formControlName="rememberMe">
+            <span>Manter conectado</span>
+          </label>
+        </div>
+
+        <button type="submit" class="btn-primary" [disabled]="isLoading()">
+          @if (isLoading()) {
+            <span>Autenticando SG...</span>
+          } @else {
+            <i class="fas fa-lock me-2"></i><span>Acessar Painel SG</span>
+          }
+        </button>
+      </form>
+    </div>
+  </div>
+  <app-footer></app-footer>
+</div>

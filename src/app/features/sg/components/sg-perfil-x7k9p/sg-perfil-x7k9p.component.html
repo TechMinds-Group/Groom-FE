@@ -1,0 +1,92 @@
+<div class="container mt-5 mb-5">
+  <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between mb-4 gap-3">
+    <div class="d-flex align-items-center gap-3">
+      <button (click)="voltar()" class="btn btn-light shadow-sm rounded-circle p-0 d-flex align-items-center justify-content-center btn-voltar" title="Voltar">
+        <i class="fas fa-arrow-left custom-dark-text"></i>
+      </button>
+      <div>
+        <h2 class="h4 mb-0 fw-bold custom-dark-text d-flex align-items-center gap-2">
+          Gerenciamento SG • Perfil Master
+        </h2>
+        <span class="text-muted small custom-dark-text">Gerencie os dados do usuário administrador do painel SG</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-4">
+    <!-- Card Dados de Perfil -->
+    <div class="col-lg-6 col-12">
+      <form [formGroup]="perfilForm" (ngSubmit)="salvarPerfil()">
+        <div class="card border-0 shadow-sm p-4 custom-dark-card rounded-4 h-100">
+          <div class="d-flex align-items-center gap-3 border-bottom pb-4 mb-4">
+            <div class="avatar-circle bg-primary-subtle text-primary d-flex align-items-center justify-content-center">
+              <i class="fas fa-user-shield fs-3"></i>
+            </div>
+            <div>
+              <h3 class="h4 fw-bold mb-0 custom-dark-text">Identificação Master</h3>
+              <span class="text-muted small">Alterar usuário e e-mail master SG</span>
+            </div>
+          </div>
+
+          <div class="row g-3 mb-4">
+            <div class="col-12">
+              <tm-text formControlName="novoUsuario" label="Usuário Master *" placeholder="micheladm" class="custom-dark-text"></tm-text>
+            </div>
+            <div class="col-12">
+              <tm-text formControlName="novoEmail" label="E-mail Master" placeholder="micheladm@fasto.com" class="custom-dark-text"></tm-text>
+            </div>
+          </div>
+
+          <div class="border-top pt-4 mt-auto d-flex align-items-center justify-content-end">
+            <button type="submit" class="btn btn-primary px-4 py-2.5 rounded-3 fw-bold shadow-sm" [disabled]="salvandoPerfil()">
+              @if (salvandoPerfil()) {
+                <span class="spinner-border spinner-border-sm me-2" role="status"></span>Salvando...
+              } @else {
+                <i class="fas fa-save me-2"></i>Salvar Perfil
+              }
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+
+    <!-- Card Alteração de Senha -->
+    <div class="col-lg-6 col-12">
+      <form [formGroup]="senhaForm" (ngSubmit)="alterarSenha()">
+        <div class="card border-0 shadow-sm p-4 custom-dark-card rounded-4 h-100">
+          <div class="d-flex align-items-center gap-3 border-bottom pb-4 mb-4">
+            <div class="avatar-circle bg-warning-subtle text-warning d-flex align-items-center justify-content-center">
+              <i class="fas fa-key fs-3"></i>
+            </div>
+            <div>
+              <h3 class="h4 fw-bold mb-0 custom-dark-text">Segurança & Senha</h3>
+              <span class="text-muted small">Alterar senha de acesso ao painel SG</span>
+            </div>
+          </div>
+
+          <div class="row g-3 mb-4">
+            <div class="col-12">
+              <tm-text formControlName="senhaAtual" label="Senha Atual *" type="password" placeholder="Digite sua senha atual" class="custom-dark-text"></tm-text>
+            </div>
+            <div class="col-12">
+              <tm-text formControlName="novaSenha" label="Nova Senha *" type="password" placeholder="Mínimo de 6 caracteres" class="custom-dark-text"></tm-text>
+            </div>
+            <div class="col-12">
+              <tm-text formControlName="confirmarNovaSenha" label="Confirmar Nova Senha *" type="password" placeholder="Repita a nova senha" class="custom-dark-text"></tm-text>
+            </div>
+          </div>
+
+          <div class="border-top pt-4 mt-auto d-flex align-items-center justify-content-end">
+            <button type="submit" class="btn btn-warning px-4 py-2.5 rounded-3 fw-bold shadow-sm text-dark" [disabled]="salvandoSenha()">
+              @if (salvandoSenha()) {
+                <span class="spinner-border spinner-border-sm me-2" role="status"></span>Alterando...
+              } @else {
+                <i class="fas fa-lock me-2"></i>Alterar Senha
+              }
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

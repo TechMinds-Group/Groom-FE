@@ -52,9 +52,10 @@ export class MainLayoutComponent {
 
   handleLogout(): void {
     this.mobileDrawerOpen.set(false);
+    const isSg = this.router.url.includes('/sg-');
     this.authService.logout().subscribe({
-      next: () => this.router.navigate(['/login']),
-      error: () => this.router.navigate(['/login']),
+      next: () => this.router.navigate([isSg ? '/sg-auth-x7k9p' : '/login']),
+      error: () => this.router.navigate([isSg ? '/sg-auth-x7k9p' : '/login']),
     });
   }
 }

@@ -264,7 +264,87 @@ export const routes: Routes = [
         redirectTo: 'gestao/gestao-usuarios/:id',
         pathMatch: 'full',
       },
+      {
+        path: 'sg-estabelecimentos-x7k9p',
+        loadComponent: () =>
+          import('./features/sg/components/sg-estabelecimentos-x7k9p/sg-estabelecimentos-x7k9p.component').then(
+            (m) => m.SgEstabelecimentosX7k9pComponent,
+          ),
+      },
+      {
+        path: 'sg-estabelecimento-detalhes-x7k9p/:id',
+        loadComponent: () =>
+          import('./features/sg/components/sg-estabelecimento-detalhes-x7k9p/sg-estabelecimento-detalhes-x7k9p.component').then(
+            (m) => m.SgEstabelecimentoDetalhesX7k9pComponent,
+          ),
+      },
+      {
+        path: 'sg-estabelecimento-novo-x7k9p',
+        loadComponent: () =>
+          import('./features/sg/components/sg-estabelecimento-novo-x7k9p/sg-estabelecimento-novo-x7k9p.component').then(
+            (m) => m.SgEstabelecimentoNovoX7k9pComponent,
+          ),
+      },
+      {
+        path: 'sg-estabelecimento-usuarios-x7k9p/:empresaId',
+        loadComponent: () =>
+          import('./features/sg/components/sg-estabelecimento-usuarios-x7k9p/sg-estabelecimento-usuarios-x7k9p.component').then(
+            (m) => m.SgEstabelecimentoUsuariosX7k9pComponent,
+          ),
+      },
+      {
+        path: 'sg-estabelecimento-usuario-detalhes-x7k9p/:empresaId/:id',
+        loadComponent: () =>
+          import('./features/sg/components/sg-estabelecimento-usuario-detalhes-x7k9p/sg-estabelecimento-usuario-detalhes-x7k9p.component').then(
+            (m) => m.SgEstabelecimentoUsuarioDetalhesX7k9pComponent,
+          ),
+      },
+      {
+        path: 'sg-usuario-novo-x7k9p/:empresaId',
+        loadComponent: () =>
+          import('./features/sg/components/sg-usuario-novo-x7k9p/sg-usuario-novo-x7k9p.component').then(
+            (m) => m.SgUsuarioNovoX7k9pComponent,
+          ),
+      },
+      {
+        path: 'sg-planos-x7k9p',
+        loadComponent: () =>
+          import('./features/sg/components/sg-planos-x7k9p/sg-planos-x7k9p.component').then(
+            (m) => m.SgPlanosX7k9pComponent,
+          ),
+      },
+      {
+        path: 'sg-plano-novo-x7k9p',
+        loadComponent: () =>
+          import('./features/sg/components/sg-plano-novo-x7k9p/sg-plano-novo-x7k9p.component').then(
+            (m) => m.SgPlanoNovoX7k9pComponent,
+          ),
+      },
+      {
+        path: 'sg-plano-editar-x7k9p/:id',
+        loadComponent: () =>
+          import('./features/sg/components/sg-plano-editar-x7k9p/sg-plano-editar-x7k9p.component').then(
+            (m) => m.SgPlanoEditarX7k9pComponent,
+          ),
+      },
+      {
+        path: 'sg-perfil-x7k9p',
+        loadComponent: () =>
+          import('./features/sg/components/sg-perfil-x7k9p/sg-perfil-x7k9p.component').then(
+            (m) => m.SgPerfilX7k9pComponent,
+          ),
+      },
     ],
+  },
+  {
+    path: 'sg-auth-x7k9p',
+    loadComponent: () =>
+      import('./features/sg/components/sg-login-x7k9p/sg-login-x7k9p.component').then((m) => m.SgLoginX7k9pComponent),
+  },
+  {
+    path: 'sg-login',
+    redirectTo: 'sg-auth-x7k9p',
+    pathMatch: 'full',
   },
   {
     path: 'login',
