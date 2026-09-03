@@ -1,6 +1,6 @@
 import { Injectable, inject, signal, computed } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, Subject, tap, switchMap } from 'rxjs';
+import { Observable, Subject, tap, switchMap, catchError, of } from 'rxjs';
 import { environment } from '../../../environments/environment';
 
 
@@ -117,6 +117,17 @@ export class AuthService {
         this._currentUser.set(null);
         this._logout$.next();
       })
+    );
+  }
+
+  getSgMe(): Observable<UserContext | null> {
+    return this.http.get<UserContext>(`${environment.apiUrl}/sg-me`, { withCredentials: true }).pipe(
+      tap((user) => {
+        if (user && window.location.pathname.includes('/sg-')) {
+          this._currentUser.set(user);
+        }
+      }),
+      catchError(() => of(null))
     );
   }
 

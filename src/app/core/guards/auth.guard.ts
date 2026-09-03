@@ -9,21 +9,31 @@ export const authGuard: CanActivateFn = (route, state) => {
   const router = inject(Router);
   const toastService = inject(TmToastService);
 
-  return authService.getMe().pipe(
+  const isSgRoute = state.url.includes('/sg-');
+  const checkAuth$ = isSgRoute ? authService.getSgMe() : authService.getMe();
+
+  return checkAuth$.pipe(
     map(user => {
       if (!user) {
-        if (state.url.includes('/sg-')) {
+        if (isSgRoute) {
           return router.createUrlTree(['/sg-auth-x7k9p']);
         }
         return router.createUrlTree(['/login']);
       }
 
-      // Se for SuperAdmin ou rota SG, possui acesso livre
       const roles = user.roles ?? [];
       const role = user.role ?? '';
-      const isSuperAdmin = role === 'SuperAdmin' || roles.includes('SuperAdmin') || user.email === 'micheladm@fasto.com' || user.email?.startsWith('micheladm') || state.url.includes('/sg-');
+      const isSuperAdminUser = role === 'SuperAdmin' || roles.includes('SuperAdmin') || user.email === 'micheladm@fasto.com' || user.email?.startsWith('micheladm');
 
-      if (isSuperAdmin) {
+      if (isSgRoute) {
+        if (isSuperAdminUser) {
+          return true;
+        }
+        toastService.error('Acesso restrito. Você não tem permissão para acessar o Painel SG.', 'Acesso Negado');
+        return router.createUrlTree(['/dashboard']);
+      }
+
+      if (isSuperAdminUser) {
         return true;
       }
 

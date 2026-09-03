@@ -140,6 +140,8 @@ export class AssinaturaSistemaComponent implements OnInit, OnDestroy {
     this.pararPollingStatus();
   }
 
+  private todosPlanosRecebidos: PlanoAssinatura[] = [];
+
   private carregarPlanoAtual(): void {
     this.assinaturaService.getPlanoAtual().subscribe({
       next: (plano: PlanoAssinatura) => {
@@ -164,9 +166,7 @@ export class AssinaturaSistemaComponent implements OnInit, OnDestroy {
           email: plano.email,
         });
 
-        if (!this.planoSelecionado()) {
-          this.planoSelecionado.set(plano);
-        }
+        this.filtrarApenasPlanoDoEstabelecimento(plano);
       },
     });
   }
@@ -175,19 +175,39 @@ export class AssinaturaSistemaComponent implements OnInit, OnDestroy {
     this.assinaturaService.getPlanosDisponiveis().subscribe({
       next: (planos: PlanoAssinatura[]) => {
         if (Array.isArray(planos) && planos.length > 0) {
-          const planoAtual = planos.find((p) => p.nome === this.planoGroom().nome);
-          if (planoAtual) {
-            this.planosDisponiveis.set([planoAtual]);
-            this.planoSelecionado.set(planoAtual);
-          } else {
-            this.planosDisponiveis.set([]);
-          }
+          this.todosPlanosRecebidos = planos;
+          this.filtrarApenasPlanoDoEstabelecimento();
+        } else {
+          this.planosDisponiveis.set([]);
         }
       },
       error: () => {
         this.planosDisponiveis.set([]);
       },
     });
+  }
+
+  private filtrarApenasPlanoDoEstabelecimento(planoBase?: PlanoAssinatura): void {
+    const nomeAlvo = (planoBase?.nome || this.planoGroom().nome || '').trim().toLowerCase();
+    if (!nomeAlvo || nomeAlvo === this.languageService.translate('ASSINATURA.LOADING').toLowerCase()) {
+      return;
+    }
+
+    let planoEncontrado = this.todosPlanosRecebidos.find(
+      (p) => p.nome.trim().toLowerCase() === nomeAlvo
+    );
+
+    if (!planoEncontrado && planoBase && planoBase.id) {
+      planoEncontrado = planoBase;
+    }
+
+    if (planoEncontrado) {
+      this.planosDisponiveis.set([planoEncontrado]);
+      this.planoSelecionado.set(planoEncontrado);
+    } else if (this.todosPlanosRecebidos.length > 0) {
+      this.planosDisponiveis.set([this.todosPlanosRecebidos[0]]);
+      this.planoSelecionado.set(this.todosPlanosRecebidos[0]);
+    }
   }
 
   protected aoSelecionarPlano(plano: PlanoAssinatura): void {
