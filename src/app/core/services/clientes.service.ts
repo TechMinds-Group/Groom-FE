@@ -1,5 +1,5 @@
 import { inject, Injectable, signal } from '@angular/core';
-import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { Cliente } from '../models/clientes/cliente.model';
@@ -76,14 +76,24 @@ export class ClientesService {
     );
   }
 
-  async importarClientesTuaAgenda(file: File): Promise<ImportacaoClienteResult> {
+  async importarClientesTuaAgenda(file: File, empresaId?: string): Promise<ImportacaoClienteResult> {
     const formData = new FormData();
     formData.append('file', file, file.name);
 
+    let headers = new HttpHeaders();
+    if (empresaId) {
+      headers = headers.set('X-Tenant-Id', empresaId);
+    }
+
     const result = await firstValueFrom(
-      this.http.post<ImportacaoClienteResult>(`${this.apiUrl}/importar/tua-agenda`, formData, { withCredentials: true })
+      this.http.post<ImportacaoClienteResult>(`${this.apiUrl}/importar/tua-agenda`, formData, {
+        headers,
+        withCredentials: true,
+      })
     );
-    await this.carregarClientes();
+    if (!empresaId) {
+      await this.carregarClientes();
+    }
     return result;
   }
 }

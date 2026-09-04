@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, DestroyRef, inject, ChangeDetectorRef, OnInit, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, Location } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { ReactiveFormsModule, FormBuilder, FormGroup } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -52,6 +52,7 @@ export class WhatsappIntegracaoComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly cdr = inject(ChangeDetectorRef);
   private readonly router = inject(Router);
+  private readonly location = inject(Location);
   private readonly toastService = inject(TmToastService);
   private readonly apiUrl = `${environment.apiUrl}/api/whatsapp`;
 
@@ -96,7 +97,7 @@ export class WhatsappIntegracaoComponent implements OnInit {
   protected toggleBlocoAjuda(): void { this.blocoAjudaExpandido.update(v => !v); }
 
   protected voltar(): void {
-    this.router.navigate(['/configuracoes']);
+    this.location.back();
   }
 
 
@@ -204,7 +205,13 @@ export class WhatsappIntegracaoComponent implements OnInit {
       const raw = await firstValueFrom(
         this.http.get<InstancesResponse>(`${this.apiUrl}/devices`),
       );
-      this.dispositivos.set(Array.isArray(raw) ? raw : []);
+      const lista = Array.isArray(raw) ? raw : [];
+      const conectados = lista.filter(d => 
+        d.connectionStatus === 'open' || 
+        (d as any).status === 'open' || 
+        (d as any).state === 'open'
+      );
+      this.dispositivos.set(conectados);
     } catch {
       this.dispositivos.set([]);
     }

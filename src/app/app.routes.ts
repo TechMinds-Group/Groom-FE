@@ -221,8 +221,8 @@ export const routes: Routes = [
         children: [
           {
             path: '',
-            loadComponent: () =>
-              import('./features/configuracoes/configuracoes.component').then((m) => m.ConfiguracoesComponent),
+            redirectTo: 'estabelecimento',
+            pathMatch: 'full',
           },
           {
             path: 'estabelecimento',
@@ -230,6 +230,13 @@ export const routes: Routes = [
               import(
                 './features/configuracoes/components/estabelecimento-config/estabelecimento-config.component'
               ).then((m) => m.EstabelecimentoConfigComponent),
+          },
+          {
+            path: 'horarios',
+            loadComponent: () =>
+              import(
+                './features/configuracoes/components/horario-config/horario-config.component'
+              ).then((m) => m.HorarioConfigComponent),
           },
           {
             path: 'whatsapp',
@@ -284,6 +291,13 @@ export const routes: Routes = [
           import('./features/sg/components/sg-estabelecimento-novo-x7k9p/sg-estabelecimento-novo-x7k9p.component').then(
             (m) => m.SgEstabelecimentoNovoX7k9pComponent,
           ),
+      },
+      {
+        path: 'sg-estabelecimento-importacao-x7k9p/:empresaId',
+        loadComponent: () =>
+          import(
+            './features/sg/components/sg-estabelecimento-importacao-x7k9p/sg-estabelecimento-importacao-x7k9p.component'
+          ).then((m) => m.SgEstabelecimentoImportacaoX7k9pComponent),
       },
       {
         path: 'sg-estabelecimento-usuarios-x7k9p/:empresaId',

@@ -52,7 +52,8 @@ export const ALL_SIDEBAR_MENU_ITEMS: MenuItem[] = [
     icon: 'fas fa-cog',
     roles: ['Administrador'],
     subItems: [
-      { label: 'Estabelecimento', icon: 'fas fa-store', route: '/configuracoes/estabelecimento' },
+      { label: 'Estabelecimento', icon: 'fas fa-id-card', route: '/configuracoes/estabelecimento' },
+      { label: 'Horário de Funcionamento', icon: 'fas fa-clock', route: '/configuracoes/horarios' },
       { label: 'WhatsApp', icon: 'fab fa-whatsapp', route: '/configuracoes/whatsapp' },
       { label: 'Feriados e Bloqueios', icon: 'fas fa-calendar-times', route: '/configuracoes/feriados' },
       { label: 'Minha Assinatura', icon: 'fas fa-credit-card', route: '/assinatura' },
@@ -84,7 +85,7 @@ export const VISIBLE_SIDEBAR_MENUS: string[] = [
  */
 export function filterMenuByRoles(items: MenuItem[], roles: string[]): MenuItem[] {
   return items
-    .filter((item) => !item.roles || item.roles.some((r) => roles.includes(r)))
+    .filter((item) => !item.roles || roles.includes('SuperAdmin') || item.roles.some((r) => roles.includes(r)))
     .map((item) =>
       item.subItems
         ? { ...item, subItems: filterMenuByRoles(item.subItems, roles) }

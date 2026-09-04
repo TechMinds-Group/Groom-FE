@@ -8,6 +8,7 @@
     </div>
   </div>
 
+  <!-- Validade do Link Compartilhável -->
   <div class="card border-0 shadow-sm p-4 custom-dark-card">
     <div class="row g-4">
       <div class="col-12">
@@ -48,22 +49,58 @@
     </div>
   </div>
 
+  <!-- Card 1: Perfil e Identidade do Estabelecimento -->
   <div class="card border-0 shadow-sm p-4 mt-4 custom-dark-card">
     <div class="row g-4">
       <div class="col-12">
         <h5 class="fw-semibold custom-dark-text">
-          <i class="fas fa-store me-2"></i>Configurações do Estabelecimento
+          <i class="fas fa-id-card me-2"></i>Perfil e Identidade do Estabelecimento
         </h5>
         <p class="text-muted small mb-3 custom-dark-text">
-          Configure os horários de funcionamento, expedientes e intervalos da sua barbearia para sincronização com a agenda.
+          Personalize a logo, foto de capa, nome, CNPJ, telefone de contato e endereço exibidos aos seus clientes.
         </p>
         <a routerLink="/configuracoes/estabelecimento" class="btn btn-primary px-4 fw-bold btn-action-responsive">
-          <i class="fas fa-store me-2"></i>Gerenciar Estabelecimento
+          <i class="fas fa-id-card me-2"></i>Gerenciar Estabelecimento
         </a>
       </div>
     </div>
   </div>
 
+  <!-- Card 2: Horário de Funcionamento -->
+  <div class="card border-0 shadow-sm p-4 mt-4 custom-dark-card">
+    <div class="row g-4">
+      <div class="col-12">
+        <h5 class="fw-semibold custom-dark-text">
+          <i class="fas fa-clock me-2"></i>Horário de Funcionamento
+        </h5>
+        <p class="text-muted small mb-3 custom-dark-text">
+          Configure os dias ativos, expedientes de abertura/fechamento e intervalos para sincronização com a agenda.
+        </p>
+        <a routerLink="/configuracoes/horarios" class="btn btn-primary px-4 fw-bold btn-action-responsive">
+          <i class="fas fa-clock me-2"></i>Gerenciar Horários
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Card 3: Importação de Dados -->
+  <div class="card border-0 shadow-sm p-4 mt-4 custom-dark-card">
+    <div class="row g-4">
+      <div class="col-12">
+        <h5 class="fw-semibold custom-dark-text">
+          <i class="fas fa-file-import me-2"></i>Importação de Dados
+        </h5>
+        <p class="text-muted small mb-3 custom-dark-text">
+          Importe a lista de clientes exportada de outras plataformas (ex: Tua Agenda) diretamente para o sistema.
+        </p>
+        <a routerLink="/configuracoes/importacao" class="btn btn-primary px-4 fw-bold btn-action-responsive">
+          <i class="fas fa-file-import me-2"></i>Gerenciar Importação
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Card 4: Integração WhatsApp -->
   <div class="card border-0 shadow-sm p-4 mt-4 custom-dark-card">
     <div class="row g-4">
       <div class="col-12">
