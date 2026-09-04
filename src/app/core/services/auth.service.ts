@@ -34,11 +34,19 @@ export class AuthService {
   
   private readonly _currentUser = signal<UserContext | null>(null);
   public readonly currentUser = this._currentUser.asReadonly();
-  public readonly isAdmin = computed(() => this._currentUser()?.role === 'Administrador');
+  public readonly isAdmin = computed(() => {
+    const role = this._currentUser()?.role;
+    const roles = this._currentUser()?.roles ?? [];
+    return role === 'SuperAdmin' || role === 'Administrador' || roles.includes('SuperAdmin') || roles.includes('Administrador');
+  });
   public readonly currentUserId = computed(() => this._currentUser()?.id);
 
   /** Verifica se o usuário possui o perfil de Administrador em qualquer nível (primário ou secundário). */
-  public readonly hasAdminRole = computed(() => this._currentUser()?.roles?.includes('Administrador') ?? false);
+  public readonly hasAdminRole = computed(() => {
+    const role = this._currentUser()?.role;
+    const roles = this._currentUser()?.roles ?? [];
+    return role === 'SuperAdmin' || roles.includes('SuperAdmin') || roles.includes('Administrador');
+  });
 
   /** Verifica se o usuário possui o perfil de Profissional em qualquer nível (primário ou secundário). */
   public readonly isProfissional = computed(() => this._currentUser()?.roles?.includes('Profissional') ?? false);

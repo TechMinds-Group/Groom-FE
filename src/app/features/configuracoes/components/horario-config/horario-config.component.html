@@ -1,0 +1,161 @@
+<div class="container mt-5 mb-5">
+  <!-- Header: Voltar + Nome da Tela + Subtítulo -->
+  <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between mb-4 gap-3">
+    <div class="d-flex align-items-center gap-3">
+      <button
+        (click)="voltar()"
+        type="button"
+        class="btn btn-light shadow-sm rounded-circle p-0 d-flex align-items-center justify-content-center btn-voltar"
+        style="width: 40px; height: 40px;"
+        title="Voltar"
+      >
+        <i class="fas fa-arrow-left custom-dark-text"></i>
+      </button>
+
+      <div>
+        <h2 class="h4 mb-0 fw-bold custom-dark-text d-flex align-items-center gap-2">
+          Horário de Funcionamento
+        </h2>
+        <span class="text-muted small custom-dark-text">Configure os dias ativos e os horários de expediente/intervalo</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Card Principal (details-card custom-dark-card rounded-4) -->
+  <div class="card border-0 shadow-sm p-4 details-card custom-dark-card rounded-4 mb-5">
+
+    <!-- Lista de Dias de Funcionamento -->
+    <div class="d-flex flex-column gap-3 mb-4">
+      @for (dia of diasFuncionamento(); track dia.diaSemana) {
+        <div class="dia-card p-3 p-md-4 rounded-3 border border-secondary-subtle">
+          <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-2">
+            <div class="d-flex align-items-center gap-2 gap-sm-3 min-w-0 flex-fill">
+              <div class="form-check form-switch mb-0 shrink-0">
+                <input
+                  class="form-check-input"
+                  type="checkbox"
+                  role="switch"
+                  [id]="'switch-dia-' + dia.diaSemana"
+                  [(ngModel)]="dia.ativo"
+                  (ngModelChange)="notificarAlteracao()"
+                />
+              </div>
+              <label
+                class="form-check-label fw-bold custom-dark-text fs-6 mb-0 text-break"
+                [for]="'switch-dia-' + dia.diaSemana"
+              >
+                {{ DIAS_SEMANA_LABELS[dia.diaSemana].label }}
+              </label>
+              @if (!dia.ativo) {
+                <span
+                  class="badge bg-secondary-subtle text-secondary border px-2 py-1 small shrink-0 ms-2"
+                  >Fechado</span
+                >
+              }
+            </div>
+
+            @if (dia.ativo) {
+              <button
+                type="button"
+                class="btn btn-outline-secondary btn-sm rounded-3 px-3 py-1 transition-hover btn-action-responsive ms-lg-auto my-2 mt-lg-0"
+                (click)="copiarParaTodos(dia); $event.stopPropagation()"
+                title="Copiar estes horários para todos os outros dias"
+              >
+                <i class="fas fa-copy me-1"></i><span>Copiar para todos os dias</span>
+              </button>
+            }
+          </div>
+
+          @if (dia.ativo) {
+            <div class="mt-2">
+              <div class="row g-2 g-md-3">
+                <!-- Coluna 1: Horário de Funcionamento -->
+                <div class="col-12 col-md-6">
+                  <div class="horario-header mb-2">
+                    <span class="small fw-bold text-uppercase custom-dark-text">
+                      Horário de Funcionamento
+                    </span>
+                  </div>
+                  <div class="d-flex align-items-center gap-2 w-100">
+                    <div class="flex-fill min-w-0">
+                      <tm-time [(ngModel)]="dia.horaAbertura" (ngModelChange)="notificarAlteracao()"></tm-time>
+                    </div>
+                    <span class="small text-muted custom-dark-text shrink-0 px-1">até</span>
+                    <div class="flex-fill min-w-0">
+                      <tm-time [(ngModel)]="dia.horaFechamento" (ngModelChange)="notificarAlteracao()"></tm-time>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Coluna 2: Intervalo -->
+                <div class="col-12 col-md-6 mt-3 mt-md-0 intervalo-col-padding">
+                  <div class="horario-header mb-2">
+                    <div class="form-check form-switch mb-0 shrink-0">
+                      <input
+                        class="form-check-input"
+                        type="checkbox"
+                        role="switch"
+                        [id]="'switch-intervalo-' + dia.diaSemana"
+                        [(ngModel)]="dia.temIntervalo"
+                        (ngModelChange)="notificarAlteracao()"
+                      />
+                    </div>
+                    <label
+                      class="form-check-label small fw-bold text-uppercase custom-dark-text mb-0 cursor-pointer"
+                      [for]="'switch-intervalo-' + dia.diaSemana"
+                    >
+                      Intervalo
+                    </label>
+                  </div>
+                  @if (dia.temIntervalo) {
+                    <div class="d-flex align-items-center gap-2 w-100">
+                      <div class="flex-fill min-w-0">
+                        <tm-time [(ngModel)]="dia.intervaloInicio" (ngModelChange)="notificarAlteracao()"></tm-time>
+                      </div>
+                      <span class="small text-muted custom-dark-text shrink-0 px-1">até</span>
+                      <div class="flex-fill min-w-0">
+                        <tm-time [(ngModel)]="dia.intervaloFim" (ngModelChange)="notificarAlteracao()"></tm-time>
+                      </div>
+                    </div>
+                  }
+                </div>
+              </div>
+            </div>
+          }
+        </div>
+      }
+    </div>
+
+    <!-- Barra de Ações Internas -->
+    @if (temAlteracoes()) {
+      <div
+        class="pt-4 mt-4 border-top border-secondary-subtle d-flex flex-column flex-lg-row align-items-stretch align-items-lg-center justify-content-between gap-3"
+      >
+        <div
+          class="d-flex flex-column flex-lg-row gap-2 w-100 w-lg-auto ms-auto justify-content-lg-end"
+        >
+          <button
+            type="button"
+            class="btn btn-outline-secondary px-4 py-2 fw-semibold rounded-3 btn-action-responsive"
+            (click)="cancelarAlteracoes()"
+            [disabled]="salvando()"
+          >
+            <i class="fas fa-times me-2"></i>Cancelar
+          </button>
+
+          <button
+            type="button"
+            class="btn btn-primary px-4 py-2 fw-bold rounded-3 btn-action-responsive"
+            (click)="salvar()"
+            [disabled]="salvando()"
+          >
+            @if (salvando()) {
+              <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+            }
+            <i class="fas fa-save me-2"></i>Salvar
+          </button>
+        </div>
+      </div>
+    }
+  </div>
+</div>

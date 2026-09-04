@@ -124,6 +124,23 @@ export class EstabelecimentoService {
     return firstValueFrom(this.http.get<EstabelecimentoInfo>(`${this.apiUrl}/info`));
   }
 
+  async carregarValidadeLink(): Promise<number> {
+    try {
+      const response = await firstValueFrom(
+        this.http.get<{ dias: number }>(`${environment.apiUrl}/configuracoes/link`),
+      );
+      return response.dias;
+    } catch {
+      return 5;
+    }
+  }
+
+  async salvarValidadeLink(dias: number): Promise<void> {
+    await firstValueFrom(
+      this.http.put(`${environment.apiUrl}/configuracoes/link`, { dias }),
+    );
+  }
+
   /** Obtém o link público de agendamento; no primeiro acesso o backend gera e persiste. */
   async obterLinkAgendamento(): Promise<string> {
     const data = await firstValueFrom(this.http.get<{ link: string }>(`${this.apiUrl}/link-agendamento`));

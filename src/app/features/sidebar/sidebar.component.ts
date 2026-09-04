@@ -46,7 +46,7 @@ export class SidebarComponent {
 
     if (isSgRoute && isSuperAdminUser) {
       if (path.includes('/sg-estabelecimento-')) {
-        const match = path.match(/\/sg-estabelecimento-(?:detalhes|usuarios|usuario-novo|usuario-detalhes|usuario-editar)-x7k9p\/([a-f0-9-]+)/i);
+        const match = path.match(/\/sg-estabelecimento-(?:detalhes|usuarios|usuario-novo|usuario-detalhes|usuario-editar|importacao)-x7k9p\/([a-f0-9-]+)/i);
         const empId = match ? match[1] : '';
 
         return [
@@ -59,6 +59,11 @@ export class SidebarComponent {
             label: 'Usuários',
             icon: 'fas fa-users',
             route: empId ? `/sg-estabelecimento-usuarios-x7k9p/${empId}` : '#',
+          },
+          {
+            label: 'Importação de Dados',
+            icon: 'fas fa-file-import',
+            route: empId ? `/sg-estabelecimento-importacao-x7k9p/${empId}` : '#',
           },
           {
             label: 'Sair',
@@ -147,6 +152,7 @@ export class SidebarComponent {
         } else if (item.label === 'Configurações') {
           filteredSubs = filteredSubs.filter(sub => {
             if (sub.label === 'Estabelecimento' && configuracoesSub.estabelecimento === false) return false;
+            if (sub.label === 'Horário de Funcionamento' && configuracoesSub.estabelecimento === false) return false;
             if (sub.label === 'WhatsApp' && configuracoesSub.whatsapp === false) return false;
             if (sub.label === 'Minha Assinatura' && configuracoesSub.assinatura === false) return false;
             if (sub.label === 'Logs do Sistema' && configuracoesSub.logs === false) return false;

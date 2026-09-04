@@ -82,7 +82,7 @@ export const authGuard: CanActivateFn = (route, state) => {
       } else if (url.startsWith('/configuracoes') || url.startsWith('/assinatura')) {
         if (acessos.configuracoes === false) {
           bloqueado = true; menuNome = 'Configurações';
-        } else if (url.includes('/estabelecimento') && configuracoesSub.estabelecimento === false) {
+        } else if ((url.includes('/estabelecimento') || url.includes('/horarios') || url.includes('/importacao')) && configuracoesSub.estabelecimento === false) {
           bloqueado = true; menuNome = 'Configurações do Estabelecimento';
         } else if (url.includes('/whatsapp') && configuracoesSub.whatsapp === false) {
           bloqueado = true; menuNome = 'Integração WhatsApp';

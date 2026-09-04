@@ -7,66 +7,36 @@ import {
   OnInit,
   signal,
 } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, Location } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
-import { TmTimeComponent, TmToastService } from '@techminds-group/tm-angular-lib';
+import { TmToastService } from '@techminds-group/tm-angular-lib';
 import {
   EstabelecimentoInfo,
   EstabelecimentoService,
   obterIconeAleatorioCapa,
   obterIconeAleatorioLogo,
 } from '../../../../core/services/estabelecimento.service';
-import {
-  DiaFuncionamento,
-  DIAS_SEMANA_ESTABELECIMENTO,
-} from '../../../../core/models/configuracoes/horario-estabelecimento.model';
-import {
-  ClientesService,
-  ImportacaoClienteResult,
-} from '../../../../core/services/clientes.service';
 
 /**
- * Componente de Gestão do Estabelecimento (RF-32).
- * Contém blocos colapsáveis de configuração (ex.: Horário de Funcionamento, Importação de Dados).
+ * Componente de Gestão do Perfil e Identidade do Estabelecimento.
  */
 @Component({
   selector: 'app-estabelecimento-config',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule, TmTimeComponent],
+  imports: [CommonModule, FormsModule, RouterModule],
   templateUrl: './estabelecimento-config.component.html',
   styleUrl: './estabelecimento-config.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class EstabelecimentoConfigComponent implements OnInit {
   private readonly estabelecimentoService = inject(EstabelecimentoService);
-  private readonly clientesService = inject(ClientesService);
   private readonly toastService = inject(TmToastService);
   private readonly router = inject(Router);
+  private readonly location = inject(Location);
   private readonly cdr = inject(ChangeDetectorRef);
 
-  protected readonly diasFuncionamento = signal<DiaFuncionamento[]>([]);
-  protected readonly salvando = signal(false);
-
-  /** Sinais para o bloco de Importação de Dados */
-  protected readonly importacaoExpandido = signal(false);
-  protected readonly plataformaSelecionada = signal<'tua-agenda' | null>('tua-agenda');
-  protected readonly categoriaSelecionada = signal<'clientes' | null>('clientes');
-  protected readonly arquivoSelecionado = signal<File | null>(null);
-  protected readonly importando = signal(false);
-  protected readonly resultadoImportacao = signal<ImportacaoClienteResult | null>(null);
-  protected readonly exibirModalDuplicados = signal(false);
-
-  protected abrirModalDuplicados(): void {
-    this.exibirModalDuplicados.set(true);
-  }
-
-  protected fecharModalDuplicados(): void {
-    this.exibirModalDuplicados.set(false);
-  }
-
   /** Sinais para a identidade do estabelecimento */
-  protected readonly infoExpandido = signal(false);
   protected readonly salvandoInfo = signal(false);
   protected readonly estabelecimentoInfo = signal<EstabelecimentoInfo>({
     nome: '',
@@ -104,8 +74,14 @@ export class EstabelecimentoConfigComponent implements OnInit {
     endereco: '',
   });
 
+  protected readonly diasValidadeLink = signal<number>(5);
+  protected readonly diasValidadeLinkOriginal = signal<number>(5);
+
   protected readonly temAlteracoesInfo = computed(() => {
     if (this.logoFile() !== null || this.capaFile() !== null || this.logoRemovida() || this.capaRemovida()) {
+      return true;
+    }
+    if (this.diasValidadeLink() !== this.diasValidadeLinkOriginal()) {
       return true;
     }
     const cur = this.estabelecimentoInfo();
@@ -125,7 +101,7 @@ export class EstabelecimentoConfigComponent implements OnInit {
     );
   });
 
-  /** Arquivos pendentes de upload (nunca enviados como base64) e previews locais */
+  /** Arquivos pendentes de upload e previews locais */
   protected readonly logoFile = signal<File | null>(null);
   protected readonly capaFile = signal<File | null>(null);
   protected readonly logoPreview = signal('');
@@ -133,7 +109,7 @@ export class EstabelecimentoConfigComponent implements OnInit {
   protected readonly logoRemovida = signal(false);
   protected readonly capaRemovida = signal(false);
 
-  /** Imagem exibida: preview do arquivo selecionado, ou URL do servidor (ou vazio se removida). */
+  /** Imagem exibida: preview do arquivo selecionado, ou URL do servidor */
   protected readonly logoVisivel = computed(() => {
     if (this.logoFile()) {
       return this.logoPreview();
@@ -164,6 +140,10 @@ export class EstabelecimentoConfigComponent implements OnInit {
 
   protected readonly buscandoCep = signal(false);
   private ultimoCepBuscado = '';
+
+  async ngOnInit(): Promise<void> {
+    await this.carregarInfo();
+  }
 
   protected atualizarCampo(campo: keyof EstabelecimentoInfo, valor: string): void {
     this.estabelecimentoInfo.update((prev) => {
@@ -238,45 +218,25 @@ export class EstabelecimentoConfigComponent implements OnInit {
     this.estabelecimentoInfo.update((prev) => ({ ...prev, endereco: enderecoFormatado }));
   }
 
-  /** Sinal para controle de expansão do bloco colapsável */
-  protected readonly horarioExpandido = signal(false);
-
-  /** Lista de horários em formato 24 horas (00:00 a 23:45 em intervalos de 15 min) */
-  protected readonly OPCOES_HORARIOS: string[] = Array.from({ length: 96 }, (_, i) => {
-    const h = Math.floor(i / 4)
-      .toString()
-      .padStart(2, '0');
-    const m = ((i % 4) * 15).toString().padStart(2, '0');
-    return `${h}:${m}`;
-  });
-
-  protected readonly DIAS_SEMANA_LABELS = DIAS_SEMANA_ESTABELECIMENTO;
-
-  async ngOnInit(): Promise<void> {
-    await Promise.all([this.carregarHorarios(), this.carregarInfo()]);
-  }
-
-  protected toggleHorario(): void {
-    this.horarioExpandido.update((v) => !v);
-  }
-
-  protected toggleInfo(): void {
-    this.infoExpandido.update((v) => !v);
-  }
-
-  protected async carregarHorarios(): Promise<void> {
-    const data = await this.estabelecimentoService.carregarHorarios();
-    this.diasFuncionamento.set(structuredClone(data));
+  protected atualizarDiasValidadeLink(valor: number | string): void {
+    const parsed = typeof valor === 'number' ? valor : parseInt(valor, 10);
+    this.diasValidadeLink.set(isNaN(parsed) ? 1 : Math.max(1, parsed));
+    this.cdr.markForCheck();
   }
 
   protected async carregarInfo(): Promise<void> {
     try {
-      const data = await this.estabelecimentoService.carregarInfo();
+      const [data, dias] = await Promise.all([
+        this.estabelecimentoService.carregarInfo(),
+        this.estabelecimentoService.carregarValidadeLink(),
+      ]);
       if (data) {
         this.estabelecimentoInfo.set(structuredClone(data));
         this.montarEnderecoCompleto();
         this.estabelecimentoInfoOriginal.set(structuredClone(this.estabelecimentoInfo()));
       }
+      this.diasValidadeLink.set(dias);
+      this.diasValidadeLinkOriginal.set(dias);
       this.resetImagens();
       this.cdr.markForCheck();
     } catch {
@@ -287,6 +247,7 @@ export class EstabelecimentoConfigComponent implements OnInit {
   protected cancelarAlteracoesInfo(): void {
     const orig = this.estabelecimentoInfoOriginal();
     this.estabelecimentoInfo.set(structuredClone(orig));
+    this.diasValidadeLink.set(this.diasValidadeLinkOriginal());
     this.resetImagens();
     this.cdr.markForCheck();
   }
@@ -370,6 +331,11 @@ export class EstabelecimentoConfigComponent implements OnInit {
         capaUrl: this.capaRemovida() ? '' : capaArquivo ? novasUrls.capaUrl : info.capaUrl,
       });
 
+      if (this.diasValidadeLink() !== this.diasValidadeLinkOriginal()) {
+        await this.estabelecimentoService.salvarValidadeLink(this.diasValidadeLink());
+        this.diasValidadeLinkOriginal.set(this.diasValidadeLink());
+      }
+
       const atualizado = await this.estabelecimentoService.carregarInfo();
       if (atualizado) {
         this.estabelecimentoInfo.set(structuredClone(atualizado));
@@ -408,95 +374,6 @@ export class EstabelecimentoConfigComponent implements OnInit {
   }
 
   protected voltar(): void {
-    this.router.navigate(['/configuracoes']);
-  }
-
-  protected copiarParaTodos(diaOrigem: DiaFuncionamento): void {
-    const lista = this.diasFuncionamento();
-    const atualizado = lista.map((d) => ({
-      ...d,
-      ativo: diaOrigem.ativo,
-      horaAbertura: diaOrigem.horaAbertura,
-      horaFechamento: diaOrigem.horaFechamento,
-      temIntervalo: diaOrigem.temIntervalo,
-      intervaloInicio: diaOrigem.intervaloInicio,
-      intervaloFim: diaOrigem.intervaloFim,
-    }));
-    this.diasFuncionamento.set(atualizado);
-    const nomeDia = DIAS_SEMANA_ESTABELECIMENTO[diaOrigem.diaSemana]?.label;
-    this.toastService.success(`Horários de ${nomeDia} copiados para todos os dias!`);
-  }
-
-  protected toggleImportacao(): void {
-    this.importacaoExpandido.update((v) => !v);
-  }
-
-  protected selecionarPlataforma(plat: 'tua-agenda' | null): void {
-    this.plataformaSelecionada.set(plat);
-    this.arquivoSelecionado.set(null);
-    this.resultadoImportacao.set(null);
-  }
-
-  protected selecionarCategoria(cat: 'clientes' | null): void {
-    this.categoriaSelecionada.set(cat);
-    this.arquivoSelecionado.set(null);
-    this.resultadoImportacao.set(null);
-  }
-
-  protected onArquivoCsvSelecionado(event: Event): void {
-    const input = event.target as HTMLInputElement;
-    const file = input.files?.[0];
-    if (file) {
-      if (!file.name.toLowerCase().endsWith('.csv')) {
-        this.toastService.error('Selecione um arquivo de formato CSV (.csv).');
-        input.value = '';
-        return;
-      }
-      this.arquivoSelecionado.set(file);
-      this.resultadoImportacao.set(null);
-    }
-  }
-
-  protected limparArquivo(): void {
-    this.arquivoSelecionado.set(null);
-    this.resultadoImportacao.set(null);
-  }
-
-  protected async importarCsv(): Promise<void> {
-    const file = this.arquivoSelecionado();
-    if (!file) {
-      this.toastService.error('Selecione um arquivo CSV para importar.');
-      return;
-    }
-
-    this.importando.set(true);
-    try {
-      const res = await this.clientesService.importarClientesTuaAgenda(file);
-      this.resultadoImportacao.set(res);
-      this.toastService.success(
-        `Importação do Tua Agenda concluída! ${res.totalCriados} novos clientes cadastrados.`,
-      );
-      if (res.clientesDuplicadosPorCelular && res.clientesDuplicadosPorCelular.length > 0) {
-        this.exibirModalDuplicados.set(true);
-      }
-    } catch (err: unknown) {
-      const msg =
-        err instanceof Error ? err.message : 'Falha ao processar arquivo CSV do Tua Agenda.';
-      this.toastService.error(msg);
-    } finally {
-      this.importando.set(false);
-    }
-  }
-
-  protected async salvar(): Promise<void> {
-    this.salvando.set(true);
-    try {
-      await this.estabelecimentoService.salvarHorarios(this.diasFuncionamento());
-      this.toastService.success('Horários salvos com sucesso!');
-    } catch {
-      this.toastService.error('Erro ao salvar horários. Tente novamente.');
-    } finally {
-      this.salvando.set(false);
-    }
+    this.location.back();
   }
 }
