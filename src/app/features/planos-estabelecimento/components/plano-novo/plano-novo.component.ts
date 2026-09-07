@@ -1,10 +1,11 @@
-import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { firstValueFrom } from 'rxjs';
 import { TmTextComponent, TmSelectComponent, TmSelectOption, TmToastService } from '@techminds-group/tm-angular-lib';
 import { ClubesService } from '../../../../core/services/clubes.service';
+import { EstabelecimentoService, validarImagemArquivo } from '../../../../core/services/estabelecimento.service';
 import { BeneficiosService } from '../../../../core/services/beneficios.service';
 import { ThemeService } from '../../../../core/services/theme.service';
 import { PlanoPayload } from '../../models/plano-payload.model';
@@ -21,12 +22,19 @@ export class PlanoNovoComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly fb = inject(FormBuilder);
   private readonly clubesService = inject(ClubesService);
+  protected readonly estabelecimentoService = inject(EstabelecimentoService);
   private readonly beneficiosService = inject(BeneficiosService);
   private readonly toastService = inject(TmToastService);
   protected readonly themeService = inject(ThemeService);
 
   protected readonly salvando = signal<boolean>(false);
+  protected readonly uploadingImagem = signal<boolean>(false);
+  protected readonly imagemUrl = signal<string | null>(null);
   protected readonly opcoesBeneficios = signal<{ value: string; label: string }[]>([]);
+
+  protected readonly imagemVisivel = computed(() =>
+    this.estabelecimentoService.resolverUrl(this.imagemUrl() || undefined),
+  );
 
   protected readonly form: FormGroup = this.fb.group({
     nome: ['', [Validators.required, Validators.maxLength(50)]],
@@ -51,6 +59,38 @@ export class PlanoNovoComponent implements OnInit {
 
   voltar(): void {
     this.router.navigate(['/servicos/planos-estabelecimento']);
+  }
+
+  triggerUpload(input: HTMLInputElement): void {
+    input.click();
+  }
+
+  async onImagemSelected(event: Event): Promise<void> {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    if (!file) return;
+
+    if (!validarImagemArquivo(file, this.toastService)) {
+      input.value = '';
+      return;
+    }
+
+    this.uploadingImagem.set(true);
+    try {
+      const result = await this.estabelecimentoService.uploadImagemItem(file, 'plano');
+      this.imagemUrl.set(result.imagemUrl);
+      this.toastService.success('Imagem enviada com sucesso!', 'Sucesso');
+    } catch (err: any) {
+      const message = err?.error?.message || 'Falha ao enviar imagem. Verifique se o arquivo é válido (máx 3MB).';
+      this.toastService.error(message, 'Erro');
+    } finally {
+      this.uploadingImagem.set(false);
+      input.value = '';
+    }
+  }
+
+  removerImagem(): void {
+    this.imagemUrl.set(null);
   }
 
   async adicionarNovoBeneficio(term: string): Promise<void> {
@@ -88,6 +128,7 @@ export class PlanoNovoComponent implements OnInit {
         descricao: formVal.descricao,
         recursos,
         status: 'Ativo',
+        imagemUrl: this.imagemUrl() ?? undefined,
       };
       await firstValueFrom(this.clubesService.adicionar(payload));
       this.toastService.success('Plano cadastrado com sucesso!', 'Sucesso');

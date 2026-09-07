@@ -1,5 +1,6 @@
-import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, input, output } from '@angular/core';
 import { ServicoDisponivel } from '../../../../../core/models/agendamento-publico/agendamento-publico.model';
+import { EstabelecimentoService } from '../../../../../core/services/estabelecimento.service';
 
 @Component({
   selector: 'app-passo-servico',
@@ -9,6 +10,7 @@ import { ServicoDisponivel } from '../../../../../core/models/agendamento-public
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PassoServicoComponent {
+  protected readonly estabelecimentoService = inject(EstabelecimentoService);
   readonly servicos = input.required<ServicoDisponivel[]>();
   readonly selecionado = output<ServicoDisponivel>();
 

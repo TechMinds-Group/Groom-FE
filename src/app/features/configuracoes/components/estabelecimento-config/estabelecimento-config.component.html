@@ -44,7 +44,7 @@
           #capaInput
           type="file"
           class="d-none"
-          accept="image/*"
+          accept="image/jpeg,image/png,image/webp,image/gif,.jpg,.jpeg,.png,.webp,.gif"
           (change)="onCapaSelected($event)"
         />
         <div
@@ -94,7 +94,7 @@
           #logoInput
           type="file"
           class="d-none"
-          accept="image/*"
+          accept="image/jpeg,image/png,image/webp,image/gif,.jpg,.jpeg,.png,.webp,.gif"
           (change)="onLogoSelected($event)"
         />
         <div class="d-flex align-items-center gap-3">
@@ -160,14 +160,28 @@
           </div>
 
           <div class="col-12 col-sm-6">
-            <label class="form-label fw-bold custom-dark-text small">Nome de Exibição</label>
+            <label class="form-label fw-bold custom-dark-text small d-flex align-items-center justify-content-between">
+              <span>Nome de Exibição</span>
+              <span class="text-muted extra-small fw-normal">(Máx. 20 caracteres)</span>
+            </label>
             <input
               type="text"
               class="form-control"
-              placeholder="Ex: Barbearia Grooming Club"
+              placeholder="Ex: Barbearia Groom"
+              maxlength="20"
               [ngModel]="estabelecimentoInfo().nomeExibicao"
               (ngModelChange)="atualizarCampo('nomeExibicao', $event)"
             />
+            <div class="d-flex justify-content-between mt-1">
+              <small class="text-muted extra-small">Nome de exibição nas telas de agendamento público</small>
+              <small
+                class="extra-small ms-2 fw-semibold"
+                [class.text-danger]="(estabelecimentoInfo().nomeExibicao?.length || 0) >= 20"
+                [class.text-muted]="(estabelecimentoInfo().nomeExibicao?.length || 0) < 20"
+              >
+                {{ estabelecimentoInfo().nomeExibicao?.length || 0 }}/20
+              </small>
+            </div>
           </div>
 
           <div class="col-12 col-sm-6">

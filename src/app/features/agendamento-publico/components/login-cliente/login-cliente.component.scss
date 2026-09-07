@@ -50,9 +50,21 @@
     flex-direction: column;
     justify-content: center;
     padding: 3.5rem 3rem;
-    background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+    background-color: #0f172a;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
     border-right: 1px solid var(--tm-border-color);
     overflow: hidden;
+
+    &::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(15, 23, 42, 0.93) 0%, rgba(30, 41, 59, 0.95) 100%);
+      z-index: 1;
+      pointer-events: none;
+    }
 
     @media (max-width: 991.98px) {
       min-height: auto;
@@ -163,8 +175,10 @@
     gap: 0.4rem;
     padding: 0.35rem 0.85rem;
     border-radius: 20px;
-    background: color-mix(in srgb, var(--tm-primary) 22%, rgba(255, 255, 255, 0.1));
-    border: 1px solid color-mix(in srgb, var(--tm-primary) 40%, transparent);
+    background: color-mix(in srgb, var(--tm-primary) 55%, rgba(255, 255, 255, 0.18));
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid color-mix(in srgb, var(--tm-primary) 75%, rgba(255, 255, 255, 0.4));
     font-size: 0.78rem;
     font-weight: 800;
     letter-spacing: 0.08em;
@@ -173,18 +187,19 @@
   }
 
   &__titulo {
-    font-size: 2.5rem;
-    font-weight: 900;
-    letter-spacing: -0.03em;
+    font-family: 'Plus Jakarta Sans', 'Outfit', system-ui, -apple-system, sans-serif;
+    font-weight: 850;
+    letter-spacing: -0.025em;
     color: #ffffff;
-    line-height: 1.15;
-
-    @media (min-width: 1200px) {
-      font-size: 2.85rem;
-    }
+    line-height: 1.12;
+    word-break: break-word;
+    overflow-wrap: anywhere;
+    hyphens: auto;
+    max-width: 100%;
+    text-shadow: 0 2px 12px rgba(0, 0, 0, 0.45);
 
     @media (max-width: 991.98px) {
-      font-size: 1.75rem;
+      line-height: 1.18;
     }
   }
 
@@ -200,11 +215,13 @@
     align-items: center;
     padding: 0.45rem 0.9rem;
     border-radius: 14px;
-    background: rgba(255, 255, 255, 0.08);
-    border: 1px solid rgba(255, 255, 255, 0.15);
+    background: rgba(255, 255, 255, 0.22);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.35);
     font-size: 0.82rem;
     font-weight: 600;
-    color: rgba(255, 255, 255, 0.9);
+    color: #ffffff;
   }
 
   &__hero-meta {

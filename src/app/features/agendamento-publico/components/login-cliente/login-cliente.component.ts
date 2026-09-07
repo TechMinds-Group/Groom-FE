@@ -55,6 +55,16 @@ export class LoginClienteComponent implements OnInit, OnDestroy {
     obterIconeAleatorioCapa(this.estabelecimentoInfo()?.nomeExibicao || this.estabelecimentoInfo()?.nome)
   );
 
+  /** Tamanho de fonte dinâmico e fluido baseado no número de caracteres do nome */
+  readonly tamanhoFonteTitulo = computed(() => {
+    const nome = this.estabelecimentoInfo()?.nomeExibicao || this.estabelecimentoInfo()?.nome || 'Agendamento Online';
+    const len = nome.trim().length;
+    if (len <= 10) return 'clamp(1.75rem, 5vw, 2.5rem)';
+    if (len <= 14) return 'clamp(1.5rem, 4.2vw, 2.2rem)';
+    if (len <= 18) return 'clamp(1.25rem, 3.6vw, 1.85rem)';
+    return 'clamp(1.1rem, 3.2vw, 1.65rem)';
+  });
+
   private readonly googleButton = viewChild<ElementRef<HTMLDivElement>>('googleButton');
 
   readonly aba = signal<'login' | 'cadastro'>('login');

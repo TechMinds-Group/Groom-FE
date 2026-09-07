@@ -30,12 +30,22 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
           errorMessage = error.error.error.description;
         } else if (error.error.error?.message) {
           errorMessage = error.error.error.message;
+        } else if (error.error.error?.Message) {
+          errorMessage = error.error.error.Message;
         } else if (error.error.erro) {
           errorMessage = error.error.erro;
         } else if (typeof error.error === 'string') {
           errorMessage = error.error;
         } else if (error.error.message) {
           errorMessage = error.error.message;
+        } else if (error.error.Message) {
+          errorMessage = error.error.Message;
+        } else if (error.error.description) {
+          errorMessage = error.error.description;
+        } else if (error.error.Description) {
+          errorMessage = error.error.Description;
+        } else if (error.error.detail) {
+          errorMessage = error.error.detail;
         }
       }
 

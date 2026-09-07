@@ -1,6 +1,7 @@
-import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, input, output } from '@angular/core';
 import { TmButtonComponent } from '@techminds-group/tm-angular-lib';
 import { ProfissionalDisponivel, ServicoDisponivel } from '../../../../../core/models/agendamento-publico/agendamento-publico.model';
+import { EstabelecimentoService } from '../../../../../core/services/estabelecimento.service';
 
 @Component({
   selector: 'app-passo-resumo',
@@ -11,6 +12,7 @@ import { ProfissionalDisponivel, ServicoDisponivel } from '../../../../../core/m
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PassoResumoComponent {
+  protected readonly estabelecimentoService = inject(EstabelecimentoService);
   readonly profissional = input.required<ProfissionalDisponivel | null>();
   readonly servico = input.required<ServicoDisponivel | null>();
   readonly data = input<string | null>(null);
@@ -31,4 +33,9 @@ export class PassoResumoComponent {
   formatarPreco(preco: number): string {
     return preco.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
   }
+
+  inicial(nome: string): string {
+    return nome ? nome.charAt(0).toUpperCase() : '?';
+  }
 }
+

@@ -377,6 +377,11 @@ export const routes: Routes = [
     resolve: { tenant: tenantResolver },
     children: [
       {
+        path: '',
+        pathMatch: 'full',
+        redirectTo: 'login',
+      },
+      {
         path: 'login',
         loadComponent: () =>
           import('./features/agendamento-publico/components/login-cliente/login-cliente.component').then(
