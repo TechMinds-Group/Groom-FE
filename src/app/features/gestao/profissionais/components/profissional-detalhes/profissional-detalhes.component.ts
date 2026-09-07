@@ -143,6 +143,7 @@ export class ProfissionalDetalhesComponent implements OnInit, AfterViewInit {
     }
     this.fotoFile.set(null);
     this.fotoPreview.set('');
+    this.fotoRemovida.set(false);
     this.modoEdicao.set(false);
   }
 
@@ -267,8 +268,10 @@ export class ProfissionalDetalhesComponent implements OnInit, AfterViewInit {
         secundarioNivelAcessoId: p.secundarioNivelAcessoId ?? null,
       });
 
-      // 2. Foto (se alterada)
-      if (this.fotoFile()) {
+      // 2. Foto (se removida ou alterada)
+      if (this.fotoRemovida()) {
+        await this.gestaoUsuariosService.removerFoto(p.id);
+      } else if (this.fotoFile()) {
         await this.gestaoUsuariosService.salvarFoto(p.id, this.fotoFile()!);
       }
 
@@ -289,10 +292,11 @@ export class ProfissionalDetalhesComponent implements OnInit, AfterViewInit {
       this.toastService.success('Profissional e horários atualizados com sucesso!', 'Sucesso');
 
       // Recarregar dados atualizados
-      await this.carregarDados(p.id);
-      this.modoEdicao.set(false);
       this.fotoFile.set(null);
       this.fotoPreview.set('');
+      this.fotoRemovida.set(false);
+      await this.carregarDados(p.id);
+      this.modoEdicao.set(false);
     } catch (err) {
       console.error('Erro ao salvar alterações do profissional', err);
     } finally {
