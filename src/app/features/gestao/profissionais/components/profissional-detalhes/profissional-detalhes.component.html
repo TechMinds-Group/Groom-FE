@@ -30,53 +30,68 @@
             <!-- 1. Header do Perfil (Foto, Nome e E-mail) -->
             <div class="d-flex align-items-center gap-3 border-bottom pb-4 mb-4">
               @if (modoEdicao()) {
-                <div class="d-flex align-items-center gap-3 w-100">
-                  <div class="avatar-container position-relative">
-                    @if (fotoVisivel()) {
-                      <img
-                        [src]="fotoVisivel()"
-                        alt="Foto do profissional"
-                        class="rounded-circle border object-fit-cover shadow-sm"
-                        style="width: 60px; height: 60px"
-                      />
-                    } @else {
-                      <div
-                        class="rounded-circle border bg-secondary-subtle d-flex align-items-center justify-content-center text-secondary shadow-sm"
-                        style="width: 60px; height: 60px; font-size: 1.5rem"
-                      >
-                        <i class="fas fa-user"></i>
-                      </div>
-                    }
-                  </div>
-                  <div>
-                    <input
-                      type="file"
-                      #fileInput
-                      (change)="onFotoSelected($event)"
-                      accept="image/png, image/jpeg, image/webp"
-                      class="d-none"
-                    />
-                    <button
-                      type="button"
-                      class="btn btn-sm btn-outline-primary fw-semibold d-inline-flex align-items-center gap-2 px-3 py-1 shadow-sm"
-                      (click)="fileInput.click()"
+                <div class="col-12 mb-2">
+                  <label class="form-label fw-bold custom-dark-text small">Foto do Profissional (Avatar)</label>
+                  <input
+                    #fotoInput
+                    type="file"
+                    class="d-none"
+                    accept="image/jpeg,image/png,image/webp,image/gif,.jpg,.jpeg,.png,.webp,.gif"
+                    (change)="onFotoSelected($event)"
+                  />
+                  <div class="d-flex align-items-center gap-3">
+                    <div
+                      class="logo-preview-box border overflow-hidden position-relative shrink-0 d-flex align-items-center justify-content-center cursor-pointer image-upload-zone"
+                      style="
+                        width: 84px;
+                        height: 84px;
+                        min-width: 84px;
+                        min-height: 84px;
+                        max-width: 84px;
+                        max-height: 84px;
+                        border-radius: 14px !important;
+                        background-size: cover;
+                        background-position: center;
+                      "
+                      [style.backgroundImage]="fotoVisivel() ? 'url(' + fotoVisivel() + ')' : 'none'"
+                      (click)="triggerFotoUpload(fotoInput)"
+                      title="Clique para escolher foto do profissional"
                     >
-                      <i class="fas fa-camera"></i>
-                      <span>{{ fotoVisivel() ? 'Alterar foto' : 'Enviar foto' }}</span>
-                    </button>
+                      @if (!fotoVisivel()) {
+                        <i class="fas fa-user-tie text-muted fs-3"></i>
+                      }
+                      <div class="image-upload-overlay d-flex flex-column align-items-center justify-content-center text-center p-1">
+                        <i class="fas fa-camera fs-5"></i>
+                      </div>
+                    </div>
+                    <div class="flex-fill">
+                      @if (fotoVisivel()) {
+                        <button
+                          type="button"
+                          class="btn btn-outline-danger btn-sm rounded-3"
+                          (click)="removerFoto()"
+                        >
+                          <i class="fas fa-trash me-1"></i>Remover Foto
+                        </button>
+                      } @else {
+                        <span class="text-muted extra-small d-block">Clique na imagem para selecionar uma foto para o profissional (exibida para o cliente no agendamento público). Recomendado: foto quadrada (ex: 500x500px).</span>
+                      }
+                    </div>
                   </div>
                 </div>
               } @else {
                 @if (p.fotoUrl) {
-                  <img
-                    [src]="estabelecimentoService.resolverUrl(p.fotoUrl)"
-                    alt="Foto de {{ getNomeCompleto(p) }}"
-                    class="rounded-circle border object-fit-cover shadow-sm"
-                    style="width: 60px; height: 60px;"
-                  />
+                  <div
+                    class="rounded-3 border overflow-hidden shrink-0 shadow-sm"
+                    style="width: 60px; height: 60px; background-size: cover; background-position: center;"
+                    [style.backgroundImage]="'url(' + estabelecimentoService.resolverUrl(p.fotoUrl) + ')'"
+                  ></div>
                 } @else {
-                  <div class="avatar-circle bg-primary-subtle text-primary d-flex align-items-center justify-content-center">
-                    <i class="fas fa-user-tie fs-3"></i>
+                  <div
+                    class="rounded-3 border bg-body-tertiary text-muted d-flex align-items-center justify-content-center shrink-0 shadow-sm"
+                    style="width: 60px; height: 60px;"
+                  >
+                    <i class="fas fa-user-tie text-secondary fs-4"></i>
                   </div>
                 }
                 <div>

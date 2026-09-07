@@ -3,7 +3,10 @@
     <div class="agendamento-login__wrapper">
       <!-- Coluna Hero Esquerda (Capa, Logo e Informações em Destaque) -->
       <!-- Coluna Hero Esquerda (Informações do Estabelecimento em Tela Cheia) -->
-      <div class="agendamento-login__hero">
+      <div
+        class="agendamento-login__hero"
+        [style.backgroundImage]="capaUrlExibicao() ? 'url(' + capaUrlExibicao() + ')' : 'none'"
+      >
         <div class="agendamento-login__hero-content">
           <!-- Topo: Logo Avatar com Badge Agendamento Online alinhada ao topo -->
           <div class="d-flex align-items-start gap-3 mb-3">
@@ -31,7 +34,7 @@
           </div>
 
           <!-- Título do Estabelecimento -->
-          <h1 class="agendamento-login__titulo mb-1">
+          <h1 class="agendamento-login__titulo mb-1" [style.fontSize]="tamanhoFonteTitulo()">
             {{
               estabelecimentoInfo()?.nomeExibicao ||
                 estabelecimentoInfo()?.nome ||
@@ -47,7 +50,9 @@
           }
 
           <!-- Barra de Ações Rápidas (WhatsApp e Endereço) -->
-          <div class="agendamento-login__meta-bar d-flex flex-wrap align-items-center gap-2 mb-4">
+          <div
+            class="agendamento-login__meta-bar d-flex flex-wrap align-items-center gap-2 mt-2 mb-4"
+          >
             @if (estabelecimentoInfo()?.telefone; as fone) {
               <a
                 [href]="obterUrlWhatsApp(fone)"

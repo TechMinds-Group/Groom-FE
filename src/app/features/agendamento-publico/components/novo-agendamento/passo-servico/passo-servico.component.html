@@ -10,9 +10,16 @@
         class="agendamento-servicos__card"
         (click)="selecionado.emit(servico)"
       >
-        <span class="agendamento-servicos__icone">
-          <i class="fa-solid fa-scissors"></i>
-        </span>
+        @if (servico.imagemUrl) {
+          <div
+            class="agendamento-servicos__img"
+            [style.backgroundImage]="'url(' + estabelecimentoService.resolverUrl(servico.imagemUrl) + ')'"
+          ></div>
+        } @else {
+          <span class="agendamento-servicos__icone">
+            <i class="fa-solid fa-scissors"></i>
+          </span>
+        }
         <span class="agendamento-servicos__info">
           <span class="agendamento-servicos__nome">{{ servico.nome }}</span>
           <span class="agendamento-servicos__duracao">

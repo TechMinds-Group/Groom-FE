@@ -17,8 +17,9 @@ import { Usuario } from '../../../../../core/models/gestao-usuarios/usuario.mode
 import { GestaoUsuariosHelperService } from '../../../../gestao-usuarios/services/gestao-usuarios-helper.service';
 import { StatusBadgePipe } from '../../../../gestao-usuarios/pipes/status-badge.pipe';
 import { LanguageService } from '../../../../../core/services/language.service';
-
+import { EstabelecimentoService } from '../../../../../core/services/estabelecimento.service';
 import { AuthService } from '../../../../../core/services/auth.service';
+
 
 @Component({
   selector: 'app-profissionais',
@@ -35,6 +36,7 @@ import { AuthService } from '../../../../../core/services/auth.service';
 })
 export class ProfissionaisComponent implements OnInit, AfterViewInit {
   protected readonly gestaoUsuariosService = inject(GestaoUsuariosService);
+  protected readonly estabelecimentoService = inject(EstabelecimentoService);
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
   protected readonly languageService = inject(LanguageService);

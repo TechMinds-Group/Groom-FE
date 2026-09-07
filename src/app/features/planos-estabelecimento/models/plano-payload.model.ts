@@ -5,4 +5,5 @@ export interface PlanoPayload {
   descricao: string;
   recursos: string[];
   status: 'Ativo' | 'Inativo';
+  imagemUrl?: string | null;
 }

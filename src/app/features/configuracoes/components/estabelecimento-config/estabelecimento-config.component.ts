@@ -16,6 +16,7 @@ import {
   EstabelecimentoService,
   obterIconeAleatorioCapa,
   obterIconeAleatorioLogo,
+  validarImagemArquivo,
 } from '../../../../core/services/estabelecimento.service';
 
 /**
@@ -146,8 +147,13 @@ export class EstabelecimentoConfigComponent implements OnInit {
   }
 
   protected atualizarCampo(campo: keyof EstabelecimentoInfo, valor: string): void {
+    let valorProcessado = valor;
+    if (campo === 'nomeExibicao' && valorProcessado && valorProcessado.length > 20) {
+      valorProcessado = valorProcessado.substring(0, 20);
+    }
+
     this.estabelecimentoInfo.update((prev) => {
-      const next = { ...prev, [campo]: valor };
+      const next = { ...prev, [campo]: valorProcessado };
       return next;
     });
 
@@ -267,6 +273,11 @@ export class EstabelecimentoConfigComponent implements OnInit {
       return;
     }
 
+    if (!validarImagemArquivo(arquivo, this.toastService)) {
+      input.value = '';
+      return;
+    }
+
     const reader = new FileReader();
     reader.onload = () => {
       this.logoPreview.set(reader.result as string);
@@ -281,6 +292,11 @@ export class EstabelecimentoConfigComponent implements OnInit {
     const input = event.target as HTMLInputElement;
     const arquivo = input.files?.[0];
     if (!arquivo) {
+      return;
+    }
+
+    if (!validarImagemArquivo(arquivo, this.toastService)) {
+      input.value = '';
       return;
     }
 

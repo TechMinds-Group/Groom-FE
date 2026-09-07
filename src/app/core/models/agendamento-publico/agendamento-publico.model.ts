@@ -22,6 +22,7 @@ export interface ServicoDisponivel {
   nome: string;
   preco: number;
   duracao: number;
+  imagemUrl?: string | null;
 }
 
 export interface HorarioDisponivel {
@@ -61,6 +62,7 @@ export interface PlanoAtivoCliente {
   preco: number;
   recursos: string[];
   duracaoTotal: number;
+  imagemUrl?: string | null;
 }
 
 export interface AgendamentoPublico {

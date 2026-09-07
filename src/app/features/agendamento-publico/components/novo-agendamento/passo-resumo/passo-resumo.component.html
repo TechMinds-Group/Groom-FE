@@ -6,7 +6,20 @@
       <span class="agendamento-resumo__rotulo">
         <i class="fa-solid fa-user"></i> Profissional
       </span>
-      <span class="agendamento-resumo__valor">{{ profissional()?.nome }}</span>
+      <span class="agendamento-resumo__valor d-flex align-items-center gap-2">
+        @if (profissional()?.fotoUrl; as foto) {
+          <span
+            class="rounded-3 border shrink-0 shadow-sm"
+            style="width: 32px; height: 32px; background-size: cover; background-position: center;"
+            [style.backgroundImage]="'url(' + estabelecimentoService.resolverUrl(foto) + ')'"
+          ></span>
+        } @else if (profissional()?.nome) {
+          <span class="rounded-3 border bg-primary text-white d-flex align-items-center justify-content-center shrink-0 fw-bold shadow-sm" style="width: 32px; height: 32px; font-size: 0.85rem;">
+            {{ inicial(profissional()?.nome || '') }}
+          </span>
+        }
+        <span>{{ profissional()?.nome }}</span>
+      </span>
     </div>
     <div class="agendamento-resumo__linha">
       <span class="agendamento-resumo__rotulo">
@@ -15,7 +28,16 @@
       @if (planoNome(); as nomePlano) {
         <span class="agendamento-resumo__valor">{{ nomePlano }} <span class="badge text-bg-success">Incluso no plano</span></span>
       } @else {
-        <span class="agendamento-resumo__valor">{{ servico()?.nome }}</span>
+        <span class="agendamento-resumo__valor d-flex align-items-center gap-2">
+          @if (servico()?.imagemUrl; as img) {
+            <span
+              class="rounded-3 border shrink-0 shadow-sm"
+              style="width: 32px; height: 32px; background-size: cover; background-position: center;"
+              [style.backgroundImage]="'url(' + estabelecimentoService.resolverUrl(img) + ')'"
+            ></span>
+          }
+          <span>{{ servico()?.nome }}</span>
+        </span>
       }
     </div>
   </div>

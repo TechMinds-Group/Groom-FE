@@ -33,7 +33,7 @@ import { AppFooterComponent } from '../../../../shared/components/footer/app-foo
 })
 export class NovoAgendamentoComponent implements OnInit, OnDestroy {
   private readonly agendamentoPublicoService = inject(AgendamentoPublicoService);
-  private readonly estabelecimentoService = inject(EstabelecimentoService);
+  protected readonly estabelecimentoService = inject(EstabelecimentoService);
   private readonly router = inject(Router);
 
   /** Aplica o tema do dispositivo (claro/escuro) na tela pública. */
@@ -65,6 +65,16 @@ export class NovoAgendamentoComponent implements OnInit, OnDestroy {
   readonly capaIconePadrao = computed(() =>
     obterIconeAleatorioCapa(this.estabelecimentoInfo()?.nomeExibicao || this.estabelecimentoInfo()?.nome)
   );
+
+  /** Tamanho de fonte dinâmico e fluido baseado no número de caracteres do nome */
+  readonly tamanhoFonteTitulo = computed(() => {
+    const nome = this.estabelecimentoInfo()?.nomeExibicao || this.estabelecimentoInfo()?.nome || 'Barbearia';
+    const len = nome.trim().length;
+    if (len <= 10) return 'clamp(1.5rem, 4.5vw, 2.1rem)';
+    if (len <= 14) return 'clamp(1.35rem, 3.8vw, 1.85rem)';
+    if (len <= 18) return 'clamp(1.2rem, 3.2vw, 1.6rem)';
+    return 'clamp(1.05rem, 2.8vw, 1.4rem)';
+  });
 
   readonly config = AGENDAMENTO_PUBLICO_CONFIG;
 

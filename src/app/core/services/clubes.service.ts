@@ -13,6 +13,7 @@ export interface ClubeConfig {
   totalAssinantes: number;
   duracaoTotal?: number;
   status: 'Ativo' | 'Inativo' | string;
+  imagemUrl?: string | null;
 }
 
 @Injectable({

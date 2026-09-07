@@ -30,7 +30,7 @@
           <tm-text formControlName="nome" label="Nome do Estabelecimento *" placeholder="Ex: BARBEARIA DO ZE" class="custom-dark-text"></tm-text>
         </div>
         <div class="col-sm-6 col-12">
-          <tm-text formControlName="nomeExibicao" label="Nome de Exibição" placeholder="Ex: Barbearia do Zé Ltda" class="custom-dark-text"></tm-text>
+          <tm-text formControlName="nomeExibicao" label="Nome de Exibição" placeholder="Ex: Barbearia do Zé" [maxlength]="20" class="custom-dark-text"></tm-text>
         </div>
         <div class="col-sm-6 col-12">
           <tm-text formControlName="cnpj" label="CNPJ *" placeholder="00.000.000/0000-00" [maxlength]="18" class="custom-dark-text"></tm-text>

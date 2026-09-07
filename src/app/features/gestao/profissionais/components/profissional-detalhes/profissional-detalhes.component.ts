@@ -82,10 +82,14 @@ export class ProfissionalDetalhesComponent implements OnInit, AfterViewInit {
   protected readonly planosOptions = signal<TmSelectOption[]>([]);
   protected readonly fotoFile = signal<File | null>(null);
   protected readonly fotoPreview = signal<string>('');
+  protected readonly fotoRemovida = signal<boolean>(false);
 
   protected readonly fotoVisivel = computed(() => {
     if (this.fotoFile()) {
       return this.fotoPreview();
+    }
+    if (this.fotoRemovida()) {
+      return '';
     }
     const p = this.profissional();
     return p?.fotoUrl ? this.estabelecimentoService.resolverUrl(p.fotoUrl) : '';
@@ -202,14 +206,25 @@ export class ProfissionalDetalhesComponent implements OnInit, AfterViewInit {
     }
   }
 
+  protected triggerFotoUpload(input: HTMLInputElement): void {
+    input.click();
+  }
+
+  protected removerFoto(): void {
+    this.fotoFile.set(null);
+    this.fotoPreview.set('');
+    this.fotoRemovida.set(true);
+  }
+
   protected onFotoSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
     if (input.files && input.files[0]) {
       const file = input.files[0];
-      if (file.size > 5 * 1024 * 1024) {
-        this.toastService.error('A imagem de perfil deve ter no máximo 5MB.', 'Erro');
+      if (file.size > 3 * 1024 * 1024) {
+        this.toastService.error('A imagem de perfil deve ter no máximo 3MB.', 'Erro');
         return;
       }
+      this.fotoRemovida.set(false);
       this.fotoFile.set(file);
       const reader = new FileReader();
       reader.onload = (e) => {

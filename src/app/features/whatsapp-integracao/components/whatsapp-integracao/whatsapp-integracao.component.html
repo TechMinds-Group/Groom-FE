@@ -257,8 +257,7 @@
                 <span>Lembretes de Agendamento</span>
               </div>
               <div class="form-text custom-dark-text small mb-3 ms-1 lh-sm">
-                Enviados automaticamente para o cliente. O lembrete de 1 dia só é enviado quando o
-                agendamento foi feito com mais de 2 dias de antecedência.
+                Enviados automaticamente para o cliente via WhatsApp. O lembrete de 1 dia é enviado às 14h do dia anterior (para marcações com 2+ dias de antecedência). O <strong>Lembrete Próximo do Agendamento</strong> é enviado de forma dinâmica próximo ao corte/atendimento (30 min antes, na abertura da loja ou 4h antes do serviço).
               </div>
               <div class="row g-4">
                 <div class="col-12 col-lg-6">
@@ -267,7 +266,7 @@
                     [textarea]="true"
                     [rows]="5"
                     label="Lembrete 1 dia antes"
-                    placeholder="Mensagem enviada 1 dia antes do agendamento..."
+                    placeholder="Mensagem enviada 1 dia antes do agendamento (a partir das 14h BRT)..."
                     icon="fas fa-calendar-day"
                   ></tm-text>
                 </div>
@@ -276,8 +275,8 @@
                     formControlName="lembrete4hMensagem"
                     [textarea]="true"
                     [rows]="5"
-                    label="Lembrete 4 horas antes"
-                    placeholder="Mensagem enviada 4 horas antes do agendamento..."
+                    label="Lembrete Próximo do Agendamento"
+                    placeholder="Mensagem enviada próximo ao horário do agendamento..."
                     icon="fas fa-hourglass-half"
                   ></tm-text>
                 </div>

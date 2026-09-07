@@ -64,7 +64,7 @@
               <span class="agendamento-wizard__eyebrow mb-2">
                 <i class="fa-solid fa-calendar-check me-2"></i>Agendamento Online
               </span>
-              <h1 class="agendamento-wizard__titulo mb-1">
+              <h1 class="agendamento-wizard__titulo mb-1" [style.fontSize]="tamanhoFonteTitulo()">
                 {{
                   estabelecimentoInfo()?.nomeExibicao || estabelecimentoInfo()?.nome || 'Barbearia'
                 }}
@@ -170,20 +170,38 @@
                           [class.agendamento-wizard__plano-card--selected]="plano.id === p.id"
                           (click)="selecionarPlanoCliente(p)"
                         >
-                          <div class="d-flex align-items-center justify-content-between">
-                            <strong class="agendamento-wizard__plano-nome">{{ p.nome }}</strong>
-                            @if (plano.id === p.id) {
-                              <span class="badge bg-primary rounded-pill"
-                                ><i class="fa-solid fa-check me-1"></i>Ativo</span
+                          <div class="d-flex align-items-center gap-3">
+                            @if (p.imagemUrl) {
+                              <div
+                                class="rounded-3 border shrink-0"
+                                style="width: 42px; height: 42px; background-size: cover; background-position: center;"
+                                [style.backgroundImage]="'url(' + estabelecimentoService.resolverUrl(p.imagemUrl) + ')'"
+                              ></div>
+                            } @else {
+                              <div
+                                class="rounded-3 border bg-body-tertiary text-muted d-flex align-items-center justify-content-center shrink-0"
+                                style="width: 42px; height: 42px;"
                               >
+                                <i class="fa-solid fa-gem text-primary"></i>
+                              </div>
                             }
-                          </div>
-                          <div class="small text-muted mt-1.5 d-flex align-items-center gap-2">
-                            <span
-                              ><i class="fa-solid fa-clock me-1"></i>{{ p.duracaoTotal }} min</span
-                            >
-                            <span>·</span>
-                            <span class="text-success font-weight-bold">Incluso na assinatura</span>
+                            <div class="flex-grow-1 min-w-0">
+                              <div class="d-flex align-items-center justify-content-between">
+                                <strong class="agendamento-wizard__plano-nome text-truncate">{{ p.nome }}</strong>
+                                @if (plano.id === p.id) {
+                                  <span class="badge bg-primary rounded-pill ms-2"
+                                    ><i class="fa-solid fa-check me-1"></i>Ativo</span
+                                  >
+                                }
+                              </div>
+                              <div class="small text-muted mt-1 d-flex align-items-center gap-2">
+                                <span
+                                  ><i class="fa-solid fa-clock me-1"></i>{{ p.duracaoTotal }} min</span
+                                >
+                                <span>·</span>
+                                <span class="text-success font-weight-bold">Incluso na assinatura</span>
+                              </div>
+                            </div>
                           </div>
                         </button>
                       </div>

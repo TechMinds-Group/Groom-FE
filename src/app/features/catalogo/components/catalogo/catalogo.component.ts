@@ -6,6 +6,7 @@ import {
   TableColumn,
 } from '@techminds-group/tm-angular-lib';
 import { CatalogoService } from '../../../../core/services/catalogo.service';
+import { EstabelecimentoService } from '../../../../core/services/estabelecimento.service';
 import { ServicoCatalogo } from '../../../../core/models/catalogo/servico.model';
 
 @Component({
@@ -22,6 +23,7 @@ import { ServicoCatalogo } from '../../../../core/models/catalogo/servico.model'
 export class CatalogoComponent implements OnInit, AfterViewInit {
   private readonly router = inject(Router);
   protected readonly catalogoService = inject(CatalogoService);
+  protected readonly estabelecimentoService = inject(EstabelecimentoService);
 
   @ViewChild('servicoTemplate', { static: true }) servicoTemplate!: TemplateRef<{ $implicit: ServicoCatalogo }>;
   @ViewChild('precoTemplate', { static: true }) precoTemplate!: TemplateRef<{ $implicit: ServicoCatalogo }>;

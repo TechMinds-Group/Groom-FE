@@ -27,9 +27,25 @@
 </div>
 
 <ng-template #nomeTemplate let-item>
-  <div class="d-flex flex-column text-start">
-    <strong class="fw-bold custom-dark-text">{{ item.nome }}</strong>
-    <span class="text-muted small custom-dark-text text-truncate descricao-cell" [title]="item.descricao">{{ item.descricao || 'Sem descrição' }}</span>
+  <div class="d-flex align-items-center gap-3 text-start">
+    @if (item.imagemUrl) {
+      <div
+        class="rounded-3 border overflow-hidden shrink-0"
+        style="width: 42px; height: 42px; background-size: cover; background-position: center;"
+        [style.backgroundImage]="'url(' + estabelecimentoService.resolverUrl(item.imagemUrl) + ')'"
+      ></div>
+    } @else {
+      <div
+        class="rounded-3 border bg-body-tertiary text-muted d-flex align-items-center justify-content-center shrink-0"
+        style="width: 42px; height: 42px;"
+      >
+        <i class="fas fa-award text-secondary"></i>
+      </div>
+    }
+    <div class="d-flex flex-column text-start">
+      <strong class="fw-bold custom-dark-text">{{ item.nome }}</strong>
+      <span class="text-muted small custom-dark-text text-truncate descricao-cell" [title]="item.descricao">{{ item.descricao || 'Sem descrição' }}</span>
+    </div>
   </div>
 </ng-template>
 

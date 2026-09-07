@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
 import { ClubesService, ClubeConfig } from '../../../../core/services/clubes.service';
+import { EstabelecimentoService } from '../../../../core/services/estabelecimento.service';
 import {
   TmTableComponent,
   TableColumn,
@@ -29,6 +30,7 @@ import { PlanosEstabelecimentoHelperService } from '../../services/planos-estabe
 export class PlanosEstabelecimentoComponent implements OnInit, AfterViewInit {
   private readonly router = inject(Router);
   protected readonly clubesService = inject(ClubesService);
+  protected readonly estabelecimentoService = inject(EstabelecimentoService);
   protected readonly helper = inject(PlanosEstabelecimentoHelperService);
   protected readonly languageService = inject(LanguageService);
 

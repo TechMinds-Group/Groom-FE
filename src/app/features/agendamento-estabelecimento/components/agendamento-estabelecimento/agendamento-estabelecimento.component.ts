@@ -23,7 +23,16 @@ export class AgendamentoEstabelecimentoComponent {
   /** Busca o link persistido no backend; gerado e salvo no primeiro acesso. */
   private async carregarLink(): Promise<void> {
     try {
-      this.linkAgendamento.set(await this.estabelecimentoService.obterLinkAgendamento());
+      let rawLink = await this.estabelecimentoService.obterLinkAgendamento();
+      if (rawLink) {
+        try {
+          const urlObj = new URL(rawLink);
+          if (urlObj.hostname === 'localhost' || urlObj.port === '8081' || urlObj.port === '5000') {
+            rawLink = `${window.location.origin}${urlObj.pathname}`;
+          }
+        } catch { }
+      }
+      this.linkAgendamento.set(rawLink);
     } catch {
       this.linkAgendamento.set('');
     }
