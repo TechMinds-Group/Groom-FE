@@ -77,6 +77,7 @@ export class ProfissionalDetalhesComponent implements OnInit, AfterViewInit {
   /** Controla se toda a tela está em modo de edição ou somente leitura. */
   protected readonly modoEdicao = signal<boolean>(false);
   protected readonly salvando = signal<boolean>(false);
+  protected readonly carregando = signal<boolean>(true);
 
   protected readonly servicosOptions = signal<TmSelectOption[]>([]);
   protected readonly planosOptions = signal<TmSelectOption[]>([]);
@@ -121,6 +122,7 @@ export class ProfissionalDetalhesComponent implements OnInit, AfterViewInit {
   }
 
   protected habilitarEdicao(): void {
+    if (this.carregando()) return;
     const p = this.profissional();
     if (p) {
       this.preencherFormulario(p);
@@ -334,27 +336,36 @@ export class ProfissionalDetalhesComponent implements OnInit, AfterViewInit {
   }
 
   private async carregarDados(id: string): Promise<void> {
+    this.carregando.set(true);
     try {
-      await this.gestaoUsuariosService.carregarUsuarios();
+      if (this.gestaoUsuariosService.usuarios().length === 0) {
+        await this.gestaoUsuariosService.carregarUsuarios();
+      }
       const user = this.gestaoUsuariosService.usuarios().find((u) => u.id === id);
       if (!user) {
         this.toastService.error('Profissional não encontrado.', 'Erro');
         this.voltar();
         return;
       }
-      this.profissional.set(user);
 
       await Promise.all([
-        this.carregarAgendamentos(id),
         this.carregarAtuacao(id),
         this.carregarServicosOptions(),
         this.carregarPlanosOptions(),
+        this.carregarAgendamentos(id),
       ]);
+
+      this.profissional.set(user);
+      if (this.modoEdicao()) {
+        this.preencherFormulario(user);
+      }
     } catch (err) {
       console.error('Erro ao carregar detalhes do profissional', err);
       if (!this.profissional()) {
         this.voltar();
       }
+    } finally {
+      this.carregando.set(false);
     }
   }
 
@@ -395,6 +406,10 @@ export class ProfissionalDetalhesComponent implements OnInit, AfterViewInit {
           .map((planoId) => planos.find((p) => p.id === planoId)?.nome)
           .filter((nome): nome is string => !!nome),
       );
+
+      if (this.modoEdicao()) {
+        this.form.patchValue({ servicoIds: servIds, planoIds: planIds });
+      }
     } catch (err) {
       console.error('Erro ao carregar atuação do profissional', err);
       this.servicoIdsAtendidos.set([]);

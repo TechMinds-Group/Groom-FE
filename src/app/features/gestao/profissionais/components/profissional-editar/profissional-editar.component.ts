@@ -63,8 +63,12 @@ export class ProfissionalEditarComponent implements OnInit {
       this.voltar();
       return;
     }
-    await this.carregarProfissional(id);
-    await Promise.all([this.carregarAtuacao(id), this.carregarServicos(), this.carregarPlanos()]);
+    try {
+      await Promise.all([this.carregarServicos(), this.carregarPlanos(), this.carregarAtuacao(id)]);
+      await this.carregarProfissional(id);
+    } catch {
+      this.voltar();
+    }
   }
 
   voltar(): void {
