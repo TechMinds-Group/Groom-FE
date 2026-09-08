@@ -53,7 +53,7 @@ export const ALL_SIDEBAR_MENU_ITEMS: MenuItem[] = [
     roles: ['Administrador'],
     subItems: [
       { label: 'Estabelecimento', icon: 'fas fa-id-card', route: '/configuracoes/estabelecimento' },
-      { label: 'Horário de Funcionamento', icon: 'fas fa-clock', route: '/configuracoes/horarios' },
+      { label: 'Horários', icon: 'fas fa-clock', route: '/configuracoes/horarios' },
       { label: 'WhatsApp', icon: 'fab fa-whatsapp', route: '/configuracoes/whatsapp' },
       { label: 'Feriados e Bloqueios', icon: 'fas fa-calendar-times', route: '/configuracoes/feriados' },
       { label: 'Minha Assinatura', icon: 'fas fa-credit-card', route: '/assinatura' },

@@ -12,9 +12,15 @@ import { EstabelecimentoService } from '../../../../../core/services/estabelecim
 export class PassoProfissionalComponent {
   readonly profissionais = input.required<ProfissionalDisponivel[]>();
   readonly selecionado = output<ProfissionalDisponivel>();
+  readonly expandirImagem = output<{ url: string; titulo: string }>();
   protected readonly estabelecimentoService = inject(EstabelecimentoService);
 
   inicial(nome: string): string {
     return nome.trim().charAt(0).toUpperCase();
+  }
+
+  onImagemClick(event: Event, url: string, nome: string): void {
+    event.stopPropagation();
+    this.expandirImagem.emit({ url, titulo: nome });
   }
 }

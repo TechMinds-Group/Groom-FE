@@ -1,0 +1,101 @@
+@if (show() && activeImageUrl()) {
+  <div class="image-viewer-overlay" (click)="fechar()">
+    <div class="image-viewer-container">
+      <!-- Toolbar superior -->
+      <div class="image-viewer-header" (click)="$event.stopPropagation()">
+        <span class="image-viewer-title">
+          {{ title() || 'Visualizar Imagem' }}
+          @if (allImages().length > 1) {
+            <small class="ms-2 opacity-75">({{ activeIndex() + 1 }} de {{ allImages().length }})</small>
+          }
+        </span>
+
+        <div class="image-viewer-actions">
+          <button type="button" class="image-viewer-btn" (click)="zoomOut($event)" title="Reduzir zoom">
+            <i class="fa-solid fa-minus"></i>
+          </button>
+          <span class="image-viewer-scale">{{ Math.round(scale() * 100) }}%</span>
+          <button type="button" class="image-viewer-btn" (click)="zoomIn($event)" title="Aumentar zoom">
+            <i class="fa-solid fa-plus"></i>
+          </button>
+          @if (scale() > 1) {
+            <button type="button" class="image-viewer-btn" (click)="resetZoom()" title="Resetar zoom">
+              <i class="fa-solid fa-arrows-rotate"></i>
+            </button>
+          }
+          <button type="button" class="image-viewer-btn image-viewer-btn--close" (click)="fechar()" title="Fechar (Esc)">
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Área da imagem - clicar no fundo/fora da imagem fecha o modal instantaneamente -->
+      <div
+        class="image-viewer-stage"
+        (click)="fechar()"
+        (wheel)="onWheel($event)"
+        (mousedown)="onMouseDown($event)"
+        (mousemove)="onMouseMove($event)"
+        (mouseup)="onMouseUp()"
+        (mouseleave)="onMouseUp()"
+        (touchstart)="onTouchStart($event)"
+        (touchmove)="onTouchMove($event)"
+        (touchend)="onTouchEnd($event)"
+      >
+        <!-- Seta Esquerda (Anterior) -->
+        @if (allImages().length > 1) {
+          <button
+            type="button"
+            class="image-viewer-arrow image-viewer-arrow--prev"
+            (click)="prevImage($event)"
+            title="Imagem anterior"
+          >
+            <i class="fa-solid fa-chevron-left"></i>
+          </button>
+        }
+
+        <img
+          #imageElement
+          [src]="activeImageUrl()"
+          [alt]="title()"
+          class="image-viewer-img"
+          [style.transform]="'translate(' + translateX() + 'px, ' + translateY() + 'px) scale(' + scale() + ')'"
+          [class.image-viewer-img--draggable]="scale() > 1"
+          (click)="$event.stopPropagation(); onImageClick($event)"
+        />
+
+        <!-- Seta Direita (Próxima) -->
+        @if (allImages().length > 1) {
+          <button
+            type="button"
+            class="image-viewer-arrow image-viewer-arrow--next"
+            (click)="nextImage($event)"
+            title="Próxima imagem"
+          >
+            <i class="fa-solid fa-chevron-right"></i>
+          </button>
+        }
+      </div>
+
+      <!-- Dica de gestos e indicadores de carrossel no rodapé -->
+      <div class="image-viewer-footer" (click)="$event.stopPropagation()">
+        @if (allImages().length > 1) {
+          <div class="image-viewer-dots mb-1">
+            @for (img of allImages(); track $index) {
+              <button
+                type="button"
+                class="image-viewer-dot"
+                [class.image-viewer-dot--active]="$index === activeIndex()"
+                (click)="goToImage($index, $event)"
+              ></button>
+            }
+          </div>
+        }
+        <div>
+          <i class="fa-solid fa-hand-pointer me-1"></i>
+          <span>Pince com dois dedos para ampliar/reduzir ou toque duplo na imagem</span>
+        </div>
+      </div>
+    </div>
+  </div>
+}

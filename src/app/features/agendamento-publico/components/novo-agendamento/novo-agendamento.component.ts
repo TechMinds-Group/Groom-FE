@@ -13,6 +13,7 @@ import { PassoResumoComponent } from './passo-resumo/passo-resumo.component';
 import { ConfirmacaoComponent } from './confirmacao/confirmacao.component';
 import { DadosFinalizacaoCadastro, FinalizarCadastroComponent } from './finalizar-cadastro/finalizar-cadastro.component';
 import { AppFooterComponent } from '../../../../shared/components/footer/app-footer.component';
+import { ImageViewerModalComponent } from '../../../../shared/modais/image-viewer-modal/image-viewer-modal.component';
 
 @Component({
   selector: 'app-novo-agendamento',
@@ -26,6 +27,7 @@ import { AppFooterComponent } from '../../../../shared/components/footer/app-foo
     ConfirmacaoComponent,
     FinalizarCadastroComponent,
     AppFooterComponent,
+    ImageViewerModalComponent,
   ],
   templateUrl: './novo-agendamento.component.html',
   styleUrl: './novo-agendamento.component.scss',
@@ -33,6 +35,48 @@ import { AppFooterComponent } from '../../../../shared/components/footer/app-foo
 })
 export class NovoAgendamentoComponent implements OnInit, OnDestroy {
   private readonly agendamentoPublicoService = inject(AgendamentoPublicoService);
+
+  /** Estado do Modal de Visualizacao e Zoom de Imagens */
+  readonly showImageViewer = signal<boolean>(false);
+  readonly imageViewerUrl = signal<string | null>(null);
+  readonly imageViewerImages = signal<string[]>([]);
+  readonly imageViewerTitle = signal<string>('');
+
+  /** Guarda o índice da imagem ativa atual para cada plano (muda a cada 3 segundos) */
+  protected readonly activeIndicesPlanos = signal<Record<string, number>>({});
+  private planosTimer: any = null;
+
+  abrirImagemModal(
+    payload: { url?: string; urls?: string[]; titulo: string } | Event,
+    urlDirect?: string | null,
+    titleDirect?: string,
+  ): void {
+    if (payload instanceof Event) {
+      payload.stopPropagation();
+      if (!urlDirect) return;
+      this.imageViewerUrl.set(urlDirect);
+      this.imageViewerImages.set([urlDirect]);
+      this.imageViewerTitle.set(titleDirect || '');
+    } else {
+      const urls = payload.urls && payload.urls.length > 0 ? payload.urls : payload.url ? [payload.url] : [];
+      this.imageViewerUrl.set(urls[0] || null);
+      this.imageViewerImages.set(urls);
+      this.imageViewerTitle.set(payload.titulo || '');
+    }
+    this.showImageViewer.set(true);
+  }
+
+  obterImagensValidasPlano(p: PlanoAtivoCliente): string[] {
+    const raw = [p.imagemUrl, p.imagemUrl2, p.imagemUrl3].filter(Boolean) as string[];
+    return raw.map(img => this.estabelecimentoService.resolverUrl(img));
+  }
+
+  obterImagemExibicaoPlano(p: PlanoAtivoCliente): string | null {
+    const imgs = this.obterImagensValidasPlano(p);
+    if (imgs.length === 0) return null;
+    const idx = this.activeIndicesPlanos()[p.id] || 0;
+    return imgs[idx % imgs.length];
+  }
   protected readonly estabelecimentoService = inject(EstabelecimentoService);
   private readonly router = inject(Router);
 
@@ -164,6 +208,21 @@ export class NovoAgendamentoComponent implements OnInit, OnDestroy {
     if (slug) {
       this.agendamentoPublicoService.setEstabelecimento(slug);
     }
+    this.planosTimer = setInterval(() => {
+      const lista = this.meusPlanos();
+      if (!lista || lista.length === 0) return;
+      this.activeIndicesPlanos.update(current => {
+        const nextMap = { ...current };
+        for (const p of lista) {
+          const imgs = this.obterImagensValidasPlano(p);
+          if (imgs.length > 1) {
+            const curIdx = nextMap[p.id] || 0;
+            nextMap[p.id] = (curIdx + 1) % imgs.length;
+          }
+        }
+        return nextMap;
+      });
+    }, 3000);
     await Promise.all([this.carregarProfissionais(), this.carregarInfoEstabelecimento(), this.carregarMeuPlano()]);
   }
 
@@ -210,6 +269,9 @@ export class NovoAgendamentoComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
+    if (this.planosTimer) {
+      clearInterval(this.planosTimer);
+    }
     this.temaPublico.restaurarTemaAnterior();
   }
 

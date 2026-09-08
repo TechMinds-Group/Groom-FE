@@ -24,13 +24,17 @@ export interface UserContext {
   roleIconClass?: string;
   estabelecimento?: string;
   acessosMenu?: any;
+  tema?: 'dispositivo' | 'escuro' | 'claro';
 }
+
+import { ThemeService } from './theme.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
   private readonly http = inject(HttpClient);
+  private readonly themeService = inject(ThemeService);
   
   private readonly _currentUser = signal<UserContext | null>(null);
   public readonly currentUser = this._currentUser.asReadonly();
@@ -95,6 +99,9 @@ export class AuthService {
         // The API currently doesn't return role in /me, we should ideally fetch it or derive it.
         // Wait, the API returns Id, Nome, Email, TenantId.
         this._currentUser.set(user);
+        if (user && user.tema) {
+          this.themeService.setThemePreference(user.tema);
+        }
       })
     );
   }

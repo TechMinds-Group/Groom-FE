@@ -29,6 +29,12 @@ export class UsuarioNovoComponent implements OnInit {
   protected readonly fotoFile = signal<File | null>(null);
   protected readonly fotoPreview = signal<string>('');
 
+  protected readonly temaOptions = signal<{ value: string; label: string }[]>([
+    { value: 'dispositivo', label: 'Padrão do dispositivo' },
+    { value: 'escuro', label: 'Escuro' },
+    { value: 'claro', label: 'Claro' },
+  ]);
+
   protected readonly form: FormGroup = this.fb.group({
     nome: ['', [Validators.required, Validators.maxLength(60)]],
     sobrenome: ['', [Validators.required, Validators.maxLength(60)]],
@@ -36,6 +42,7 @@ export class UsuarioNovoComponent implements OnInit {
     senha: ['', [Validators.required]],
     telefone: ['', [Validators.required, Validators.maxLength(15)]],
     perfil: ['', [Validators.required]],
+    tema: ['dispositivo', [Validators.required]],
   });
 
   async ngOnInit(): Promise<void> {
@@ -105,6 +112,7 @@ export class UsuarioNovoComponent implements OnInit {
         status: 'Ativo',
         nivelAcessoId: selected.length > 0 ? selected[0] : (this.perfilOptions()[0]?.value || ''),
         secundarioNivelAcessoId: selected.length > 1 ? selected[1] : null,
+        tema: raw.tema || 'dispositivo',
       });
 
       if (this.fotoFile() && id) {

@@ -47,11 +47,13 @@
           <div class="agendamento-wizard__header-info">
             <div class="agendamento-wizard__logo-wrapper">
               <div
-                class="agendamento-wizard__logo"
+                class="agendamento-wizard__logo agendamento-img-wrapper"
                 [style.backgroundImage]="
                   logoUrlExibicao() ? 'url(' + logoUrlExibicao() + ')' : 'none'
                 "
                 [class.agendamento-wizard__logo--has-image]="!!logoUrlExibicao()"
+                (click)="logoUrlExibicao() ? abrirImagemModal($event, logoUrlExibicao(), estabelecimentoInfo()?.nome || 'Logo') : null"
+                [attr.title]="logoUrlExibicao() ? 'Clique para ampliar a logo' : null"
               >
                 @if (!logoUrlExibicao()) {
                   <div class="agendamento-wizard__logo-icon">
@@ -171,12 +173,18 @@
                           (click)="selecionarPlanoCliente(p)"
                         >
                           <div class="d-flex align-items-center gap-3">
-                            @if (p.imagemUrl) {
+                            @if (obterImagemExibicaoPlano(p); as imgPlano) {
                               <div
-                                class="rounded-3 border shrink-0"
-                                style="width: 42px; height: 42px; background-size: cover; background-position: center;"
-                                [style.backgroundImage]="'url(' + estabelecimentoService.resolverUrl(p.imagemUrl) + ')'"
-                              ></div>
+                                class="agendamento-img-wrapper"
+                                (click)="abrirImagemModal({ urls: obterImagensValidasPlano(p), titulo: p.nome })"
+                                title="Clique para ampliar as imagens do plano"
+                              >
+                                <div
+                                  class="rounded-3 border shrink-0"
+                                  style="width: 42px; height: 42px; background-size: cover; background-position: center;"
+                                  [style.backgroundImage]="'url(' + imgPlano + ')'"
+                                ></div>
+                              </div>
                             } @else {
                               <div
                                 class="rounded-3 border bg-body-tertiary text-muted d-flex align-items-center justify-content-center shrink-0"
@@ -270,12 +278,14 @@
                     <app-passo-profissional
                       [profissionais]="profissionais()"
                       (selecionado)="selecionarProfissional($event)"
+                      (expandirImagem)="abrirImagemModal($event)"
                     />
                   }
                   @case (2) {
                     <app-passo-servico
                       [servicos]="servicos()"
                       (selecionado)="selecionarServico($event)"
+                      (expandirImagem)="abrirImagemModal($event)"
                     />
                   }
                   @case (3) {
@@ -303,6 +313,7 @@
                       [horario]="horarioSelecionado()"
                       [isLoading]="isLoading()"
                       (confirmar)="confirmar()"
+                      (expandirImagem)="abrirImagemModal($event)"
                     />
                   }
                 }
@@ -366,5 +377,12 @@
       </div>
     }
   </div>
-  <app-footer></app-footer>
+  <app-footer class="app-footer-fixed"></app-footer>
 </div>
+
+<app-image-viewer-modal
+  [(show)]="showImageViewer"
+  [imageUrl]="imageViewerUrl()"
+  [images]="imageViewerImages()"
+  [title]="imageViewerTitle()"
+></app-image-viewer-modal>

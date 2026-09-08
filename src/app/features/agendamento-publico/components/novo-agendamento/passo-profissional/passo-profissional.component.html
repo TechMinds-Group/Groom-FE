@@ -11,7 +11,13 @@
         (click)="selecionado.emit(profissional)"
       >
         @if (profissional.fotoUrl) {
-          <img [src]="estabelecimentoService.resolverUrl(profissional.fotoUrl)" [alt]="profissional.nome" class="agendamento-profissionais__avatar-img" />
+          <div
+            class="agendamento-img-wrapper"
+            (click)="onImagemClick($event, estabelecimentoService.resolverUrl(profissional.fotoUrl), profissional.nome)"
+            title="Clique para ampliar a foto"
+          >
+            <img [src]="estabelecimentoService.resolverUrl(profissional.fotoUrl)" [alt]="profissional.nome" class="agendamento-profissionais__avatar-img" />
+          </div>
         } @else {
           <span class="agendamento-profissionais__avatar">
             {{ inicial(profissional.nome) }}

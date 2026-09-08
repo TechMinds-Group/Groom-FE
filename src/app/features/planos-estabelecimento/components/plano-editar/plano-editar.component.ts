@@ -30,12 +30,22 @@ export class PlanoEditarComponent implements OnInit {
 
   protected readonly plano = signal<ClubeConfig | null>(null);
   protected readonly salvando = signal<boolean>(false);
-  protected readonly uploadingImagem = signal<boolean>(false);
+  protected readonly uploadingSlot = signal<number | null>(null);
   protected readonly imagemUrl = signal<string | null>(null);
+  protected readonly imagemUrl2 = signal<string | null>(null);
+  protected readonly imagemUrl3 = signal<string | null>(null);
+  protected readonly mostrarSlot2 = signal<boolean>(false);
+  protected readonly mostrarSlot3 = signal<boolean>(false);
   protected readonly opcoesBeneficios = signal<{ value: string; label: string }[]>([]);
 
-  protected readonly imagemVisivel = computed(() =>
+  protected readonly imagemVisivel1 = computed(() =>
     this.estabelecimentoService.resolverUrl(this.imagemUrl() || undefined),
+  );
+  protected readonly imagemVisivel2 = computed(() =>
+    this.estabelecimentoService.resolverUrl(this.imagemUrl2() || undefined),
+  );
+  protected readonly imagemVisivel3 = computed(() =>
+    this.estabelecimentoService.resolverUrl(this.imagemUrl3() || undefined),
   );
 
   protected readonly form: FormGroup = this.fb.group({
@@ -81,7 +91,15 @@ export class PlanoEditarComponent implements OnInit {
     input.click();
   }
 
-  async onImagemSelected(event: Event): Promise<void> {
+  adicionarMaisFoto(): void {
+    if (!this.mostrarSlot2()) {
+      this.mostrarSlot2.set(true);
+    } else if (!this.mostrarSlot3()) {
+      this.mostrarSlot3.set(true);
+    }
+  }
+
+  async onImagemSelected(event: Event, slot: 1 | 2 | 3): Promise<void> {
     const input = event.target as HTMLInputElement;
     const file = input.files?.[0];
     if (!file) return;
@@ -91,22 +109,50 @@ export class PlanoEditarComponent implements OnInit {
       return;
     }
 
-    this.uploadingImagem.set(true);
+    this.uploadingSlot.set(slot);
     try {
       const result = await this.estabelecimentoService.uploadImagemItem(file, 'plano');
-      this.imagemUrl.set(result.imagemUrl);
-      this.toastService.success('Imagem enviada com sucesso!', 'Sucesso');
+      if (slot === 1) {
+        this.imagemUrl.set(result.imagemUrl);
+      } else if (slot === 2) {
+        this.imagemUrl2.set(result.imagemUrl);
+        this.mostrarSlot2.set(true);
+      } else if (slot === 3) {
+        this.imagemUrl3.set(result.imagemUrl);
+        this.mostrarSlot3.set(true);
+      }
+      this.toastService.success(`Imagem ${slot} enviada com sucesso!`, 'Sucesso');
     } catch (err: any) {
       const message = err?.error?.message || 'Falha ao enviar imagem. Verifique se o arquivo é válido (máx 3MB).';
       this.toastService.error(message, 'Erro');
     } finally {
-      this.uploadingImagem.set(false);
+      this.uploadingSlot.set(null);
       input.value = '';
     }
   }
 
-  removerImagem(): void {
-    this.imagemUrl.set(null);
+  removerImagem(slot: 1 | 2 | 3): void {
+    if (slot === 1) {
+      this.imagemUrl.set(null);
+    } else if (slot === 2) {
+      this.imagemUrl2.set(null);
+      this.mostrarSlot2.set(false);
+    } else if (slot === 3) {
+      this.imagemUrl3.set(null);
+      this.mostrarSlot3.set(false);
+    }
+  }
+
+  removerUltimaFoto(): void {
+    if (this.mostrarSlot3() || this.imagemUrl3()) {
+      this.imagemUrl3.set(null);
+      this.mostrarSlot3.set(false);
+    } else if (this.mostrarSlot2() || this.imagemUrl2()) {
+      this.imagemUrl2.set(null);
+      this.mostrarSlot2.set(false);
+    } else if (this.imagemUrl()) {
+      this.imagemUrl.set(null);
+    }
   }
 
   async adicionarNovoBeneficio(term: string): Promise<void> {
@@ -147,7 +193,9 @@ export class PlanoEditarComponent implements OnInit {
         descricao: formVal.descricao,
         recursos,
         status: formVal.status,
-        imagemUrl: this.imagemUrl() ?? undefined,
+        imagemUrl: this.imagemUrl() || null,
+        imagemUrl2: this.imagemUrl2() || null,
+        imagemUrl3: this.imagemUrl3() || null,
       };
       await firstValueFrom(this.clubesService.atualizar(p.id, payload));
       this.toastService.success('Plano atualizado com sucesso!', 'Sucesso');
@@ -172,6 +220,11 @@ export class PlanoEditarComponent implements OnInit {
 
       this.plano.set(plano);
       this.imagemUrl.set(plano.imagemUrl || null);
+      this.imagemUrl2.set(plano.imagemUrl2 || null);
+      this.imagemUrl3.set(plano.imagemUrl3 || null);
+      this.mostrarSlot2.set(!!plano.imagemUrl2);
+      this.mostrarSlot3.set(!!plano.imagemUrl3);
+
       this.form.patchValue({
         nome: plano.nome,
         preco: plano.preco,

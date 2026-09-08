@@ -1,13 +1,24 @@
 .agendamento-wizard {
   min-height: 100vh;
   display: flex;
-  align-items: flex-start;
-  justify-content: center;
-  padding: 3rem 1rem 3rem;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 3rem 1rem 8rem !important;
+  margin-bottom: 2rem !important;
   background:
     radial-gradient(ellipse at top left, rgba(13, 110, 253, 0.08), transparent 55%),
     radial-gradient(ellipse at bottom right, rgba(13, 110, 253, 0.05), transparent 55%),
     var(--tm-bg-color);
+
+  app-footer {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.1);
+  }
 
   .text-muted {
     color: var(--tm-text-secondary) !important;
@@ -942,3 +953,38 @@
     }
   }
 }
+
+/* Wrapper para destaque visual e zoom de imagens no agendamento público */
+.agendamento-img-wrapper {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border-radius: 14px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+  img,
+  .agendamento-servicos__img,
+  .agendamento-profissionais__avatar-img,
+  .agendamento-planos__img {
+    transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1), filter 0.35s ease, box-shadow 0.35s ease;
+  }
+
+  &:hover {
+    box-shadow: 0 8px 24px rgba(13, 110, 253, 0.4), 0 0 0 3px rgba(13, 110, 253, 0.55) !important;
+    transform: scale(1.12);
+    z-index: 5;
+
+    img,
+    .agendamento-servicos__img,
+    .agendamento-profissionais__avatar-img,
+    .agendamento-planos__img {
+      transform: scale(1.2);
+      filter: brightness(1.08);
+    }
+  }
+}
+

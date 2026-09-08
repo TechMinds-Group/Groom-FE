@@ -123,6 +123,17 @@
                 <div class="text-danger extra-small mt-1">Perfil de acesso é obrigatório.</div>
               }
             </div>
+
+            <!-- Tema Preferencial -->
+            <div class="col-sm-6 col-12">
+              <tm-select
+                formControlName="tema"
+                label="Tema Preferencial *"
+                [options]="temaOptions()"
+                [darkMode]="themeService.isDarkMode()"
+                class="custom-dark-text"
+              ></tm-select>
+            </div>
           </div>
 
           <!-- Ações -->

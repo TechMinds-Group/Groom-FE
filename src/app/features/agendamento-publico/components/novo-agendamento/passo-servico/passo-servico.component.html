@@ -10,11 +10,17 @@
         class="agendamento-servicos__card"
         (click)="selecionado.emit(servico)"
       >
-        @if (servico.imagemUrl) {
+        @if (obterImagemExibicao(servico); as imgExibicao) {
           <div
-            class="agendamento-servicos__img"
-            [style.backgroundImage]="'url(' + estabelecimentoService.resolverUrl(servico.imagemUrl) + ')'"
-          ></div>
+            class="agendamento-img-wrapper"
+            (click)="onImagemClick($event, servico)"
+            title="Clique para ampliar as imagens do serviço"
+          >
+            <div
+              class="agendamento-servicos__img"
+              [style.backgroundImage]="'url(' + imgExibicao + ')'"
+            ></div>
+          </div>
         } @else {
           <span class="agendamento-servicos__icone">
             <i class="fa-solid fa-scissors"></i>
