@@ -1,62 +1,170 @@
-<div class="container mt-4 mb-5 pb-5">
+<div class="container mt-5 mb-5">
   @if (servico(); as s) {
-    <div class="d-flex align-items-center gap-3 mb-4">
-      <button (click)="voltar()" class="btn btn-light shadow-sm rounded-circle p-0 d-flex align-items-center justify-content-center btn-voltar">
-        <i class="fas fa-arrow-left text-muted"></i>
-      </button>
-      <div>
-        <h2 class="h4 mb-0 fw-bold custom-dark-text">{{ s.nome }}</h2>
-        <span class="text-muted small custom-dark-text">Detalhes do serviço</span>
+    <!-- Header: Voltar + Nome do Serviço + Subtítulo — padrão idêntico a usuários/clientes/profissionais -->
+    <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between mb-4 gap-3">
+      <div class="d-flex align-items-center gap-3">
+        <button
+          (click)="voltar()"
+          class="btn btn-light shadow-sm rounded-circle p-0 d-flex align-items-center justify-content-center btn-voltar"
+          title="Voltar"
+        >
+          <i class="fas fa-arrow-left custom-dark-text"></i>
+        </button>
+
+        <div>
+          <h2 class="h4 mb-0 fw-bold custom-dark-text d-flex align-items-center gap-2">
+            {{ s.nome }}
+          </h2>
+          <span class="text-muted small custom-dark-text">Detalhes do Serviço</span>
+        </div>
       </div>
     </div>
 
-    <div class="row g-4">
-      <div class="col-lg-8 col-12">
-        <div class="row g-3 mb-4">
-          <div class="col-12 col-md-4">
-            <div class="card tm-card border-0 shadow-sm rounded-4 h-100 p-3">
-              <div class="d-flex align-items-center mb-2 text-muted fw-semibold small custom-dark-text">
-                <i class="fas fa-tag me-2 text-primary"></i> Preço
+    <!-- Grid Principal (row g-4 mb-5) -->
+    <div class="row g-4 mb-5">
+      <div class="col-xl-8 col-12">
+        <div class="card border-0 shadow-sm p-4 details-card custom-dark-card rounded-4">
+
+          <!-- 1. Header do Perfil (Avatar/Foto e Nome do Serviço) -->
+          <div class="d-flex align-items-center gap-3 border-bottom pb-4 mb-4">
+            @if (obterImagensValidas(s).length > 0) {
+              <div
+                class="avatar-circle overflow-hidden border position-relative cursor-pointer flex-shrink-0 image-preview-thumb shadow-sm"
+                style="width: 60px; height: 60px; border-radius: 50%; background-size: cover; background-position: center;"
+                [style.backgroundImage]="'url(' + obterImagensValidas(s)[0] + ')'"
+                (click)="abrirImagemModal(s)"
+                title="Clique para ampliar em tela cheia"
+              >
+                <div class="thumb-overlay d-flex align-items-center justify-content-center text-white">
+                  <i class="fas fa-search-plus extra-small"></i>
+                </div>
               </div>
-              <h3 class="fw-bold mb-0 text-primary">R$ {{ s.preco.toFixed(2).replace('.', ',') }}</h3>
+            } @else {
+              <div class="avatar-circle bg-primary-subtle text-primary d-flex align-items-center justify-content-center flex-shrink-0" style="width: 60px; height: 60px; border-radius: 50%;">
+                <i class="fas fa-scissors fs-3 text-primary"></i>
+              </div>
+            }
+            <div>
+              <h2 class="h3 fw-bold mb-0 custom-dark-text">{{ s.nome }}</h2>
             </div>
           </div>
-          <div class="col-12 col-md-4">
-            <div class="card tm-card border-0 shadow-sm rounded-4 h-100 p-3">
-              <div class="d-flex align-items-center mb-2 text-muted fw-semibold small custom-dark-text">
-                <i class="fas fa-clock me-2 text-primary"></i> Duração
+
+          <!-- 2. Informações Cadastrais / Métricas -->
+          <div class="row g-4 mb-4">
+            <!-- Status -->
+            <div class="col-sm-6 col-12">
+              <label class="form-label small fw-bold text-muted text-uppercase tracking-wider">Status</label>
+              <div class="mt-1">
+                @if (s.status === 'Ativo') {
+                  <span class="badge border border-success-subtle bg-success-subtle text-success px-3 py-1.5 rounded-pill fw-semibold">
+                    <i class="fas fa-check-circle me-1"></i>Ativo
+                  </span>
+                } @else {
+                  <span class="badge border border-danger-subtle bg-danger-subtle text-danger px-3 py-1.5 rounded-pill fw-semibold">
+                    <i class="fas fa-circle text-danger me-1" style="font-size: 7px;"></i>Inativo
+                  </span>
+                }
               </div>
-              <h3 class="fw-bold mb-0">{{ s.duracao ? s.duracao + ' min' : '-' }}</h3>
+            </div>
+
+            <!-- Preço -->
+            <div class="col-sm-6 col-12">
+              <label class="form-label small fw-bold text-muted text-uppercase tracking-wider">Preço do Serviço</label>
+              <p class="fw-bold fs-4 mb-0 text-primary">
+                R$ {{ s.preco.toFixed(2).replace('.', ',') }}
+              </p>
+            </div>
+
+            <!-- Duração -->
+            <div class="col-sm-6 col-12">
+              <label class="form-label small fw-bold text-muted text-uppercase tracking-wider">Duração Estimada</label>
+              <p class="fw-semibold mb-0 custom-dark-text">
+                <i class="fas fa-clock text-info me-2"></i>{{ s.duracao ? s.duracao + ' min' : '-' }}
+              </p>
             </div>
           </div>
-          <div class="col-12 col-md-4">
-            <div class="card tm-card border-0 shadow-sm rounded-4 h-100 p-3">
-              <div class="d-flex align-items-center mb-2 text-muted fw-semibold small custom-dark-text">
-                <i class="fas fa-info-circle me-2 text-primary"></i> Status
-              </div>
-              @if (s.status === 'Ativo') {
-                <h3 class="fw-bold mb-0 text-success">Ativo</h3>
-              } @else {
-                <h3 class="fw-bold mb-0 text-danger">Inativo</h3>
+
+          <!-- Imagens do Serviço -->
+          <div class="border-top pt-4 mt-2 mb-4">
+            <div class="d-flex align-items-center justify-content-between mb-3">
+              <label class="form-label small fw-bold text-muted text-uppercase tracking-wider mb-0">
+                <i class="fas fa-images text-primary me-2"></i>Imagens do Serviço
+              </label>
+              @if (obterImagensValidas(s).length > 0) {
+                <span class="badge bg-primary-subtle text-primary border border-primary-subtle rounded-pill px-3 py-1 extra-small fw-semibold">
+                  <i class="fas fa-expand me-1"></i>Clique para ampliar
+                </span>
               }
             </div>
+
+            @if (obterImagensValidas(s); as imgs) {
+              @if (imgs.length > 0) {
+                <div class="d-flex flex-wrap gap-3">
+                  @for (img of imgs; track img; let i = $index) {
+                    <div
+                      class="position-relative overflow-hidden rounded-3 border cursor-pointer image-preview-thumb shadow-sm"
+                      style="width: 100px; height: 100px; background-size: cover; background-position: center;"
+                      [style.backgroundImage]="'url(' + img + ')'"
+                      (click)="abrirImagemModal(s)"
+                      title="Clique para ampliar em tela cheia"
+                    >
+                      <div class="thumb-overlay d-flex flex-column align-items-center justify-content-center text-white p-1">
+                        <i class="fas fa-search-plus fs-5 mb-1"></i>
+                        <span class="extra-small fw-bold">Ampliar</span>
+                      </div>
+                      @if (i === 0) {
+                        <span class="badge bg-primary position-absolute top-0 start-0 m-1 extra-small shadow-sm">Principal</span>
+                      } @else {
+                        <span class="badge bg-dark bg-opacity-75 position-absolute top-0 start-0 m-1 extra-small">Foto {{ i + 1 }}</span>
+                      }
+                    </div>
+                  }
+                </div>
+              } @else {
+                <div class="text-center py-4 text-muted border rounded-3 bg-body-tertiary custom-dark-item">
+                  <i class="fas fa-image fa-2x mb-2 d-block opacity-50"></i>
+                  <span class="small custom-dark-text">Nenhuma imagem cadastrada para este serviço.</span>
+                </div>
+              }
+            }
           </div>
+
+          <!-- Descrição do Serviço (se houver) -->
+          @if (s.descricao) {
+            <div class="border-top pt-4 mt-2">
+              <label class="form-label small fw-bold text-muted text-uppercase tracking-wider mb-2">
+                <i class="fas fa-align-left text-primary me-2"></i>Descrição do Serviço
+              </label>
+              <p class="mb-0 text-secondary custom-dark-text lh-base fs-6">
+                {{ s.descricao }}
+              </p>
+            </div>
+          }
         </div>
       </div>
 
-      <div class="col-lg-4 col-12">
-        <div class="card border-0 shadow-sm p-4 actions-card custom-dark-card">
+      <!-- Coluna Direita: Card Ações Rápidas -->
+      <div class="col-xl-4 col-12">
+        <div class="card border-0 shadow-sm p-4 actions-card custom-dark-card rounded-4">
           <h4 class="h5 fw-bold mb-4 custom-dark-text">
             <i class="fas fa-sliders-h me-2 text-primary"></i>Ações Rápidas
           </h4>
 
           <div class="d-grid gap-3">
-            <button (click)="abrirEdicao()" class="btn btn-primary py-2.5 fw-bold w-100 transition-all custom-action-btn">
-              <i class="fas fa-edit me-2"></i>Editar
+            <button
+              type="button"
+              (click)="abrirEdicao()"
+              class="btn btn-primary py-2.5 fw-bold w-100 transition-all custom-action-btn"
+            >
+              <i class="fas fa-edit me-2"></i>Editar Serviço
             </button>
 
-            <button (click)="excluir()" class="btn btn-outline-danger py-2.5 fw-bold w-100 transition-all custom-action-btn">
-              <i class="fas fa-trash-can me-2"></i>Excluir
+            <button
+              type="button"
+              (click)="excluir()"
+              class="btn btn-outline-danger py-2.5 fw-bold w-100 transition-all custom-action-btn"
+            >
+              <i class="fas fa-trash-can me-2"></i>Excluir Serviço
             </button>
           </div>
         </div>
@@ -69,4 +177,10 @@
   [(show)]="showDeleteConfirmModal"
   [nomeServico]="servico()?.nome || ''"
   (confirm)="confirmarExcluir()"
+/>
+
+<app-image-viewer-modal
+  [(show)]="showImageViewer"
+  [images]="imageViewerImages()"
+  [title]="imageViewerTitle()"
 />

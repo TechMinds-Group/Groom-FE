@@ -106,6 +106,17 @@
                 ></tm-select>
               </div>
 
+              <!-- Tema Preferencial -->
+              <div class="col-sm-6 col-12">
+                <tm-select
+                  formControlName="tema"
+                  label="Tema Preferencial *"
+                  [options]="temaOptions()"
+                  [darkMode]="themeService.isDarkMode()"
+                  class="custom-dark-text"
+                ></tm-select>
+              </div>
+
               <!-- Status do usuário -->
               <div class="col-12">
                 <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 p-3 rounded-3 border border-secondary-subtle">

@@ -24,6 +24,22 @@ export class PassoResumoComponent {
   readonly duracao = input<number | null>(null);
 
   readonly confirmar = output<void>();
+  readonly expandirImagem = output<{ url?: string; urls?: string[]; titulo: string }>();
+
+  onImagemClick(event: Event, url: string, nome: string): void {
+    event.stopPropagation();
+    this.expandirImagem.emit({ url, titulo: nome });
+  }
+
+  onServicoImagemClick(event: Event): void {
+    event.stopPropagation();
+    const s = this.servico();
+    if (!s) return;
+    const raw = [s.imagemUrl, s.imagemUrl2, s.imagemUrl3].filter(Boolean) as string[];
+    const urls = raw.map(img => this.estabelecimentoService.resolverUrl(img));
+    if (urls.length === 0) return;
+    this.expandirImagem.emit({ urls, url: urls[0], titulo: s.nome });
+  }
 
   formatarData(data: string): string {
     const [ano, mes, dia] = data.split('-').map(Number);

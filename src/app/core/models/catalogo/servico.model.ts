@@ -5,5 +5,7 @@ export interface ServicoCatalogo {
   preco: number;
   duracao?: number;
   status: 'Ativo' | 'Inativo';
-  imagemUrl?: string;
+  imagemUrl?: string | null;
+  imagemUrl2?: string | null;
+  imagemUrl3?: string | null;
 }

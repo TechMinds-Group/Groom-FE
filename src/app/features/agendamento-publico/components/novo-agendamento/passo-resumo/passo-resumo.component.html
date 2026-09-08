@@ -8,11 +8,17 @@
       </span>
       <span class="agendamento-resumo__valor d-flex align-items-center gap-2">
         @if (profissional()?.fotoUrl; as foto) {
-          <span
-            class="rounded-3 border shrink-0 shadow-sm"
-            style="width: 32px; height: 32px; background-size: cover; background-position: center;"
-            [style.backgroundImage]="'url(' + estabelecimentoService.resolverUrl(foto) + ')'"
-          ></span>
+          <div
+            class="agendamento-img-wrapper cursor-pointer"
+            (click)="onImagemClick($event, estabelecimentoService.resolverUrl(foto), profissional()?.nome || 'Profissional')"
+            title="Clique para ampliar a foto"
+          >
+            <span
+              class="rounded-3 border shrink-0 shadow-sm d-block"
+              style="width: 32px; height: 32px; background-size: cover; background-position: center;"
+              [style.backgroundImage]="'url(' + estabelecimentoService.resolverUrl(foto) + ')'"
+            ></span>
+          </div>
         } @else if (profissional()?.nome) {
           <span class="rounded-3 border bg-primary text-white d-flex align-items-center justify-content-center shrink-0 fw-bold shadow-sm" style="width: 32px; height: 32px; font-size: 0.85rem;">
             {{ inicial(profissional()?.nome || '') }}
@@ -30,11 +36,17 @@
       } @else {
         <span class="agendamento-resumo__valor d-flex align-items-center gap-2">
           @if (servico()?.imagemUrl; as img) {
-            <span
-              class="rounded-3 border shrink-0 shadow-sm"
-              style="width: 32px; height: 32px; background-size: cover; background-position: center;"
-              [style.backgroundImage]="'url(' + estabelecimentoService.resolverUrl(img) + ')'"
-            ></span>
+            <div
+              class="agendamento-img-wrapper cursor-pointer"
+              (click)="onServicoImagemClick($event)"
+              title="Clique para ampliar as imagens do serviço"
+            >
+              <span
+                class="rounded-3 border shrink-0 shadow-sm d-block"
+                style="width: 32px; height: 32px; background-size: cover; background-position: center;"
+                [style.backgroundImage]="'url(' + estabelecimentoService.resolverUrl(img) + ')'"
+              ></span>
+            </div>
           }
           <span>{{ servico()?.nome }}</span>
         </span>

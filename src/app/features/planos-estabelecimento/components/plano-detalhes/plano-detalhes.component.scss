@@ -4,8 +4,16 @@
 }
 
 .btn-voltar {
-  width: 40px;
-  height: 40px;
+  width: 40px !important;
+  height: 40px !important;
+  min-width: 40px !important;
+  border-radius: 50% !important;
+  flex-shrink: 0;
+  padding: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  line-height: 1 !important;
   transition: all 0.2s ease;
 
   &:hover {
@@ -14,18 +22,46 @@
   }
 }
 
-.custom-dark-muted {
-  color: #6c757d;
+.avatar-circle {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  flex-shrink: 0;
 }
 
 .details-card,
 .actions-card {
-  transition: box-shadow 0.2s ease;
+  background-color: #ffffff;
+  overflow: hidden;
 }
 
-.custom-dark-item {
-  padding: 1.25rem 1.5rem !important;
-  border-radius: 12px !important;
+.tracking-wider {
+  letter-spacing: 0.05em;
+}
+
+.image-preview-thumb {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  
+  .thumb-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.45);
+    backdrop-filter: blur(2px);
+    opacity: 0;
+    transition: opacity 0.2s ease;
+  }
+
+  &:hover {
+    transform: scale(1.05);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25) !important;
+
+    .thumb-overlay {
+      opacity: 1;
+    }
+  }
 }
 
 :host-context([data-theme='dark']) {
@@ -42,13 +78,10 @@
     }
   }
 
+  .details-card,
+  .actions-card,
   .custom-dark-card {
     background-color: #161b22 !important;
-    border: 1px solid rgba(255, 255, 255, 0.08) !important;
-  }
-
-  .custom-dark-item {
-    background-color: #1c2128 !important;
     border: 1px solid rgba(255, 255, 255, 0.08) !important;
   }
 
@@ -58,6 +91,38 @@
 
   .custom-dark-muted {
     color: #a3b1c2 !important;
+  }
+
+  label {
+    color: rgba(255, 255, 255, 0.7) !important;
+  }
+
+  .border-bottom,
+  .border-top,
+  .border {
+    border-color: rgba(255, 255, 255, 0.08) !important;
+  }
+
+  .bg-primary-subtle {
+    background-color: rgba(13, 110, 253, 0.15) !important;
+    color: #58a6ff !important;
+    border-color: rgba(13, 110, 253, 0.3) !important;
+  }
+
+  .bg-success-subtle {
+    background-color: rgba(35, 134, 54, 0.15) !important;
+    color: #3fb950 !important;
+    border-color: rgba(35, 134, 54, 0.3) !important;
+  }
+
+  .bg-danger-subtle {
+    background-color: rgba(218, 54, 51, 0.15) !important;
+    color: #f85149 !important;
+    border-color: rgba(218, 54, 51, 0.3) !important;
+  }
+
+  .bg-body-tertiary {
+    background-color: #1c2128 !important;
   }
 }
 

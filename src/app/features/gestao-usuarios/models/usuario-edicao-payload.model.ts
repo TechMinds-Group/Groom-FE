@@ -7,4 +7,5 @@ export interface UsuarioEdicaoPayload {
   nivelAcessoId: string;
   secundarioNivelAcessoId?: string | null;
   plano?: string;
+  tema?: string;
 }

@@ -104,6 +104,22 @@
       </div>
     }
 
+    <!-- Tema Preferencial -->
+    <div class="col-sm-6 col-12">
+      <label class="form-label small fw-bold text-muted text-uppercase tracking-wider">Tema Preferencial</label>
+      <div class="mt-1 field-value">
+        <span class="custom-dark-text fw-medium">
+          @if (usuario().tema === 'escuro') {
+            <i class="fas fa-moon text-primary me-1"></i>Escuro
+          } @else if (usuario().tema === 'claro') {
+            <i class="fas fa-sun text-warning me-1"></i>Claro
+          } @else {
+            <i class="fas fa-desktop text-info me-1"></i>Padrão do dispositivo
+          }
+        </span>
+      </div>
+    </div>
+
     <!-- Catálogo de Serviços Atendidos (se houver ou se for Profissional) -->
     @if (usuario().perfil && (usuario().perfil.includes('Profissional') || servicosAtuacao().length > 0)) {
       <div class="col-12 border-top pt-3 mt-2">

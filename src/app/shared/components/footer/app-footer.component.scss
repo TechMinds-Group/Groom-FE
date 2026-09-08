@@ -1,5 +1,9 @@
+:host {
+  display: block;
+  width: 100%;
+}
+
 .app-footer {
-  margin-top: auto;
   width: 100%;
   padding: 0.65rem 1.25rem;
   border-top: 1px solid color-mix(in srgb, var(--tm-border-color) 60%, transparent);

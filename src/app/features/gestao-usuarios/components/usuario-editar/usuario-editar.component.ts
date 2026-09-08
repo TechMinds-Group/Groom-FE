@@ -9,6 +9,7 @@ import { UsuarioEdicaoPayload } from '../../models/usuario-edicao-payload.model'
 import { TranslatePipe } from '../../../../shared/pipes/translate.pipe';
 import { ThemeService } from '../../../../core/services/theme.service';
 import { EstabelecimentoService } from '../../../../core/services/estabelecimento.service';
+import { AuthService } from '../../../../core/services/auth.service';
 
 @Component({
   selector: 'app-usuario-editar',
@@ -25,12 +26,19 @@ export class UsuarioEditarComponent implements OnInit {
   private readonly gestaoUsuariosService = inject(GestaoUsuariosService);
   private readonly meEstabelecimentoService = inject(EstabelecimentoService);
   private readonly toastService = inject(TmToastService);
+  private readonly authService = inject(AuthService);
   protected readonly themeService = inject(ThemeService);
 
   protected readonly usuario = signal<Usuario | null>(null);
   protected readonly salvando = signal<boolean>(false);
   protected readonly perfilOptions = signal<{ value: string; label: string }[]>([]);
   protected readonly perfisSelecionados = signal<string[]>([]);
+
+  protected readonly temaOptions = signal<{ value: string; label: string }[]>([
+    { value: 'dispositivo', label: 'Padrão do dispositivo' },
+    { value: 'escuro', label: 'Escuro' },
+    { value: 'claro', label: 'Claro' },
+  ]);
 
   protected readonly fotoFile = signal<File | null>(null);
   protected readonly fotoPreview = signal<string>('');
@@ -49,6 +57,7 @@ export class UsuarioEditarComponent implements OnInit {
     email: ['', [Validators.required, Validators.email]],
     telefone: ['', [Validators.required, Validators.maxLength(15)]],
     status: ['Ativo', [Validators.required]],
+    tema: ['dispositivo', [Validators.required]],
   });
 
   async ngOnInit(): Promise<void> {
@@ -130,8 +139,13 @@ export class UsuarioEditarComponent implements OnInit {
         nivelAcessoId: selected.length > 0 ? selected[0] : '',
         secundarioNivelAcessoId: selected.length > 1 ? selected[1] : null,
         plano: u.planoAssinatura || undefined,
+        tema: val.tema || 'dispositivo',
       };
       await this.gestaoUsuariosService.atualizar(u.id, payload);
+
+      if (this.authService.currentUserId() === u.id) {
+        this.themeService.setThemePreference(val.tema);
+      }
 
       if (this.fotoFile()) {
         await this.gestaoUsuariosService.salvarFoto(u.id, this.fotoFile()!);
@@ -193,6 +207,7 @@ export class UsuarioEditarComponent implements OnInit {
         email: user.email,
         telefone: this.formatarTelefone(user.telefone || ''),
         status: user.status,
+        tema: user.tema || 'dispositivo',
       });
     } catch {
       this.voltar();

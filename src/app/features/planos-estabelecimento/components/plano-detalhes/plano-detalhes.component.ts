@@ -3,7 +3,9 @@ import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
 import { ClubesService, ClubeConfig } from '../../../../core/services/clubes.service';
+import { EstabelecimentoService } from '../../../../core/services/estabelecimento.service';
 import { PlanoModalExcluirComponent } from '../modais/plano-modal-excluir/plano-modal-excluir.component';
+import { ImageViewerModalComponent } from '../../../../shared/modais/image-viewer-modal/image-viewer-modal.component';
 
 @Component({
   selector: 'app-plano-detalhes',
@@ -11,6 +13,7 @@ import { PlanoModalExcluirComponent } from '../modais/plano-modal-excluir/plano-
   imports: [
     CommonModule,
     PlanoModalExcluirComponent,
+    ImageViewerModalComponent,
   ],
   templateUrl: './plano-detalhes.component.html',
   styleUrl: './plano-detalhes.component.scss',
@@ -20,9 +23,26 @@ export class PlanoDetalhesComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly clubesService = inject(ClubesService);
+  protected readonly estabelecimentoService = inject(EstabelecimentoService);
 
   protected readonly clube = signal<ClubeConfig | null>(null);
   protected readonly showDeleteModal = signal<boolean>(false);
+  protected readonly showImageViewer = signal<boolean>(false);
+  protected readonly imageViewerImages = signal<string[]>([]);
+  protected readonly imageViewerTitle = signal<string>('');
+
+  protected obterImagensValidas(plano: ClubeConfig): string[] {
+    const raw = [plano.imagemUrl, plano.imagemUrl2, plano.imagemUrl3].filter(Boolean) as string[];
+    return raw.map(url => this.estabelecimentoService.resolverUrl(url));
+  }
+
+  protected abrirImagemModal(plano: ClubeConfig): void {
+    const imgs = this.obterImagensValidas(plano);
+    if (imgs.length === 0) return;
+    this.imageViewerImages.set(imgs);
+    this.imageViewerTitle.set(plano.nome);
+    this.showImageViewer.set(true);
+  }
 
   protected readonly recursosExibicao = computed<string[]>(() => {
     const recursos = this.clube()?.recursos ?? [];

@@ -152,7 +152,7 @@ export class SidebarComponent {
         } else if (item.label === 'Configurações') {
           filteredSubs = filteredSubs.filter(sub => {
             if (sub.label === 'Estabelecimento' && configuracoesSub.estabelecimento === false) return false;
-            if (sub.label === 'Horário de Funcionamento' && configuracoesSub.estabelecimento === false) return false;
+            if (sub.label === 'Horários' && configuracoesSub.estabelecimento === false) return false;
             if (sub.label === 'WhatsApp' && configuracoesSub.whatsapp === false) return false;
             if (sub.label === 'Minha Assinatura' && configuracoesSub.assinatura === false) return false;
             if (sub.label === 'Logs do Sistema' && configuracoesSub.logs === false) return false;
