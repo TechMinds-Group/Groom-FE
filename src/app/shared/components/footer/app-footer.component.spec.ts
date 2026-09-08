@@ -24,8 +24,8 @@ describe('AppFooterComponent', () => {
     const texto = fixture.nativeElement.textContent;
     expect(texto).toContain(String(component.anoAtual));
     expect(texto).toContain('Groom');
-    expect(texto).toContain('portal.techminds.net.br');
+    expect(texto).toContain('portal.techminds.net.br/groom');
     const link = fixture.nativeElement.querySelector('a');
-    expect(link?.href).toBe('https://portal.techminds.net.br/');
+    expect(link?.href).toBe('https://portal.techminds.net.br/groom');
   });
 });
