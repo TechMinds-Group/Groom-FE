@@ -16,6 +16,7 @@ export interface DiaDisponibilidade {
 /** Estado completo da disponibilidade de um profissional (enviado via GET/PUT /disponibilidade). */
 export interface DisponibilidadeProfissional {
   profissionalId: string;
+  personalizarHorarios?: boolean;
   dias: DiaDisponibilidade[];
   servicoIds: string[];
   planoIds?: string[];

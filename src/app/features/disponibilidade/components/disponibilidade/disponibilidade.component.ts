@@ -442,19 +442,6 @@ export class DisponibilidadeComponent implements OnInit, AfterViewInit {
         payload,
       );
 
-      localStorage.setItem(
-        `groom_usar_est_${profissionalId}`,
-        this.usarHorarioEstabelecimento() ? 'true' : 'false',
-      );
-      localStorage.setItem(
-        `groom_servicos_${profissionalId}`,
-        JSON.stringify(this.servicosSelecionados()),
-      );
-      localStorage.setItem(
-        `groom_planos_${profissionalId}`,
-        JSON.stringify(this.planosSelecionados()),
-      );
-
       this.atualizarEstadoInicial();
       this.modoEdicao.set(false);
       this.toastService.success(this.languageService.translate('DISPONIBILIDADE.TOAST_SUCESSO'));
@@ -477,30 +464,10 @@ export class DisponibilidadeComponent implements OnInit, AfterViewInit {
   private async popularForm(dados: DisponibilidadeProfissional): Promise<void> {
     const profId = this.profissionalAlvo();
 
-    let servs = dados.servicoIds ?? [];
-    if (servs.length === 0 && profId) {
-      const storedServs = localStorage.getItem(`groom_servicos_${profId}`);
-      if (storedServs) {
-        try {
-          servs = JSON.parse(storedServs);
-        } catch (_unused: unknown) {}
-      }
-    }
-    this.servicosSelecionados.set(servs);
+    this.servicosSelecionados.set(dados.servicoIds ?? []);
+    this.planosSelecionados.set(dados.planoIds ?? []);
 
-    let plans = dados.planoIds ?? [];
-    if (plans.length === 0 && profId) {
-      const storedPlans = localStorage.getItem(`groom_planos_${profId}`);
-      if (storedPlans) {
-        try {
-          plans = JSON.parse(storedPlans);
-        } catch (_unused: unknown) {}
-      }
-    }
-    this.planosSelecionados.set(plans);
-
-    const storedVal = profId ? localStorage.getItem(`groom_usar_est_${profId}`) : null;
-    const personalizar = storedVal === 'true';
+    const personalizar = dados.personalizarHorarios ?? false;
     this.usarHorarioEstabelecimento.set(personalizar);
 
     this.diasFuncionamento.set(
@@ -562,6 +529,7 @@ export class DisponibilidadeComponent implements OnInit, AfterViewInit {
     });
     return {
       profissionalId,
+      personalizarHorarios: this.usarHorarioEstabelecimento(),
       dias,
       servicoIds: [...this.servicosSelecionados()],
       planoIds: [...this.planosSelecionados()],
