@@ -29,6 +29,7 @@ export interface Agendamento {
   tipo?: string;
   planoId?: string;
   planoNome?: string;
+  naoCompareceuNotificado?: boolean;
 }
 
 /**

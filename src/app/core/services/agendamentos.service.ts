@@ -23,6 +23,7 @@ export interface AgendamentoApi {
   dataFim: string;
   status: string;
   observacoes?: string;
+  naoCompareceuNotificado?: boolean;
 }
 
 const STATUS_VALIDOS = [
@@ -63,6 +64,7 @@ export function mapearAgendamento(api: AgendamentoApi): Agendamento {
     tipo: api.tipo ?? 'servico',
     planoId: api.planoId,
     planoNome: api.planoNome,
+    naoCompareceuNotificado: api.naoCompareceuNotificado ?? false,
   };
 }
 
@@ -140,6 +142,12 @@ export class AgendamentosService {
   async remover(id: string): Promise<void> {
     await firstValueFrom(
       this.http.delete(`${this.apiUrl}/${id}`, { withCredentials: true }),
+    );
+  }
+
+  async notificarNaoCompareceu(id: string): Promise<{ enviado: boolean }> {
+    return firstValueFrom(
+      this.http.post<{ enviado: boolean }>(`${this.apiUrl}/${id}/notificar-nao-compareceu`, {}, { withCredentials: true }),
     );
   }
 }

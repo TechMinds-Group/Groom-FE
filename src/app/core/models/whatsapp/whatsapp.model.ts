@@ -23,6 +23,7 @@ export interface WhatsAppTenantConfig {
   closingMessage: string | null;
   lembrete1DiaMensagem: string | null;
   lembrete4hMensagem: string | null;
+  naoCompareceuMensagem: string | null;
   testMode: boolean;
   testNumbers: string | null;
 }
