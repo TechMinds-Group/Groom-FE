@@ -195,8 +195,30 @@
             </div>
           } @else {
             <div class="detalhe-acoes d-flex flex-column flex-md-row gap-3 mb-3">
-              @if (podeConfirmar()) {
-                <tm-button
+              @if (exibeNotificarNaoCompareceu()) {
+                @if (detalhe.naoCompareceuNotificado) {
+                  <tm-button
+                    class="acao-notificar-cliente"
+                    variant="outline-secondary"
+                    icon="fas fa-check-circle"
+                    [isFullWidth]="true"
+                    [label]="'Notificado'"
+                    [disabled]="true"
+                  ></tm-button>
+                } @else {
+                  <tm-button
+                    class="acao-notificar-cliente"
+                    variant="outline-warning"
+                    icon="fab fa-whatsapp"
+                    [isFullWidth]="true"
+                    [label]="'Notificar Cliente'"
+                    [loading]="notificando()"
+                    (onClick)="notificarNaoCompareceu()"
+                  ></tm-button>
+                }
+              } @else {
+                @if (podeConfirmar()) {
+                  <tm-button
                   class="acao-confirmar"
                   variant="success"
                   icon="fas fa-check"
@@ -227,6 +249,7 @@
                   [disabled]="salvando()"
                   (onClick)="confirmandoRecusa.set(true)"
                 ></tm-button>
+              }
               }
             </div>
           }

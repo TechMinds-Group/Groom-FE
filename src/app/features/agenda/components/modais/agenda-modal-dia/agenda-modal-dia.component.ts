@@ -95,6 +95,9 @@ export class AgendaModalDiaComponent implements OnChanges, OnDestroy {
   /** Quando true, os botões de decisão dão lugar à confirmação de recusa (Sim/Não). */
   protected readonly confirmandoRecusa = signal(false);
   protected readonly confirmandoRemocao = signal(false);
+  /** Quando true, exibe o botão "Notificar Cliente" após marcar como não compareceu. */
+  protected readonly exibeNotificarNaoCompareceu = signal(false);
+  protected readonly notificando = signal(false);
   protected readonly carregandoHorarios = signal(false);
   protected readonly horaOptions = signal<TmSelectOption<string>[]>([]);
 
@@ -430,6 +433,7 @@ export class AgendaModalDiaComponent implements OnChanges, OnDestroy {
     this.exibeForm.set(false);
     this.exibeDetalhes.set(true);
     this.confirmandoRecusa.set(false);
+    this.exibeNotificarNaoCompareceu.set(agendamento.status === 'nao_compareceu');
   }
 
   protected fecharDetalhes(): void {
@@ -437,6 +441,7 @@ export class AgendaModalDiaComponent implements OnChanges, OnDestroy {
     this.agendamentoDetalhe.set(null);
     this.confirmandoRecusa.set(false);
     this.confirmandoRemocao.set(false);
+    this.exibeNotificarNaoCompareceu.set(false);
   }
 
   protected async removerAgendamentoDetalhes(id: string): Promise<void> {
@@ -475,17 +480,39 @@ export class AgendaModalDiaComponent implements OnChanges, OnDestroy {
       await this.agendamentosService.editarManual(agendamento.id, { status });
       if (status === 'confirmado') {
         this.toastService.success('Agendamento confirmado com sucesso');
+        this.fecharDetalhes();
       } else if (status === 'nao_compareceu') {
         this.toastService.success('Agendamento marcado como "Não Compareceu"');
+        this.agendamentoDetalhe.set({ ...agendamento, status: 'nao_compareceu' });
+        this.exibeNotificarNaoCompareceu.set(true);
       } else {
         this.toastService.success('Agendamento recusado');
+        this.fecharDetalhes();
       }
-      this.fecharDetalhes();
       this.mudancaAgendamento.emit();
     } catch {
       this.toastService.error('Erro ao salvar a decisão');
     } finally {
       this.salvando.set(false);
+    }
+  }
+
+  /** Envia a notificação de não comparecimento para o cliente via WhatsApp. */
+  protected async notificarNaoCompareceu(): Promise<void> {
+    const agendamento = this.agendamentoDetalhe();
+    if (!agendamento || this.notificando()) return;
+
+    this.notificando.set(true);
+    try {
+      await this.agendamentosService.notificarNaoCompareceu(agendamento.id);
+      this.agendamentoDetalhe.set({ ...agendamento, naoCompareceuNotificado: true });
+      this.toastService.success('Notificação enviada para o cliente via WhatsApp');
+      this.mudancaAgendamento.emit();
+    } catch (err: any) {
+      const mensagemErro = err?.error?.message || err?.message || 'Erro ao enviar notificação via WhatsApp';
+      this.toastService.error(mensagemErro);
+    } finally {
+      this.notificando.set(false);
     }
   }
 

@@ -283,6 +283,24 @@
               </div>
             </div>
 
+            <div class="p-4 rounded-3 border dia-card mb-4">
+              <div class="fw-bold custom-dark-text fs-6 mb-1 d-flex align-items-center gap-2">
+                <i class="fas fa-user-slash text-warning me-2"></i>
+                <span>Não Compareceu</span>
+              </div>
+              <div class="form-text custom-dark-text small mb-3 ms-1 lh-sm">
+                Mensagem enviada ao cliente quando o profissional marca o agendamento como "Não Compareceu". O envio é manual através do botão "Notificar Cliente" exibido após marcar a ausência.
+              </div>
+              <tm-text
+                formControlName="naoCompareceuMensagem"
+                [textarea]="true"
+                [rows]="6"
+                label="Mensagem de Não Comparecimento"
+                placeholder="Digite a mensagem enviada quando o cliente não comparece..."
+                icon="fas fa-user-slash"
+              ></tm-text>
+            </div>
+
             <div class="mb-4">
               <div class="form-text custom-dark-text small mb-2 ms-1 fw-semibold">
                 Variáveis disponíveis:
