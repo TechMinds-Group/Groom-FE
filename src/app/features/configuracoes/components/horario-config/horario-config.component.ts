@@ -18,8 +18,7 @@ import {
   ConfiguracaoHorarioOpcoes,
 } from '../../../../core/models/configuracoes/horario-estabelecimento.model';
 
-import { JornadaEspecialService } from '../../../../core/services/jornada-especial.service';
-import { JornadaEspecial } from '../../../../core/models/configuracoes/jornada-especial.model';
+
 
 export interface OpcaoIntervalo {
   val: number;
@@ -36,41 +35,14 @@ export interface OpcaoIntervalo {
 })
 export class HorarioConfigComponent implements OnInit {
   private readonly estabelecimentoService = inject(EstabelecimentoService);
-  private readonly jornadaEspecialService = inject(JornadaEspecialService);
   private readonly toastService = inject(TmToastService);
   private readonly router = inject(Router);
   private readonly location = inject(Location);
   private readonly cdr = inject(ChangeDetectorRef);
 
-  // Aba ativa: 'horarios' (dias da semana/24h), 'configuracoes' (regras gerais) ou 'jornadasEspeciais' (jornadas estendidas)
-  protected readonly abaAtiva = signal<'horarios' | 'configuracoes' | 'jornadasEspeciais'>('horarios');
+  // Aba ativa: 'horarios' | 'configuracoes'
+  protected readonly abaAtiva = signal<'horarios' | 'configuracoes'>('horarios');
 
-  // Aba 3: Jornadas Especiais & Exceções
-  protected readonly jornadasEspeciais = signal<JornadaEspecial[]>([]);
-  protected readonly carregandoJornadas = signal(false);
-  protected readonly modalJornadaAberto = signal(false);
-  protected readonly salvandoJornada = signal(false);
-
-  protected readonly formJornada = signal<{
-    id?: string;
-    titulo: string;
-    dataInicio: string;
-    dataFim: string;
-    horaAbertura: string;
-    horaFechamento: string;
-    temIntervalo: boolean;
-    intervaloInicio: string;
-    intervaloFim: string;
-  }>({
-    titulo: '',
-    dataInicio: new Date().toISOString().substring(0, 10),
-    dataFim: new Date().toISOString().substring(0, 10),
-    horaAbertura: '07:00',
-    horaFechamento: '22:00',
-    temIntervalo: true,
-    intervaloInicio: '12:00',
-    intervaloFim: '13:00',
-  });
 
   // Aba 1: Horários por Dia da Semana
   protected readonly diasFuncionamento = signal<DiaFuncionamento[]>([]);
@@ -81,8 +53,11 @@ export class HorarioConfigComponent implements OnInit {
   // Aba 2: Configurações Gerais de Horários
   protected readonly intervaloMinutos = signal<number>(30);
   protected readonly intervaloMinutosOriginal = signal<number>(30);
+  /** Valor efetivo (salvo) — controla a aba Horários */
   protected readonly horarioPorDemanda = signal<boolean>(false);
   protected readonly horarioPorDemandaOriginal = signal<boolean>(false);
+  /** Valor pendente — editado pelo switch na aba Configurações, aplicado apenas ao salvar */
+  protected readonly horarioPorDemandaPendente = signal<boolean>(false);
   protected readonly salvandoOpcoes = signal(false);
 
   protected readonly opcoesIntervalo: OpcaoIntervalo[] = [
@@ -130,146 +105,19 @@ export class HorarioConfigComponent implements OnInit {
   protected readonly temAlteracoesOpcoes = computed(() => {
     return (
       this.intervaloMinutos() !== this.intervaloMinutosOriginal() ||
-      this.horarioPorDemanda() !== this.horarioPorDemandaOriginal()
+      this.horarioPorDemandaPendente() !== this.horarioPorDemandaOriginal()
     );
   });
 
   async ngOnInit(): Promise<void> {
-    await Promise.all([this.carregarHorarios(), this.carregarConfiguracoesOpcoes(), this.carregarJornadasEspeciais()]);
+    await Promise.all([this.carregarHorarios(), this.carregarConfiguracoesOpcoes()]);
   }
 
-  protected selecionarAba(aba: 'horarios' | 'configuracoes' | 'jornadasEspeciais'): void {
+  protected selecionarAba(aba: 'horarios' | 'configuracoes'): void {
     this.abaAtiva.set(aba);
-    if (aba === 'jornadasEspeciais') {
-      this.carregarJornadasEspeciais();
-    }
     this.cdr.markForCheck();
   }
 
-  protected async carregarJornadasEspeciais(): Promise<void> {
-    this.carregandoJornadas.set(true);
-    try {
-      const anoAtual = new Date().getFullYear();
-      const inicio = `${anoAtual}-01-01T00:00:00.000Z`;
-      const fim = `${anoAtual + 1}-12-31T23:59:59.999Z`;
-      const data = await this.jornadaEspecialService.listarJornadas(inicio, fim);
-      this.jornadasEspeciais.set(data);
-    } catch {
-      this.toastService.error('Erro ao carregar jornadas especiais.');
-    } finally {
-      this.carregandoJornadas.set(false);
-      this.cdr.markForCheck();
-    }
-  }
-
-  protected abrirModalNovaJornada(): void {
-    const hoje = new Date().toISOString().substring(0, 10);
-    this.formJornada.set({
-      titulo: '',
-      dataInicio: hoje,
-      dataFim: hoje,
-      horaAbertura: '07:00',
-      horaFechamento: '22:00',
-      temIntervalo: true,
-      intervaloInicio: '12:00',
-      intervaloFim: '13:00',
-    });
-    this.modalJornadaAberto.set(true);
-    this.cdr.markForCheck();
-  }
-
-  protected abrirModalEditarJornada(j: JornadaEspecial): void {
-    this.formJornada.set({
-      id: j.id,
-      titulo: j.titulo,
-      dataInicio: new Date(j.dataInicio).toISOString().substring(0, 10),
-      dataFim: new Date(j.dataFim).toISOString().substring(0, 10),
-      horaAbertura: j.horaAbertura || '07:00',
-      horaFechamento: j.horaFechamento || '22:00',
-      temIntervalo: j.temIntervalo,
-      intervaloInicio: j.intervaloInicio || '12:00',
-      intervaloFim: j.intervaloFim || '13:00',
-    });
-    this.modalJornadaAberto.set(true);
-    this.cdr.markForCheck();
-  }
-
-  protected fecharModalJornada(): void {
-    this.modalJornadaAberto.set(false);
-    this.cdr.markForCheck();
-  }
-
-  protected async salvarJornadaEspecial(): Promise<void> {
-    const form = this.formJornada();
-    if (!form.titulo || !form.titulo.trim()) {
-      this.toastService.warning('Informe o título/motivo da jornada especial.');
-      return;
-    }
-
-    this.salvandoJornada.set(true);
-    try {
-      if (form.id) {
-        await this.jornadaEspecialService.atualizarJornada({
-          id: form.id,
-          titulo: form.titulo,
-          dataInicio: new Date(`${form.dataInicio}T00:00:00`).toISOString(),
-          dataFim: new Date(`${form.dataFim}T23:59:59`).toISOString(),
-          horaAbertura: form.horaAbertura,
-          horaFechamento: form.horaFechamento,
-          temIntervalo: form.temIntervalo,
-          intervaloInicio: form.temIntervalo ? form.intervaloInicio : null,
-          intervaloFim: form.temIntervalo ? form.intervaloFim : null,
-          ativo: true,
-        });
-        this.toastService.success('Jornada especial atualizada com sucesso!');
-      } else {
-        await this.jornadaEspecialService.criarJornada({
-          titulo: form.titulo,
-          dataInicio: new Date(`${form.dataInicio}T00:00:00`).toISOString(),
-          dataFim: new Date(`${form.dataFim}T23:59:59`).toISOString(),
-          horaAbertura: form.horaAbertura,
-          horaFechamento: form.horaFechamento,
-          temIntervalo: form.temIntervalo,
-          intervaloInicio: form.temIntervalo ? form.intervaloInicio : null,
-          intervaloFim: form.temIntervalo ? form.intervaloFim : null,
-        });
-        this.toastService.success('Jornada especial criada com sucesso!');
-      }
-      this.fecharModalJornada();
-      await this.carregarJornadasEspeciais();
-    } catch {
-      this.toastService.error('Erro ao salvar jornada especial.');
-    } finally {
-      this.salvandoJornada.set(false);
-      this.cdr.markForCheck();
-    }
-  }
-
-  protected updateFormJornada(patch: Partial<{
-    titulo: string;
-    dataInicio: string;
-    dataFim: string;
-    horaAbertura: string;
-    horaFechamento: string;
-    temIntervalo: boolean;
-    intervaloInicio: string;
-    intervaloFim: string;
-  }>): void {
-    this.formJornada.update((prev) => ({ ...prev, ...patch }));
-  }
-
-  protected async excluirJornadaEspecial(id: string): Promise<void> {
-    if (!confirm('Deseja realmente excluir esta jornada especial?')) {
-      return;
-    }
-    try {
-      await this.jornadaEspecialService.removerJornada(id);
-      this.toastService.success('Jornada especial removida!');
-      await this.carregarJornadasEspeciais();
-    } catch {
-      this.toastService.error('Erro ao remover jornada especial.');
-    }
-  }
 
   protected async carregarHorarios(): Promise<void> {
     const data = await this.estabelecimentoService.carregarHorarios();
@@ -284,6 +132,7 @@ export class HorarioConfigComponent implements OnInit {
     this.intervaloMinutosOriginal.set(data.intervaloAgendamentoMinutos || 30);
     this.horarioPorDemanda.set(!!data.horarioPorDemanda);
     this.horarioPorDemandaOriginal.set(!!data.horarioPorDemanda);
+    this.horarioPorDemandaPendente.set(!!data.horarioPorDemanda);
 
     const demandaLista = data.horariosDemanda || [];
     this.horariosDemandaAtivos.set(new Set(demandaLista));
@@ -341,7 +190,7 @@ export class HorarioConfigComponent implements OnInit {
 
   protected cancelarAlteracoesOpcoes(): void {
     this.intervaloMinutos.set(this.intervaloMinutosOriginal());
-    this.horarioPorDemanda.set(this.horarioPorDemandaOriginal());
+    this.horarioPorDemandaPendente.set(this.horarioPorDemandaOriginal());
     this.cdr.markForCheck();
   }
 
@@ -391,12 +240,14 @@ export class HorarioConfigComponent implements OnInit {
     try {
       const payload: ConfiguracaoHorarioOpcoes = {
         intervaloAgendamentoMinutos: this.intervaloMinutos(),
-        horarioPorDemanda: this.horarioPorDemanda(),
+        horarioPorDemanda: this.horarioPorDemandaPendente(),
         horariosDemanda: Array.from(this.horariosDemandaAtivos()),
       };
       await this.estabelecimentoService.salvarConfiguracoesHorario(payload);
       this.intervaloMinutosOriginal.set(this.intervaloMinutos());
-      this.horarioPorDemandaOriginal.set(this.horarioPorDemanda());
+      // Aplica o valor pendente ao sinal efetivo — a aba Horários muda só aqui
+      this.horarioPorDemanda.set(this.horarioPorDemandaPendente());
+      this.horarioPorDemandaOriginal.set(this.horarioPorDemandaPendente());
       this.horariosDemandaAtivosOriginal.set(new Set(this.horariosDemandaAtivos()));
       this.toastService.success('Configurações de horários salvas com sucesso!');
     } catch {
