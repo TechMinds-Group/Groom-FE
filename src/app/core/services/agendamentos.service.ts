@@ -24,6 +24,7 @@ export interface AgendamentoApi {
   status: string;
   observacoes?: string;
   naoCompareceuNotificado?: boolean;
+  ehEncaixe?: boolean;
 }
 
 const STATUS_VALIDOS = [
@@ -65,6 +66,7 @@ export function mapearAgendamento(api: AgendamentoApi): Agendamento {
     planoId: api.planoId,
     planoNome: api.planoNome,
     naoCompareceuNotificado: api.naoCompareceuNotificado ?? false,
+    ehEncaixe: api.ehEncaixe ?? false,
   };
 }
 
@@ -110,6 +112,7 @@ export class AgendamentosService {
     dataInicio: string;
     tipo?: string;
     observacoes?: string;
+    ehEncaixe?: boolean;
   }): Promise<Agendamento> {
     const data = await firstValueFrom(
       this.http.post<AgendamentoApi>(this.apiUrl, dados, { withCredentials: true }),

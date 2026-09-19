@@ -30,6 +30,7 @@ export interface Agendamento {
   planoId?: string;
   planoNome?: string;
   naoCompareceuNotificado?: boolean;
+  ehEncaixe?: boolean;
 }
 
 /**

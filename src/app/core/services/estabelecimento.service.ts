@@ -2,7 +2,7 @@ import { inject, Injectable, signal } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
 import { firstValueFrom } from 'rxjs';
-import { DiaFuncionamento } from '../models/configuracoes/horario-estabelecimento.model';
+import { DiaFuncionamento, ConfiguracaoHorarioOpcoes } from '../models/configuracoes/horario-estabelecimento.model';
 import { TmToastService } from '@techminds-group/tm-angular-lib';
 
 /** Validador centralizado de arquivos de imagem no frontend (máximo 3MB, formatos JPG, PNG, WEBP, GIF). */
@@ -151,6 +151,22 @@ export class EstabelecimentoService {
   async salvarHorarios(dias: DiaFuncionamento[]): Promise<void> {
     await firstValueFrom(this.http.put(this.apiUrl, { dias }));
     this._horarios.set(dias);
+  }
+
+  async carregarConfiguracoesHorario(): Promise<ConfiguracaoHorarioOpcoes> {
+    try {
+      return await firstValueFrom(
+        this.http.get<ConfiguracaoHorarioOpcoes>(`${this.apiUrl}/configuracoes-horario`),
+      );
+    } catch {
+      return { intervaloAgendamentoMinutos: 30, horarioPorDemanda: false };
+    }
+  }
+
+  async salvarConfiguracoesHorario(opcoes: ConfiguracaoHorarioOpcoes): Promise<void> {
+    await firstValueFrom(
+      this.http.put(`${this.apiUrl}/configuracoes-horario`, opcoes),
+    );
   }
 
   async carregarInfo(): Promise<EstabelecimentoInfo> {

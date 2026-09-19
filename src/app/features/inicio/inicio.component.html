@@ -228,6 +228,11 @@
                           >
                             {{ a.planoNome ? 'Plano de Assinatura' : 'Serviço Avulso' }}
                           </span>
+                          @if (a.ehEncaixe) {
+                            <span class="badge bg-warning text-dark extra-small px-2 py-1 ms-1 fw-bold">
+                              ⚡ Encaixe
+                            </span>
+                          }
                         </td>
                         <td>
                           <span class="small custom-dark-text fw-semibold">{{ a.profissionalNome || 'Qualquer profissional' }}</span>
