@@ -319,7 +319,7 @@
       background-color: #0d6efd !important;
       color: #ffffff !important;
       border-color: #0d6efd !important;
-      box-shadow: 0 4px 14px rgba(13, 110, 253, 0.4) !important;
+      box-shadow: 0 2px 8px rgba(13, 110, 253, 0.25) !important;
     }
   }
 
@@ -426,3 +426,78 @@
 .custom-dark-title-icon {
   color: #ffffff !important;
 }
+
+/* Otimização de rolagem e toque das Pílulas de Filtro */
+.periodo-pills-wrapper {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+.btn-periodo-pill {
+  background-color: rgba(148, 163, 184, 0.12);
+  color: #94a3b8;
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  border-radius: 50rem;
+  padding: 0.45rem 1.1rem;
+  font-size: 0.83rem;
+  font-weight: 600;
+  white-space: nowrap;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  min-height: 38px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  &:hover {
+    color: #60a5fa;
+    background-color: rgba(96, 165, 250, 0.15);
+    border-color: rgba(96, 165, 250, 0.3);
+    transform: translateY(-1px);
+  }
+
+  &.active {
+    background-color: #0d6efd !important;
+    color: #ffffff !important;
+    border-color: #0d6efd !important;
+    box-shadow: 0 2px 8px rgba(13, 110, 253, 0.2) !important;
+  }
+}
+
+.bg-gradient-hero {
+  background: linear-gradient(135deg, rgba(13, 110, 253, 0.14) 0%, rgba(111, 66, 193, 0.12) 100%) !important;
+  border: 1px solid rgba(13, 110, 253, 0.3) !important;
+  box-shadow: 0 6px 20px rgba(13, 110, 253, 0.1) !important;
+}
+
+/* Ajustes Finos de Espaçamento Interno de Tabelas e Cards */
+.custom-dark-table {
+  thead th {
+    padding: 14px 18px !important;
+    font-size: 0.78rem !important;
+    letter-spacing: 0.6px !important;
+    color: #94a3b8 !important;
+  }
+
+  tbody td {
+    padding: 14px 18px !important;
+  }
+}
+
+.card.tm-card {
+  .card-header {
+    padding-top: 1.25rem !important;
+    padding-left: 1.25rem !important;
+    padding-right: 1.25rem !important;
+    padding-bottom: 0.5rem !important;
+  }
+
+  .card-body {
+    padding: 1.25rem !important;
+  }
+}
+
+

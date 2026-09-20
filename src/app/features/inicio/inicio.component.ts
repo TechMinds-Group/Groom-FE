@@ -7,6 +7,7 @@ import {
   DoughnutController, ArcElement, Legend, BarController, BarElement, PieController
 } from 'chart.js';
 import type { ChartConfiguration, ChartData } from 'chart.js';
+import { TmSelectComponent, TmSelectOption } from '@techminds-group/tm-angular-lib';
 import { AssinantesService } from '../../core/services/assinantes.service';
 import { ClubesService } from '../../core/services/clubes.service';
 import { ThemeService } from '../../core/services/theme.service';
@@ -22,7 +23,7 @@ export type AbaDashboard = 'desempenho' | 'previsao';
 @Component({
   selector: 'app-inicio',
   standalone: true,
-  imports: [CommonModule, FormsModule, BaseChartDirective],
+  imports: [CommonModule, FormsModule, BaseChartDirective, TmSelectComponent],
   providers: [
     provideCharts({
       registerables: [
@@ -52,6 +53,22 @@ export class InicioComponent implements OnInit, OnDestroy {
     }
   }
 
+  public novoAgendamento(): void {
+    this.router.navigate(['/agenda/calendario']);
+  }
+
+  public novoCliente(): void {
+    this.router.navigate(['/gestao/clientes/novo']);
+  }
+
+  public novoEstoque(): void {
+    this.router.navigate(['/gestao/estoque']);
+  }
+
+  public verNotificacoes(): void {
+    this.router.navigate(['/configuracoes/notificacoes']);
+  }
+
   /** ABA ATIVA DA DASHBOARD ('desempenho' | 'previsao') */
   public abaAtiva = signal<AbaDashboard>('desempenho');
 
@@ -78,12 +95,39 @@ export class InicioComponent implements OnInit, OnDestroy {
     }
   }
 
-  /** Lista de Profissionais cadastrados para os Filtros (apenas usuários com nível/perfil Profissional) */
+  /** Lista de Profissionais cadastrados para os Filtros */
   protected readonly profissionais = computed(() =>
     this.gestaoUsuariosService.usuarios().filter(u =>
       u.perfil === 'Profissional' || (u.perfil && u.perfil.toLowerCase().includes('profissional'))
     )
   );
+
+  protected readonly periodosOptions = computed<TmSelectOption[]>(() => [
+    { value: 'hoje', label: 'Hoje' },
+    { value: '7d', label: 'Últimos 7 Dias' },
+    { value: '30d', label: 'Últimos 30 Dias' },
+    { value: 'mes', label: 'Este Mês' },
+    { value: '90d', label: 'Últimos 90 Dias' },
+    { value: 'ano', label: 'Este Ano' },
+  ]);
+
+  public onPeriodoSelectChange(val: unknown): void {
+    if (typeof val === 'string') {
+      this.filtroPeriodo.set(val as FiltroPeriodo);
+    }
+  }
+
+  protected readonly profissionaisOptions = computed<TmSelectOption[]>(() => {
+    const list: TmSelectOption[] = [{ value: 'todos', label: 'Todos os Profissionais' }];
+    for (const p of this.profissionais()) {
+      list.push({ value: p.id, label: p.nome });
+    }
+    return list;
+  });
+
+  public onProfissionalSelectChange(val: unknown): void {
+    this.filtroProfissionalId.set(typeof val === 'string' ? val : 'todos');
+  }
 
   /** Todos os Agendamentos */
   protected readonly todosAgendamentos = computed(() => this.agendamentosService.agendamentos());
@@ -142,6 +186,16 @@ export class InicioComponent implements OnInit, OnDestroy {
         return true;
       })
       .sort((a, b) => a.dataInicio.getTime() - b.dataInicio.getTime());
+  });
+
+  /** Próximo agendamento a ser atendido no dia atual */
+  protected readonly proximoAgendamento = computed(() => {
+    const pendentesOuProximos = this.agendamentosHoje().filter(a => {
+      const st = a.status?.toLowerCase() ?? '';
+      if (st === 'cancelado' || st === 'recusado' || st === 'nao_compareceu' || st === 'no-show' || st === 'concluido') return false;
+      return true;
+    });
+    return pendentesOuProximos.length > 0 ? pendentesOuProximos[0] : null;
   });
 
   /** Resumo estatístico e financeiro do dia atual */
