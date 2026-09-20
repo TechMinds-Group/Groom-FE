@@ -6,6 +6,7 @@ import {
   OnDestroy,
   OnInit,
   ViewChild,
+  effect,
   model,
   output,
   signal,
@@ -43,6 +44,16 @@ export class BarcodeScannerModalComponent implements OnInit, OnDestroy {
   private scanIntervalId: any = null;
   private barcodeDetector: any = null;
 
+  constructor() {
+    effect(() => {
+      if (this.show()) {
+        setTimeout(() => void this.iniciarCamera(), 100);
+      } else {
+        this.pararCamera();
+      }
+    });
+  }
+
   ngOnInit(): void {
     if ('BarcodeDetector' in window) {
       this.barcodeSuporte.set(true);
@@ -73,23 +84,49 @@ export class BarcodeScannerModalComponent implements OnInit, OnDestroy {
     this.carregando.set(true);
     this.erroCamera.set(null);
 
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+      this.carregando.set(false);
+      this.erroCamera.set('Dispositivo ou navegador sem suporte à câmera. Use um leitor físico ou digite o código.');
+      return;
+    }
+
     try {
-      const devices = await navigator.mediaDevices.enumerateDevices();
-      const videoDevices = devices.filter((d) => d.kind === 'videoinput');
-      this.cameras.set(videoDevices);
-
-      const deviceId = videoDevices.length > 0 ? videoDevices[this.cameraAtualIndex() % videoDevices.length].deviceId : undefined;
-
-      const constraints: MediaStreamConstraints = {
-        video: deviceId
-          ? { deviceId: { exact: deviceId } }
-          : { facingMode: { ideal: 'environment' }, width: { ideal: 1280 }, height: { ideal: 720 } },
+      let constraints: MediaStreamConstraints = {
+        video: {
+          facingMode: { ideal: 'environment' },
+          width: { ideal: 1280 },
+          height: { ideal: 720 },
+        },
       };
 
+      if (this.cameras().length > 0) {
+        const selectedDevice = this.cameras()[this.cameraAtualIndex() % this.cameras().length];
+        if (selectedDevice?.deviceId) {
+          constraints = { video: { deviceId: { exact: selectedDevice.deviceId } } };
+        }
+      }
+
       this.mediaStream = await navigator.mediaDevices.getUserMedia(constraints);
+
+      // Enumerar câmeras disponíveis após a permissão ser concedida
+      try {
+        const devices = await navigator.mediaDevices.enumerateDevices();
+        const videoDevices = devices.filter((d) => d.kind === 'videoinput');
+        this.cameras.set(videoDevices);
+      } catch {
+        // Ignora falha de enumeração
+      }
+
       if (this.videoElement && this.videoElement.nativeElement) {
         this.videoElement.nativeElement.srcObject = this.mediaStream;
         await this.videoElement.nativeElement.play();
+      } else {
+        setTimeout(async () => {
+          if (this.videoElement && this.videoElement.nativeElement && this.mediaStream) {
+            this.videoElement.nativeElement.srcObject = this.mediaStream;
+            await this.videoElement.nativeElement.play();
+          }
+        }, 150);
       }
 
       // Verificar suporte a lanterna (torch)
@@ -110,9 +147,9 @@ export class BarcodeScannerModalComponent implements OnInit, OnDestroy {
     } catch (err: any) {
       this.carregando.set(false);
       if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
-        this.erroCamera.set('Permissão de acesso à câmera negada. Você pode digitar ou usar um leitor de código de barras físico.');
+        this.erroCamera.set('Permissão de acesso à câmera negada. Digite o código ou use um leitor de código de barras.');
       } else {
-        this.erroCamera.set('Não foi possível iniciar a câmera. Use um leitor físico ou digite manualmente.');
+        this.erroCamera.set('Não foi possível conectar à câmera. Digite o código ou use um leitor físico.');
       }
     }
   }
@@ -162,7 +199,7 @@ export class BarcodeScannerModalComponent implements OnInit, OnDestroy {
       });
       this.lanternaAtiva.set(novoEstado);
     } catch {
-      // Ignora erro se a lanterna não responder
+      // Ignora se a lanterna não responder
     }
   }
 
@@ -196,7 +233,7 @@ export class BarcodeScannerModalComponent implements OnInit, OnDestroy {
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();
       osc.type = 'sine';
-      osc.frequency.setValueAtTime(1046.5, ctx.currentTime); // Nota Dó6
+      osc.frequency.setValueAtTime(1046.5, ctx.currentTime);
       gain.gain.setValueAtTime(0.15, ctx.currentTime);
       gain.gain.exponentialRampToValueAtTime(0.00001, ctx.currentTime + 0.15);
       osc.connect(gain);
@@ -225,13 +262,5 @@ export class BarcodeScannerModalComponent implements OnInit, OnDestroy {
     this.codigoManual.set('');
     this.show.set(false);
     this.cancel.emit();
-  }
-
-  onShowChange(): void {
-    if (this.show()) {
-      setTimeout(() => this.iniciarCamera(), 100);
-    } else {
-      this.pararCamera();
-    }
   }
 }
