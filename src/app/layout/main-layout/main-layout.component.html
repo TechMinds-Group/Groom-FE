@@ -16,6 +16,7 @@
         <span class="fw-bold fs-4 brand-title">Groom</span>
       </div>
     </div>
+    <app-header-notificacoes></app-header-notificacoes>
   </header>
 
   <div class="d-flex flex-grow-1 overflow-hidden position-relative">
@@ -62,6 +63,9 @@
 
     <!-- Conteúdo Principal da Aplicação -->
     <div class="main-column flex-grow-1 d-flex flex-column min-width-0 overflow-hidden">
+      <header class="top-header-bar d-none d-sm-flex align-items-center justify-content-end px-4 py-2">
+        <app-header-notificacoes></app-header-notificacoes>
+      </header>
       <main class="main-content flex-grow-1 overflow-auto position-relative">
         <router-outlet></router-outlet>
       </main>

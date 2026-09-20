@@ -114,6 +114,27 @@ export const routes: Routes = [
               ),
           },
           {
+            path: 'estoque',
+            loadComponent: () =>
+              import('./features/gestao/estoque/components/estoque-lista/estoque-lista.component').then(
+                (m) => m.EstoqueListaComponent,
+              ),
+          },
+          {
+            path: 'estoque/novo',
+            loadComponent: () =>
+              import('./features/gestao/estoque/components/estoque-form/estoque-form.component').then(
+                (m) => m.EstoqueFormComponent,
+              ),
+          },
+          {
+            path: 'estoque/:id',
+            loadComponent: () =>
+              import('./features/gestao/estoque/components/estoque-detalhe/estoque-detalhe.component').then(
+                (m) => m.EstoqueDetalheComponent,
+              ),
+          },
+          {
             path: 'gestao-usuarios',
             loadComponent: () =>
               import('./features/gestao-usuarios/components/gestao-usuarios/gestao-usuarios.component').then(
@@ -258,6 +279,13 @@ export const routes: Routes = [
               import('./features/logs-sistema/components/logs-sistema/logs-sistema.component').then(
                 (m) => m.LogsSistemaComponent,
               ),
+          },
+          {
+            path: 'notificacoes',
+            loadComponent: () =>
+              import(
+                './features/configuracoes/components/notificacoes-lista/notificacoes-lista.component'
+              ).then((m) => m.NotificacoesListaComponent),
           },
         ],
       },

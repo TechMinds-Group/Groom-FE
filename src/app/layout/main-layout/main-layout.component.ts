@@ -9,6 +9,8 @@ import { AppFooterComponent } from '../../shared/components/footer/app-footer.co
 import { AuthService } from '../../core/services/auth.service';
 import { filter } from 'rxjs';
 
+import { HeaderNotificacoesComponent } from '../../shared/components/header-notificacoes/header-notificacoes.component';
+
 @Component({
   selector: 'app-main-layout',
   standalone: true,
@@ -20,6 +22,7 @@ import { filter } from 'rxjs';
     SidebarModalIdiomaComponent,
     AppFooterComponent,
     TmModalComponent,
+    HeaderNotificacoesComponent,
   ],
   templateUrl: './main-layout.component.html',
   styleUrl: './main-layout.component.scss',

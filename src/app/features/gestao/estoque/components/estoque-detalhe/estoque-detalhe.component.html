@@ -1,0 +1,442 @@
+<div class="container mt-5 mb-5">
+  @if (carregando()) {
+    <div class="d-flex justify-content-center py-5">
+      <div class="spinner-border text-primary" role="status"></div>
+    </div>
+  } @else {
+    @if (produto(); as item) {
+      <!-- Header -->
+      <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between mb-4 gap-3">
+        <div class="d-flex align-items-center gap-3">
+          <button type="button" (click)="voltar()" class="btn btn-outline-secondary btn-sm rounded-circle p-2" title="Voltar">
+            <i class="fas fa-arrow-left"></i>
+          </button>
+          
+          @if (item.imagemUrl) {
+            <div
+              class="rounded-3 overflow-hidden border border-secondary border-opacity-25 position-relative cursor-pointer flex-shrink-0 shadow-sm image-preview-thumb"
+              style="width: 54px; height: 54px; background-size: cover; background-position: center;"
+              [style.backgroundImage]="'url(' + resolverImagemUrl(item.imagemUrl) + ')'"
+              (click)="abrirImagemModal(item)"
+              title="Clique para ampliar a imagem"
+            >
+              <div class="thumb-overlay d-flex align-items-center justify-content-center text-white">
+                <i class="fas fa-search-plus extra-small"></i>
+              </div>
+            </div>
+          } @else {
+            <div class="rounded-3 bg-primary-subtle text-primary d-flex align-items-center justify-content-center flex-shrink-0" style="width: 54px; height: 54px;">
+              <i class="fas fa-box fs-4 text-primary"></i>
+            </div>
+          }
+
+          <div>
+            <div class="d-flex align-items-center gap-2">
+              <h1 class="h2 text-primary fw-bold mb-0 custom-dark-text">{{ item.nome }}</h1>
+              @if (item.estoqueBaixo) {
+                <span class="badge bg-danger-subtle text-danger border border-danger-subtle px-2.5 py-1 rounded-pill small">
+                  <i class="fas fa-exclamation-circle me-1"></i>Estoque Baixo
+                </span>
+              }
+            </div>
+            <p class="text-muted custom-dark-text mb-0">
+              Categoria: {{ item.categoria }} @if (item.marca) { • Marca: {{ item.marca }} }
+            </p>
+          </div>
+        </div>
+
+        @if (isAdmin()) {
+          <div class="d-flex align-items-center gap-2">
+            @if (!editando()) {
+              <button (click)="abrirModalMovimentacao()" class="btn btn-primary px-3 py-2 fw-bold rounded-3 shadow-sm">
+                <i class="fas fa-exchange-alt me-2"></i>Movimentar Estoque
+              </button>
+              <button (click)="iniciarEdicao()" class="btn btn-outline-primary px-3 py-2 fw-bold rounded-3">
+                <i class="fas fa-edit me-2"></i>Editar
+              </button>
+              <button (click)="excluir()" class="btn btn-outline-danger px-3 py-2 fw-bold rounded-3">
+                <i class="fas fa-trash me-2"></i>Excluir
+              </button>
+            } @else {
+              <button (click)="cancelarEdicao()" class="btn btn-outline-secondary px-3 py-2 fw-bold rounded-3" [disabled]="salvando()">
+                Cancelar
+              </button>
+              <button (click)="salvar()" class="btn btn-primary px-3 py-2 shadow-sm fw-bold rounded-3" [disabled]="salvando()">
+                @if (salvando()) {
+                  <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+                } @else {
+                  <i class="fas fa-check me-2"></i>
+                }
+                Salvar
+              </button>
+            }
+          </div>
+        }
+      </div>
+
+      <!-- Indicador de Alertas -->
+      @if (item.estoqueBaixo || item.validadeProximaOuVencida) {
+        <div class="alert alert-warning border-0 shadow-sm rounded-4 p-3 mb-4 d-flex align-items-center gap-3">
+          <i class="fas fa-exclamation-triangle fs-3 text-warning"></i>
+          <div>
+            <h6 class="fw-bold mb-1">Atenção ao Produto</h6>
+            <ul class="mb-0 ps-3 small">
+              @if (item.estoqueBaixo) {
+                <li>Estoque atual ({{ item.quantidadeAtual }} {{ item.unidadeMedida }}) está abaixo do mínimo configurado ({{ item.quantidadeMinima }} {{ item.unidadeMedida }}).</li>
+              }
+              @if (item.validadeProximaOuVencida) {
+                <li>Data de validade próxima ou vencida ({{ item.dataValidade | date:'dd/MM/yyyy' }}).</li>
+              }
+            </ul>
+          </div>
+        </div>
+      }
+
+      <!-- Cards de Métricas KPIs -->
+      <div class="row g-3 mb-4">
+        <div class="col-6 col-md-3">
+          <div class="card border-0 shadow-sm p-3 details-card custom-dark-card rounded-4 text-center">
+            <span class="text-muted small custom-dark-text">Qtd. em Estoque</span>
+            <h3 class="fw-bold custom-dark-text mb-0 mt-1">{{ item.quantidadeAtual }} <small class="fs-6 fw-normal">{{ item.unidadeMedida }}</small></h3>
+          </div>
+        </div>
+
+        <div class="col-6 col-md-3">
+          <div class="card border-0 shadow-sm p-3 details-card custom-dark-card rounded-4 text-center">
+            <span class="text-muted small custom-dark-text">Preço de Custo</span>
+            <h3 class="fw-bold custom-dark-text mb-0 mt-1">{{ item.precoCusto | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}</h3>
+          </div>
+        </div>
+
+        <div class="col-6 col-md-3">
+          <div class="card border-0 shadow-sm p-3 details-card custom-dark-card rounded-4 text-center">
+            <span class="text-muted small custom-dark-text">Preço de Venda</span>
+            <h3 class="fw-bold text-success mb-0 mt-1">{{ item.precoVenda | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}</h3>
+          </div>
+        </div>
+
+        <div class="col-6 col-md-3">
+          <div class="card border-0 shadow-sm p-3 details-card custom-dark-card rounded-4 text-center">
+            <span class="text-muted small custom-dark-text">Lucro Unitário</span>
+            <h3 class="fw-bold text-info mb-0 mt-1">
+              {{ item.lucroUnitario | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}
+              <small class="fs-6 fw-normal text-muted">({{ item.margemLucroPorcentagem }}%)</small>
+            </h3>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bloco de Dados Principais -->
+      <div class="card border-0 shadow-sm p-4 details-card custom-dark-card rounded-4">
+        @if (!editando()) {
+          <!-- Modo Visualização -->
+          <div class="row g-4">
+            <div class="col-12 col-md-4">
+              <span class="text-muted small custom-dark-text d-block mb-1">Código de Barras</span>
+              <span class="fw-semibold custom-dark-text">{{ item.codigoBarras || '—' }}</span>
+            </div>
+
+            <div class="col-12 col-md-4">
+              <span class="text-muted small custom-dark-text d-block mb-1">Qtd. Mínima de Alerta</span>
+              <span class="fw-semibold custom-dark-text">{{ item.quantidadeMinima }} {{ item.unidadeMedida }}</span>
+            </div>
+
+            <div class="col-12 col-md-4">
+              <span class="text-muted small custom-dark-text d-block mb-1">Data de Validade</span>
+              <span class="fw-semibold custom-dark-text">
+                @if (item.dataValidade) {
+                  {{ item.dataValidade | date:'dd/MM/yyyy' }}
+                } @else {
+                  —
+                }
+              </span>
+            </div>
+
+            <div class="col-12 col-md-4">
+              <span class="text-muted small custom-dark-text d-block mb-1">Status</span>
+              <span class="badge" [ngClass]="item.status === 'Ativo' ? 'bg-success-subtle text-success border border-success-subtle' : 'bg-secondary-subtle text-secondary border border-secondary-subtle'">
+                {{ item.status }}
+              </span>
+            </div>
+
+            <div class="col-12 col-md-4">
+              <span class="text-muted small custom-dark-text d-block mb-1">Data de Cadastro</span>
+              <span class="fw-semibold custom-dark-text">{{ item.createdAtUtc | date:'dd/MM/yyyy HH:mm' }}</span>
+            </div>
+          </div>
+        } @else {
+          <!-- Modo Edição -->
+          @if (form(); as f) {
+            <div class="row g-4">
+              <div class="col-12 col-md-8">
+                <label class="form-label custom-dark-text fw-semibold">Nome do Produto <span class="text-danger">*</span></label>
+                <input
+                  type="text"
+                  class="form-control custom-dark-input"
+                  [ngModel]="f.nome"
+                  (ngModelChange)="updateForm({ nome: $event })"
+                />
+              </div>
+
+              <div class="col-12 col-md-4">
+                <label class="form-label custom-dark-text fw-semibold">Marca</label>
+                <input
+                  type="text"
+                  class="form-control custom-dark-input"
+                  [ngModel]="f.marca"
+                  (ngModelChange)="updateForm({ marca: $event })"
+                />
+              </div>
+
+              <div class="col-12 col-md-4">
+                <label class="form-label custom-dark-text fw-semibold">Categoria <span class="text-danger">*</span></label>
+                <select
+                  class="form-select custom-dark-input"
+                  [ngModel]="f.categoria"
+                  (ngModelChange)="updateForm({ categoria: $event })"
+                >
+                  @for (cat of categorias; track cat.value) {
+                    <option [value]="cat.value">{{ cat.label }}</option>
+                  }
+                </select>
+              </div>
+
+              <div class="col-12 col-md-4">
+                <label class="form-label custom-dark-text fw-semibold">Unidade de Medida <span class="text-danger">*</span></label>
+                <select
+                  class="form-select custom-dark-input"
+                  [ngModel]="f.unidadeMedida"
+                  (ngModelChange)="updateForm({ unidadeMedida: $event })"
+                >
+                  @for (un of unidades; track un.value) {
+                    <option [value]="un.value">{{ un.label }}</option>
+                  }
+                </select>
+              </div>
+
+              <div class="col-12 col-md-4">
+                <label class="form-label custom-dark-text fw-semibold">Código de Barras</label>
+                <div class="input-group">
+                  <input
+                    type="text"
+                    class="form-control custom-dark-input font-monospace"
+                    [ngModel]="f.codigoBarras"
+                    (ngModelChange)="updateForm({ codigoBarras: $event })"
+                  />
+                  <button
+                    type="button"
+                    class="btn btn-outline-primary rounded-end-3"
+                    (click)="showBarcodeScanner.set(true)"
+                    title="Escanear com a câmera ou leitor físico"
+                  >
+                    <i class="fas fa-camera me-1"></i><i class="fas fa-barcode"></i>
+                  </button>
+                </div>
+              </div>
+
+              <div class="col-12 col-md-3">
+                <label class="form-label custom-dark-text fw-semibold">Qtd. Mínima de Alerta</label>
+                <input
+                  type="number"
+                  min="0"
+                  class="form-control custom-dark-input"
+                  [ngModel]="f.quantidadeMinima"
+                  (ngModelChange)="updateForm({ quantidadeMinima: +$event })"
+                />
+              </div>
+
+              <div class="col-12 col-md-3">
+                <label class="form-label custom-dark-text fw-semibold">Preço Custo (R$)</label>
+                <input
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  class="form-control custom-dark-input"
+                  [ngModel]="f.precoCusto"
+                  (ngModelChange)="updateForm({ precoCusto: +$event })"
+                />
+              </div>
+
+              <div class="col-12 col-md-3">
+                <label class="form-label custom-dark-text fw-semibold">Preço Venda (R$)</label>
+                <input
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  class="form-control custom-dark-input"
+                  [ngModel]="f.precoVenda"
+                  (ngModelChange)="updateForm({ precoVenda: +$event })"
+                />
+              </div>
+
+              <div class="col-12 col-md-3">
+                <label class="form-label custom-dark-text fw-semibold">Status</label>
+                <select
+                  class="form-select custom-dark-input"
+                  [ngModel]="f.status"
+                  (ngModelChange)="updateForm({ status: $event })"
+                >
+                  <option value="Ativo">Ativo</option>
+                  <option value="Inativo">Inativo</option>
+                </select>
+              </div>
+
+              <div class="col-12 col-md-4">
+                <label class="form-label custom-dark-text fw-semibold">Data de Validade</label>
+                <input
+                  type="date"
+                  class="form-control custom-dark-input"
+                  [ngModel]="f.dataValidade"
+                  (ngModelChange)="updateForm({ dataValidade: $event })"
+                />
+              </div>
+
+              <div class="col-12">
+                <label class="form-label custom-dark-text fw-semibold">Imagem do Produto (Máx. 3MB, 1 Imagem)</label>
+                <div class="d-flex align-items-center gap-3">
+                  @if (item.imagemUrl) {
+                    <div
+                      class="rounded-3 overflow-hidden border border-secondary border-opacity-25 position-relative cursor-pointer flex-shrink-0 shadow-sm image-preview-thumb"
+                      style="width: 70px; height: 70px; background-size: cover; background-position: center;"
+                      [style.backgroundImage]="'url(' + resolverImagemUrl(item.imagemUrl) + ')'"
+                      (click)="abrirImagemModal(item)"
+                      title="Clique para ampliar"
+                    >
+                      <div class="thumb-overlay d-flex align-items-center justify-content-center text-white">
+                        <i class="fas fa-search-plus extra-small"></i>
+                      </div>
+                    </div>
+                    <button type="button" (click)="removerImagemProduto()" class="btn btn-outline-danger btn-sm" [disabled]="enviandoImagem()">
+                      <i class="fas fa-trash me-1"></i>Remover Imagem
+                    </button>
+                  } @else {
+                    <div class="rounded-3 bg-primary-subtle text-primary d-flex align-items-center justify-content-center flex-shrink-0" style="width: 70px; height: 70px;">
+                      <i class="fas fa-box fs-3 text-primary"></i>
+                    </div>
+                  }
+                  
+                  <div class="flex-grow-1">
+                    <input
+                      type="file"
+                      accept="image/png,image/jpeg,image/webp,image/gif"
+                      class="form-control custom-dark-input"
+                      (change)="onFileSelected($event)"
+                      [disabled]="enviandoImagem()"
+                    />
+                    <div class="form-text text-muted small">Suporta JPG, PNG, WEBP, GIF até 3MB.</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          }
+        }
+      </div>
+
+      <!-- Histórico de Movimentações -->
+      <div class="card border-0 shadow-sm p-4 details-card custom-dark-card rounded-4 mt-4">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <div>
+            <h5 class="fw-bold custom-dark-text mb-0">
+              <i class="fas fa-history me-2 text-primary"></i>Histórico de Movimentações
+            </h5>
+            <small class="text-muted custom-dark-text">Registro de auditoria de entradas, saídas e ajustes no estoque</small>
+          </div>
+          <button (click)="abrirModalMovimentacao()" class="btn btn-outline-primary btn-sm rounded-3 fw-semibold">
+            <i class="fas fa-plus me-1"></i>Nova Movimentação
+          </button>
+        </div>
+
+        @if (carregandoMovimentacoes()) {
+          <div class="d-flex justify-content-center py-4">
+            <div class="spinner-border spinner-border-sm text-primary" role="status"></div>
+          </div>
+        } @else if (movimentacoes().length === 0) {
+          <div class="text-center py-4 text-muted custom-dark-text">
+            <i class="fas fa-box-open fs-3 d-block mb-2 text-secondary"></i>
+            Nenhuma movimentação registrada para este produto até o momento.
+          </div>
+        } @else {
+          <div class="table-responsive">
+            <table class="table table-dark table-hover align-middle mb-0 custom-dark-table">
+              <thead>
+                <tr>
+                  <th>Data/Hora</th>
+                  <th>Tipo</th>
+                  <th>Qtd.</th>
+                  <th>Qtd. Anterior → Nova Qtd.</th>
+                  <th>Responsável</th>
+                  <th>Motivo / Obs.</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (m of movimentacoes(); track m.id) {
+                  <tr>
+                    <td class="small">{{ m.dataMovimentacaoUtc | date:'dd/MM/yyyy HH:mm' }}</td>
+                    <td>
+                      @switch (m.tipo) {
+                        @case ('Entrada') {
+                          <span class="badge bg-success-subtle text-success border border-success-subtle px-2 py-1">
+                            <i class="fas fa-arrow-down me-1"></i>Entrada
+                          </span>
+                        }
+                        @case ('SaidaVenda') {
+                          <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-2 py-1">
+                            <i class="fas fa-shopping-cart me-1"></i>Venda
+                          </span>
+                        }
+                        @case ('UsoInterno') {
+                          <span class="badge bg-info-subtle text-info border border-info-subtle px-2 py-1">
+                            <i class="fas fa-pump-soap me-1"></i>Uso Interno
+                          </span>
+                        }
+                        @case ('PerdaAvaria') {
+                          <span class="badge bg-danger-subtle text-danger border border-danger-subtle px-2 py-1">
+                            <i class="fas fa-trash-alt me-1"></i>Perda / Avaria
+                          </span>
+                        }
+                        @case ('Ajuste') {
+                          <span class="badge bg-warning-subtle text-warning border border-warning-subtle px-2 py-1">
+                            <i class="fas fa-sliders-h me-1"></i>Ajuste
+                          </span>
+                        }
+                      }
+                    </td>
+                    <td class="fw-bold" [class.text-success]="m.tipo === 'Entrada'" [class.text-danger]="m.tipo !== 'Entrada' && m.tipo !== 'Ajuste'" [class.text-warning]="m.tipo === 'Ajuste'">
+                      {{ m.tipo === 'Entrada' ? '+' : (m.tipo === 'Ajuste' ? '=' : '-') }}{{ m.quantidade }}
+                    </td>
+                    <td class="small text-muted">
+                      {{ m.saldoAnterior }} → <span class="fw-bold text-white">{{ m.saldoPosterior }}</span>
+                    </td>
+                    <td class="small">{{ m.responsavelNome }}</td>
+                    <td class="small text-muted text-truncate" style="max-width: 200px;" [title]="m.motivoObservacao || '—'">
+                      {{ m.motivoObservacao || '—' }}
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        }
+      </div>
+
+      <!-- Modal de Movimentação -->
+      <app-estoque-modal-movimentacao
+        [show]="showMovimentacaoModal()"
+        (showChange)="showMovimentacaoModal.set($event)"
+        [produto]="item"
+        (confirm)="salvarMovimentacao($event)"
+      ></app-estoque-modal-movimentacao>
+
+      <app-image-viewer-modal
+        [(show)]="showImageViewer"
+        [images]="imageViewerImages()"
+        [title]="imageViewerTitle()"
+      ></app-image-viewer-modal>
+
+      <app-barcode-scanner-modal
+        [(show)]="showBarcodeScanner"
+        (scanned)="onBarcodeScanned($event)"
+      ></app-barcode-scanner-modal>
+    }
+  }
+</div>

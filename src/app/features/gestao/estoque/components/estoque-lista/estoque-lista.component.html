@@ -1,0 +1,154 @@
+<div class="container mt-5 mb-5">
+  <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between mb-4 gap-3">
+    <div>
+      <h1 class="h2 text-primary fw-bold mb-2 custom-dark-text d-flex align-items-center gap-2">
+        <i class="fas fa-boxes-stacked me-2"></i>Gestão de Estoque
+      </h1>
+      <p class="text-muted custom-dark-text mb-0">
+        Gerencie a quantidade de produtos de bar e cosméticos, custos, margens de lucro e alertas de estoque.
+      </p>
+    </div>
+
+    @if (isAdmin()) {
+      <div>
+        <button
+          (click)="abrirNovo()"
+          class="btn btn-primary px-4 py-2.5 shadow-sm fw-bold rounded-3 d-inline-flex align-items-center gap-2"
+        >
+          <i class="fas fa-plus"></i><span>Cadastrar</span>
+        </button>
+      </div>
+    }
+  </div>
+
+  <!-- Filtros -->
+  <div class="card border-0 shadow-sm p-3 details-card custom-dark-card rounded-4 mb-4">
+    <div class="row g-3 align-items-center">
+      <div class="col-12 col-md-5">
+        <div class="input-group">
+          <span class="input-group-text bg-transparent border-end-0 custom-dark-text">
+            <i class="fas fa-search"></i>
+          </span>
+          <input
+            type="text"
+            class="form-control border-start-0 border-end-0 custom-dark-input"
+            placeholder="Buscar por nome, marca ou código de barras..."
+            [ngModel]="busca()"
+            (ngModelChange)="busca.set($event); carregar()"
+          />
+          <button
+            type="button"
+            class="btn btn-outline-primary rounded-end-3"
+            (click)="showBarcodeScanner.set(true)"
+            title="Escanear com a câmera ou leitor físico"
+          >
+            <i class="fas fa-camera me-1"></i><i class="fas fa-barcode"></i>
+          </button>
+        </div>
+      </div>
+
+      <div class="col-12 col-md-4">
+        <select
+          class="form-select custom-dark-input"
+          [ngModel]="categoriaSelecionada()"
+          (ngModelChange)="categoriaSelecionada.set($event); carregar()"
+        >
+          <option value="">Todas as Categorias</option>
+          @for (cat of categorias; track cat.value) {
+            <option [value]="cat.value">{{ cat.label }}</option>
+          }
+        </select>
+      </div>
+
+      <div class="col-12 col-md-3">
+        <div class="form-check form-switch pt-1">
+          <input
+            class="form-check-input"
+            type="checkbox"
+            id="apenasAlertasSwitch"
+            [ngModel]="apenasAlertas()"
+            (ngModelChange)="apenasAlertas.set($event); carregar()"
+          />
+          <label class="form-check-label custom-dark-text small fw-semibold" for="apenasAlertasSwitch">
+            <i class="fas fa-exclamation-triangle text-warning me-1"></i>Apenas Alertas
+          </label>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tabela -->
+  <div class="mb-5">
+    <tm-table
+      [cols]="cols()"
+      [data]="estoqueService.produtos()"
+      [paginated]="true"
+      [pageSize]="tamanhoPagina()"
+      (pageSizeChange)="tamanhoPagina.set($event)"
+      [showControls]="true"
+      (rowClick)="verDetalhes($event)"
+    ></tm-table>
+  </div>
+</div>
+
+<app-barcode-scanner-modal
+  [(show)]="showBarcodeScanner"
+  (scanned)="onBarcodeScanned($event)"
+></app-barcode-scanner-modal>
+
+<ng-template #produtoTemplate let-item>
+  <div class="d-flex flex-column text-start">
+    <strong class="fw-bold custom-dark-text">{{ item.nome }}</strong>
+    <span class="text-muted small">
+      {{ item.categoria }} @if (item.marca) { • {{ item.marca }} }
+    </span>
+  </div>
+</ng-template>
+
+<ng-template #saldoTemplate let-item>
+  <div class="d-flex align-items-center gap-2">
+    <span class="fw-bold custom-dark-text">{{ item.quantidadeAtual }} {{ item.unidadeMedida }}</span>
+    @if (item.estoqueBaixo) {
+      <span class="badge bg-danger-subtle text-danger border border-danger-subtle px-2 py-1 rounded-pill small" title="Estoque abaixo do mínimo ({{ item.quantidadeMinima }})">
+        <i class="fas fa-exclamation-circle me-1"></i>Estoque Baixo
+      </span>
+    }
+  </div>
+</ng-template>
+
+<ng-template #custoTemplate let-item>
+  <span class="custom-dark-text">{{ item.precoCusto | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}</span>
+</ng-template>
+
+<ng-template #vendaTemplate let-item>
+  <span class="custom-dark-text font-monospace fw-semibold">{{ item.precoVenda | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}</span>
+</ng-template>
+
+<ng-template #validadeTemplate let-item>
+  <div class="d-flex align-items-center gap-1">
+    @if (item.dataValidade) {
+      <span class="custom-dark-text small">{{ item.dataValidade | date:'dd/MM/yyyy' }}</span>
+      @if (item.validadeProximaOuVencida) {
+        <span class="badge bg-warning-subtle text-warning border border-warning-subtle px-2 py-0.5 rounded-pill extra-small">
+          <i class="fas fa-clock me-1"></i>Atenção
+        </span>
+      }
+    } @else {
+      <span class="text-muted small">—</span>
+    }
+  </div>
+</ng-template>
+
+<ng-template #statusTemplate let-item>
+  <div>
+    @if (item.status === 'Ativo') {
+      <span class="badge bg-success-subtle text-success border border-success-subtle px-2.5 py-1 rounded-pill small">
+        Ativo
+      </span>
+    } @else {
+      <span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle px-2.5 py-1 rounded-pill small">
+        Inativo
+      </span>
+    }
+  </div>
+</ng-template>

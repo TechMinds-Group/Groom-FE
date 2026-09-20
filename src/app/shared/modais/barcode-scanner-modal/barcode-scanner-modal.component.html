@@ -1,0 +1,120 @@
+@if (show()) {
+  <div class="modal fade show d-block barcode-modal-backdrop" tabindex="-1" role="dialog" aria-modal="true">
+    <div class="modal-dialog modal-dialog-centered modal-md">
+      <div class="modal-content custom-dark-card border-0 shadow-lg rounded-4 overflow-hidden">
+        
+        <!-- Header -->
+        <div class="modal-header border-bottom border-secondary border-opacity-25 px-4 py-3 align-items-center justify-content-between">
+          <div class="d-flex align-items-center gap-2.5">
+            <div class="rounded-circle bg-primary-subtle text-primary p-2 d-flex align-items-center justify-content-center" style="width: 38px; height: 38px;">
+              <i class="fas fa-barcode fs-5"></i>
+            </div>
+            <div>
+              <h6 class="modal-title fw-bold text-white mb-0 fs-6">Leitor de Código de Barras</h6>
+              <small class="text-white-50 extra-small">Câmera do celular ou leitor USB/Bluetooth</small>
+            </div>
+          </div>
+          <button type="button" (click)="fechar()" class="btn-close btn-close-white" aria-label="Fechar"></button>
+        </div>
+
+        <!-- Body -->
+        <div class="modal-body p-4 text-center">
+
+          <!-- Viewport da Câmera -->
+          <div class="position-relative w-100 rounded-3 overflow-hidden border border-secondary border-opacity-25 shadow-sm bg-black camera-viewport mb-3" style="height: 195px;">
+            <video #videoElement class="w-100 h-100 object-fit-cover" playsinline muted></video>
+
+            <!-- Overlay de Animação de Leitura (Laser Line + Target Corners) -->
+            <div class="scanner-overlay d-flex flex-column align-items-center justify-content-center">
+              <div class="scanner-target rounded-3 position-relative">
+                <div class="scanner-laser"></div>
+                <div class="corner top-left"></div>
+                <div class="corner top-right"></div>
+                <div class="corner bottom-left"></div>
+                <div class="corner bottom-right"></div>
+              </div>
+            </div>
+
+            <!-- Loading Spinner -->
+            @if (carregando()) {
+              <div class="position-absolute top-0 start-0 w-100 h-100 d-flex flex-column align-items-center justify-content-center bg-dark bg-opacity-75 text-white gap-2">
+                <div class="spinner-border spinner-border-sm text-primary" role="status"></div>
+                <span class="extra-small font-monospace">Iniciando câmera...</span>
+              </div>
+            }
+
+            <!-- Erro de Câmera -->
+            @if (erroCamera(); as erro) {
+              <div class="position-absolute top-0 start-0 w-100 h-100 d-flex flex-column align-items-center justify-content-center bg-dark bg-opacity-90 p-3 text-white">
+                <i class="fas fa-camera-slash fs-3 text-warning mb-2"></i>
+                <p class="extra-small mb-2 text-center opacity-90">{{ erro }}</p>
+                <span class="badge bg-secondary-subtle text-secondary px-2.5 py-1 rounded-pill extra-small">
+                  <i class="fas fa-keyboard me-1"></i>Digite abaixo ou use leitor físico
+                </span>
+              </div>
+            }
+
+            <!-- Controles de Câmera na Imagem -->
+            <div class="position-absolute bottom-0 start-0 w-100 p-2 d-flex justify-content-end align-items-center bg-gradient-dark">
+              <div class="d-flex gap-2">
+                @if (lanternaDisponivel()) {
+                  <button type="button" (click)="alternarLanterna()" class="btn btn-sm rounded-circle p-2" [class.btn-warning]="lanternaAtiva()" [class.btn-outline-light]="!lanternaAtiva()" title="Lanterna">
+                    <i class="fas fa-bolt extra-small"></i>
+                  </button>
+                }
+                @if (cameras().length > 1) {
+                  <button type="button" (click)="alternarCamera()" class="btn btn-sm btn-outline-light rounded-circle p-2" title="Alternar Câmera">
+                    <i class="fas fa-camera-rotate extra-small"></i>
+                  </button>
+                }
+              </div>
+            </div>
+          </div>
+
+          <!-- Mensagem de Status -->
+          <div class="text-white-50 small mb-3 custom-dark-text d-flex align-items-center justify-content-center gap-2">
+            <i class="fas fa-qrcode text-primary"></i>
+            <span class="text-white fw-semibold">{{ statusMensagem() }}</span>
+          </div>
+
+          <!-- Entrada Manual ou Leitor Físico -->
+          <div class="p-3 rounded-3 bg-black bg-opacity-40 border border-secondary border-opacity-25 text-start">
+            <label class="form-label text-white-50 extra-small fw-semibold text-uppercase tracking-wider mb-1.5 d-block" style="font-size: 0.72rem;">
+              <i class="fas fa-barcode text-primary me-1"></i>Entrada Manual ou Leitor Físico
+            </label>
+            <div class="input-group">
+              <input
+                #manualInput
+                type="text"
+                class="form-control custom-dark-input font-monospace fw-bold"
+                placeholder="Leitor físico ou digite o código..."
+                [ngModel]="codigoManual()"
+                (ngModelChange)="codigoManual.set($event)"
+                (keydown)="onManualKeydown($event)"
+              />
+              <button
+                type="button"
+                (click)="confirmarManual()"
+                class="btn btn-primary px-3.5 fw-bold rounded-end-3"
+                [disabled]="!codigoManual().trim()"
+              >
+                <i class="fas fa-check me-1"></i>Confirmar
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="modal-footer border-top border-secondary border-opacity-25 px-4 py-2.5 justify-content-between">
+          <span class="extra-small text-white-50" style="font-size: 0.75rem;">
+            <i class="fas fa-info-circle me-1 text-primary"></i>EAN-13, EAN-8, Code 128, Code 39, QR Code
+          </span>
+          <button type="button" (click)="fechar()" class="btn btn-outline-secondary btn-sm px-3.5 py-1.5 rounded-3 text-white small">
+            Cancelar
+          </button>
+        </div>
+
+      </div>
+    </div>
+  </div>
+}

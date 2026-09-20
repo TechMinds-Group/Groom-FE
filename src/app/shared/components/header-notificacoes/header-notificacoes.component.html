@@ -1,0 +1,75 @@
+<div class="notificacoes-wrapper">
+  <button
+    type="button"
+    class="btn-notificacao"
+    (click)="toggleMenu()"
+    [attr.aria-expanded]="menuAberto()"
+    title="Notificações e Alertas"
+  >
+    <i class="fas fa-bell"></i>
+    <span *ngIf="notificacaoService.quantidadeNaoLidas() > 0" class="badge-contador">
+      {{ notificacaoService.quantidadeNaoLidas() > 99 ? '99+' : notificacaoService.quantidadeNaoLidas() }}
+    </span>
+  </button>
+
+  <div class="notificacoes-dropdown" *ngIf="menuAberto()">
+    <div class="dropdown-header">
+      <div class="header-title">
+        <i class="fas fa-bell me-2 text-warning"></i>
+        <span>Notificações</span>
+        <span *ngIf="notificacaoService.quantidadeNaoLidas() > 0" class="badge-subhead ms-1">
+          {{ notificacaoService.quantidadeNaoLidas() }} nova(s)
+        </span>
+      </div>
+      <button
+        *ngIf="notificacaoService.quantidadeNaoLidas() > 0"
+        type="button"
+        class="btn-limpar"
+        (click)="marcarTodasComoLidas($event)"
+      >
+        Marcar todas como lidas
+      </button>
+    </div>
+
+    <div class="dropdown-body">
+      <div *ngIf="notificacaoService.carregando()" class="loading-state">
+        <span class="spinner-border spinner-border-sm" role="status"></span>
+        <span>Carregando notificações...</span>
+      </div>
+
+      <div *ngIf="!notificacaoService.carregando() && notificacaoService.notificacoes().length === 0" class="empty-state">
+        <i class="fas fa-bell-slash text-muted mb-2 fs-3"></i>
+        <p class="mb-0 text-muted fs-7">Nenhuma notificação por enquanto.</p>
+      </div>
+
+      <div
+        *ngFor="let item of notificacaoService.notificacoes()"
+        class="notificacao-item"
+        [class.nao-lida]="!item.lida"
+        (click)="clicarNotificacao(item)"
+      >
+        <div class="item-icon" [ngClass]="item.tipo">
+          <i *ngIf="item.tipo === 'EstoqueBaixo'" class="fas fa-exclamation-triangle"></i>
+          <i *ngIf="item.tipo === 'ValidadeProxima'" class="fas fa-calendar-alt"></i>
+          <i *ngIf="item.tipo === 'Geral'" class="fas fa-info-circle"></i>
+        </div>
+
+        <div class="item-content">
+          <div class="item-top">
+            <span class="item-titulo">{{ item.titulo }}</span>
+            <span class="item-tempo">{{ formatarTempo(item.createdAtUtc) }}</span>
+          </div>
+          <p class="item-mensagem">{{ item.mensagem }}</p>
+        </div>
+
+        <button
+          *ngIf="!item.lida"
+          type="button"
+          class="btn-ponto-lida"
+          (click)="marcarComoLida(item, $event)"
+          title="Marcar como lida"
+        ></button>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,216 @@
+<div class="container mt-4 mb-5">
+  <!-- Header Principal da Tela -->
+  <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between mb-4 gap-3">
+    <div>
+      <h1 class="h2 text-primary fw-bold mb-2 custom-dark-text d-flex align-items-center gap-2">
+        <i class="fas fa-bell me-2 custom-dark-title-icon"></i>Notificações
+      </h1>
+      <p class="text-muted custom-dark-text mb-0">
+        Histórico completo de alertas do sistema e eventos dos últimos 90 dias.
+      </p>
+    </div>
+  </div>
+
+  <!-- Cards de KPI Rápidos -->
+  <div class="row g-3 mb-4">
+    <div class="col-12 col-sm-6 col-lg-3">
+      <div class="card border-0 shadow-sm p-3 details-card custom-dark-card rounded-4">
+        <div class="d-flex align-items-center justify-content-between">
+          <div>
+            <span class="text-uppercase extra-small fw-bold custom-dark-muted">Total (90 dias)</span>
+            <h3 class="fw-bold mb-0 text-primary mt-1">{{ notificacoes().length }}</h3>
+          </div>
+          <div class="icon-circle bg-primary-subtle text-primary">
+            <i class="fas fa-history"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-sm-6 col-lg-3">
+      <div class="card border-0 shadow-sm p-3 details-card custom-dark-card rounded-4">
+        <div class="d-flex align-items-center justify-content-between">
+          <div>
+            <span class="text-uppercase extra-small fw-bold custom-dark-muted">Não Lidas</span>
+            <h3 class="fw-bold mb-0 text-danger mt-1">{{ totalNaoLidas() }}</h3>
+          </div>
+          <div class="icon-circle bg-danger-subtle text-danger">
+            <i class="fas fa-bell"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-sm-6 col-lg-3">
+      <div class="card border-0 shadow-sm p-3 details-card custom-dark-card rounded-4">
+        <div class="d-flex align-items-center justify-content-between">
+          <div>
+            <span class="text-uppercase extra-small fw-bold custom-dark-muted">Alertas de Estoque</span>
+            <h3 class="fw-bold mb-0 text-warning mt-1">{{ totalEstoqueAlertas() }}</h3>
+          </div>
+          <div class="icon-circle bg-warning-subtle text-warning">
+            <i class="fas fa-boxes"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-sm-6 col-lg-3">
+      <div class="card border-0 shadow-sm p-3 details-card custom-dark-card rounded-4">
+        <div class="d-flex align-items-center justify-content-between">
+          <div>
+            <span class="text-uppercase extra-small fw-bold custom-dark-muted">Agendamentos</span>
+            <h3 class="fw-bold mb-0 text-success mt-1">{{ totalAgendamentos() }}</h3>
+          </div>
+          <div class="icon-circle bg-success-subtle text-success">
+            <i class="fas fa-calendar-check"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Barra de Filtros e Ações com componentes da lib -->
+  <div class="card border-0 shadow-sm p-4 details-card custom-dark-card rounded-4 mb-4">
+    <div class="row g-3 align-items-end">
+      <div class="col-12 col-md-4">
+        <tm-text
+          [value]="termoBusca()"
+          (valueChange)="onBuscaChange($event)"
+          label="BUSCAR NOTIFICAÇÃO"
+          placeholder="Pesquisar por título ou mensagem..."
+          icon="fas fa-search"
+          class="custom-dark-text"
+        ></tm-text>
+      </div>
+
+      <div class="col-12 col-sm-6 col-md-3">
+        <tm-select
+          [value]="tipoFiltro()"
+          (valueChange)="onTipoSelectChange($event)"
+          label="TIPO DE NOTIFICAÇÃO"
+          [options]="tipoOptions()"
+          [darkMode]="themeService.isDarkMode()"
+          class="custom-dark-text"
+        ></tm-select>
+      </div>
+
+      <div class="col-12 col-sm-6 col-md-3">
+        <tm-select
+          [value]="statusFiltro()"
+          (valueChange)="onStatusSelectChange($event)"
+          label="STATUS DE LEITURA"
+          [options]="statusOptions()"
+          [darkMode]="themeService.isDarkMode()"
+          class="custom-dark-text"
+        ></tm-select>
+      </div>
+
+      <div class="col-12 col-md-2 d-flex align-items-end">
+        <button
+          *ngIf="totalNaoLidas() > 0"
+          type="button"
+          class="btn btn-outline-success w-100 py-2.5 fw-semibold"
+          (click)="marcarTodasComoLidas()"
+        >
+          <i class="fas fa-check-double me-1"></i>Marcar todas
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Ações em Lote -->
+  <div *ngIf="idsSelecionados().length > 0" class="alert alert-info custom-dark-card d-flex align-items-center justify-content-between mb-3 py-2 px-3 rounded-3">
+    <span><strong>{{ idsSelecionados().length }}</strong> notificação(ões) selecionada(s).</span>
+    <button type="button" class="btn btn-sm btn-success fw-bold" (click)="marcarSelecionadasComoLidas()">
+      <i class="fas fa-check me-1"></i>Marcar selecionadas como lidas
+    </button>
+  </div>
+
+  <!-- Tabela com tm-table da lib personalizada -->
+  <div class="mb-5">
+    <tm-table
+      [cols]="cols()"
+      [data]="notificacoesFiltradas()"
+      [isLoading]="notificacaoService.carregando()"
+      [paginated]="true"
+      [pageSize]="tamanhoPagina()"
+      (pageSizeChange)="tamanhoPagina.set($event)"
+      [showControls]="true"
+      (rowClick)="clicarNotificacao($event)"
+    ></tm-table>
+  </div>
+</div>
+
+<!-- Templates Customizados para as Colunas da Tabela -->
+<ng-template #selecaoTemplate let-item>
+  <input
+    type="checkbox"
+    class="form-check-input"
+    [checked]="idsSelecionados().includes(item.id)"
+    (change)="toggleSelecaoItem(item.id)"
+    (click)="$event.stopPropagation()"
+  />
+</ng-template>
+
+<ng-template #tipoTemplate let-item>
+  <span class="badge rounded-pill px-3 py-1.5 fw-semibold d-inline-flex align-items-center gap-1.5" [ngClass]="obterInfoTipo(item.tipo).class">
+    <i [class]="obterInfoTipo(item.tipo).icon"></i>
+    {{ obterInfoTipo(item.tipo).label }}
+  </span>
+</ng-template>
+
+<ng-template #tituloMensagemTemplate let-item>
+  <div class="d-flex flex-column py-1" [class.fw-bold]="!item.lida">
+    <span class="custom-dark-text fs-6 mb-0.5">{{ item.titulo }}</span>
+    <span class="custom-dark-muted small text-truncate" style="max-width: 520px;">{{ item.mensagem }}</span>
+  </div>
+</ng-template>
+
+<ng-template #dataHoraTemplate let-item>
+  <span class="custom-dark-text small font-monospace">
+    <i class="far fa-clock me-1 text-primary"></i>{{ item.createdAtUtc | date:'dd/MM/yyyy HH:mm' }}
+  </span>
+</ng-template>
+
+<ng-template #statusTemplate let-item>
+  <span *ngIf="item.lida" class="badge bg-secondary-subtle text-secondary border border-secondary-subtle px-2.5 py-1">
+    <i class="fas fa-check me-1"></i>Lida
+  </span>
+  <span *ngIf="!item.lida" class="badge bg-success text-white px-2.5 py-1 fw-bold shadow-sm">
+    <i class="fas fa-envelope me-1"></i>Nova
+  </span>
+</ng-template>
+
+<ng-template #acoesTemplate let-item>
+  <div class="d-flex align-items-center justify-content-end gap-2">
+    <button
+      *ngIf="!item.lida"
+      type="button"
+      class="btn btn-sm btn-icon btn-outline-success"
+      (click)="marcarComoLida(item, $event)"
+      title="Marcar como Lida"
+    >
+      <i class="fas fa-check"></i>
+    </button>
+
+    <button
+      *ngIf="item.linkRedirecionamento"
+      type="button"
+      class="btn btn-sm btn-icon btn-outline-primary"
+      (click)="clicarNotificacao(item)"
+      title="Ver no Sistema"
+    >
+      <i class="fas fa-external-link-alt"></i>
+    </button>
+
+    <button
+      type="button"
+      class="btn btn-sm btn-icon btn-outline-danger"
+      (click)="remover(item, $event)"
+      title="Excluir Notificação"
+    >
+      <i class="fas fa-trash-alt"></i>
+    </button>
+  </div>
+</ng-template>

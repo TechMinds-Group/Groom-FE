@@ -21,6 +21,14 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
   margin-bottom: 0.5rem;
 }
 
+:root {
+  --sidebar-width: 260px;
+}
+
+body.sidebar-collapsed {
+  --sidebar-width: 70px;
+}
+
 /* Force library sidebar to collapse properly (fixes library 100% !important bug) */
 body.sidebar-collapsed tm-sidebar {
   width: 70px !important;

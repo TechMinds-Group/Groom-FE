@@ -14,8 +14,8 @@ export class LogsService {
   private readonly _logs = signal<LogItem[]>([]);
   readonly logs = this._logs.asReadonly();
 
-  async carregarLogs(modulo?: string, busca?: string): Promise<void> {
-    const params: Record<string, string> = {};
+  async carregarLogs(modulo?: string, busca?: string, dias: number = 90): Promise<void> {
+    const params: Record<string, string> = { dias: dias.toString() };
     if (modulo && modulo !== 'todos') {
       params['modulo'] = modulo;
     }

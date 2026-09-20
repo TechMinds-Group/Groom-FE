@@ -13,6 +13,9 @@ import { ThemeService } from '../../core/services/theme.service';
 import { AgendamentosService } from '../../core/services/agendamentos.service';
 import { GestaoUsuariosService } from '../../core/services/gestao-usuarios.service';
 
+import { EstoqueService } from '../../core/services/estoque.service';
+import { Router } from '@angular/router';
+
 export type FiltroPeriodo = 'hoje' | '7d' | '30d' | '90d' | 'mes' | 'ano';
 export type AbaDashboard = 'desempenho' | 'previsao';
 
@@ -38,6 +41,16 @@ export class InicioComponent implements OnInit, OnDestroy {
   protected readonly themeService = inject(ThemeService);
   protected readonly agendamentosService = inject(AgendamentosService);
   protected readonly gestaoUsuariosService = inject(GestaoUsuariosService);
+  protected readonly estoqueService = inject(EstoqueService);
+  private readonly router = inject(Router);
+
+  public navegarParaEstoque(filtroAlertas: boolean = false): void {
+    if (filtroAlertas) {
+      this.router.navigate(['/gestao/estoque'], { queryParams: { apenasAlertas: true } });
+    } else {
+      this.router.navigate(['/gestao/estoque']);
+    }
+  }
 
   /** ABA ATIVA DA DASHBOARD ('desempenho' | 'previsao') */
   public abaAtiva = signal<AbaDashboard>('desempenho');
@@ -585,6 +598,7 @@ export class InicioComponent implements OnInit, OnDestroy {
     this.clubesService.carregarClubes().subscribe();
     this.agendamentosService.carregarAgendamentos();
     void this.gestaoUsuariosService.carregarUsuarios();
+    this.estoqueService.carregarResumo().subscribe();
   }
 
   ngOnDestroy(): void {}
