@@ -228,6 +228,7 @@ export class AgendaModalDiaComponent implements OnChanges, OnDestroy {
     horaInicio: ['', [Validators.required]],
     statusDecisao: ['confirmado'],
     observacoes: [''],
+    ehEncaixe: [false],
   });
 
   private readonly subscriptions: { unsubscribe: () => void }[] = [];
@@ -236,6 +237,7 @@ export class AgendaModalDiaComponent implements OnChanges, OnDestroy {
     const profissionalControl = this.form.get('profissionalId');
     const servicoControl = this.form.get('servicoId');
     const tipoControl = this.form.get('tipo');
+    const ehEncaixeControl = this.form.get('ehEncaixe');
 
     if (tipoControl) {
       this.subscriptions.push(
@@ -261,6 +263,14 @@ export class AgendaModalDiaComponent implements OnChanges, OnDestroy {
       );
       this.subscriptions.push(
         servicoControl.valueChanges.subscribe(() => {
+          this.carregarHorariosDisponiveis();
+        }),
+      );
+    }
+
+    if (ehEncaixeControl) {
+      this.subscriptions.push(
+        ehEncaixeControl.valueChanges.subscribe(() => {
           this.carregarHorariosDisponiveis();
         }),
       );
@@ -340,6 +350,23 @@ export class AgendaModalDiaComponent implements OnChanges, OnDestroy {
     const data = this.dataSelecionada();
 
     if (!profissionalId || !servicoId || !data || this.agendamentoEditando()) {
+      return;
+    }
+
+    if (this.form.get('ehEncaixe')?.value) {
+      const encaixeOptions: TmSelectOption<string>[] = [];
+      for (let h = 0; h < 24; h++) {
+        for (let m = 0; m < 60; m += 30) {
+          const hh = String(h).padStart(2, '0');
+          const mm = String(m).padStart(2, '0');
+          encaixeOptions.push({ value: `${hh}:${mm}`, label: `${hh}:${mm}` });
+        }
+      }
+      this.horaOptions.set(encaixeOptions);
+      const atual = this.form.get('horaInicio')?.value as string | undefined;
+      if (!atual || !encaixeOptions.some((o) => o.value === atual)) {
+        this.form.patchValue({ horaInicio: encaixeOptions[0]?.value ?? '' }, { emitEvent: false });
+      }
       return;
     }
 
@@ -623,6 +650,7 @@ export class AgendaModalDiaComponent implements OnChanges, OnDestroy {
           dataInicio: dataInicioIso,
           tipo: val.tipo,
           observacoes: val.observacoes,
+          ehEncaixe: val.ehEncaixe ?? false,
         });
         this.toastService.success('Agendamento criado com sucesso');
       }

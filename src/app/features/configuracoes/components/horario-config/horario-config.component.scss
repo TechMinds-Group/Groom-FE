@@ -200,6 +200,17 @@ tm-time {
     }
   }
 
+  .custom-dark-input {
+    background-color: #0d1117 !important;
+    color: #ffffff !important;
+    border-color: rgba(255, 255, 255, 0.25) !important;
+
+    option {
+      background-color: #161b22 !important;
+      color: #ffffff !important;
+    }
+  }
+
   .form-check-input {
     background-color: #30363d !important;
     border: 1px solid rgba(255, 255, 255, 0.35) !important;
@@ -213,5 +224,45 @@ tm-time {
       border-color: #0d6efd !important;
       box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25) !important;
     }
+  }
+}
+
+.slot-demanda-card {
+  cursor: pointer;
+  user-select: none;
+  min-height: 54px;
+  background-color: var(--tm-surface-color, #ffffff);
+
+  @media (min-width: 992px) {
+    min-height: 42px;
+  }
+
+  &:hover {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  }
+}
+
+.slot-demanda-hora {
+  font-size: 1.1rem;
+
+  @media (min-width: 992px) {
+    font-size: 0.875rem;
+  }
+
+  i {
+    font-size: 1.05rem;
+
+    @media (min-width: 992px) {
+      font-size: 0.85rem;
+    }
+  }
+}
+
+.slot-demanda-switch {
+  cursor: pointer;
+  transform: scale(1.3);
+
+  @media (min-width: 992px) {
+    transform: scale(1);
   }
 }

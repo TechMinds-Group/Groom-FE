@@ -48,6 +48,11 @@
                     >{{ 'AGENDA_MODAL.DETALHES.SERVICO_AVULSO_LABEL' | translate }}
                   </span>
                 }
+                @if (detalhe.ehEncaixe) {
+                  <span class="badge bg-warning text-dark border border-warning fw-bold px-2.5 py-1 small">
+                    ⚡ Encaixe
+                  </span>
+                }
               </div>
               <div class="text-muted small custom-dark-text text-break mt-1">
                 <i class="fas fa-cut text-primary opacity-75 me-1"></i>{{ detalhe.servicoNome }}
@@ -380,6 +385,11 @@
               <div
                 class="agendamento-actions d-flex align-items-center justify-content-between justify-content-sm-end gap-2 w-100 w-sm-auto pt-2 pt-sm-0"
               >
+                @if (item.ehEncaixe) {
+                  <span class="badge bg-warning text-dark fw-bold small px-2.5 py-1.5 rounded-pill border border-warning shadow-sm">
+                    ⚡ Encaixe
+                  </span>
+                }
                 <span
                   class="badge rounded-pill text-white fw-semibold px-3 py-2 small"
                   [style.background-color]="coresStatus[item.status]"
@@ -513,11 +523,28 @@
                   icon="fas fa-clock"
                   (valueChange)="form.patchValue({ horaInicio: $event })"
                 ></tm-select>
-                @if (!carregandoHorarios() && horaOptions().length === 0) {
-                  <p class="text-muted small mt-2 mb-0 custom-dark-text">
-                    {{ 'AGENDA_MODAL.FORM.SEM_HORARIOS' | translate }}
-                  </p>
-                }
+              </div>
+            </div>
+
+            <!-- Row 4: Permissão de Encaixe -->
+            <div class="row g-3 mb-3">
+              <div class="col-12">
+                <div class="form-check form-switch custom-dark-card p-3 rounded-3 border d-flex align-items-center justify-content-between m-0">
+                  <div>
+                    <label class="form-check-label fw-bold custom-dark-text d-block cursor-pointer mb-0" for="switchEhEncaixe">
+                      ⚡ Permitir Encaixe de Horário
+                    </label>
+                    <span class="text-muted extra-small custom-dark-text d-block mt-1">
+                      Ignora restrições de agenda e horários fechados, disponibilizando 24h para agendar.
+                    </span>
+                  </div>
+                  <input
+                    class="form-check-input flex-shrink-0 ms-3"
+                    type="checkbox"
+                    id="switchEhEncaixe"
+                    formControlName="ehEncaixe"
+                  />
+                </div>
               </div>
             </div>
           }

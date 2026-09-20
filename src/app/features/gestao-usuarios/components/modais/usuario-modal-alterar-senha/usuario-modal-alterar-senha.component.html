@@ -29,6 +29,18 @@
         type="password"
         class="custom-dark-text"
       ></tm-text>
+      @if (
+        changePasswordForm.get('newPassword')?.touched &&
+        changePasswordForm.get('newPassword')?.invalid
+      ) {
+        <div class="text-danger extra-small mt-1">
+          @if (changePasswordForm.get('newPassword')?.errors?.['required']) {
+            Nova senha é obrigatória.
+          } @else if (changePasswordForm.get('newPassword')?.errors?.['minlength']) {
+            A senha deve ter no mínimo 6 caracteres.
+          }
+        </div>
+      }
     </div>
 
     <div class="mb-3">

@@ -1,59 +1,94 @@
-<div class="container mt-5 mb-5">
-  <!-- Header Principal da Dashboard (Padrão de Gestão de Usuários) -->
-  <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between mb-4 gap-3">
-    <div>
-      <h1 class="h2 text-primary fw-bold mb-2 custom-dark-text d-flex align-items-center gap-2">
-        <i class="fas fa-chart-line custom-dark-title-icon me-2"></i>Dashboard & Gestão
-      </h1>
-      <p class="text-muted custom-dark-text mb-0">
-        Visão clara do seu faturamento, atendimentos e inteligência de crescimento.
-      </p>
-    </div>
+<div class="container mt-4 mb-5">
+  <!-- Header Principal da Dashboard -->
+  <div class="mb-4">
+    <h1 class="h2 text-primary fw-bold mb-1 custom-dark-text d-flex align-items-center gap-2">
+      <i class="fas fa-chart-line custom-dark-title-icon me-2"></i>Dashboard & Gestão
+    </h1>
+    <p class="text-muted custom-dark-text mb-0 small">
+      Visão estratégica do seu faturamento, agendamentos e inteligência de crescimento.
+    </p>
   </div>
 
-  <!-- Barra de Filtros Enxuta -->
-  <div class="card border-0 shadow-sm p-4 details-card custom-dark-card rounded-4 mb-4">
+  <!-- Barra de Filtros Mobile-First (tm-select para Período e Profissional) -->
+  <div class="card border-0 shadow-sm p-3 details-card custom-dark-card rounded-4 mb-4">
     <div class="row g-3 align-items-center">
-      <div class="col-12 col-md-6">
-        <label class="form-label extra-small fw-bold text-uppercase custom-dark-label mb-2 d-flex align-items-center gap-2">
-          <i class="far fa-calendar-alt text-primary"></i>Período de Análise
-        </label>
-        <select
-          class="form-select rounded-3 custom-dark-input py-2"
-          [ngModel]="filtroPeriodo()"
-          (ngModelChange)="filtroPeriodo.set($event)"
-        >
-          <option value="hoje">Hoje</option>
-          <option value="7d">Últimos 7 Dias</option>
-          <option value="30d">Últimos 30 Dias</option>
-          <option value="90d">Últimos 90 Dias</option>
-          <option value="mes">Este Mês</option>
-          <option value="ano">Ano Atual</option>
-        </select>
+      <!-- Período de Análise Filter (tm-select) -->
+      <div class="col-12 col-lg-6">
+        <tm-select
+          [value]="filtroPeriodo()"
+          (valueChange)="onPeriodoSelectChange($event)"
+          label="PERÍODO DE ANÁLISE"
+          [options]="periodosOptions()"
+          [darkMode]="themeService.isDarkMode()"
+          class="custom-dark-text"
+        ></tm-select>
       </div>
 
-      <div class="col-12 col-md-6">
-        <label class="form-label extra-small fw-bold text-uppercase custom-dark-label mb-2 d-flex align-items-center gap-2">
-          <i class="fas fa-user-tie text-primary"></i>Profissional
-        </label>
-        <select
-          class="form-select rounded-3 custom-dark-input py-2"
-          [ngModel]="filtroProfissionalId()"
-          (ngModelChange)="filtroProfissionalId.set($event)"
-        >
-          <option value="todos">Todos os Profissionais</option>
-          @for (prof of profissionais(); track prof.id) {
-            <option [value]="prof.id">{{ prof.nome }}</option>
-          }
-        </select>
+      <!-- Profissional Filter (tm-select) -->
+      <div class="col-12 col-lg-6">
+        <tm-select
+          [value]="filtroProfissionalId()"
+          (valueChange)="onProfissionalSelectChange($event)"
+          label="PROFISSIONAL"
+          [options]="profissionaisOptions()"
+          [darkMode]="themeService.isDarkMode()"
+          class="custom-dark-text"
+        ></tm-select>
       </div>
     </div>
   </div>
+
+  <!-- HERO CARD: PRÓXIMO ATENDIMENTO DO DIA (MOBILE HERO) -->
+  @if (filtroPeriodo() === 'hoje' && proximoAgendamento(); as prox) {
+    <div class="card border-0 shadow-sm custom-dark-card rounded-4 p-3 mb-4 bg-gradient-hero border-primary-subtle position-relative overflow-hidden">
+      <div class="d-flex flex-column flex-sm-row align-items-sm-center justify-content-between gap-3">
+        <div class="d-flex align-items-center gap-3">
+          <div class="icon-circle bg-primary text-white flex-shrink-0 shadow-sm">
+            <i class="fas fa-clock"></i>
+          </div>
+          <div>
+            <div class="d-flex align-items-center gap-2 flex-wrap mb-1">
+              <span class="badge bg-primary text-white fw-bold px-2.5 py-1 rounded-pill small">
+                Próximo da Fila • {{ formatarHora(prox.dataInicio) }}
+              </span>
+              <span class="badge rounded-pill px-2.5 py-1 small fw-semibold" [ngClass]="obterStatusInfo(prox.status).class">
+                {{ obterStatusInfo(prox.status).label }}
+              </span>
+            </div>
+            <h4 class="h5 fw-bold custom-dark-text mb-0">{{ prox.clienteNome }}</h4>
+            <span class="custom-dark-muted small">
+              {{ prox.planoNome || prox.servicoNome || 'Serviço' }} • R$ {{ (prox.preco || 0).toFixed(2).replace('.', ',') }}
+            </span>
+          </div>
+        </div>
+
+        <div class="d-flex align-items-center gap-2 flex-shrink-0">
+          @if (prox.clienteTelefone) {
+            <a
+              [href]="'https://wa.me/' + prox.clienteTelefone.replace('+', '')"
+              target="_blank"
+              class="btn btn-success fw-bold px-3 py-2 rounded-3 d-inline-flex align-items-center gap-1.5 shadow-sm"
+            >
+              <i class="fab fa-whatsapp fs-6"></i>
+              <span>Lembrar Cliente</span>
+            </a>
+          }
+          <button
+            type="button"
+            class="btn btn-outline-secondary btn-sm rounded-3 py-2 px-3 fw-semibold"
+            (click)="novoAgendamento()"
+          >
+            Ver Agenda
+          </button>
+        </div>
+      </div>
+    </div>
+  }
 
   <!-- OS 4 KPIS ESSENCIAIS DO TOPO (DINÂMICOS, CENTRALIZADOS E RESPONSIVOS) -->
   <div class="row g-4 mb-4">
     <!-- Card 1: Faturamento Total -->
-    <div class="col-12 col-md-6 col-lg-6 col-xl-3">
+    <div class="col-12 col-lg-6 col-xl-3">
       <div class="card tm-card border-0 shadow-sm rounded-4 h-100 position-relative overflow-hidden custom-dark-card">
         <div class="card-body p-4 p-xl-4 d-flex flex-column">
           <div class="d-flex align-items-center justify-content-between mb-3 gap-2">
@@ -72,7 +107,7 @@
     </div>
 
     <!-- Card 2: Atendimentos Realizados -->
-    <div class="col-12 col-md-6 col-lg-6 col-xl-3">
+    <div class="col-12 col-lg-6 col-xl-3">
       <div class="card tm-card border-0 shadow-sm rounded-4 h-100 position-relative overflow-hidden custom-dark-card">
         <div class="card-body p-4 p-xl-4 d-flex flex-column">
           <div class="d-flex align-items-center justify-content-between mb-3 gap-2">
@@ -86,9 +121,9 @@
           </h3>
           <span class="extra-small custom-dark-muted text-truncate mt-auto">
             @if (filtroPeriodo() === 'hoje') {
-              <i class="fas fa-check-circle me-1 text-success"></i>{{ resumoHoje().concluidosQtd }} concluídos | {{ resumoHoje().pendentesQtd }} pendentes
+              <i class="fas fa-check-circle me-1 text-success"></i>{{ resumoHoje().concluidosQtd }} confirmados | {{ resumoHoje().pendentesQtd }} pendentes
             } @else {
-              <i class="fas fa-check-circle me-1 text-success"></i>Cortes e serviços concluídos
+              <i class="fas fa-check-circle me-1 text-success"></i>Cortes e serviços confirmados
             }
           </span>
         </div>
@@ -97,7 +132,7 @@
     </div>
 
     <!-- Card 3: Assinantes Ativos -->
-    <div class="col-12 col-md-6 col-lg-6 col-xl-3">
+    <div class="col-12 col-lg-6 col-xl-3">
       <div class="card tm-card border-0 shadow-sm rounded-4 h-100 position-relative overflow-hidden custom-dark-card">
         <div class="card-body p-4 p-xl-4 d-flex flex-column">
           <div class="d-flex align-items-center justify-content-between mb-3 gap-2">
@@ -116,7 +151,7 @@
     </div>
 
     <!-- Card 4: Ocupação da Agenda Hoje -->
-    <div class="col-12 col-md-6 col-lg-6 col-xl-3">
+    <div class="col-12 col-lg-6 col-xl-3">
       <div class="card tm-card border-0 shadow-sm rounded-4 h-100 position-relative overflow-hidden custom-dark-card">
         <div class="card-body p-4 p-xl-4 d-flex flex-column">
           <div class="d-flex align-items-center justify-content-between mb-3 gap-2">
@@ -129,6 +164,81 @@
           <div class="progress rounded-pill mt-auto" style="height: 8px;">
             <div class="progress-bar bg-warning" role="progressbar" [style.width.%]="ocupacaoHojePct()"></div>
           </div>
+        </div>
+        <div class="accent-bar bg-warning"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BLOCO DE KPIS DE ESTOQUE E INVENTÁRIO (CLICÁVEIS) -->
+  <div class="row g-4 mb-4" *ngIf="estoqueService.resumoEstoque() as resumo">
+    <div class="col-12 col-lg-4">
+      <div
+        class="card tm-card border-0 shadow-sm rounded-4 h-100 position-relative overflow-hidden custom-dark-card clickable-card"
+        (click)="navegarParaEstoque(false)"
+        title="Clique para abrir a Gestão de Estoque"
+      >
+        <div class="card-body p-4 d-flex flex-column">
+          <div class="d-flex align-items-center justify-content-between mb-3 gap-2">
+            <span class="text-uppercase extra-small fw-bold custom-dark-muted text-truncate">Valor em Estoque</span>
+            <div class="icon-circle bg-info-subtle text-info flex-shrink-0">
+              <i class="fas fa-boxes"></i>
+            </div>
+          </div>
+          <h3 class="fw-bold text-info mb-1">
+            R$ {{ (resumo.custoTotalInventariado || 0) | number:'1.2-2':'pt-BR' }}
+          </h3>
+          <span class="extra-small custom-dark-muted mt-auto">
+            <i class="fas fa-chart-line me-1 text-success"></i>Lucro Potencial: R$ {{ (resumo.lucroPotencialTotal || 0) | number:'1.2-2':'pt-BR' }}
+          </span>
+        </div>
+        <div class="accent-bar bg-info"></div>
+      </div>
+    </div>
+
+    <div class="col-12 col-lg-4">
+      <div
+        class="card tm-card border-0 shadow-sm rounded-4 h-100 position-relative overflow-hidden custom-dark-card clickable-card"
+        (click)="navegarParaEstoque(true)"
+        title="Clique para filtrar produtos com estoque baixo"
+      >
+        <div class="card-body p-4 d-flex flex-column">
+          <div class="d-flex align-items-center justify-content-between mb-3 gap-2">
+            <span class="text-uppercase extra-small fw-bold custom-dark-muted text-truncate">Estoque Baixo</span>
+            <div class="icon-circle bg-danger-subtle text-danger flex-shrink-0">
+              <i class="fas fa-exclamation-triangle"></i>
+            </div>
+          </div>
+          <h3 class="fw-bold text-danger mb-1">
+            {{ resumo.quantidadeProdutosEstoqueBaixo || 0 }}
+          </h3>
+          <span class="extra-small custom-dark-muted mt-auto">
+            <i class="fas fa-arrow-right me-1"></i>Produtos abaixo do limite mínimo
+          </span>
+        </div>
+        <div class="accent-bar bg-danger"></div>
+      </div>
+    </div>
+
+    <div class="col-12 col-lg-4">
+      <div
+        class="card tm-card border-0 shadow-sm rounded-4 h-100 position-relative overflow-hidden custom-dark-card clickable-card"
+        (click)="navegarParaEstoque(true)"
+        title="Clique para filtrar produtos com validade próxima"
+      >
+        <div class="card-body p-4 d-flex flex-column">
+          <div class="d-flex align-items-center justify-content-between mb-3 gap-2">
+            <span class="text-uppercase extra-small fw-bold custom-dark-muted text-truncate">Alertas de Validade</span>
+            <div class="icon-circle bg-warning-subtle text-warning flex-shrink-0">
+              <i class="fas fa-calendar-times"></i>
+            </div>
+          </div>
+          <h3 class="fw-bold text-warning mb-1">
+            {{ resumo.quantidadeProdutosVencidosOuProximos || 0 }}
+          </h3>
+          <span class="extra-small custom-dark-muted mt-auto">
+            <i class="fas fa-clock me-1"></i>Vencimento em até 30 dias
+          </span>
         </div>
         <div class="accent-bar bg-warning"></div>
       </div>
@@ -228,6 +338,11 @@
                           >
                             {{ a.planoNome ? 'Plano de Assinatura' : 'Serviço Avulso' }}
                           </span>
+                          @if (a.ehEncaixe) {
+                            <span class="badge bg-warning text-dark extra-small px-2 py-1 ms-1 fw-bold">
+                              ⚡ Encaixe
+                            </span>
+                          }
                         </td>
                         <td>
                           <span class="small custom-dark-text fw-semibold">{{ a.profissionalNome || 'Qualquer profissional' }}</span>
@@ -418,7 +533,7 @@
           </div>
           <div class="card-body p-4">
             <div class="row g-4 mb-4">
-              <div class="col-12 col-md-6">
+              <div class="col-12 col-lg-6">
                 <label class="form-label fw-semibold small custom-dark-text d-flex justify-content-between mb-2">
                   <span>Novos Assinantes / Mês:</span>
                   <span class="fw-bold text-primary">+{{ simularNovosAssinantes() }}</span>
@@ -434,7 +549,7 @@
                 />
               </div>
 
-              <div class="col-12 col-md-6">
+              <div class="col-12 col-lg-6">
                 <label class="form-label fw-semibold small custom-dark-text d-flex justify-content-between mb-2">
                   <span>Reajuste no Ticket:</span>
                   <span
@@ -460,21 +575,21 @@
 
             <!-- Projeções da Simulação -->
             <div class="row g-3">
-              <div class="col-12 col-sm-4">
+              <div class="col-12 col-lg-4">
                 <div class="py-3 px-3 rounded-4 bg-primary-subtle text-primary border border-primary-subtle text-center h-100 d-flex flex-column justify-content-center">
                   <span class="extra-small fw-bold text-uppercase d-block mb-1">MRR Projetado</span>
                   <h4 class="fw-bold mb-0 fs-5">{{ resultadoSimulacao().mrrProjetadoFormatted }}</h4>
                 </div>
               </div>
 
-              <div class="col-12 col-sm-4">
+              <div class="col-12 col-lg-4">
                 <div class="py-3 px-3 rounded-4 bg-success-subtle text-success border border-success-subtle text-center h-100 d-flex flex-column justify-content-center">
                   <span class="extra-small fw-bold text-uppercase d-block mb-1">Projeção 6 Meses</span>
                   <h4 class="fw-bold mb-0 fs-5">{{ resultadoSimulacao().projecao6MesesFormatted }}</h4>
                 </div>
               </div>
 
-              <div class="col-12 col-sm-4">
+              <div class="col-12 col-lg-4">
                 <div class="py-3 px-3 rounded-4 bg-purple-subtle text-purple border border-purple-subtle text-center h-100 d-flex flex-column justify-content-center">
                   <span class="extra-small fw-bold text-uppercase d-block mb-1">ARR Anual</span>
                   <h4 class="fw-bold mb-0 fs-5">{{ resultadoSimulacao().projecao12MesesFormatted }}</h4>

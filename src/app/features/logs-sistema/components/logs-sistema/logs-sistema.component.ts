@@ -12,9 +12,10 @@ import {
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { TableColumn, TmTableComponent, TmTextComponent } from '@techminds-group/tm-angular-lib';
+import { TableColumn, TmTableComponent, TmTextComponent, TmSelectComponent } from '@techminds-group/tm-angular-lib';
 
 import { LogsService } from '../../../../core/services/logs.service';
+import { ThemeService } from '../../../../core/services/theme.service';
 
 export interface LogItem {
   id: string;
@@ -30,7 +31,7 @@ export interface LogItem {
 @Component({
   selector: 'app-logs-sistema',
   standalone: true,
-  imports: [CommonModule, FormsModule, TmTableComponent, TmTextComponent],
+  imports: [CommonModule, FormsModule, TmTableComponent, TmTextComponent, TmSelectComponent],
   templateUrl: './logs-sistema.component.html',
   styleUrl: './logs-sistema.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -38,6 +39,7 @@ export interface LogItem {
 export class LogsSistemaComponent implements OnInit, AfterViewInit {
   private readonly router = inject(Router);
   private readonly logsService = inject(LogsService);
+  protected readonly themeService = inject(ThemeService);
 
   @ViewChild('dataHoraTemplate', { static: true })
   dataHoraTemplate!: TemplateRef<{ $implicit: LogItem }>;
@@ -59,6 +61,18 @@ export class LogsSistemaComponent implements OnInit, AfterViewInit {
   protected readonly tamanhoPagina = signal<number>(10);
   protected readonly termoBusca = signal<string>('');
   protected readonly moduloFiltro = signal<string>('todos');
+
+  protected readonly moduloOptions = signal<{ value: string; label: string }[]>([
+    { value: 'todos', label: 'Todos os Módulos' },
+    { value: 'Agenda', label: 'Agenda' },
+    { value: 'Clientes', label: 'Clientes' },
+    { value: 'Assinantes', label: 'Assinantes' },
+    { value: 'Usuários', label: 'Usuários' },
+    { value: 'Catálogo', label: 'Catálogo' },
+    { value: 'Configurações', label: 'Configurações' },
+    { value: 'WhatsApp', label: 'WhatsApp' },
+    { value: 'Autenticação', label: 'Autenticação' },
+  ]);
 
   protected readonly logs = this.logsService.logs;
 
@@ -101,11 +115,12 @@ export class LogsSistemaComponent implements OnInit, AfterViewInit {
     }
   }
 
-  async onModuloChange(val: string): Promise<void> {
-    this.moduloFiltro.set(val);
+  async onModuloChange(val: unknown): Promise<void> {
+    const valStr = typeof val === 'string' ? val : 'todos';
+    this.moduloFiltro.set(valStr);
     this.carregando.set(true);
     try {
-      await this.logsService.carregarLogs(val, this.termoBusca());
+      await this.logsService.carregarLogs(valStr, this.termoBusca());
     } finally {
       this.carregando.set(false);
     }

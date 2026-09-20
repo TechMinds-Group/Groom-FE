@@ -1,0 +1,43 @@
+.extra-small {
+  font-size: 0.72rem;
+}
+
+:host-context([data-theme='dark']),
+[data-theme='dark'] {
+  .details-card,
+  .custom-dark-card {
+    background-color: #161b22 !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  }
+
+  .custom-dark-text {
+    color: #ffffff !important;
+  }
+
+  .custom-dark-input,
+  .form-control,
+  .form-select {
+    background-color: #0d1117 !important;
+    color: #ffffff !important;
+    border-color: rgba(255, 255, 255, 0.15) !important;
+
+    &::placeholder {
+      color: rgba(255, 255, 255, 0.4) !important;
+    }
+
+    option {
+      background-color: #161b22 !important;
+      color: #ffffff !important;
+    }
+  }
+
+  .input-group-text {
+    background-color: #0d1117 !important;
+    border-color: rgba(255, 255, 255, 0.15) !important;
+    color: #ffffff !important;
+  }
+
+  label {
+    color: rgba(255, 255, 255, 0.85) !important;
+  }
+}

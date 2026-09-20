@@ -8,6 +8,11 @@
   align-items: center;
   justify-content: center;
   animation: fadeInOverlay 0.25s ease-out;
+
+  @media (min-width: 576px) {
+    left: var(--sidebar-width, 260px);
+    width: calc(100vw - var(--sidebar-width, 260px));
+  }
 }
 
 .image-viewer-container {

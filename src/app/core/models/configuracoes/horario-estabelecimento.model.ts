@@ -17,3 +17,10 @@ export const DIAS_SEMANA_ESTABELECIMENTO: Record<number, { label: string; abrevi
   5: { label: 'Sexta-feira', abreviacao: 'Sex' },
   6: { label: 'Sábado', abreviacao: 'Sáb' },
 };
+
+export interface ConfiguracaoHorarioOpcoes {
+  intervaloAgendamentoMinutos: number;
+  horarioPorDemanda: boolean;
+  horariosDemanda?: string[];
+}
+

@@ -171,21 +171,42 @@ export class GestaoUsuarioDetalhesComponent implements OnInit {
     if (!this.id()) return;
 
     try {
-      if (payload.forgotPassword && this.isAdmin()) {
-        const temp = await this.gestaoUsuariosService.resetarSenha(this.id()!);
-        this.toastService.success(`Senha temporária gerada: ${temp}`, 'Sucesso');
-      } else {
-        await this.gestaoUsuariosService.alterarSenha(this.id()!, {
-          oldPassword: payload.currentPassword || '',
-          newPassword: payload.newPassword,
-          forgotPassword: payload.forgotPassword,
-        });
-        this.toastService.success('Senha alterada com sucesso!', 'Sucesso');
-      }
+      await this.gestaoUsuariosService.alterarSenha(this.id()!, {
+        oldPassword: payload.currentPassword || '',
+        newPassword: payload.newPassword,
+        forgotPassword: payload.forgotPassword,
+      });
+      this.toastService.success('Senha alterada com sucesso!', 'Sucesso');
       this.showChangePasswordModal.set(false);
     } catch (err: any) {
       console.error('Erro ao alterar senha', err);
-      const mensagem = err?.error?.message || err?.error?.Message || err?.error?.detail || (typeof err?.error === 'string' ? err.error : null) || err?.message || 'Erro ao alterar senha.';
+      let mensagem = 'Erro ao alterar senha.';
+
+      if (err?.error) {
+        if (typeof err.error === 'string') {
+          mensagem = err.error;
+        } else if (err.error.message || err.error.Message) {
+          mensagem = err.error.message || err.error.Message;
+        } else if (err.error.detail) {
+          mensagem = err.error.detail;
+        } else if (err.error.errors) {
+          const details: string[] = [];
+          for (const key of Object.keys(err.error.errors)) {
+            const fieldErrors = err.error.errors[key];
+            if (Array.isArray(fieldErrors)) {
+              details.push(...fieldErrors);
+            } else if (typeof fieldErrors === 'string') {
+              details.push(fieldErrors);
+            }
+          }
+          if (details.length > 0) {
+            mensagem = details.join(' ');
+          }
+        }
+      } else if (err?.message) {
+        mensagem = err.message;
+      }
+
       this.toastService.error(mensagem, 'Falha ao alterar senha');
     }
   }

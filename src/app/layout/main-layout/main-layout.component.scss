@@ -52,6 +52,14 @@
   background-color: var(--tm-bg-color);
 }
 
+.top-header-bar {
+  background-color: var(--tm-sidebar-bg, #1a2233);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  height: 56px;
+  flex-shrink: 0;
+  z-index: 100;
+}
+
 main.main-content {
   background-color: var(--tm-bg-color);
   padding: 0 1.5rem 1.5rem;

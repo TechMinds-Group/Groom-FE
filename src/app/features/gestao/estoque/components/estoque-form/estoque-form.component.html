@@ -1,0 +1,243 @@
+<div class="container mt-5 mb-5">
+  <div class="d-flex align-items-center justify-content-between mb-4">
+    <div>
+      <h1 class="h2 text-primary fw-bold mb-2 custom-dark-text d-flex align-items-center gap-2">
+        <i class="fas fa-box-open me-2"></i>Novo Produto
+      </h1>
+      <p class="text-muted custom-dark-text mb-0">Preencha os dados do novo produto de estoque.</p>
+    </div>
+
+    <div>
+      <button
+        type="button"
+        (click)="cancelar()"
+        class="btn btn-outline-secondary px-4 py-2.5 fw-bold rounded-3 me-2"
+        [disabled]="salvando()"
+      >
+        Cancelar
+      </button>
+      <button
+        type="button"
+        (click)="salvar()"
+        class="btn btn-primary px-4 py-2.5 shadow-sm fw-bold rounded-3"
+        [disabled]="salvando()"
+      >
+        @if (salvando()) {
+          <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+        } @else {
+          <i class="fas fa-check me-2"></i>
+        }
+        Cadastrar
+      </button>
+    </div>
+  </div>
+
+  <div class="card border-0 shadow-sm p-4 details-card custom-dark-card rounded-4">
+    <div class="row g-4">
+      <!-- Nome -->
+      <div class="col-12 col-md-8">
+        <label class="form-label custom-dark-text fw-semibold"
+          >Nome do Produto <span class="text-danger">*</span></label
+        >
+        <input
+          type="text"
+          class="form-control custom-dark-input"
+          placeholder="Ex: Cerveja Heineken Long Neck 330ml"
+          [ngModel]="form().nome"
+          (ngModelChange)="updateForm({ nome: $event })"
+        />
+      </div>
+
+      <!-- Marca -->
+      <div class="col-12 col-md-4">
+        <label class="form-label custom-dark-text fw-semibold">Marca</label>
+        <input
+          type="text"
+          class="form-control custom-dark-input"
+          placeholder="Ex: Heineken"
+          [ngModel]="form().marca"
+          (ngModelChange)="updateForm({ marca: $event })"
+        />
+      </div>
+
+      <!-- Categoria -->
+      <div class="col-12 col-md-4">
+        <label class="form-label custom-dark-text fw-semibold"
+          >Categoria <span class="text-danger">*</span></label
+        >
+        <select
+          class="form-select custom-dark-input"
+          [ngModel]="form().categoria"
+          (ngModelChange)="updateForm({ categoria: $event })"
+        >
+          @for (cat of categorias; track cat.value) {
+            <option [value]="cat.value">{{ cat.label }}</option>
+          }
+        </select>
+      </div>
+
+      <!-- Unidade de Medida -->
+      <div class="col-12 col-md-4">
+        <label class="form-label custom-dark-text fw-semibold"
+          >Unidade de Medida <span class="text-danger">*</span></label
+        >
+        <select
+          class="form-select custom-dark-input"
+          [ngModel]="form().unidadeMedida"
+          (ngModelChange)="updateForm({ unidadeMedida: $event })"
+        >
+          @for (un of unidades; track un.value) {
+            <option [value]="un.value">{{ un.label }}</option>
+          }
+        </select>
+      </div>
+
+      <!-- Código de Barras -->
+      <div class="col-12 col-md-4">
+        <label class="form-label custom-dark-text fw-semibold">Código de Barras</label>
+        <div class="input-group">
+          <input
+            type="text"
+            class="form-control custom-dark-input font-monospace"
+            placeholder="Ex: 7891234567890"
+            [ngModel]="form().codigoBarras"
+            (ngModelChange)="updateForm({ codigoBarras: $event })"
+          />
+          <button
+            type="button"
+            class="btn btn-outline-primary rounded-end-3"
+            (click)="showBarcodeScanner.set(true)"
+            title="Escanear com a câmera ou leitor físico"
+          >
+            <i class="fas fa-camera me-1"></i><i class="fas fa-barcode"></i>
+          </button>
+        </div>
+      </div>
+
+      <hr class="my-2 border-secondary opacity-25" />
+
+      <!-- Quantidade Inicial -->
+      <div class="col-12 col-md-3">
+        <label class="form-label custom-dark-text fw-semibold"
+          >Quantidade Inicial <span class="text-danger">*</span></label
+        >
+        <input
+          type="number"
+          min="0"
+          class="form-control custom-dark-input"
+          [ngModel]="form().quantidadeAtual"
+          (ngModelChange)="updateForm({ quantidadeAtual: +$event })"
+        />
+        <span class="form-text text-muted d-block extra-small mt-1"
+          >Nº de unidades físicas prontas na prateleira.</span
+        >
+      </div>
+
+      <!-- Quantidade Mínima -->
+      <div class="col-12 col-md-3">
+        <label class="form-label custom-dark-text fw-semibold"
+          >Qtd. Mínima de Alerta <span class="text-danger">*</span></label
+        >
+        <input
+          type="number"
+          min="0"
+          class="form-control custom-dark-input"
+          [ngModel]="form().quantidadeMinima"
+          (ngModelChange)="updateForm({ quantidadeMinima: +$event })"
+        />
+      </div>
+
+      <!-- Preço Custo -->
+      <div class="col-12 col-md-3">
+        <label class="form-label custom-dark-text fw-semibold"
+          >Preço Custo (R$) <span class="text-danger">*</span></label
+        >
+        <input
+          type="number"
+          step="0.01"
+          min="0"
+          class="form-control custom-dark-input"
+          [ngModel]="form().precoCusto"
+          (ngModelChange)="updateForm({ precoCusto: +$event })"
+        />
+      </div>
+
+      <!-- Preço Venda -->
+      <div class="col-12 col-md-3">
+        <label class="form-label custom-dark-text fw-semibold"
+          >Preço Venda (R$) <span class="text-danger">*</span></label
+        >
+        <input
+          type="number"
+          step="0.01"
+          min="0"
+          class="form-control custom-dark-input"
+          [ngModel]="form().precoVenda"
+          (ngModelChange)="updateForm({ precoVenda: +$event })"
+        />
+      </div>
+
+      <!-- Data de Validade -->
+      <div class="col-12 col-md-4">
+        <label class="form-label custom-dark-text fw-semibold">Data de Validade</label>
+        <input
+          type="date"
+          class="form-control custom-dark-input"
+          [ngModel]="form().dataValidade"
+          (ngModelChange)="updateForm({ dataValidade: $event })"
+        />
+      </div>
+
+      <!-- Imagem do Produto (Max 1 Imagem) -->
+      <div class="col-12">
+        <label class="form-label custom-dark-text fw-semibold d-block mb-1">
+          <i class="fas fa-image text-primary me-2"></i>Imagem do Produto <small class="text-muted fw-normal">(opcional - máximo 1 imagem, até 3MB)</small>
+        </label>
+
+        @if (!imagemPreview() && !form().imagemUrl) {
+          <div class="d-flex align-items-center gap-3">
+            <input
+              type="file"
+              #fileInput
+              class="d-none"
+              accept="image/png, image/jpeg, image/webp, image/gif"
+              (change)="onFileSelected($event)"
+            />
+            <button
+              type="button"
+              class="btn btn-outline-secondary px-3 py-2 rounded-3 border-dashed d-inline-flex align-items-center gap-2"
+              (click)="fileInput.click()"
+            >
+              <i class="fas fa-upload text-primary"></i>
+              <span>Selecionar Imagem do Produto</span>
+            </button>
+            <span class="text-muted small">PNG, JPG, WEBP ou GIF (máx. 3 MB)</span>
+          </div>
+        } @else {
+          <div class="d-flex align-items-center gap-3">
+            <div
+              class="rounded-3 border border-secondary border-opacity-25 overflow-hidden position-relative shadow-sm"
+              style="width: 90px; height: 90px; background-size: cover; background-position: center;"
+              [style.backgroundImage]="'url(' + (imagemPreview() || form().imagemUrl) + ')'"
+            ></div>
+            <div>
+              <button
+                type="button"
+                class="btn btn-outline-danger btn-sm rounded-3 d-inline-flex align-items-center gap-1"
+                (click)="removerImagemSelecionada()"
+              >
+                <i class="fas fa-trash-alt"></i>Remover Imagem
+              </button>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+</div>
+
+<app-barcode-scanner-modal
+  [(show)]="showBarcodeScanner"
+  (scanned)="onBarcodeScanned($event)"
+></app-barcode-scanner-modal>
+
