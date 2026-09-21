@@ -246,9 +246,24 @@ export class AgendaModalDiaComponent implements OnChanges, OnDestroy {
           if (this.tipoSelecionado() !== novoTipo) {
             this.tipoSelecionado.set(novoTipo);
             const opts = this.servicoOptions();
-            const currentServicoId = this.form.get('servicoId')?.value;
-            if (opts.length > 0 && !opts.some((o) => o.value === currentServicoId)) {
-              this.form.patchValue({ servicoId: opts[0].value });
+            const currentVal = this.form.get('servicoId')?.value;
+            if (novoTipo === 'servico') {
+              let initial: string[] = [];
+              if (Array.isArray(currentVal)) {
+                initial = currentVal.filter((id) => opts.some((o) => o.value === id));
+              } else if (typeof currentVal === 'string' && opts.some((o) => o.value === currentVal)) {
+                initial = [currentVal];
+              }
+              if (initial.length === 0 && opts.length > 0) {
+                initial = [opts[0].value];
+              }
+              this.form.patchValue({ servicoId: initial });
+            } else {
+              let initial = typeof currentVal === 'string' ? currentVal : (Array.isArray(currentVal) && currentVal.length > 0 ? currentVal[0] : '');
+              if (opts.length > 0 && !opts.some((o) => o.value === initial)) {
+                initial = opts[0].value;
+              }
+              this.form.patchValue({ servicoId: initial });
             }
           }
         }),
@@ -346,8 +361,15 @@ export class AgendaModalDiaComponent implements OnChanges, OnDestroy {
   /** Busca os horários disponíveis do profissional para a data/serviço selecionados e atualiza as opções do campo de horário. */
   protected async carregarHorariosDisponiveis(): Promise<void> {
     const profissionalId = this.form.get('profissionalId')?.value as string | undefined;
-    const servicoId = this.form.get('servicoId')?.value as string | undefined;
+    const rawServicoId = this.form.get('servicoId')?.value;
     const data = this.dataSelecionada();
+
+    let servicoId: string | undefined;
+    if (Array.isArray(rawServicoId)) {
+      servicoId = rawServicoId[0];
+    } else if (typeof rawServicoId === 'string') {
+      servicoId = rawServicoId;
+    }
 
     if (!profissionalId || !servicoId || !data || this.agendamentoEditando()) {
       return;
@@ -440,15 +462,19 @@ export class AgendaModalDiaComponent implements OnChanges, OnDestroy {
       ? (this.profissionalOptions()[0]?.value ?? '')
       : (usuario?.id ?? '');
 
+    const opts = this.servicoOptions();
+    const defaultServico = opts.length > 0 ? [opts[0].value] : [];
+
     this.form.reset({
       clienteNome: '',
       clienteTelefone: '',
       profissionalId: profissionalPadrao,
-      servicoId: this.servicoOptions()[0]?.value ?? '',
+      servicoId: defaultServico,
       tipo: 'servico',
       horaInicio: '',
       statusDecisao: 'confirmado',
       observacoes: '',
+      ehEncaixe: false,
     });
     this.exibeForm.set(true);
     this.carregarHorariosDisponiveis();
@@ -573,15 +599,32 @@ export class AgendaModalDiaComponent implements OnChanges, OnDestroy {
         '';
     }
 
+    let servicoVal: string | string[];
+    if (tipoVal === 'servico') {
+      if (agendamento.servicoNome && agendamento.servicoNome.includes(' + ')) {
+        const names = agendamento.servicoNome.split(' + ').map((n) => n.trim().toLowerCase());
+        const matchedIds = this.catalogoService
+          .servicos()
+          .filter((s) => names.includes(s.nome.toLowerCase()))
+          .map((s) => s.id);
+        servicoVal = matchedIds.length > 0 ? matchedIds : (matchedServicoId ? [matchedServicoId] : []);
+      } else {
+        servicoVal = matchedServicoId ? [matchedServicoId] : (this.servicoOptions()[0]?.value ? [this.servicoOptions()[0].value] : []);
+      }
+    } else {
+      servicoVal = matchedServicoId || (this.servicoOptions()[0]?.value ?? '');
+    }
+
     this.form.reset({
       clienteNome: agendamento.clienteNome,
       clienteTelefone: agendamento.clienteTelefone,
       profissionalId: agendamento.profissionalId,
-      servicoId: matchedServicoId || (this.servicoOptions()[0]?.value ?? ''),
+      servicoId: servicoVal,
       tipo: tipoVal,
       horaInicio: hora,
       statusDecisao: agendamento.status === 'recusado' ? 'recusado' : 'confirmado',
       observacoes: agendamento.observacoes ?? '',
+      ehEncaixe: agendamento.ehEncaixe ?? false,
     });
     this.exibeForm.set(true);
   }
@@ -594,14 +637,19 @@ export class AgendaModalDiaComponent implements OnChanges, OnDestroy {
   protected async salvarAgendamento(): Promise<void> {
     if (this.salvando()) return;
 
-    if (this.form.invalid) {
+    const rawServicoId = this.form.get('servicoId')?.value;
+    const servicoIds: string[] = Array.isArray(rawServicoId)
+      ? rawServicoId
+      : (typeof rawServicoId === 'string' && rawServicoId ? [rawServicoId] : []);
+
+    if (this.form.invalid || servicoIds.length === 0) {
       this.form.markAllAsTouched();
       if (!this.form.get('clienteNome')?.value) {
         this.toastService.error('Por favor, informe ou selecione o nome do cliente');
       } else if (!this.form.get('profissionalId')?.value) {
         this.toastService.error('Por favor, selecione um profissional');
-      } else if (!this.form.get('servicoId')?.value) {
-        this.toastService.error('Por favor, selecione um serviço');
+      } else if (servicoIds.length === 0) {
+        this.toastService.error('Por favor, selecione ao menos um serviço');
       } else if (!this.form.get('horaInicio')?.value) {
         this.toastService.error('Por favor, selecione um horário de início');
       } else {
@@ -630,9 +678,13 @@ export class AgendaModalDiaComponent implements OnChanges, OnDestroy {
     this.salvando.set(true);
     try {
       const editando = this.agendamentoEditando();
+      const primaryServicoId = servicoIds[0] ?? '';
+      const clienteIdSelected = this.clienteIdSelecionado();
+
       if (editando) {
         await this.agendamentosService.editarManual(editando.id, {
-          servicoId: val.servicoId,
+          servicoId: primaryServicoId,
+          servicoIds: val.tipo === 'servico' ? servicoIds : [primaryServicoId],
           dataInicio: dataInicioIso,
           status: val.statusDecisao,
           tipo: val.tipo,
@@ -640,13 +692,13 @@ export class AgendaModalDiaComponent implements OnChanges, OnDestroy {
         });
         this.toastService.success('Agendamento atualizado com sucesso');
       } else {
-        const clienteIdSelected = this.clienteIdSelecionado();
         await this.agendamentosService.criarManual({
           clienteId: clienteIdSelected && clienteIdSelected !== NOVO_CLIENTE_VALUE ? clienteIdSelected : undefined,
           clienteNome: val.clienteNome,
           clienteTelefone: val.clienteTelefone,
           profissionalId: val.profissionalId,
-          servicoId: val.servicoId,
+          servicoId: primaryServicoId,
+          servicoIds: val.tipo === 'servico' ? servicoIds : [primaryServicoId],
           dataInicio: dataInicioIso,
           tipo: val.tipo,
           observacoes: val.observacoes,

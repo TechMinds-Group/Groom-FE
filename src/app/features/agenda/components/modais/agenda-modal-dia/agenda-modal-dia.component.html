@@ -483,6 +483,7 @@
                 <tm-select
                   [options]="servicoOptions()"
                   [value]="form.get('servicoId')?.value"
+                  [multiple]="tipoSelecionado() === 'servico'"
                   [darkMode]="themeService.isDarkMode()"
                   [placeholder]="tipoSelecionado() === 'plano' ? 'Selecione o plano...' : ('AGENDA_MODAL.FORM.SERVICO_PLACEHOLDER' | translate)"
                   (valueChange)="form.patchValue({ servicoId: $event })"
@@ -575,6 +576,7 @@
                 <tm-select
                   [options]="servicoOptions()"
                   [value]="form.get('servicoId')?.value"
+                  [multiple]="tipoSelecionado() === 'servico'"
                   [darkMode]="themeService.isDarkMode()"
                   [placeholder]="tipoSelecionado() === 'plano' ? 'Selecione o plano...' : ('AGENDA_MODAL.FORM.SERVICO_PLACEHOLDER' | translate)"
                   (valueChange)="form.patchValue({ servicoId: $event })"
