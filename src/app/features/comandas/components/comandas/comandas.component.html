@@ -104,13 +104,3 @@
   <span class="custom-dark-text small">{{ item.createdAtUtc | date:'dd/MM/yyyy HH:mm' }}</span>
 </ng-template>
 
-<ng-template #acoesTemplate let-item>
-  <button
-    type="button"
-    class="btn btn-sm btn-outline-primary rounded-3"
-    (click)="verDetalhes(item)"
-    title="Ver detalhes"
-  >
-    <i class="fas fa-eye"></i>
-  </button>
-</ng-template>

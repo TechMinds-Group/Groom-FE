@@ -64,9 +64,6 @@ export class ComandasComponent implements OnInit, AfterViewInit {
   @ViewChild('aberturaTemplate', { static: true })
   aberturaTemplate!: TemplateRef<{ $implicit: Comanda }>;
 
-  @ViewChild('acoesTemplate', { static: true })
-  acoesTemplate!: TemplateRef<{ $implicit: Comanda }>;
-
   private readonly templatesReady = signal(false);
 
   protected readonly cols = computed<TableColumn<Comanda>[]>(() => {
@@ -74,13 +71,12 @@ export class ComandasComponent implements OnInit, AfterViewInit {
       return [];
     }
     return [
-      { header: 'Número', template: this.numeroTemplate, width: '10%' },
-      { header: 'Cliente', template: this.clienteTemplate, width: '25%' },
-      { header: 'Status', template: this.statusTemplate, width: '13%' },
-      { header: 'Itens', template: this.itensTemplate, width: '10%' },
-      { header: 'Valor Total', template: this.valorTemplate, width: '14%' },
-      { header: 'Data de Abertura', template: this.aberturaTemplate, width: '16%' },
-      { header: 'Ações', template: this.acoesTemplate, width: '12%' },
+      { header: 'Número', template: this.numeroTemplate, width: '11%' },
+      { header: 'Cliente', template: this.clienteTemplate, width: '28%' },
+      { header: 'Status', template: this.statusTemplate, width: '15%' },
+      { header: 'Itens', template: this.itensTemplate, width: '11%' },
+      { header: 'Valor Total', template: this.valorTemplate, width: '17%' },
+      { header: 'Data de Abertura', template: this.aberturaTemplate, width: '18%' },
     ];
   });
 
