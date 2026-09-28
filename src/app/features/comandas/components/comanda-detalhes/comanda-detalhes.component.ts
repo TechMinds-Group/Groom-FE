@@ -42,6 +42,13 @@ export class ComandaDetalhesComponent implements OnInit {
 
   readonly comandaAberta = computed(() => this.comanda()?.status === 'Aberta');
 
+  /** Há ação exibida no card Ações Rápidas (define a largura da coluna principal). */
+  readonly temAcoes = computed(() => {
+    const c = this.comanda();
+    if (!c) return false;
+    return this.comandaAberta() || (c.status === 'Fechada' && this.isAdmin());
+  });
+
   /** Nome do profissional por id (padrão agenda: resolved no FE via GestaoUsuariosService). */
   private readonly profissionaisMap = computed(() => {
     const map = new Map<string, string>();

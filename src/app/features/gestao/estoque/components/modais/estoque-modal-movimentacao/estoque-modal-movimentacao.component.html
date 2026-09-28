@@ -12,16 +12,16 @@
 >
   <form [formGroup]="form" class="p-1 text-start">
     @if (produto()) {
-      <div class="mb-3 p-3 bg-dark-subtle rounded border border-secondary border-opacity-25">
+      <div class="mb-3 p-3 custom-dark-card rounded-3 border border-secondary border-opacity-25">
         <div class="d-flex justify-content-between align-items-center mb-1">
-          <span class="small text-muted">Qtd. em Estoque Atual:</span>
+          <span class="small text-muted custom-dark-text">Qtd. em Estoque Atual:</span>
           <span class="fw-bold fs-6" [class.text-danger]="produto()!.quantidadeAtual <= produto()!.quantidadeMinima" [class.text-success]="produto()!.quantidadeAtual > produto()!.quantidadeMinima">
             {{ produto()!.quantidadeAtual }} {{ produto()!.unidadeMedida }}
           </span>
         </div>
         <div class="d-flex justify-content-between align-items-center">
-          <span class="small text-muted">Mínimo Recomendado:</span>
-          <span class="small text-muted fw-semibold">{{ produto()!.quantidadeMinima }} {{ produto()!.unidadeMedida }}</span>
+          <span class="small text-muted custom-dark-text">Mínimo Recomendado:</span>
+          <span class="small text-muted fw-semibold custom-dark-text">{{ produto()!.quantidadeMinima }} {{ produto()!.unidadeMedida }}</span>
         </div>
       </div>
     }
@@ -31,6 +31,7 @@
         formControlName="tipo"
         label="Tipo de Movimentação"
         [options]="tiposOptions"
+        class="custom-dark-text"
       ></tm-select>
     </div>
 
