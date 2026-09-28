@@ -1,8 +1,4 @@
-/* Padrão visual idêntico às telas de detalhes do sistema (cliente-detalhes / profissional-detalhes / comanda-detalhes). */
-
-.extra-small {
-  font-size: 0.72rem;
-}
+/* Padrão visual idêntico às telas de detalhes do sistema (cliente-detalhes / profissional-detalhes). */
 
 .btn-voltar {
   width: 40px !important;
@@ -29,29 +25,34 @@
   overflow: hidden; /* impede qualquer conteúdo de vazar o card */
 }
 
-.image-preview-thumb {
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+/* Quebra de linha segura para textos longos (observações) */
+.field-value {
+  word-break: break-word;
+  overflow-wrap: break-word;
+  min-width: 0;
+}
 
-  .thumb-overlay {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0, 0, 0, 0.45);
-    backdrop-filter: blur(2px);
-    opacity: 0;
-    transition: opacity 0.2s ease;
-  }
+.custom-dark-highlight {
+  background-color: #f8f9fa;
+}
 
-  &:hover {
-    transform: scale(1.05);
-    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25) !important;
+/* Badges de status da comanda (cores da UI_SPEC) — mesmas classes da listagem. */
+.badge-comanda-aberta {
+  color: #fd7e14;
+  background-color: rgba(253, 126, 20, 0.15);
+  border: 1px solid rgba(253, 126, 20, 0.4);
+}
 
-    .thumb-overlay {
-      opacity: 1;
-    }
-  }
+.badge-comanda-fechada {
+  color: #198754;
+  background-color: rgba(25, 135, 84, 0.15);
+  border: 1px solid rgba(25, 135, 84, 0.4);
+}
+
+.badge-comanda-cancelada {
+  color: #dc3545;
+  background-color: rgba(220, 53, 69, 0.15);
+  border: 1px solid rgba(220, 53, 69, 0.4);
 }
 
 :host-context([data-theme='dark']),
@@ -76,35 +77,17 @@
     border: 1px solid rgba(255, 255, 255, 0.08) !important;
   }
 
+  .custom-dark-highlight {
+    background-color: #0d1117 !important;
+    border-color: rgba(255, 255, 255, 0.08) !important;
+  }
+
   .custom-dark-text {
     color: #ffffff !important;
   }
 
-  .custom-dark-input,
-  .form-control,
-  .form-select {
-    background-color: #0d1117 !important;
-    color: #ffffff !important;
-    border-color: rgba(255, 255, 255, 0.15) !important;
-
-    &::placeholder {
-      color: rgba(255, 255, 255, 0.4) !important;
-    }
-
-    option {
-      background-color: #161b22 !important;
-      color: #ffffff !important;
-    }
-  }
-
-  .input-group-text {
-    background-color: #0d1117 !important;
-    border-color: rgba(255, 255, 255, 0.15) !important;
-    color: #ffffff !important;
-  }
-
   label {
-    color: rgba(255, 255, 255, 0.85) !important;
+    color: rgba(255, 255, 255, 0.7) !important;
   }
 
   .custom-dark-table {
@@ -119,6 +102,29 @@
     td {
       border-color: rgba(255, 255, 255, 0.08) !important;
     }
+  }
+
+  hr {
+    border-color: rgba(255, 255, 255, 0.15) !important;
+    opacity: 1;
+  }
+
+  .badge-comanda-aberta {
+    color: #ffa94d;
+    background-color: rgba(253, 126, 20, 0.18);
+    border-color: rgba(253, 126, 20, 0.5);
+  }
+
+  .badge-comanda-fechada {
+    color: #4cd98a;
+    background-color: rgba(25, 135, 84, 0.18);
+    border-color: rgba(25, 135, 84, 0.5);
+  }
+
+  .badge-comanda-cancelada {
+    color: #f27189;
+    background-color: rgba(220, 53, 69, 0.18);
+    border-color: rgba(220, 53, 69, 0.5);
   }
 }
 

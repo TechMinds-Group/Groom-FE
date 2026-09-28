@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { AgendaModalDiaComponent } from './agenda-modal-dia.component';
 
 describe('AgendaModalDiaComponent', () => {
@@ -7,7 +8,7 @@ describe('AgendaModalDiaComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [AgendaModalDiaComponent],
+      imports: [AgendaModalDiaComponent, HttpClientTestingModule],
     }).compileComponents();
 
     fixture = TestBed.createComponent(AgendaModalDiaComponent);

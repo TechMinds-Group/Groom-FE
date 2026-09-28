@@ -1,0 +1,176 @@
+<div class="container mt-5 mb-5">
+  @if (carregando()) {
+    <div class="text-center text-muted py-5">
+      <i class="fas fa-spinner fa-spin fa-2x mb-3"></i>
+      <p>Carregando comanda...</p>
+    </div>
+  } @else {
+    @if (comanda(); as c) {
+    <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between mb-4 gap-3">
+      <div>
+        <h1 class="h2 text-primary fw-bold mb-2 custom-dark-text d-flex align-items-center gap-2">
+          <i class="fas fa-cash-register me-2"></i>Fechar Comanda #{{ c.numero }}
+        </h1>
+        <p class="text-muted custom-dark-text mb-0">
+          {{ c.clienteNome || 'Sem cliente' }} • Aberta em {{ c.createdAtUtc | date:'dd/MM/yyyy HH:mm' }}
+        </p>
+      </div>
+      <button
+        type="button"
+        class="btn btn-outline-secondary btn-sm rounded-3"
+        (click)="voltar()"
+        title="Voltar para o detalhe"
+      >
+        <i class="fas fa-arrow-left me-1"></i>Voltar
+      </button>
+    </div>
+
+    <div class="row g-4">
+      <!-- Resumo dos itens (read-only) -->
+      <div class="col-12 col-lg-7">
+        <div class="card border-0 shadow-sm details-card custom-dark-card rounded-4 p-4 h-100">
+          <h2 class="h5 fw-bold custom-dark-text mb-3">
+            <i class="fas fa-list me-2 text-primary"></i>Itens da Comanda
+          </h2>
+
+          @if (itens().length === 0) {
+            <div class="text-center text-muted py-4">
+              <i class="fas fa-inbox fa-2x mb-2"></i>
+              <p class="mb-0">Nenhum item na comanda.</p>
+            </div>
+          } @else {
+            <div class="table-responsive">
+              <table class="table align-middle custom-dark-table mb-0">
+                <thead>
+                  <tr>
+                    <th class="custom-dark-text">Item</th>
+                    <th class="custom-dark-text text-center">Qtd.</th>
+                    <th class="custom-dark-text text-end">Unitário</th>
+                    <th class="custom-dark-text text-end">Total</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (item of itens(); track item.id) {
+                    <tr>
+                      <td>
+                        <strong class="custom-dark-text">{{ item.nomeItem }}</strong>
+                        <span class="d-block text-muted small">
+                          @if (item.tipo === 'produto') { Produto } @else { Serviço }
+                        </span>
+                      </td>
+                      <td class="text-center custom-dark-text">{{ item.quantidade }}</td>
+                      <td class="text-end custom-dark-text">{{ item.precoUnitario | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}</td>
+                      <td class="text-end fw-bold custom-dark-text">{{ item.precoTotal | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}</td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          }
+
+          <hr />
+          <div class="d-flex justify-content-between">
+            <span class="fw-bold custom-dark-text">Subtotal</span>
+            <span class="fw-bold custom-dark-text">{{ subtotal() | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Desconto e final -->
+      <div class="col-12 col-lg-5">
+        <div class="card border-0 shadow-sm details-card custom-dark-card rounded-4 p-4 h-100">
+          <h2 class="h5 fw-bold custom-dark-text mb-3">
+            <i class="fas fa-tags me-2 text-primary"></i>Desconto
+          </h2>
+
+          <div class="btn-group w-100 mb-3" role="group" aria-label="Tipo de desconto">
+            <button
+              type="button"
+              class="btn"
+              [class.btn-primary]="descontoTipo() === 'percentual'"
+              [class.btn-outline-secondary]="descontoTipo() !== 'percentual'"
+              (click)="selecionarTipo('percentual')"
+            >
+              <i class="fas fa-percent me-1"></i>%
+            </button>
+            <button
+              type="button"
+              class="btn"
+              [class.btn-primary]="descontoTipo() === 'valor'"
+              [class.btn-outline-secondary]="descontoTipo() !== 'valor'"
+              (click)="selecionarTipo('valor')"
+            >
+              <i class="fas fa-dollar-sign me-1"></i>R$
+            </button>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label fw-semibold custom-dark-text" for="descontoValor">
+              Valor do desconto ({{ descontoTipo() === 'percentual' ? '%' : 'R$' }})
+            </label>
+            <input
+              type="number"
+              id="descontoValor"
+              class="form-control custom-dark-input"
+              min="0"
+              step="0.01"
+              [ngModel]="descontoValor()"
+              (ngModelChange)="setDescontoValor($event)"
+              [class.is-invalid]="descontoInvalido()"
+            />
+            @if (descontoInvalido()) {
+              <div class="text-danger extra-small mt-1">
+                <i class="fas fa-triangle-exclamation me-1"></i>
+                O desconto não pode exceder o valor total da comanda.
+              </div>
+            }
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label fw-semibold custom-dark-text" for="observacoesFechamento">
+              Observações do fechamento
+            </label>
+            <textarea
+              id="observacoesFechamento"
+              class="form-control custom-dark-input"
+              rows="2"
+              placeholder="Ex: pago em PIX..."
+              [ngModel]="observacoes()"
+              (ngModelChange)="observacoes.set($event)"
+            ></textarea>
+          </div>
+
+          <hr />
+
+          <div class="d-flex justify-content-between mb-2">
+            <span class="text-muted custom-dark-text">Subtotal</span>
+            <span class="custom-dark-text">{{ subtotal() | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}</span>
+          </div>
+          <div class="d-flex justify-content-between mb-2">
+            <span class="text-muted custom-dark-text">Desconto</span>
+            <span class="text-success">− {{ descontoCalculado() | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}</span>
+          </div>
+          <div class="d-flex justify-content-between mb-4">
+            <span class="fw-bold custom-dark-text">Valor Final</span>
+            <span class="fw-bold fs-4 custom-dark-text">{{ valorFinal() | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}</span>
+          </div>
+
+          <button
+            type="button"
+            class="btn btn-primary w-100 py-2.5 rounded-3 fw-bold d-inline-flex align-items-center justify-content-center gap-2"
+            (click)="confirmarFechamento()"
+            [disabled]="salvando() || descontoInvalido()"
+          >
+            @if (salvando()) {
+              <i class="fas fa-spinner fa-spin"></i>
+            } @else {
+              <i class="fas fa-cash-register"></i>
+            }
+            <span>Fechar Comanda</span>
+          </button>
+        </div>
+      </div>
+    </div>
+    }
+  }
+</div>

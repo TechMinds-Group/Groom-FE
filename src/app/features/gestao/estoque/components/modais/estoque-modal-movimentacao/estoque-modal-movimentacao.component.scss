@@ -5,3 +5,41 @@
 .extra-small {
   font-size: 0.75rem;
 }
+
+[data-theme='dark'],
+:host-context([data-theme='dark']) {
+  .custom-dark-card {
+    background-color: #0d1117 !important;
+    border-color: rgba(255, 255, 255, 0.12) !important;
+  }
+
+  .custom-dark-text {
+    color: #ffffff !important;
+  }
+
+  .text-muted {
+    color: rgba(255, 255, 255, 0.6) !important;
+  }
+
+  label {
+    color: rgba(255, 255, 255, 0.85) !important;
+  }
+
+  tm-select label,
+  tm-select .form-label {
+    color: rgba(255, 255, 255, 0.85) !important;
+  }
+
+  tm-select .form-select,
+  .form-select {
+    background-color: #0d1117 !important;
+    color: #ffffff !important;
+    border-color: rgba(255, 255, 255, 0.15) !important;
+  }
+
+  tm-select .form-select option,
+  .form-select option {
+    background-color: #0d1117;
+    color: #ffffff;
+  }
+}

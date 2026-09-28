@@ -12,5 +12,5 @@ import { ChangeDetectionStrategy, Component } from '@angular/core';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AppFooterComponent {
-  protected readonly anoAtual = new Date().getFullYear();
+  readonly anoAtual = new Date().getFullYear();
 }

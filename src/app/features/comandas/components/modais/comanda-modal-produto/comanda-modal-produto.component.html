@@ -1,0 +1,116 @@
+<tm-modal
+  [title]="'Adicionar Produto à Comanda'"
+  confirmLabel="Salvar"
+  cancelLabel="Cancelar"
+  [show]="show()"
+  (showChange)="show.set($event)"
+  (confirm)="confirmar()"
+  (cancel)="fechar()"
+  confirmClass="btn-primary"
+  icon="fas fa-boxes-stacked"
+  size="lg"
+>
+  <div class="p-1 text-start">
+    @if (!selecionado()) {
+      <!-- Busca de produto do estoque -->
+      <div class="input-group mb-3">
+        <span class="input-group-text bg-transparent border-end-0 custom-dark-text">
+          <i class="fas fa-search"></i>
+        </span>
+        <input
+          type="text"
+          class="form-control border-start-0 custom-dark-input"
+          placeholder="Buscar produto por nome, marca ou código..."
+          [ngModel]="busca()"
+          (ngModelChange)="busca.set($event)"
+        />
+      </div>
+
+      @if (carregando()) {
+        <div class="text-center text-muted py-4">
+          <i class="fas fa-spinner fa-spin me-2"></i>Carregando produtos...
+        </div>
+      } @else if (resultados().length === 0) {
+        <div class="text-center text-muted py-4">
+          <i class="fas fa-box-open me-2"></i>Nenhum produto encontrado no estoque.
+        </div>
+      } @else {
+        <div class="lista-produtos">
+          @for (produto of resultados(); track produto.id) {
+            <button
+              type="button"
+              class="list-group-item list-group-item-action w-100 text-start rounded-3 mb-2 p-3 produto-item"
+              (click)="selecionar(produto)"
+            >
+              <div class="d-flex justify-content-between align-items-center gap-2">
+                <div>
+                  <strong class="d-block custom-dark-text">{{ produto.nome }}</strong>
+                  <span class="text-muted small">
+                    {{ produto.categoria }} @if (produto.marca) { • {{ produto.marca }} }
+                  </span>
+                </div>
+                <div class="text-end">
+                  <span class="fw-bold custom-dark-text small d-block">
+                    {{ produto.precoVenda | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}
+                  </span>
+                  <span
+                    class="small"
+                    [class.text-success]="produto.quantidadeAtual > produto.quantidadeMinima"
+                    [class.text-danger]="produto.quantidadeAtual <= produto.quantidadeMinima"
+                  >
+                    Saldo: {{ produto.quantidadeAtual }} {{ produto.unidadeMedida }}
+                  </span>
+                </div>
+              </div>
+            </button>
+          }
+        </div>
+      }
+    } @else {
+      <!-- Produto selecionado: quantidade + observações -->
+      <div class="mb-3 p-3 bg-dark-subtle rounded border border-secondary border-opacity-25">
+        <div class="d-flex justify-content-between align-items-center">
+          <div>
+            <strong class="d-block custom-dark-text">{{ selecionado()!.nome }}</strong>
+            <span class="text-muted small">
+              {{ selecionado()!.precoVenda | currency:'BRL':'symbol':'1.2-2':'pt-BR' }} / {{ selecionado()!.unidadeMedida }}
+            </span>
+          </div>
+          <button
+            type="button"
+            class="btn btn-sm btn-outline-secondary rounded-3"
+            (click)="limparSelecao()"
+            title="Trocar produto"
+          >
+            <i class="fas fa-rotate-left"></i>
+          </button>
+        </div>
+      </div>
+
+      <div class="mb-3">
+        <tm-text
+          label="Quantidade"
+          type="number"
+          [ngModel]="quantidade()"
+          (ngModelChange)="quantidade.set($event)"
+        ></tm-text>
+        @if (quantidadeExcedeSaldo()) {
+          <div class="text-danger extra-small mt-1">
+            <i class="fas fa-triangle-exclamation me-1"></i>
+            Quantidade acima do saldo disponível ({{ selecionado()!.quantidadeAtual }}).
+          </div>
+        }
+      </div>
+
+      <div class="mb-3">
+        <tm-text
+          label="Observações"
+          type="text"
+          placeholder="Ex: uso na bancada, lote específico, etc."
+          [ngModel]="observacoes()"
+          (ngModelChange)="observacoes.set($event)"
+        ></tm-text>
+      </div>
+    }
+  </div>
+</tm-modal>
