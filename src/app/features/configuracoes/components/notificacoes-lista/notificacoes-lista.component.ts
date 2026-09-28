@@ -70,6 +70,7 @@ export class NotificacoesListaComponent implements OnInit, AfterViewInit {
     { value: 'AgendamentoPendente', label: 'Confirmação Pendente' },
     { value: 'ClienteNoShow', label: 'Falta (No-Show)' },
     { value: 'AssinaturaVencendo', label: 'Assinatura Vencendo' },
+    { value: 'ComandaEsquecida', label: 'Comanda Esquecida' },
     { value: 'Geral', label: 'Geral' },
   ]);
 

@@ -21,6 +21,8 @@ export interface Comanda {
   valorFinal: number;
   observacoes?: string;
   fechadaEmUtc?: string | null;
+  /** RN-069 — CR-001: null indica fechamento automático pelo sistema. */
+  fechadaPorUsuarioId?: string | null;
   canceladaEmUtc?: string | null;
   itemCount?: number;
   itens?: ComandaItem[] | null;

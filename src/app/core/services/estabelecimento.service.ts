@@ -159,7 +159,7 @@ export class EstabelecimentoService {
         this.http.get<ConfiguracaoHorarioOpcoes>(`${this.apiUrl}/configuracoes-horario`),
       );
     } catch {
-      return { intervaloAgendamentoMinutos: 30, horarioPorDemanda: false };
+      return { intervaloAgendamentoMinutos: 30, horarioPorDemanda: false, fechamentoAutomaticoHoras: 2 };
     }
   }
 
