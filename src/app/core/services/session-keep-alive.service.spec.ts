@@ -37,6 +37,10 @@ describe('SessionKeepAliveService', () => {
     expect(req.request.headers.get('X-Skip-Error-Toast')).toBe('true');
 
     req.flush({ ok: true });
+
+    // zone.js >= 0.15.1 dispara timers pendentes ao final do fakeAsync (flush automático).
+    // Parar o polling aqui evita que o intervalo gere uma requisição extra nesse flush.
+    service.stop();
   }));
 
   it('start() não deve criar múltiplos intervalos', fakeAsync(() => {
@@ -48,7 +52,11 @@ describe('SessionKeepAliveService', () => {
 
     // Apenas 1 requisição, não 3
     const req = httpMock.expectOne(`${environment.apiUrl}/api/account/refresh-session`);
+    expect(req.request.method).toBe('POST');
     req.flush({ ok: true });
+
+    // Mesmo motivo do teste acima: evita requisição extra no flush automático do zone.js.
+    service.stop();
   }));
 
   it('stop() deve parar o polling', fakeAsync(() => {

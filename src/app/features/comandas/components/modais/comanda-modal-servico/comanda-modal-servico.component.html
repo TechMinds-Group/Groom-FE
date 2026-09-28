@@ -1,0 +1,42 @@
+<tm-modal
+  [title]="'Adicionar Serviço à Comanda'"
+  confirmLabel="Salvar"
+  cancelLabel="Cancelar"
+  [show]="show()"
+  (showChange)="show.set($event)"
+  (confirm)="confirmar()"
+  (cancel)="fechar()"
+  confirmClass="btn-primary"
+  icon="fas fa-scissors"
+  size="md"
+>
+  <div class="p-1 text-start">
+    <div class="mb-3">
+      <tm-select
+        label="Serviço"
+        [options]="servicoOptions()"
+        [ngModel]="servicoId()"
+        (ngModelChange)="servicoId.set($event)"
+      ></tm-select>
+    </div>
+
+    <div class="mb-3">
+      <tm-select
+        label="Profissional"
+        [options]="profissionalOptions()"
+        [ngModel]="profissionalId()"
+        (ngModelChange)="profissionalId.set($event)"
+      ></tm-select>
+    </div>
+
+    <div class="mb-3">
+      <tm-text
+        label="Observações"
+        type="text"
+        placeholder="Ex: cliente pediu acabamento especial"
+        [ngModel]="observacoes()"
+        (ngModelChange)="observacoes.set($event)"
+      ></tm-text>
+    </div>
+  </div>
+</tm-modal>

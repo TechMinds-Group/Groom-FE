@@ -1,0 +1,153 @@
+<div class="container mt-5 mb-5">
+  <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between mb-4 gap-3">
+    <div>
+      <h1 class="h2 text-primary fw-bold mb-2 custom-dark-text d-flex align-items-center gap-2">
+        <i class="fas fa-clock-rotate-left me-2"></i>Histórico de Comandas
+      </h1>
+      <p class="text-muted custom-dark-text mb-0">
+        Comandas fechadas e canceladas, com filtros por cliente, período e profissional.
+      </p>
+    </div>
+    <button
+      type="button"
+      class="btn btn-outline-secondary px-4 py-2.5 shadow-sm fw-bold rounded-3 d-inline-flex align-items-center gap-2"
+      (click)="voltar()"
+    >
+      <i class="fas fa-arrow-left"></i><span>Voltar</span>
+    </button>
+  </div>
+
+  <!-- Filtros -->
+  <div class="card border-0 shadow-sm p-3 details-card custom-dark-card rounded-4 mb-4">
+    <div class="row g-3 align-items-end">
+      <div class="col-12 col-md-4">
+        <label class="form-label small fw-semibold custom-dark-text mb-1" for="filtroCliente">
+          <i class="fas fa-user me-1"></i>Cliente
+        </label>
+        <select
+          id="filtroCliente"
+          class="form-select custom-dark-input"
+          [ngModel]="filtroClienteId()"
+          (ngModelChange)="filtroClienteId.set($event)"
+        >
+          <option value="">Todos os clientes</option>
+          @for (cliente of clientes(); track cliente.id) {
+            <option [value]="cliente.id">{{ cliente.nome }}</option>
+          }
+        </select>
+      </div>
+
+      <div class="col-12 col-md-4">
+        <label class="form-label small fw-semibold custom-dark-text mb-1" for="filtroProfissional">
+          <i class="fas fa-user-tie me-1"></i>Profissional
+        </label>
+        <select
+          id="filtroProfissional"
+          class="form-select custom-dark-input"
+          [ngModel]="filtroProfissionalId()"
+          (ngModelChange)="filtroProfissionalId.set($event)"
+        >
+          <option value="">Todos os profissionais</option>
+          @for (op of profissionalOptions(); track op.value) {
+            <option [value]="op.value">{{ op.label }}</option>
+          }
+        </select>
+      </div>
+
+      <div class="col-6 col-md-2">
+        <label class="form-label small fw-semibold custom-dark-text mb-1" for="filtroDataInicio">
+          <i class="fas fa-calendar-day me-1"></i>De
+        </label>
+        <input
+          type="date"
+          id="filtroDataInicio"
+          class="form-control custom-dark-input"
+          [ngModel]="filtroDataInicio()"
+          (ngModelChange)="filtroDataInicio.set($event)"
+        />
+      </div>
+
+      <div class="col-6 col-md-2">
+        <label class="form-label small fw-semibold custom-dark-text mb-1" for="filtroDataFim">
+          <i class="fas fa-calendar-check me-1"></i>Até
+        </label>
+        <input
+          type="date"
+          id="filtroDataFim"
+          class="form-control custom-dark-input"
+          [ngModel]="filtroDataFim()"
+          (ngModelChange)="filtroDataFim.set($event)"
+        />
+      </div>
+    </div>
+
+    <div class="d-flex justify-content-end gap-2 mt-3">
+      <button type="button" class="btn btn-outline-secondary btn-sm rounded-3 px-3" (click)="limparFiltros()">
+        <i class="fas fa-xmark me-1"></i>Limpar
+      </button>
+      <button type="button" class="btn btn-primary btn-sm rounded-3 px-3" (click)="carregar()">
+        <i class="fas fa-filter me-1"></i>Filtrar
+      </button>
+    </div>
+  </div>
+
+  <!-- Tabela -->
+  <div class="mb-5">
+    <tm-table
+      [cols]="cols()"
+      [data]="comandas()"
+      [paginated]="true"
+      [pageSize]="tamanhoPagina()"
+      (pageSizeChange)="tamanhoPagina.set($event)"
+      [showControls]="true"
+      (rowClick)="verDetalhes($event)"
+    ></tm-table>
+  </div>
+</div>
+
+<ng-template #numeroTemplate let-item>
+  <span class="fw-bold custom-dark-text font-monospace">#{{ item.numero }}</span>
+</ng-template>
+
+<ng-template #clienteTemplate let-item>
+  <strong class="fw-bold custom-dark-text">{{ item.clienteNome || 'Sem cliente' }}</strong>
+</ng-template>
+
+<ng-template #statusTemplate let-item>
+  <span
+    class="badge rounded-pill px-2.5 py-1 small fw-semibold"
+    [class]="statusConfig(item).badgeClass"
+  >
+    <i class="{{ statusConfig(item).iconClass }} me-1"></i>{{ statusConfig(item).label }}
+  </span>
+</ng-template>
+
+<ng-template #valorTemplate let-item>
+  <span class="custom-dark-text font-monospace fw-semibold">
+    {{ item.valorFinal | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}
+  </span>
+</ng-template>
+
+<ng-template #fechamentoTemplate let-item>
+  @if (dataFechamento(item); as data) {
+    <span class="custom-dark-text small">
+      {{ data | date:'dd/MM/yyyy HH:mm' }}
+      @if (!item.fechadaEmUtc) {
+        <span class="text-muted">(cancelamento)</span>
+      }
+    </span>
+  } @else {
+    <span class="text-muted small">—</span>
+  }
+</ng-template>
+
+<ng-template #acoesTemplate let-item>
+  <button
+    type="button"
+    class="btn btn-sm btn-outline-primary rounded-3"
+    (click)="verDetalhes(item)"
+    title="Ver detalhes"
+  >
+    <i class="fas fa-eye"></i>
+  </button>
+</ng-template>

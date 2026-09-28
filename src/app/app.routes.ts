@@ -135,6 +135,41 @@ export const routes: Routes = [
               ),
           },
           {
+            path: 'comandas',
+            loadComponent: () =>
+              import('./features/comandas/components/comandas/comandas.component').then(
+                (m) => m.ComandasComponent,
+              ),
+          },
+          {
+            path: 'comandas/avulsa',
+            loadComponent: () =>
+              import('./features/comandas/components/comanda-avulsa/comanda-avulsa.component').then(
+                (m) => m.ComandaAvulsaComponent,
+              ),
+          },
+          {
+            path: 'comandas/historico',
+            loadComponent: () =>
+              import('./features/comandas/components/comanda-historico/comanda-historico.component').then(
+                (m) => m.ComandaHistoricoComponent,
+              ),
+          },
+          {
+            path: 'comandas/:id/fechar',
+            loadComponent: () =>
+              import('./features/comandas/components/comanda-fechamento/comanda-fechamento.component').then(
+                (m) => m.ComandaFechamentoComponent,
+              ),
+          },
+          {
+            path: 'comandas/:id',
+            loadComponent: () =>
+              import('./features/comandas/components/comanda-detalhes/comanda-detalhes.component').then(
+                (m) => m.ComandaDetalhesComponent,
+              ),
+          },
+          {
             path: 'gestao-usuarios',
             loadComponent: () =>
               import('./features/gestao-usuarios/components/gestao-usuarios/gestao-usuarios.component').then(
