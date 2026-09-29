@@ -1,0 +1,106 @@
+<div class="container mt-5 mb-5">
+  <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between mb-4 gap-3">
+    <div>
+      <h1 class="h2 text-primary fw-bold mb-2 custom-dark-text d-flex align-items-center gap-2">
+        <i class="fas fa-receipt me-2"></i>Comandas
+      </h1>
+      <p class="text-muted custom-dark-text mb-0">
+        Controle o consumo por atendimento: comandas abertas por agendamento ou avulsas, itens, descontos e fechamento.
+      </p>
+    </div>
+
+    <div class="d-flex gap-2">
+      <button
+        type="button"
+        (click)="abrirHistorico()"
+        class="btn btn-outline-primary px-4 py-2.5 shadow-sm fw-bold rounded-3 d-inline-flex align-items-center gap-2"
+        title="Histórico de comandas fechadas e canceladas"
+      >
+        <i class="fas fa-clock-rotate-left"></i><span>Histórico</span>
+      </button>
+      <button
+        type="button"
+        (click)="abrirAvulsa()"
+        class="btn btn-primary px-4 py-2.5 shadow-sm fw-bold rounded-3 d-inline-flex align-items-center gap-2"
+      >
+        <i class="fas fa-plus"></i><span>Cadastrar</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Filtro rápido por status -->
+  <div class="card border-0 shadow-sm p-3 details-card custom-dark-card rounded-4 mb-4">
+    <div class="d-flex flex-wrap align-items-center gap-2">
+      <span class="text-muted small fw-semibold me-2 custom-dark-text">
+        <i class="fas fa-filter me-1"></i>Filtrar:
+      </span>
+      <div class="btn-group flex-wrap" role="group" aria-label="Filtro por status">
+        @for (filtro of filtrosStatus; track filtro.value) {
+          <button
+            type="button"
+            class="btn"
+            [class.btn-primary]="filtroSelecionado() === filtro.value"
+            [class.btn-outline-secondary]="filtroSelecionado() !== filtro.value"
+            (click)="selecionarFiltro(filtro.value)"
+          >
+            {{ filtro.label }}
+          </button>
+        }
+      </div>
+    </div>
+  </div>
+
+  <!-- Tabela -->
+  <div class="mb-5">
+    <tm-table
+      [cols]="cols()"
+      [data]="comandas()"
+      [paginated]="true"
+      [pageSize]="tamanhoPagina()"
+      (pageSizeChange)="tamanhoPagina.set($event)"
+      [showControls]="true"
+      (rowClick)="verDetalhes($event)"
+    ></tm-table>
+  </div>
+</div>
+
+<ng-template #numeroTemplate let-item>
+  <span class="fw-bold custom-dark-text font-monospace">#{{ item.numero }}</span>
+</ng-template>
+
+<ng-template #clienteTemplate let-item>
+  <div class="d-flex flex-column text-start">
+    <strong class="fw-bold custom-dark-text">{{ item.clienteNome || 'Sem cliente' }}</strong>
+    @if (item.agendamentoId) {
+      <span class="text-muted small"><i class="fas fa-calendar-check me-1"></i>Via agendamento</span>
+    } @else {
+      <span class="text-muted small"><i class="fas fa-bolt me-1"></i>Avulsa</span>
+    }
+  </div>
+</ng-template>
+
+<ng-template #statusTemplate let-item>
+  <span
+    class="badge rounded-pill px-2.5 py-1 small fw-semibold"
+    [class]="statusConfig(item).badgeClass"
+  >
+    <i class="{{ statusConfig(item).iconClass }} me-1"></i>{{ statusConfig(item).label }}
+  </span>
+</ng-template>
+
+<ng-template #itensTemplate let-item>
+  <span class="custom-dark-text">
+    {{ item.itemCount ?? 0 }}
+  </span>
+</ng-template>
+
+<ng-template #valorTemplate let-item>
+  <span class="custom-dark-text font-monospace fw-semibold">
+    {{ item.valorTotal | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}
+  </span>
+</ng-template>
+
+<ng-template #aberturaTemplate let-item>
+  <span class="custom-dark-text small">{{ item.createdAtUtc | date:'dd/MM/yyyy HH:mm' }}</span>
+</ng-template>
+

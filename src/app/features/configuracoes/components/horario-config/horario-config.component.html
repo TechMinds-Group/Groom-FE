@@ -301,6 +301,40 @@
           </div>
         </div>
 
+        <!-- Seção 1.1: Fechamento Automático de Comandas (RN-069 — CR-001) -->
+        <div class="p-3 p-md-4 rounded-3 border border-secondary-subtle">
+          <div class="mb-3">
+            <h5 class="fw-bold custom-dark-text mb-1 d-flex align-items-center gap-2">
+              <i class="fas fa-receipt text-primary"></i>
+              Fechamento Automático de Comandas
+            </h5>
+            <p class="text-muted small custom-dark-text mb-0">
+              A comanda do atendimento fecha sozinha X horas após o fim do agendamento (um aviso é enviado
+              30 minutos antes). Use 0 para desativar e fechar todas as comandas manualmente.
+            </p>
+          </div>
+
+          <div class="row">
+            <div class="col-12 col-md-6">
+              <label for="input-fechamento-automatico" class="form-label fw-semibold custom-dark-text small">
+                Horas após o fim do atendimento
+              </label>
+              <input
+                id="input-fechamento-automatico"
+                type="number"
+                min="0"
+                step="1"
+                class="form-control custom-dark-input rounded-3 py-2"
+                [ngModel]="fechamentoAutomaticoHoras()"
+                (ngModelChange)="definirFechamentoAutomatico(+$event)"
+              />
+              @if (fechamentoAutomaticoHoras() === 0) {
+                <span class="text-muted small custom-dark-text">Fechamento automático desativado.</span>
+              }
+            </div>
+          </div>
+        </div>
+
         <!-- Seção 2: Horário por Demanda -->
         <div class="p-3 p-md-4 rounded-3 border border-secondary-subtle">
           <div class="d-flex align-items-start justify-content-between flex-wrap gap-3">

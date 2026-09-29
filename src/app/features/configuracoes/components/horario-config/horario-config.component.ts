@@ -53,6 +53,9 @@ export class HorarioConfigComponent implements OnInit {
   // Aba 2: Configurações Gerais de Horários
   protected readonly intervaloMinutos = signal<number>(30);
   protected readonly intervaloMinutosOriginal = signal<number>(30);
+  /** RN-069 — CR-001: horas após o fim do agendamento para o fechamento automático da comanda (0 = desativado). */
+  protected readonly fechamentoAutomaticoHoras = signal<number>(2);
+  protected readonly fechamentoAutomaticoHorasOriginal = signal<number>(2);
   /** Valor efetivo (salvo) — controla a aba Horários */
   protected readonly horarioPorDemanda = signal<boolean>(false);
   protected readonly horarioPorDemandaOriginal = signal<boolean>(false);
@@ -105,7 +108,8 @@ export class HorarioConfigComponent implements OnInit {
   protected readonly temAlteracoesOpcoes = computed(() => {
     return (
       this.intervaloMinutos() !== this.intervaloMinutosOriginal() ||
-      this.horarioPorDemandaPendente() !== this.horarioPorDemandaOriginal()
+      this.horarioPorDemandaPendente() !== this.horarioPorDemandaOriginal() ||
+      this.fechamentoAutomaticoHoras() !== this.fechamentoAutomaticoHorasOriginal()
     );
   });
 
@@ -130,6 +134,8 @@ export class HorarioConfigComponent implements OnInit {
     const data = await this.estabelecimentoService.carregarConfiguracoesHorario();
     this.intervaloMinutos.set(data.intervaloAgendamentoMinutos || 30);
     this.intervaloMinutosOriginal.set(data.intervaloAgendamentoMinutos || 30);
+    this.fechamentoAutomaticoHoras.set(data.fechamentoAutomaticoHoras ?? 2);
+    this.fechamentoAutomaticoHorasOriginal.set(data.fechamentoAutomaticoHoras ?? 2);
     this.horarioPorDemanda.set(!!data.horarioPorDemanda);
     this.horarioPorDemandaOriginal.set(!!data.horarioPorDemanda);
     this.horarioPorDemandaPendente.set(!!data.horarioPorDemanda);
@@ -191,6 +197,13 @@ export class HorarioConfigComponent implements OnInit {
   protected cancelarAlteracoesOpcoes(): void {
     this.intervaloMinutos.set(this.intervaloMinutosOriginal());
     this.horarioPorDemandaPendente.set(this.horarioPorDemandaOriginal());
+    this.fechamentoAutomaticoHoras.set(this.fechamentoAutomaticoHorasOriginal());
+    this.cdr.markForCheck();
+  }
+
+  /** RN-069 — CR-001: inteiro ≥ 0 (negativo/decimal é normalizado para piso ≥ 0). */
+  protected definirFechamentoAutomatico(valor: number): void {
+    this.fechamentoAutomaticoHoras.set(Math.max(0, Math.floor(valor || 0)));
     this.cdr.markForCheck();
   }
 
@@ -219,6 +232,7 @@ export class HorarioConfigComponent implements OnInit {
           intervaloAgendamentoMinutos: this.intervaloMinutos(),
           horarioPorDemanda: true,
           horariosDemanda: Array.from(this.horariosDemandaAtivos()),
+          fechamentoAutomaticoHoras: Math.max(0, Math.floor(this.fechamentoAutomaticoHoras() || 0)),
         };
         await this.estabelecimentoService.salvarConfiguracoesHorario(payload);
         this.horariosDemandaAtivosOriginal.set(new Set(this.horariosDemandaAtivos()));
@@ -242,9 +256,11 @@ export class HorarioConfigComponent implements OnInit {
         intervaloAgendamentoMinutos: this.intervaloMinutos(),
         horarioPorDemanda: this.horarioPorDemandaPendente(),
         horariosDemanda: Array.from(this.horariosDemandaAtivos()),
+        fechamentoAutomaticoHoras: Math.max(0, Math.floor(this.fechamentoAutomaticoHoras() || 0)),
       };
       await this.estabelecimentoService.salvarConfiguracoesHorario(payload);
       this.intervaloMinutosOriginal.set(this.intervaloMinutos());
+      this.fechamentoAutomaticoHorasOriginal.set(this.fechamentoAutomaticoHoras());
       // Aplica o valor pendente ao sinal efetivo — a aba Horários muda só aqui
       this.horarioPorDemanda.set(this.horarioPorDemandaPendente());
       this.horarioPorDemandaOriginal.set(this.horarioPorDemandaPendente());

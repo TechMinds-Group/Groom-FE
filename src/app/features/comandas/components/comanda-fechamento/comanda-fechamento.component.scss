@@ -1,0 +1,55 @@
+.extra-small {
+  font-size: 0.72rem;
+}
+
+:host-context([data-theme='dark']),
+[data-theme='dark'] {
+  .details-card,
+  .custom-dark-card {
+    background-color: #161b22 !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  }
+
+  .custom-dark-text {
+    color: #ffffff !important;
+  }
+
+  .custom-dark-input,
+  .form-control,
+  textarea {
+    background-color: #0d1117 !important;
+    color: #ffffff !important;
+    border-color: rgba(255, 255, 255, 0.15) !important;
+
+    &::placeholder {
+      color: rgba(255, 255, 255, 0.4) !important;
+    }
+
+    &.is-invalid {
+      border-color: #dc3545 !important;
+    }
+  }
+
+  label {
+    color: rgba(255, 255, 255, 0.85) !important;
+  }
+
+  .custom-dark-table {
+    --bs-table-bg: transparent;
+    --bs-table-color: #ffffff;
+
+    thead th {
+      color: rgba(255, 255, 255, 0.7) !important;
+      border-color: rgba(255, 255, 255, 0.12) !important;
+    }
+
+    td {
+      border-color: rgba(255, 255, 255, 0.08) !important;
+    }
+  }
+
+  hr {
+    border-color: rgba(255, 255, 255, 0.15) !important;
+    opacity: 1;
+  }
+}

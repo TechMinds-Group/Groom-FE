@@ -1,34 +1,22 @@
 <div class="container mt-5 mb-5">
-  <div class="d-flex align-items-center justify-content-between mb-4">
-    <div>
-      <h1 class="h2 text-primary fw-bold mb-2 custom-dark-text d-flex align-items-center gap-2">
-        <i class="fas fa-box-open me-2"></i>Novo Produto
-      </h1>
-      <p class="text-muted custom-dark-text mb-0">Preencha os dados do novo produto de estoque.</p>
-    </div>
-
-    <div>
+  <!-- Header: Voltar + Nome da Tela + Subtítulo — padrão idêntico a cliente-detalhes/profissional-detalhes/comanda-detalhes -->
+  <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between mb-4 gap-3">
+    <div class="d-flex align-items-center gap-3">
       <button
         type="button"
         (click)="cancelar()"
-        class="btn btn-outline-secondary px-4 py-2.5 fw-bold rounded-3 me-2"
-        [disabled]="salvando()"
+        class="btn btn-light shadow-sm rounded-circle p-0 d-flex align-items-center justify-content-center btn-voltar"
+        title="Voltar"
       >
-        Cancelar
+        <i class="fas fa-arrow-left custom-dark-text"></i>
       </button>
-      <button
-        type="button"
-        (click)="salvar()"
-        class="btn btn-primary px-4 py-2.5 shadow-sm fw-bold rounded-3"
-        [disabled]="salvando()"
-      >
-        @if (salvando()) {
-          <span class="spinner-border spinner-border-sm me-2" role="status"></span>
-        } @else {
-          <i class="fas fa-check me-2"></i>
-        }
-        Cadastrar
-      </button>
+
+      <div>
+        <h2 class="h4 mb-0 fw-bold custom-dark-text d-flex align-items-center gap-2">
+          <i class="fas fa-box-open text-primary"></i>Novo Produto
+        </h2>
+        <span class="text-muted small custom-dark-text">Preencha os dados do novo produto de estoque.</span>
+      </div>
     </div>
   </div>
 
@@ -232,6 +220,31 @@
           </div>
         }
       </div>
+    </div>
+
+    <!-- Barra de Ações (Cadastrar / Cancelar) no Final do Bloco — padrão idêntico a cliente-detalhes -->
+    <div class="border-top pt-4 mt-4 d-flex align-items-center justify-content-end gap-3">
+      <button
+        type="button"
+        class="btn btn-outline-secondary px-4 py-2.5 rounded-3 fw-bold"
+        (click)="cancelar()"
+        [disabled]="salvando()"
+      >
+        <i class="fas fa-times me-2"></i>Cancelar
+      </button>
+
+      <button
+        type="button"
+        class="btn btn-primary px-4 py-2.5 rounded-3 fw-bold shadow-sm"
+        (click)="salvar()"
+        [disabled]="salvando()"
+      >
+        @if (salvando()) {
+          <span class="spinner-border spinner-border-sm me-2" role="status"></span>Cadastrando...
+        } @else {
+          <i class="fas fa-save me-2"></i>Cadastrar
+        }
+      </button>
     </div>
   </div>
 </div>

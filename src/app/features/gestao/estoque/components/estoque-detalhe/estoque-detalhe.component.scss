@@ -1,6 +1,76 @@
+/* Padrão visual idêntico às telas de detalhes do sistema (cliente-detalhes / profissional-detalhes / comanda-detalhes). */
+
+.extra-small {
+  font-size: 0.72rem;
+}
+
+.btn-voltar {
+  width: 40px !important;
+  height: 40px !important;
+  min-width: 40px !important;
+  border-radius: 50% !important;
+  flex-shrink: 0;
+  padding: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  line-height: 1 !important;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background-color: #e9ecef !important;
+    transform: translateX(-2px);
+  }
+}
+
+.details-card,
+.actions-card {
+  background-color: #ffffff;
+  overflow: hidden; /* impede qualquer conteúdo de vazar o card */
+}
+
+.image-preview-thumb {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+  .thumb-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.45);
+    backdrop-filter: blur(2px);
+    opacity: 0;
+    transition: opacity 0.2s ease;
+  }
+
+  &:hover {
+    transform: scale(1.05);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25) !important;
+
+    .thumb-overlay {
+      opacity: 1;
+    }
+  }
+}
+
 :host-context([data-theme='dark']),
 [data-theme='dark'] {
+  .btn-voltar {
+    background-color: #21262d !important;
+    border-color: rgba(255, 255, 255, 0.1) !important;
+
+    i {
+      color: #c9d1d9 !important;
+    }
+
+    &:hover {
+      background-color: #30363d !important;
+    }
+  }
+
   .details-card,
+  .actions-card,
   .custom-dark-card {
     background-color: #161b22 !important;
     border: 1px solid rgba(255, 255, 255, 0.08) !important;
@@ -27,7 +97,34 @@
     }
   }
 
+  .input-group-text {
+    background-color: #0d1117 !important;
+    border-color: rgba(255, 255, 255, 0.15) !important;
+    color: #ffffff !important;
+  }
+
   label {
     color: rgba(255, 255, 255, 0.85) !important;
+  }
+
+  .custom-dark-table {
+    --bs-table-bg: transparent;
+    --bs-table-color: #ffffff;
+
+    thead th {
+      color: rgba(255, 255, 255, 0.7) !important;
+      border-color: rgba(255, 255, 255, 0.12) !important;
+    }
+
+    td {
+      border-color: rgba(255, 255, 255, 0.08) !important;
+    }
+  }
+}
+
+@media (max-width: 991.98px) {
+  .custom-action-btn {
+    padding-top: 0.65rem !important;
+    padding-bottom: 0.65rem !important;
   }
 }

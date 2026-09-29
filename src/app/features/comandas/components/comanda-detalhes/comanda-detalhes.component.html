@@ -1,0 +1,238 @@
+<div class="container mt-5 mb-5">
+  @if (carregando()) {
+    <div class="text-center py-5">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Carregando...</span>
+      </div>
+      <p class="text-muted mt-3">Carregando comanda...</p>
+    </div>
+  } @else {
+    @if (comanda(); as c) {
+      <!-- Header: Voltar + Número da Comanda + Subtítulo + Badge de Status — padrão idêntico a cliente-detalhes/profissional-detalhes -->
+      <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between mb-4 gap-3">
+        <div class="d-flex align-items-center gap-3">
+          <button
+            (click)="voltar()"
+            class="btn btn-light shadow-sm rounded-circle p-0 d-flex align-items-center justify-content-center btn-voltar"
+            title="Voltar"
+          >
+            <i class="fas fa-arrow-left custom-dark-text"></i>
+          </button>
+
+          <div>
+            <h2 class="h4 mb-0 fw-bold custom-dark-text d-flex align-items-center gap-2">
+              <i class="fas fa-receipt text-primary"></i>Comanda #{{ c.numero }}
+            </h2>
+            <span class="text-muted small custom-dark-text">
+              {{ c.clienteNome || 'Sem cliente' }} • Aberta em {{ c.createdAtUtc | date:'dd/MM/yyyy HH:mm' }}
+            </span>
+          </div>
+        </div>
+
+        <span
+          class="badge border px-3 py-1.5 rounded-pill fw-semibold"
+          [ngClass]="statusBadge[c.status].badgeClass"
+        >
+          <i [class]="statusBadge[c.status].iconClass" class="me-1"></i>{{ statusBadge[c.status].label }}
+        </span>
+      </div>
+
+      <!-- Grid Principal (row g-4 mb-5) -->
+      <div class="row g-4 mb-5">
+        <!-- Coluna Principal: Itens da Comanda (expande para col-12 quando não há ações) -->
+        <div [class]="temAcoes() ? 'col-xl-8 col-12' : 'col-12'">
+          <div class="card border-0 shadow-sm p-4 details-card custom-dark-card rounded-4 h-100">
+            <h5 class="fw-bold mb-3 custom-dark-text">
+              Itens da Comanda
+            </h5>
+
+            @if (itens().length === 0) {
+              <div class="text-center text-muted py-4">
+                <i class="fas fa-inbox fa-2x mb-2"></i>
+                <p class="mb-0">Nenhum item na comanda.</p>
+              </div>
+            } @else {
+              <div class="table-responsive">
+                <table class="table align-middle custom-dark-table mb-0">
+                  <thead>
+                    <tr>
+                      <th class="custom-dark-text">Tipo</th>
+                      <th class="custom-dark-text">Item</th>
+                      <th class="custom-dark-text text-center">Qtd.</th>
+                      <th class="custom-dark-text text-end">Valor Unitário</th>
+                      <th class="custom-dark-text text-end">Total</th>
+                      <th class="custom-dark-text">Profissional</th>
+                      @if (comandaAberta()) {
+                        <th class="custom-dark-text text-end">Ações</th>
+                      }
+                    </tr>
+                  </thead>
+                  <tbody>
+                    @for (item of itens(); track item.id) {
+                      <tr>
+                        <td>
+                          @if (item.tipo === 'produto') {
+                            <span class="badge rounded-pill px-2.5 py-1 small bg-primary-subtle text-primary border border-primary-subtle">
+                              <i class="fas fa-box me-1"></i>Produto
+                            </span>
+                          } @else {
+                            <span class="badge rounded-pill px-2.5 py-1 small bg-info-subtle text-info border border-info-subtle">
+                              <i class="fas fa-scissors me-1"></i>Serviço
+                            </span>
+                          }
+                        </td>
+                        <td>
+                          <strong class="custom-dark-text">{{ item.nomeItem }}</strong>
+                          @if (item.observacoes) {
+                            <span class="d-block text-muted small">{{ item.observacoes }}</span>
+                          }
+                        </td>
+                        <td class="text-center custom-dark-text">{{ item.quantidade }}</td>
+                        <td class="text-end custom-dark-text">{{ item.precoUnitario | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}</td>
+                        <td class="text-end fw-bold custom-dark-text">{{ item.precoTotal | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}</td>
+                        <td>
+                          <span class="custom-dark-text small">{{ resolverNomeProfissional(item) }}</span>
+                        </td>
+                        @if (comandaAberta()) {
+                          <td class="text-end">
+                            <button
+                              type="button"
+                              class="btn btn-sm btn-outline-danger rounded-3"
+                              (click)="removerItem(item)"
+                              [disabled]="processando()"
+                              title="Remover item (estorna o estoque)"
+                            >
+                              <i class="fas fa-trash"></i>
+                            </button>
+                          </td>
+                        }
+                      </tr>
+                    }
+                  </tbody>
+                </table>
+              </div>
+            }
+          </div>
+        </div>
+
+        <!-- Coluna Direita: Card Ações Rápidas (padrão idêntico às telas de detalhes) -->
+        @if (temAcoes()) {
+          <div class="col-xl-4 col-12">
+            <div class="card border-0 shadow-sm p-4 actions-card custom-dark-card h-100">
+              <h4 class="h5 fw-bold mb-4 custom-dark-text">
+                <i class="fas fa-sliders-h me-2 text-primary"></i>Ações Rápidas
+              </h4>
+
+              <div class="d-grid gap-3">
+                @if (comandaAberta()) {
+                  <button
+                    type="button"
+                    class="btn btn-outline-primary py-2.5 fw-bold w-100 transition-all custom-action-btn"
+                    (click)="showProdutoModal.set(true)"
+                    [disabled]="processando()"
+                  >
+                    <i class="fas fa-boxes-stacked me-2"></i>Adicionar Produto
+                  </button>
+
+                  <button
+                    type="button"
+                    class="btn btn-outline-primary py-2.5 fw-bold w-100 transition-all custom-action-btn"
+                    (click)="showServicoModal.set(true)"
+                    [disabled]="processando()"
+                  >
+                    <i class="fas fa-scissors me-2"></i>Adicionar Serviço
+                  </button>
+
+                  <button
+                    type="button"
+                    class="btn btn-primary py-2.5 fw-bold w-100 transition-all custom-action-btn"
+                    (click)="fecharComanda()"
+                    [disabled]="processando()"
+                  >
+                    <i class="fas fa-cash-register me-2"></i>Fechar Comanda
+                  </button>
+
+                  <button
+                    type="button"
+                    class="btn btn-outline-danger py-2.5 fw-bold w-100 transition-all custom-action-btn"
+                    (click)="cancelarComanda()"
+                    [disabled]="processando()"
+                  >
+                    <i class="fas fa-ban me-2"></i>Cancelar
+                  </button>
+                } @else if (c.status === 'Fechada' && isAdmin()) {
+                  <button
+                    type="button"
+                    class="btn btn-outline-warning py-2.5 fw-bold w-100 transition-all custom-action-btn"
+                    (click)="reabrirComanda()"
+                    [disabled]="processando()"
+                  >
+                    <i class="fas fa-rotate-left me-2"></i>Reabrir
+                  </button>
+                }
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+
+      <!-- Observações + Resumo -->
+      <div class="row g-4 mb-5">
+        <!-- Observações -->
+        <div class="col-12 col-lg-6">
+          <div class="card border-0 shadow-sm p-4 details-card custom-dark-card rounded-4 h-100">
+            <h5 class="fw-bold mb-3 custom-dark-text">
+              Observações
+            </h5>
+            @if (c.observacoes) {
+              <p class="custom-dark-text custom-dark-highlight rounded p-3 mb-0 small border field-value">
+                {{ c.observacoes }}
+              </p>
+            } @else {
+              <p class="text-muted mb-0 small custom-dark-text">Sem observações. As observações do fechamento podem ser informadas ao fechar a comanda.</p>
+            }
+          </div>
+        </div>
+
+        <!-- Resumo -->
+        <div class="col-12 col-lg-6">
+          <div class="card border-0 shadow-sm p-4 details-card custom-dark-card rounded-4 h-100">
+            <h5 class="fw-bold mb-3 custom-dark-text">
+              Resumo
+            </h5>
+            <div class="d-flex justify-content-between mb-2">
+              <span class="text-muted custom-dark-text">Valor Total</span>
+              <span class="fw-semibold custom-dark-text">{{ c.valorTotal | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}</span>
+            </div>
+            @if (c.valorDesconto > 0) {
+              <div class="d-flex justify-content-between mb-2">
+                <span class="text-muted custom-dark-text">{{ descontoLabel() }}</span>
+                <span class="fw-semibold text-success">− {{ c.valorDesconto | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}</span>
+              </div>
+            }
+            <hr class="custom-dark-text" />
+            @if (c.status === 'Fechada') {
+              <div class="d-flex justify-content-between mb-2">
+                <span class="text-muted custom-dark-text">Fechada por</span>
+                <span class="fw-semibold custom-dark-text">
+                  @if (c.fechadaPorUsuarioId) {
+                    Operador
+                  } @else {
+                    <i class="fas fa-robot me-1"></i>Sistema (fechamento automático)
+                  }
+                </span>
+              </div>
+            }
+            <div class="d-flex justify-content-between">
+              <span class="fw-bold custom-dark-text">Valor Final</span>
+              <span class="fw-bold fs-5 custom-dark-text">{{ c.valorFinal | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    }
+  }
+
+  <app-comanda-modal-produto [(show)]="showProdutoModal" (confirm)="onProdutoConfirm($event)"></app-comanda-modal-produto>
+  <app-comanda-modal-servico [(show)]="showServicoModal" (confirm)="onServicoConfirm($event)"></app-comanda-modal-servico>
+</div>

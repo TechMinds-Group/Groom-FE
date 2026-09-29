@@ -1,0 +1,128 @@
+<div class="container mt-5 mb-5">
+  <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between mb-4 gap-3">
+    <div>
+      <h1 class="h2 text-primary fw-bold mb-2 custom-dark-text d-flex align-items-center gap-2">
+        <i class="fas fa-receipt me-2"></i>Comanda Avulsa
+      </h1>
+      <p class="text-muted custom-dark-text mb-0">
+        Abra uma comanda sem agendamento. Vincular um cliente é opcional.
+      </p>
+    </div>
+  </div>
+
+  <div class="card border-0 shadow-sm details-card custom-dark-card rounded-4 p-4 mb-4">
+    <!-- Busca de cliente -->
+    <div class="mb-4">
+      <label class="form-label fw-semibold custom-dark-text" for="buscaCliente">
+        <i class="fas fa-user me-1"></i>Cliente (opcional — busque por nome ou celular)
+      </label>
+
+      @if (!clienteSelecionado()) {
+        <div class="input-group">
+          <span class="input-group-text bg-transparent border-end-0 custom-dark-text">
+            <i class="fas fa-search"></i>
+          </span>
+          <input
+            type="text"
+            id="buscaCliente"
+            class="form-control border-start-0 custom-dark-input"
+            placeholder="Ex: Maria ou (11) 99999-0000"
+            [ngModel]="buscaCliente()"
+            (ngModelChange)="buscaCliente.set($event)"
+            autocomplete="off"
+          />
+        </div>
+
+        @if (resultados().length > 0) {
+          <div class="list-group mt-2">
+            @for (cliente of resultados(); track cliente.id) {
+              <button
+                type="button"
+                class="list-group-item list-group-item-action resultado-cliente"
+                (click)="selecionar(cliente)"
+              >
+                <i class="fas fa-user me-2 text-primary"></i>
+                <strong>{{ cliente.nome }}</strong>
+                <span class="text-muted ms-2 small">{{ cliente.celular }}</span>
+              </button>
+            }
+          </div>
+        } @else if (buscaCliente().trim().length > 0) {
+          <div class="text-muted small mt-2">
+            <i class="fas fa-circle-info me-1"></i>Nenhum cliente encontrado — você pode informar o nome livremente abaixo.
+          </div>
+        }
+      } @else {
+        <div class="d-flex justify-content-between align-items-center p-3 bg-dark-subtle rounded border border-secondary border-opacity-25">
+          <div>
+            <i class="fas fa-user-check text-success me-2"></i>
+            <strong class="custom-dark-text">{{ clienteSelecionado()!.nome }}</strong>
+            <span class="text-muted ms-2 small">{{ clienteSelecionado()!.celular }}</span>
+          </div>
+          <button
+            type="button"
+            class="btn btn-sm btn-outline-secondary rounded-3"
+            (click)="limparSelecao()"
+          >
+            <i class="fas fa-xmark me-1"></i>Trocar
+          </button>
+        </div>
+      }
+    </div>
+
+    <!-- Nome livre -->
+    <div class="mb-4">
+      <label class="form-label fw-semibold custom-dark-text" for="nomeLivre">
+        <i class="fas fa-pen me-1"></i>Nome do cliente (se não encontrado na busca)
+      </label>
+      <input
+        type="text"
+        id="nomeLivre"
+        class="form-control custom-dark-input"
+        placeholder="Ex: Consumidor final"
+        [ngModel]="nomeLivre()"
+        (ngModelChange)="nomeLivre.set($event)"
+        [disabled]="!!clienteSelecionado()"
+      />
+    </div>
+
+    <!-- Observações -->
+    <div class="mb-4">
+      <label class="form-label fw-semibold custom-dark-text" for="observacoes">
+        <i class="fas fa-comment-dots me-1"></i>Observações (opcional)
+      </label>
+      <textarea
+        id="observacoes"
+        class="form-control custom-dark-input"
+        rows="3"
+        placeholder="Ex: pagamento em dinheiro, mesa 3..."
+        [ngModel]="observacoes()"
+        (ngModelChange)="observacoes.set($event)"
+      ></textarea>
+    </div>
+
+    <div class="d-flex justify-content-end gap-2">
+      <button
+        type="button"
+        class="btn btn-outline-secondary px-4 py-2 rounded-3 fw-bold"
+        (click)="voltar()"
+        [disabled]="salvando()"
+      >
+        Cancelar
+      </button>
+      <button
+        type="button"
+        class="btn btn-primary px-4 py-2 rounded-3 fw-bold d-inline-flex align-items-center gap-2"
+        (click)="cadastrar()"
+        [disabled]="salvando() || carregando()"
+      >
+        @if (salvando()) {
+          <i class="fas fa-spinner fa-spin"></i>
+        } @else {
+          <i class="fas fa-plus"></i>
+        }
+        <span>Cadastrar</span>
+      </button>
+    </div>
+  </div>
+</div>
