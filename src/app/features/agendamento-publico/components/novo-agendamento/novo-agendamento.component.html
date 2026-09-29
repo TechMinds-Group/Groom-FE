@@ -112,6 +112,9 @@
         </header>
 
         <div class="agendamento-wizard__body">
+          <div class="agendamento-wizard__lista-espera mb-3">
+            <app-lista-espera-portal />
+          </div>
           @if (!finalizandoCadastro()) {
             @if (meuPlano(); as plano) {
               <div
