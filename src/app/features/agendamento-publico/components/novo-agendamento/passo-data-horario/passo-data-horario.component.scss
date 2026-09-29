@@ -118,6 +118,10 @@
   grid-template-columns: repeat(auto-fill, minmax(88px, 1fr));
   gap: 0.6rem;
 
+  &__lista-espera {
+    max-width: 480px;
+  }
+
   &__cabecalho {
     display: flex;
     align-items: baseline;

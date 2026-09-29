@@ -587,6 +587,10 @@
     }
   }
 
+  &__lista-espera {
+    margin-top: 1.5rem;
+  }
+
   &__corpo {
     display: grid;
     grid-template-columns: 1fr 270px;

@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, input, output, signal } from '@angular/core';
 import { HorarioDisponivel, ServicoDisponivel } from '../../../../../core/models/agendamento-publico/agendamento-publico.model';
+import { ListaEsperaPortalComponent } from '../../lista-espera/lista-espera-portal/lista-espera-portal.component';
 
 interface DiaCalendario {
   date: Date;
@@ -12,7 +13,7 @@ interface DiaCalendario {
 @Component({
   selector: 'app-passo-data-horario',
   standalone: true,
-  imports: [],
+  imports: [ListaEsperaPortalComponent],
   templateUrl: './passo-data-horario.component.html',
   styleUrl: './passo-data-horario.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

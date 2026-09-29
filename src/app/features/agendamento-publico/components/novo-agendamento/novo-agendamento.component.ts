@@ -13,6 +13,7 @@ import { PassoResumoComponent } from './passo-resumo/passo-resumo.component';
 import { ConfirmacaoComponent } from './confirmacao/confirmacao.component';
 import { DadosFinalizacaoCadastro, FinalizarCadastroComponent } from './finalizar-cadastro/finalizar-cadastro.component';
 import { ClienteSessionKeepAliveService } from '../../services/cliente-session-keep-alive.service';
+import { ListaEsperaPortalComponent } from '../lista-espera/lista-espera-portal/lista-espera-portal.component';
 import { AppFooterComponent } from '../../../../shared/components/footer/app-footer.component';
 import { ImageViewerModalComponent } from '../../../../shared/modais/image-viewer-modal/image-viewer-modal.component';
 
@@ -27,6 +28,7 @@ import { ImageViewerModalComponent } from '../../../../shared/modais/image-viewe
     PassoResumoComponent,
     ConfirmacaoComponent,
     FinalizarCadastroComponent,
+    ListaEsperaPortalComponent,
     AppFooterComponent,
     ImageViewerModalComponent,
   ],

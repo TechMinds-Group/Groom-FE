@@ -74,6 +74,9 @@
     } @else {
       <p class="text-muted">Nenhum horário disponível para esta data.</p>
     }
+    <div class="agendamento-horarios__lista-espera mt-3">
+      <app-lista-espera-portal />
+    </div>
   } @else {
     <div class="agendamento-horarios">
       @for (horario of horariosVisiveis(); track horario.hora) {

@@ -1,0 +1,66 @@
+<tm-modal
+  [title]="'Entrar na lista de espera'"
+  confirmLabel="Entrar na lista"
+  cancelLabel="Cancelar"
+  [show]="show()"
+  (showChange)="show.set($event)"
+  (confirm)="confirmar()"
+  (cancel)="fechar()"
+  confirmClass="btn-primary"
+  icon="fa-solid fa-hourglass-half"
+  size="md"
+>
+  <div class="p-1 text-start" [formGroup]="form">
+    <p class="lista-espera-modal__descricao text-muted mb-3">
+      Deixe suas preferências e avisaremos quando uma vaga abrir hoje. Todos os campos são
+      opcionais.
+    </p>
+
+    @if (carregandoOpcoes()) {
+      <div class="text-center text-muted py-4">
+        <i class="fas fa-spinner fa-spin me-2"></i>Carregando opções...
+      </div>
+    } @else {
+      <div class="mb-3">
+        <tm-select
+          formControlName="servicoId"
+          [control]="form.controls.servicoId"
+          [options]="servicoOptions()"
+          label="Serviço desejado"
+          icon="fa-solid fa-scissors"
+          placeholder="Qualquer serviço"
+          [clearable]="true"
+        ></tm-select>
+      </div>
+
+      <div class="mb-3">
+        <tm-select
+          formControlName="profissionalId"
+          [control]="form.controls.profissionalId"
+          [options]="profissionalOptions()"
+          label="Profissional"
+          icon="fa-solid fa-user"
+          placeholder="Qualquer profissional"
+          [clearable]="true"
+        ></tm-select>
+      </div>
+
+      <div class="mb-2">
+        <tm-text
+          formControlName="horaJanelaInicio"
+          [control]="form.controls.horaJanelaInicio"
+          label="A partir de que horas"
+          type="time"
+          icon="fa-solid fa-clock text-muted"
+          placeholder="Agora"
+        ></tm-text>
+        @if (horaPassada) {
+          <div class="text-danger extra-small mt-1">
+            <i class="fas fa-triangle-exclamation me-1"></i>
+            Informe um horário a partir de agora.
+          </div>
+        }
+      </div>
+    }
+  </div>
+</tm-modal>
