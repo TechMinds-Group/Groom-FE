@@ -141,7 +141,10 @@ export class AuthService {
   }
 
   getSgMe(): Observable<UserContext | null> {
-    return this.http.get<UserContext>(`${environment.apiUrl}/sg-me`, { withCredentials: true }).pipe(
+    return this.http.get<UserContext>(`${environment.apiUrl}/sg-me`, {
+      withCredentials: true,
+      headers: { 'X-Skip-Error-Toast': 'true' }
+    }).pipe(
       tap((user) => {
         if (user && window.location.pathname.includes('/sg-')) {
           this._currentUser.set(user);

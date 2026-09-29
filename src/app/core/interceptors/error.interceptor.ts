@@ -63,9 +63,13 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
         return throwError(() => error);
       }
 
+      const isSgRequest = req.url.includes('/sg-');
+
       const isPublicOrAuthCheck =
         req.url.endsWith('/me') ||
+        req.url.endsWith('/sg-me') ||
         req.url.includes('/login') ||
+        req.url.includes('/sg-login') ||
         req.url.includes('/cadastro') ||
         req.url.includes('/publico/');
 
@@ -86,8 +90,12 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
       }
 
       if (error.status === 401 && !isPublicOrAuthCheck) {
-        localStorage.removeItem('tenant_id');
-        router.navigate(['/login']);
+        if (isSgRequest || router.url.includes('/sg-')) {
+          router.navigate(['/sg-auth-x7k9p']);
+        } else {
+          localStorage.removeItem('tenant_id');
+          router.navigate(['/login']);
+        }
       }
 
       return throwError(() => error);

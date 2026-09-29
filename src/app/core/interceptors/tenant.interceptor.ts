@@ -13,8 +13,11 @@ export const tenantInterceptor: HttpInterceptorFn = (req, next) => {
 
   const isAuthEndpoint =
     req.url.includes('/login') ||
+    req.url.includes('/sg-login') ||
     req.url.includes('/logout') ||
+    req.url.includes('/sg-logout') ||
     req.url.endsWith('/me') ||
+    req.url.endsWith('/sg-me') ||
     req.url.endsWith('/status');
 
   if (isAuthEndpoint) {
