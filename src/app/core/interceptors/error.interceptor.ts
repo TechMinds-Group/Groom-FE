@@ -64,8 +64,10 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
       }
 
       const isSgRequest = req.url.includes('/sg-');
+      const isOnSgRoute = isSgRequest || router.url.includes('/sg-') || (typeof window !== 'undefined' && window.location.pathname.includes('/sg-'));
 
       const isPublicOrAuthCheck =
+        req.url.endsWith('/status') ||
         req.url.endsWith('/me') ||
         req.url.endsWith('/sg-me') ||
         req.url.includes('/login') ||
@@ -90,12 +92,15 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
       }
 
       if (error.status === 401 && !isPublicOrAuthCheck) {
-        if (isSgRequest || router.url.includes('/sg-')) {
+        if (isSgRequest) {
+          // Só redireciona para login SG se a própria requisição SG falhou
           router.navigate(['/sg-auth-x7k9p']);
-        } else {
+        } else if (!isOnSgRoute) {
+          // Requisição não-SG com 401: redireciona para login normal apenas se não estiver em rota SG
           localStorage.removeItem('tenant_id');
           router.navigate(['/login']);
         }
+        // Se estiver em rota SG mas a requisição não é SG (ex: /notificacoes): apenas ignora (não redireciona)
       }
 
       return throwError(() => error);

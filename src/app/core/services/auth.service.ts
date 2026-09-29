@@ -146,7 +146,7 @@ export class AuthService {
       headers: { 'X-Skip-Error-Toast': 'true' }
     }).pipe(
       tap((user) => {
-        if (user && window.location.pathname.includes('/sg-')) {
+        if (user) {
           this._currentUser.set(user);
         }
       }),
@@ -159,15 +159,23 @@ export class AuthService {
     return this.http.post<any>(`${environment.apiUrl}/sg-login?useCookies=true&useSessionCookies=${!rememberMe}`, body, {
       withCredentials: true,
     }).pipe(
-      tap(() => {
-        this._currentUser.set({
-          id: 'sg-master',
-          nome: 'SuperAdmin SG',
-          email: `${emailOrUsername}@fasto.com`,
-          tenantId: 'sg-master',
-          role: 'SuperAdmin',
-          roles: ['SuperAdmin'],
-        });
+      // Após login bem-sucedido, verifica o cookie SgCookieScheme via /sg-me
+      // Sem catchError aqui para que falhas de cookie propaguem ao subscriber
+      switchMap(() => this.http.get<UserContext>(`${environment.apiUrl}/sg-me`, {
+        withCredentials: true,
+        headers: { 'X-Skip-Error-Toast': 'true' }
+      })),
+      tap((user) => {
+        if (user) {
+          this._currentUser.set({
+            id: user.id ?? 'sg-master',
+            nome: user.nome ?? 'SuperAdmin SG',
+            email: user.email ?? `${emailOrUsername}@fasto.com`,
+            tenantId: user.tenantId ?? 'sg-master',
+            role: 'SuperAdmin',
+            roles: ['SuperAdmin'],
+          });
+        }
       })
     );
   }

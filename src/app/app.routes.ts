@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './core/guards/auth.guard';
+import { sgAuthGuard } from './core/guards/sg-auth.guard';
 import { clienteAuthGuard } from './core/guards/cliente-auth.guard';
 import { tenantResolver } from './core/services/tenant-resolver.service';
 import { MainLayoutComponent } from './layout/main-layout/main-layout.component';
@@ -334,6 +335,14 @@ export const routes: Routes = [
         redirectTo: 'gestao/gestao-usuarios/:id',
         pathMatch: 'full',
       },
+    ],
+  },
+  // ===== PAINEL SG — grupo separado com sgAuthGuard exclusivo =====
+  {
+    path: '',
+    canActivate: [sgAuthGuard],
+    component: MainLayoutComponent,
+    children: [
       {
         path: 'sg-estabelecimentos-x7k9p',
         loadComponent: () =>

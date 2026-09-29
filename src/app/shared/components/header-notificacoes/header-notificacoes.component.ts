@@ -19,10 +19,15 @@ export class HeaderNotificacoesComponent implements OnInit {
   readonly menuAberto = signal<boolean>(false);
 
   ngOnInit(): void {
-    this.carregar();
+    // Notificações não se aplicam ao painel SG (autenticação de tenant diferente)
+    if (!this.router.url.includes('/sg-')) {
+      this.carregar();
+    }
   }
 
   carregar(): void {
+    // Pula em rotas SG para evitar 401 que causaria redirecionamento indevido
+    if (this.router.url.includes('/sg-')) return;
     this.notificacaoService.carregarNotificacoes().subscribe();
   }
 
