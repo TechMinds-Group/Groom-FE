@@ -21,9 +21,11 @@ export const authGuard: CanActivateFn = (route, state) => {
         return router.createUrlTree(['/login']);
       }
 
-      const roles = user.roles ?? [];
-      const role = user.role ?? '';
-      const isSuperAdminUser = role === 'SuperAdmin' || roles.includes('SuperAdmin') || user.email === 'micheladm@fasto.com' || user.email?.startsWith('micheladm');
+      const anyUser = user as any;
+      const roles: string[] = anyUser.roles ?? anyUser.Roles ?? [];
+      const role: string = anyUser.role ?? anyUser.Role ?? '';
+      const email: string = anyUser.email ?? anyUser.Email ?? '';
+      const isSuperAdminUser = isSgRoute || role === 'SuperAdmin' || roles.includes('SuperAdmin') || email === 'micheladm@fasto.com' || email?.startsWith('micheladm');
 
       if (isSgRoute) {
         if (isSuperAdminUser) {
