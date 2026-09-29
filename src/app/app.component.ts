@@ -18,6 +18,10 @@ export class AppComponent implements OnInit {
   protected readonly title = signal('Groom-FE');
 
   ngOnInit(): void {
+    if (typeof window !== 'undefined' && window.location.pathname.includes('/sg-')) {
+      return;
+    }
+
     // Verificar sessão no startup: se ativa, inicia keep-alive
     this.authService.checkAuth().subscribe({
       next: () => {
