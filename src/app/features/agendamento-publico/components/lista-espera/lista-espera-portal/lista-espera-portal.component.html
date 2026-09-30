@@ -29,7 +29,7 @@
           Sair da lista
         </button>
       </div>
-    } @else {
+    } @else if (!somenteStatus()) {
       <div class="lista-espera-portal__vazio">
         <span class="lista-espera-portal__vazio-texto text-muted">
           Você não está na lista de espera hoje
@@ -50,6 +50,7 @@
   <app-lista-espera-modal-preferencias
     [(show)]="modalAberto"
     [enviando]="entrando()"
+    [preset]="preset()"
     (confirm)="entrar($event)"
   />
 </div>

@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, effect, inject, OnInit, input, signal } from '@angular/core';
 import { TmToastService } from '@techminds-group/tm-angular-lib';
 import { ListaEsperaService } from '../../../../../core/services/lista-espera.service';
 import { EntrarListaEsperaPayload, ListaEsperaItem } from '../../../../../core/models/lista-espera/lista-espera.model';
@@ -22,11 +22,30 @@ export class ListaEsperaPortalComponent implements OnInit {
   private readonly listaEsperaService = inject(ListaEsperaService);
   private readonly toastService = inject(TmToastService);
 
+  /**
+   * Modo status-only (topo do wizard): sem entrada ativa não exibe o botão de
+   * entrar — a entrada pela lista fica no passo de data/horário (slots ocupados
+   * clicáveis e blocos de "sem horários").
+   */
+  readonly somenteStatus = input(false);
+
   readonly carregando = signal(true);
   readonly entrada = signal<ListaEsperaItem | null>(null);
   readonly modalAberto = signal(false);
   readonly entrando = signal(false);
   readonly saindo = signal(false);
+
+  /** Preferências pré-preenchidas (ex.: slot ocupado clicado) aplicadas ao abrir o modal. */
+  readonly preset = signal<Partial<EntrarListaEsperaPayload> | null>(null);
+
+  constructor() {
+    // Preset é consumido pelo modal na abertura; limpa ao fechar para não reaparecer.
+    effect(() => {
+      if (!this.modalAberto()) {
+        this.preset.set(null);
+      }
+    });
+  }
 
   async ngOnInit(): Promise<void> {
     await this.recarregarStatus();
@@ -45,6 +64,15 @@ export class ListaEsperaPortalComponent implements OnInit {
   }
 
   abrirModal(): void {
+    this.modalAberto.set(true);
+  }
+
+  /**
+   * Abre o modal de preferências pré-preenchido (entrada via horário ocupado
+   * clicado no passo data/horário — RN-074).
+   */
+  abrirComPreset(preset: Partial<EntrarListaEsperaPayload>): void {
+    this.preset.set(preset);
     this.modalAberto.set(true);
   }
 

@@ -84,14 +84,15 @@
           type="button"
           class="agendamento-horarios__slot"
           [class.agendamento-horarios__slot--disabled]="!horario.disponivel"
+          [class.agendamento-horarios__slot--ocupado]="!horario.disponivel"
           [class.agendamento-horarios__slot--selected]="horarioSelecionado() === horario.hora"
-          [disabled]="!horario.disponivel"
-          (click)="onHorarioChange(horario)"
+          [title]="horario.disponivel ? null : 'Ocupado — clique para entrar na lista de espera às ' + horario.hora"
+          (click)="horario.disponivel ? onHorarioChange(horario) : abrirListaPara(horario.hora)"
         >
           @if (horario.disponivel) {
             <i class="fa-regular fa-clock agendamento-horarios__slot-icone"></i>
           } @else {
-            <i class="fa-solid fa-ban agendamento-horarios__slot-icone"></i>
+            <i class="fa-solid fa-hourglass-half agendamento-horarios__slot-icone"></i>
           }
           {{ horario.hora }}
         </button>
@@ -99,7 +100,7 @@
     </div>
 
     @if (nenhorHorarioDisponivel()) {
-      <p class="text-muted small mt-2 mb-0">Nenhum horário disponível para esta data — entre na lista de espera para ser avisado quando uma vaga abrir.</p>
+      <p class="text-muted small mt-2 mb-0">Nenhum horário disponível para esta data — clique em um horário ocupado ou entre na lista de espera para ser avisado quando uma vaga abrir.</p>
       <div class="agendamento-horarios__lista-espera mt-3">
         <app-lista-espera-portal />
       </div>
