@@ -1,29 +1,31 @@
 import { ChangeDetectionStrategy, Component, computed, effect, inject, input, model, output, signal } from '@angular/core';
 import { CommonModule, CurrencyPipe } from '@angular/common';
-import { FormsModule } from '@angular/forms';
-import { TmModalComponent, TmTextComponent } from '@techminds-group/tm-angular-lib';
+import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { TmModalComponent, TmSelectComponent, TmTextComponent } from '@techminds-group/tm-angular-lib';
 import { EstoqueService } from '../../../../../core/services/estoque.service';
 import { ProdutoEstoque } from '../../../../../core/models/estoque/estoque.model';
 import { AdicionarProdutoRequest } from '../../../../../core/models/comanda/comanda.model';
+import { ThemeService } from '../../../../../core/services/theme.service';
 
 @Component({
   selector: 'app-comanda-modal-produto',
   standalone: true,
-  imports: [CommonModule, FormsModule, TmModalComponent, TmTextComponent, CurrencyPipe],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, TmModalComponent, TmSelectComponent, TmTextComponent, CurrencyPipe],
   templateUrl: './comanda-modal-produto.component.html',
   styleUrl: './comanda-modal-produto.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ComandaModalProdutoComponent {
   private readonly estoqueService = inject(EstoqueService);
+  protected readonly themeService = inject(ThemeService);
 
   readonly show = model<boolean>(false);
 
   readonly confirm = output<AdicionarProdutoRequest>();
   readonly cancel = output<void>();
 
-  protected readonly busca = signal('');
-  protected readonly selecionado = signal<ProdutoEstoque | null>(null);
+  /** Seleção do produto via tm-select com busca (nome, marca e código no label). */
+  protected readonly produtoControl = new FormControl<string>('', { nonNullable: true });
   protected readonly quantidade = signal<number>(1);
   protected readonly observacoes = signal('');
   protected readonly carregando = signal(false);
@@ -31,18 +33,16 @@ export class ComandaModalProdutoComponent {
   private readonly _produtos = signal<ProdutoEstoque[]>([]);
   protected readonly produtos = this._produtos.asReadonly();
 
-  protected readonly resultados = computed<ProdutoEstoque[]>(() => {
-    const termo = this.busca().trim().toLowerCase();
-    const lista = this._produtos();
-    if (!termo) {
-      return lista;
-    }
-    return lista.filter(
-      (p) =>
-        p.nome.toLowerCase().includes(termo) ||
-        (p.marca?.toLowerCase().includes(termo) ?? false) ||
-        (p.codigoBarras?.toLowerCase().includes(termo) ?? false),
-    );
+  protected readonly produtoOptions = computed(() =>
+    this._produtos().map((p) => ({
+      value: p.id,
+      label: `${p.nome} — R$ ${this.formatarPreco(p.precoVenda)} (Saldo: ${p.quantidadeAtual} ${p.unidadeMedida})`,
+    })),
+  );
+
+  protected readonly selecionado = computed<ProdutoEstoque | null>(() => {
+    const id = this.produtoControl.value;
+    return this._produtos().find((p) => p.id === id) ?? null;
   });
 
   /** Bloqueia quantidade acima do saldo — o backend valida de novo (400 estoque insuficiente). */
@@ -58,17 +58,16 @@ export class ComandaModalProdutoComponent {
   constructor() {
     effect(() => {
       if (this.show()) {
-        this.reset();
+        this.produtoControl.setValue('');
+        this.quantidade.set(1);
+        this.observacoes.set('');
         void this.carregarProdutos();
       }
     });
   }
 
-  private reset(): void {
-    this.busca.set('');
-    this.selecionado.set(null);
-    this.quantidade.set(1);
-    this.observacoes.set('');
+  private formatarPreco(valor: number): string {
+    return valor.toFixed(2).replace('.', ',');
   }
 
   private async carregarProdutos(): Promise<void> {
@@ -78,16 +77,6 @@ export class ComandaModalProdutoComponent {
     } finally {
       this.carregando.set(false);
     }
-  }
-
-  protected selecionar(produto: ProdutoEstoque): void {
-    this.selecionado.set(produto);
-    this.quantidade.set(1);
-  }
-
-  protected limparSelecao(): void {
-    this.selecionado.set(null);
-    this.quantidade.set(1);
   }
 
   confirmar(): void {
