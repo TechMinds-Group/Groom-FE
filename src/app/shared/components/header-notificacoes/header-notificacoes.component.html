@@ -52,6 +52,9 @@
           <i *ngIf="item.tipo === 'EstoqueBaixo'" class="fas fa-exclamation-triangle"></i>
           <i *ngIf="item.tipo === 'ValidadeProxima'" class="fas fa-calendar-alt"></i>
           <i *ngIf="item.tipo === 'Geral'" class="fas fa-info-circle"></i>
+          @if (item.tipo === 'ListaEsperaEntrada') {
+            <i class="fas fa-hourglass-half"></i>
+          }
         </div>
 
         <div class="item-content">

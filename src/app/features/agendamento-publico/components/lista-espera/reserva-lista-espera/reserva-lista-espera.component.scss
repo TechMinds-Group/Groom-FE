@@ -1,0 +1,136 @@
+.reserva-page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: clamp(1.5rem, 4vw, 3rem) 1rem 4.5rem;
+}
+
+.reserva-page__card {
+  width: 100%;
+  max-width: 640px;
+  border: 1px solid var(--bs-border-color);
+  border-radius: 1rem;
+  background: var(--bs-body-bg);
+  overflow: hidden;
+}
+
+.reserva-page__header {
+  padding: 1.5rem;
+  border-bottom: 1px solid var(--bs-border-color);
+}
+
+.reserva-page__eyebrow {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--bs-primary);
+}
+
+.reserva-page__titulo {
+  font-size: clamp(1.25rem, 3vw, 1.6rem);
+}
+
+.reserva-page__subtitulo {
+  font-size: 0.9rem;
+}
+
+.reserva-page__body {
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.reserva-page__carregando {
+  padding: 2rem 0;
+}
+
+.reserva-page__acao {
+  border-radius: 2rem;
+  padding-block: 0.55rem;
+}
+
+.reserva-detalhe {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.reserva-detalhe__item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.reserva-detalhe__icone {
+  font-size: 1.1rem;
+  color: var(--bs-primary);
+  width: 1.5rem;
+  text-align: center;
+}
+
+.reserva-detalhe__rotulo {
+  display: block;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--bs-secondary-color);
+}
+
+.reserva-detalhe__valor {
+  font-size: 0.95rem;
+}
+
+.reserva-contagem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.875rem 1rem;
+  border: 1px solid var(--bs-border-color);
+  border-radius: 0.75rem;
+  background: var(--bs-tertiary-bg);
+}
+
+.reserva-contagem__rotulo {
+  font-size: 0.875rem;
+}
+
+.reserva-contagem__tempo {
+  font-size: 1.5rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--bs-primary);
+}
+
+.reserva-contagem--alerta .reserva-contagem__tempo {
+  color: var(--bs-danger);
+}
+
+.reserva-aviso {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  text-align: center;
+  padding: 0.5rem 0;
+}
+
+.reserva-aviso__icone {
+  font-size: 2.25rem;
+  color: var(--bs-warning);
+}
+
+.reserva-aviso__icone--sucesso {
+  color: var(--bs-success);
+}
+
+.reserva-aviso__icone--erro {
+  color: var(--bs-danger);
+}
+
+.reserva-aviso__texto {
+  font-size: 0.9rem;
+}

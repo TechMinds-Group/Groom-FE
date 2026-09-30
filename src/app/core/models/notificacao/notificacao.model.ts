@@ -5,6 +5,7 @@ export type TipoNotificacao =
   | 'AgendamentoPendente'
   | 'AssinaturaVencendo'
   | 'ClienteNoShow'
+  | 'ListaEsperaEntrada'
   | 'Geral';
 
 export interface NotificacaoItem {

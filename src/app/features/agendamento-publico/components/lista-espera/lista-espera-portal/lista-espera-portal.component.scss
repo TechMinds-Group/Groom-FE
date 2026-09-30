@@ -1,0 +1,51 @@
+.lista-espera-portal {
+  width: 100%;
+}
+
+.lista-espera-portal__card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  padding: 0.875rem 1rem;
+  border: 1px solid var(--bs-border-color);
+  border-radius: 0.75rem;
+  background: var(--bs-body-bg);
+}
+
+.lista-espera-portal__card-info {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-width: 0;
+}
+
+.lista-espera-portal__icone {
+  font-size: 1.25rem;
+  color: var(--bs-primary);
+}
+
+.lista-espera-portal__titulo {
+  font-size: 0.95rem;
+}
+
+.lista-espera-portal__posicao {
+  font-size: 0.825rem;
+}
+
+.lista-espera-portal__vazio {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.lista-espera-portal__vazio-texto {
+  font-size: 0.875rem;
+}
+
+.lista-espera-portal__entrar {
+  border-radius: 2rem;
+  padding-inline: 1.25rem;
+}

@@ -190,6 +190,25 @@ export class EstabelecimentoService {
     );
   }
 
+  /** Minutos de reserva do slot da lista de espera (RN-076); default 15 quando não configurado. */
+  async carregarMinutosReservaListaEspera(): Promise<number> {
+    try {
+      const response = await firstValueFrom(
+        this.http.get<{ minutos: number }>(`${environment.apiUrl}/configuracoes/lista-espera`),
+      );
+      return response.minutos;
+    } catch {
+      return 15;
+    }
+  }
+
+  /** Persiste os minutos de reserva da lista de espera (validação ≥ 1 no backend — RN-076). */
+  async salvarMinutosReservaListaEspera(minutos: number): Promise<void> {
+    await firstValueFrom(
+      this.http.put(`${environment.apiUrl}/configuracoes/lista-espera`, { minutos }),
+    );
+  }
+
   /** Obtém o link público de agendamento; no primeiro acesso o backend gera e persiste. */
   async obterLinkAgendamento(): Promise<string> {
     const data = await firstValueFrom(this.http.get<{ link: string }>(`${this.apiUrl}/link-agendamento`));

@@ -78,11 +78,18 @@ export class EstabelecimentoConfigComponent implements OnInit {
   protected readonly diasValidadeLink = signal<number>(5);
   protected readonly diasValidadeLinkOriginal = signal<number>(5);
 
+  /** Minutos de reserva do slot da lista de espera (RN-076 — default 15). */
+  protected readonly minutosReservaListaEspera = signal<number>(15);
+  protected readonly minutosReservaListaEsperaOriginal = signal<number>(15);
+
   protected readonly temAlteracoesInfo = computed(() => {
     if (this.logoFile() !== null || this.capaFile() !== null || this.logoRemovida() || this.capaRemovida()) {
       return true;
     }
     if (this.diasValidadeLink() !== this.diasValidadeLinkOriginal()) {
+      return true;
+    }
+    if (this.minutosReservaListaEspera() !== this.minutosReservaListaEsperaOriginal()) {
       return true;
     }
     const cur = this.estabelecimentoInfo();
@@ -230,11 +237,19 @@ export class EstabelecimentoConfigComponent implements OnInit {
     this.cdr.markForCheck();
   }
 
+  /** RN-076: inteiro ≥ 1; default 15 quando o campo é esvaziado. */
+  protected atualizarMinutosReserva(valor: number | string): void {
+    const parsed = typeof valor === 'number' ? valor : parseInt(valor, 10);
+    this.minutosReservaListaEspera.set(isNaN(parsed) ? 15 : Math.max(1, parsed));
+    this.cdr.markForCheck();
+  }
+
   protected async carregarInfo(): Promise<void> {
     try {
-      const [data, dias] = await Promise.all([
+      const [data, dias, minutos] = await Promise.all([
         this.estabelecimentoService.carregarInfo(),
         this.estabelecimentoService.carregarValidadeLink(),
+        this.estabelecimentoService.carregarMinutosReservaListaEspera(),
       ]);
       if (data) {
         this.estabelecimentoInfo.set(structuredClone(data));
@@ -243,6 +258,8 @@ export class EstabelecimentoConfigComponent implements OnInit {
       }
       this.diasValidadeLink.set(dias);
       this.diasValidadeLinkOriginal.set(dias);
+      this.minutosReservaListaEspera.set(minutos);
+      this.minutosReservaListaEsperaOriginal.set(minutos);
       this.resetImagens();
       this.cdr.markForCheck();
     } catch {
@@ -254,6 +271,7 @@ export class EstabelecimentoConfigComponent implements OnInit {
     const orig = this.estabelecimentoInfoOriginal();
     this.estabelecimentoInfo.set(structuredClone(orig));
     this.diasValidadeLink.set(this.diasValidadeLinkOriginal());
+    this.minutosReservaListaEspera.set(this.minutosReservaListaEsperaOriginal());
     this.resetImagens();
     this.cdr.markForCheck();
   }
@@ -350,6 +368,11 @@ export class EstabelecimentoConfigComponent implements OnInit {
       if (this.diasValidadeLink() !== this.diasValidadeLinkOriginal()) {
         await this.estabelecimentoService.salvarValidadeLink(this.diasValidadeLink());
         this.diasValidadeLinkOriginal.set(this.diasValidadeLink());
+      }
+
+      if (this.minutosReservaListaEspera() !== this.minutosReservaListaEsperaOriginal()) {
+        await this.estabelecimentoService.salvarMinutosReservaListaEspera(this.minutosReservaListaEspera());
+        this.minutosReservaListaEsperaOriginal.set(this.minutosReservaListaEspera());
       }
 
       const atualizado = await this.estabelecimentoService.carregarInfo();

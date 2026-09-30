@@ -170,6 +170,13 @@ export const routes: Routes = [
               ),
           },
           {
+            path: 'lista-espera',
+            loadComponent: () =>
+              import('./features/lista-espera/components/lista-espera/lista-espera.component').then(
+                (m) => m.ListaEsperaComponent,
+              ),
+          },
+          {
             path: 'gestao-usuarios',
             loadComponent: () =>
               import('./features/gestao-usuarios/components/gestao-usuarios/gestao-usuarios.component').then(
@@ -458,6 +465,22 @@ export const routes: Routes = [
           import('./features/agendamento-publico/components/novo-agendamento/novo-agendamento.component').then(
             (m) => m.NovoAgendamentoComponent,
           ),
+      },
+      {
+        path: 'lista-espera',
+        canActivate: [clienteAuthGuard],
+        loadComponent: () =>
+          import('./features/agendamento-publico/components/lista-espera/lista-espera.component').then(
+            (m) => m.ListaEsperaComponent,
+          ),
+      },
+      {
+        path: 'lista-espera/reserva/:reservaId',
+        canActivate: [clienteAuthGuard],
+        loadComponent: () =>
+          import(
+            './features/agendamento-publico/components/lista-espera/reserva-lista-espera/reserva-lista-espera.component'
+          ).then((m) => m.ReservaListaEsperaComponent),
       },
     ],
   },

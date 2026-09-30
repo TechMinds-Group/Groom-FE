@@ -1,0 +1,55 @@
+<div class="lista-espera-portal">
+  @if (carregando()) {
+    <div class="lista-espera-portal__carregando text-center py-3">
+      <div class="spinner-border spinner-border-sm text-primary"></div>
+    </div>
+  } @else {
+    @if (entrada(); as ativa) {
+      <div class="lista-espera-portal__card" role="status">
+        <div class="lista-espera-portal__card-info">
+          <i class="fa-solid fa-hourglass-half lista-espera-portal__icone" aria-hidden="true"></i>
+          <div>
+            <strong class="lista-espera-portal__titulo">Você está na lista de espera</strong>
+            <span class="lista-espera-portal__posicao text-muted d-block">
+              Posição {{ ativa.posicao }} do dia
+            </span>
+          </div>
+        </div>
+        <button
+          type="button"
+          class="btn btn-outline-danger btn-sm lista-espera-portal__sair"
+          [disabled]="saindo()"
+          (click)="sair()"
+        >
+          @if (saindo()) {
+            <i class="fas fa-spinner fa-spin me-1"></i>
+          } @else {
+            <i class="fa-solid fa-right-from-bracket me-1"></i>
+          }
+          Sair da lista
+        </button>
+      </div>
+    } @else {
+      <div class="lista-espera-portal__vazio">
+        <span class="lista-espera-portal__vazio-texto text-muted">
+          Você não está na lista de espera hoje
+        </span>
+        <button
+          type="button"
+          class="btn btn-primary lista-espera-portal__entrar"
+          [disabled]="entrando()"
+          (click)="abrirModal()"
+        >
+          <i class="fa-solid fa-hourglass-half me-2"></i>
+          Entrar na lista de espera
+        </button>
+      </div>
+    }
+  }
+
+  <app-lista-espera-modal-preferencias
+    [(show)]="modalAberto"
+    [enviando]="entrando()"
+    (confirm)="entrar($event)"
+  />
+</div>
