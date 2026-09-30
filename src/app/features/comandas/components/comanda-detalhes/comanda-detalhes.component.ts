@@ -10,11 +10,15 @@ import { Comanda, ComandaItem } from '../../../../core/models/comanda/comanda.mo
 import { STATUS_COMANDA_BADGE } from '../../models/comanda-status-config.model';
 import { ComandaModalProdutoComponent } from '../modais/comanda-modal-produto/comanda-modal-produto.component';
 import { ComandaModalServicoComponent } from '../modais/comanda-modal-servico/comanda-modal-servico.component';
+import {
+  ConfirmacaoConfig,
+  ModalConfirmacaoComponent,
+} from '../../../../shared/components/modais/modal-confirmacao/modal-confirmacao.component';
 
 @Component({
   selector: 'app-comanda-detalhes',
   standalone: true,
-  imports: [CommonModule, CurrencyPipe, DatePipe, ComandaModalProdutoComponent, ComandaModalServicoComponent],
+  imports: [CommonModule, CurrencyPipe, DatePipe, ComandaModalProdutoComponent, ComandaModalServicoComponent, ModalConfirmacaoComponent],
   templateUrl: './comanda-detalhes.component.html',
   styleUrls: ['./comanda-detalhes.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -106,56 +110,104 @@ export class ComandaDetalhesComponent implements OnInit {
     this.router.navigate(['/gestao/comandas', c.id, 'fechar']);
   }
 
-  protected async removerItem(item: ComandaItem): Promise<void> {
-    const c = this.comanda();
-    if (!c || !this.comandaAberta()) return;
-    if (!confirm(`Remover o item "${item.nomeItem}" da comanda?`)) return;
+  // ── Confirmações via modal da lib (substitui o confirm() nativo do navegador) ──
 
-    this.processando.set(true);
+  protected readonly confirmacao = signal<ConfirmacaoConfig | null>(null);
+  protected readonly executandoConfirmacao = signal(false);
+
+  protected solicitarConfirmacao(config: ConfirmacaoConfig): void {
+    this.confirmacao.set(config);
+  }
+
+  protected async confirmarAcao(): Promise<void> {
+    const config = this.confirmacao();
+    if (!config || this.executandoConfirmacao()) {
+      return;
+    }
+    this.executandoConfirmacao.set(true);
     try {
-      await firstValueFrom(this.comandaService.removerItem(c.id, item.id));
-      this.toastService.success('Item removido.');
-      await this.carregar(c.id);
-    } catch {
-      // Erro específico (estoque/permissão) já exibido pelo interceptor.
+      await config.acao();
+      this.confirmacao.set(null);
     } finally {
-      this.processando.set(false);
+      this.executandoConfirmacao.set(false);
     }
   }
 
-  protected async cancelarComanda(): Promise<void> {
+  protected cancelarAcao(): void {
+    this.confirmacao.set(null);
+  }
+
+  protected removerItem(item: ComandaItem): void {
     const c = this.comanda();
     if (!c || !this.comandaAberta()) return;
-    if (!confirm(`Cancelar a comanda #${c.numero}? Os produtos serão estornados ao estoque.`)) return;
+    this.solicitarConfirmacao({
+      titulo: 'Remover item',
+      mensagem: `Remover o item "${item.nomeItem}" da comanda?`,
+      confirmLabel: 'Remover',
+      confirmClass: 'btn-danger',
+      icon: 'fa-solid fa-trash-can',
+      acao: async () => {
+        this.processando.set(true);
+        try {
+          await firstValueFrom(this.comandaService.removerItem(c.id, item.id));
+          this.toastService.success('Item removido.');
+          await this.carregar(c.id);
+        } catch {
+          // Erro específico (estoque/permissão) já exibido pelo interceptor.
+        } finally {
+          this.processando.set(false);
+        }
+      },
+    });
+  }
 
-    this.processando.set(true);
-    try {
-      await firstValueFrom(this.comandaService.cancelar(c.id));
-      this.toastService.success('Comanda cancelada.');
-      await this.carregar(c.id);
-    } catch {
-      // Erro específico já exibido pelo interceptor.
-    } finally {
-      this.processando.set(false);
-    }
+  protected cancelarComanda(): void {
+    const c = this.comanda();
+    if (!c || !this.comandaAberta()) return;
+    this.solicitarConfirmacao({
+      titulo: 'Cancelar comanda',
+      mensagem: `Cancelar a comanda #${c.numero}? Os produtos serão estornados ao estoque.`,
+      confirmLabel: 'Cancelar comanda',
+      confirmClass: 'btn-danger',
+      icon: 'fa-solid fa-ban',
+      acao: async () => {
+        this.processando.set(true);
+        try {
+          await firstValueFrom(this.comandaService.cancelar(c.id));
+          this.toastService.success('Comanda cancelada.');
+          await this.carregar(c.id);
+        } catch {
+          // Erro específico já exibido pelo interceptor.
+        } finally {
+          this.processando.set(false);
+        }
+      },
+    });
   }
 
   /** Requer perfil de Administrador (backend retorna 403 para não admin). */
-  async reabrirComanda(): Promise<void> {
+  reabrirComanda(): void {
     const c = this.comanda();
     if (!c || !this.isAdmin()) return;
-    if (!confirm(`Reabrir a comanda #${c.numero}? O desconto aplicado será removido.`)) return;
-
-    this.processando.set(true);
-    try {
-      await firstValueFrom(this.comandaService.reabrir(c.id));
-      this.toastService.success('Comanda reaberta.');
-      await this.carregar(c.id);
-    } catch {
-      // Erro específico já exibido pelo interceptor.
-    } finally {
-      this.processando.set(false);
-    }
+    this.solicitarConfirmacao({
+      titulo: 'Reabrir comanda',
+      mensagem: `Reabrir a comanda #${c.numero}? O desconto aplicado será removido.`,
+      confirmLabel: 'Reabrir',
+      confirmClass: 'btn-warning',
+      icon: 'fa-solid fa-rotate-left',
+      acao: async () => {
+        this.processando.set(true);
+        try {
+          await firstValueFrom(this.comandaService.reabrir(c.id));
+          this.toastService.success('Comanda reaberta.');
+          await this.carregar(c.id);
+        } catch {
+          // Erro específico já exibido pelo interceptor.
+        } finally {
+          this.processando.set(false);
+        }
+      },
+    });
   }
 
   protected async onProdutoConfirm(request: { produtoId: string; quantidade: number; observacoes?: string }): Promise<void> {

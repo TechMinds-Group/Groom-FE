@@ -235,4 +235,16 @@
 
   <app-comanda-modal-produto [(show)]="showProdutoModal" (confirm)="onProdutoConfirm($event)"></app-comanda-modal-produto>
   <app-comanda-modal-servico [(show)]="showServicoModal" (confirm)="onServicoConfirm($event)"></app-comanda-modal-servico>
+
+  <app-modal-confirmacao
+    [show]="confirmacao() !== null"
+    [titulo]="confirmacao()?.titulo ?? ''"
+    [mensagem]="confirmacao()?.mensagem ?? ''"
+    [confirmLabel]="confirmacao()?.confirmLabel ?? 'Confirmar'"
+    [confirmClass]="confirmacao()?.confirmClass ?? 'btn-primary'"
+    [icon]="confirmacao()?.icon ?? 'fa-solid fa-circle-question'"
+    [processando]="executandoConfirmacao()"
+    (confirmar)="confirmarAcao()"
+    (cancelar)="cancelarAcao()"
+  />
 </div>
