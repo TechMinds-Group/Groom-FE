@@ -90,6 +90,18 @@
       color: var(--tm-text-secondary);
     }
 
+    // RN-074 — dia apagado clicável: sem expediente, mas oferece a fila do dia.
+    &--lista-espera {
+      opacity: 0.55;
+      color: var(--tm-text-secondary);
+
+      &:hover {
+        opacity: 1;
+        border-color: var(--tm-primary);
+        color: var(--tm-primary);
+      }
+    }
+
     &--hoje:not(.agendamento-calendario__celula--selected) {
       border-color: var(--tm-border-color);
       font-weight: 800;
