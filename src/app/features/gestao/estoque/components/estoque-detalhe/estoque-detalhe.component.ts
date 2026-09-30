@@ -17,6 +17,10 @@ import { AuthService } from '../../../../../core/services/auth.service';
 import { EstoqueModalMovimentacaoComponent } from '../modais/estoque-modal-movimentacao/estoque-modal-movimentacao.component';
 import { ImageViewerModalComponent } from '../../../../../shared/modais/image-viewer-modal/image-viewer-modal.component';
 import { BarcodeScannerModalComponent } from '../../../../../shared/modais/barcode-scanner-modal/barcode-scanner-modal.component';
+import {
+  ConfirmacaoConfig,
+  ModalConfirmacaoComponent,
+} from '../../../../../shared/components/modais/modal-confirmacao/modal-confirmacao.component';
 
 @Component({
   selector: 'app-estoque-detalhe',
@@ -29,6 +33,7 @@ import { BarcodeScannerModalComponent } from '../../../../../shared/modais/barco
     EstoqueModalMovimentacaoComponent,
     ImageViewerModalComponent,
     BarcodeScannerModalComponent,
+    ModalConfirmacaoComponent,
   ],
   templateUrl: './estoque-detalhe.component.html',
   styleUrls: ['./estoque-detalhe.component.scss'],
@@ -114,22 +119,52 @@ export class EstoqueDetalheComponent implements OnInit {
     }
   }
 
-  async removerImagemProduto(): Promise<void> {
+  protected readonly confirmacao = signal<ConfirmacaoConfig | null>(null);
+  protected readonly executandoConfirmacao = signal(false);
+
+  protected solicitarConfirmacao(config: ConfirmacaoConfig): void {
+    this.confirmacao.set(config);
+  }
+
+  protected async confirmarAcao(): Promise<void> {
+    const config = this.confirmacao();
+    if (!config || this.executandoConfirmacao()) return;
+    this.executandoConfirmacao.set(true);
+    try {
+      await config.acao();
+      this.confirmacao.set(null);
+    } finally {
+      this.executandoConfirmacao.set(false);
+    }
+  }
+
+  protected cancelarAcao(): void {
+    this.confirmacao.set(null);
+  }
+
+  removerImagemProduto(): void {
     const prodId = this.produto()?.id;
     if (!prodId) return;
 
-    if (!confirm('Deseja remover a imagem deste produto?')) return;
-
-    this.enviandoImagem.set(true);
-    try {
-      await this.estoqueService.removerImagem(prodId);
-      this.toastService.success('Imagem removida.');
-      await this.carregarProduto(prodId);
-    } catch {
-      this.toastService.error('Erro ao remover imagem.');
-    } finally {
-      this.enviandoImagem.set(false);
-    }
+    this.solicitarConfirmacao({
+      titulo: 'Remover imagem',
+      mensagem: 'Deseja remover a imagem deste produto?',
+      confirmLabel: 'Remover',
+      confirmClass: 'btn-danger',
+      icon: 'fa-solid fa-image',
+      acao: async () => {
+        this.enviandoImagem.set(true);
+        try {
+          await this.estoqueService.removerImagem(prodId);
+          this.toastService.success('Imagem removida.');
+          await this.carregarProduto(prodId);
+        } catch {
+          this.toastService.error('Erro ao remover imagem.');
+        } finally {
+          this.enviandoImagem.set(false);
+        }
+      },
+    });
   }
 
   ngOnInit(): void {
@@ -244,18 +279,25 @@ export class EstoqueDetalheComponent implements OnInit {
     }
   }
 
-  async excluir(): Promise<void> {
+  excluir(): void {
     const p = this.produto();
     if (!p) return;
-    if (!confirm(`Deseja excluir o produto "${p.nome}"?`)) return;
-
-    try {
-      await this.estoqueService.remover(p.id);
-      this.toastService.success('Produto excluído.');
-      this.router.navigate(['/gestao/estoque']);
-    } catch {
-      this.toastService.error('Erro ao excluir produto.');
-    }
+    this.solicitarConfirmacao({
+      titulo: 'Excluir produto',
+      mensagem: `Deseja excluir o produto "${p.nome}"?`,
+      confirmLabel: 'Excluir',
+      confirmClass: 'btn-danger',
+      icon: 'fa-solid fa-trash-can',
+      acao: async () => {
+        try {
+          await this.estoqueService.remover(p.id);
+          this.toastService.success('Produto excluído.');
+          this.router.navigate(['/gestao/estoque']);
+        } catch {
+          this.toastService.error('Erro ao excluir produto.');
+        }
+      },
+    });
   }
 
   voltar(): void {

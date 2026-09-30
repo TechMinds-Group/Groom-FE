@@ -4,11 +4,15 @@ import { FormBuilder, FormsModule, ReactiveFormsModule, Validators } from '@angu
 import { TmTextComponent } from '@techminds-group/tm-angular-lib';
 import { BloqueioAgendaDTO, BloqueioAgendaService, FeriadoNacionalImportarDTO } from '../../../../core/services/bloqueio-agenda.service';
 import { GestaoUsuariosService } from '../../../../core/services/gestao-usuarios.service';
+import {
+  ConfirmacaoConfig,
+  ModalConfirmacaoComponent,
+} from '../../../../shared/components/modais/modal-confirmacao/modal-confirmacao.component';
 
 @Component({
   selector: 'app-gestao-bloqueios',
   standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, TmTextComponent],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, TmTextComponent, ModalConfirmacaoComponent],
   templateUrl: './gestao-bloqueios.component.html',
   styleUrl: './gestao-bloqueios.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -170,18 +174,44 @@ export class GestaoBloqueiosComponent implements OnInit {
     }
   }
 
-  async remover(b: BloqueioAgendaDTO): Promise<void> {
-    if (!confirm(`Deseja realmente remover o bloqueio "${b.titulo}"?`)) {
+  protected readonly confirmacao = signal<ConfirmacaoConfig | null>(null);
+  protected readonly executandoConfirmacao = signal(false);
+
+  protected remover(b: BloqueioAgendaDTO): void {
+    this.confirmacao.set({
+      titulo: 'Remover bloqueio',
+      mensagem: `Deseja realmente remover o bloqueio "${b.titulo}"?`,
+      confirmLabel: 'Remover',
+      confirmClass: 'btn-danger',
+      icon: 'fa-solid fa-trash-can',
+      acao: async () => {
+        try {
+          await this.bloqueioService.removerBloqueio(b.id);
+          this.mensagemSucesso.set('Bloqueio removido com sucesso!');
+          await this.carregarBloqueios();
+        } catch {
+          this.mensagemErro.set('Erro ao remover o bloqueio.');
+        }
+      },
+    });
+  }
+
+  protected async confirmarAcao(): Promise<void> {
+    const config = this.confirmacao();
+    if (!config || this.executandoConfirmacao()) {
       return;
     }
-
+    this.executandoConfirmacao.set(true);
     try {
-      await this.bloqueioService.removerBloqueio(b.id);
-      this.mensagemSucesso.set('Bloqueio removido com sucesso!');
-      await this.carregarBloqueios();
-    } catch {
-      this.mensagemErro.set('Erro ao remover o bloqueio.');
+      await config.acao();
+      this.confirmacao.set(null);
+    } finally {
+      this.executandoConfirmacao.set(false);
     }
+  }
+
+  protected cancelarAcao(): void {
+    this.confirmacao.set(null);
   }
 
   formatarDataBr(isoStr: string): string {
