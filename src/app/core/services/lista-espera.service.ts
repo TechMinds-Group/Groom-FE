@@ -1,9 +1,9 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { AgendamentoPublicoService } from './agendamento-publico.service';
-import { EntrarListaEsperaPayload, ListaEsperaItem } from '../models/lista-espera/lista-espera.model';
+import { EntrarListaEsperaPayload, ListaEsperaItem, ListaEsperaReserva } from '../models/lista-espera/lista-espera.model';
 
 /**
  * Endpoints da lista de espera no portal do cliente (RN-074 — API_CONTRACTS §15.1).
@@ -39,6 +39,21 @@ export class ListaEsperaService {
   async sair(id: string): Promise<void> {
     await firstValueFrom(
       this.http.delete<void>(`${this.baseUrl}/${id}`, { withCredentials: true }),
+    );
+  }
+
+  /**
+   * Detalhes do slot reservado — destino do deep link do WhatsApp (RN-075/076).
+   * Erros tratados pelo chamador: 403 (reserva de outro cliente), 410
+   * `ListaEspera.ReservaExpirada`, 404 (não encontrada).
+   */
+  async obterReserva(reservaId: string): Promise<ListaEsperaReserva> {
+    const headers = new HttpHeaders({ 'X-Skip-Error-Toast': 'true' });
+    return firstValueFrom(
+      this.http.get<ListaEsperaReserva>(`${this.baseUrl}/reserva/${reservaId}`, {
+        withCredentials: true,
+        headers,
+      }),
     );
   }
 }

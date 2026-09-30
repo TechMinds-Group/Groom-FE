@@ -467,6 +467,14 @@ export const routes: Routes = [
             (m) => m.ListaEsperaComponent,
           ),
       },
+      {
+        path: 'lista-espera/reserva/:reservaId',
+        canActivate: [clienteAuthGuard],
+        loadComponent: () =>
+          import(
+            './features/agendamento-publico/components/lista-espera/reserva-lista-espera/reserva-lista-espera.component'
+          ).then((m) => m.ReservaListaEsperaComponent),
+      },
     ],
   },
   {

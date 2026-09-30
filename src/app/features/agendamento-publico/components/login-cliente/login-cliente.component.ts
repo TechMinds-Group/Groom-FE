@@ -119,6 +119,22 @@ export class LoginClienteComponent implements OnInit, OnDestroy {
     return slug;
   }
 
+  /**
+   * Destino pós-autenticação: `returnUrl` devolve o cliente ao deep link original
+   * (ex.: confirmação da reserva da lista de espera — RN-075/076); validado contra
+   * o slug do tenant para não abrir caminhos de outro estabelecimento. Sem
+   * returnUrl, mantém o destino padrão do portal ("novo" agendamento).
+   */
+  private destinoPosLogin(slug: string): string[] {
+    const returnUrl = this.route.snapshot.queryParamMap.get('returnUrl');
+    const prefixoTenant = `/agendamento/${slug}/`.toLowerCase();
+    if (returnUrl?.toLowerCase().startsWith(prefixoTenant)) {
+      const segmentos = returnUrl.split('/').filter(Boolean);
+      return ['/', ...segmentos];
+    }
+    return ['/agendamento', slug, 'novo'];
+  }
+
   private async carregarInfoEstabelecimento(): Promise<void> {
     const slug = this.getEstabelecimentoSlug();
     if (slug) {
@@ -135,7 +151,7 @@ export class LoginClienteComponent implements OnInit, OnDestroy {
     const slug = this.getEstabelecimentoSlug();
     const cliente = await this.agendamentoPublicoService.getMe();
     if (cliente && slug) {
-      await this.router.navigate(['/agendamento', slug, 'novo']);
+      await this.router.navigate(this.destinoPosLogin(slug));
     }
   }
 
@@ -161,7 +177,7 @@ export class LoginClienteComponent implements OnInit, OnDestroy {
       const slug = this.getEstabelecimentoSlug();
       const { email, senha, rememberMe } = this.form.value;
       await this.agendamentoPublicoService.login({ email: email!, senha: senha! }, rememberMe ?? false);
-      await this.router.navigate(['/agendamento', slug, 'novo']);
+      await this.router.navigate(this.destinoPosLogin(slug));
     } catch (err) {
       this.errorMessage.set(this.extrairMensagemErro(err));
     } finally {
@@ -176,7 +192,7 @@ export class LoginClienteComponent implements OnInit, OnDestroy {
     try {
       const slug = this.getEstabelecimentoSlug();
       await this.agendamentoPublicoService.loginGoogle(idToken);
-      await this.router.navigate(['/agendamento', slug, 'novo']);
+      await this.router.navigate(this.destinoPosLogin(slug));
     } catch (err) {
       this.errorMessage.set(this.extrairMensagemErro(err));
     } finally {
@@ -186,7 +202,7 @@ export class LoginClienteComponent implements OnInit, OnDestroy {
 
   onCadastrado(): void {
     const slug = this.getEstabelecimentoSlug();
-    void this.router.navigate(['/agendamento', slug, 'novo']);
+    void this.router.navigate(this.destinoPosLogin(slug));
   }
 
   private extrairMensagemErro(err: unknown): string {
