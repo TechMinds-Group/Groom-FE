@@ -1,6 +1,7 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  computed,
   effect,
   inject,
   input,
@@ -9,10 +10,11 @@ import {
   signal,
 } from '@angular/core';
 import { AbstractControl, FormBuilder, ReactiveFormsModule, ValidationErrors, ValidatorFn } from '@angular/forms';
-import { TmModalComponent, TmSelectComponent, TmTextComponent } from '@techminds-group/tm-angular-lib';
+import { TmModalComponent, TmSelectComponent } from '@techminds-group/tm-angular-lib';
 import { AgendamentoPublicoService } from '../../../../../core/services/agendamento-publico.service';
 import { ProfissionalDisponivel, ServicoDisponivel } from '../../../../../core/models/agendamento-publico/agendamento-publico.model';
 import { EntrarListaEsperaPayload } from '../../../../../core/models/lista-espera/lista-espera.model';
+import { TemaPublicoService } from '../../../services/tema-publico.service';
 
 /** Valor dos selects quando a preferência não foi escolhida (null no payload). */
 const SEM_PREFERENCIA = '';
@@ -42,7 +44,7 @@ export function horaJanelaValida(): ValidatorFn {
 @Component({
   selector: 'app-lista-espera-modal-preferencias',
   standalone: true,
-  imports: [ReactiveFormsModule, TmModalComponent, TmSelectComponent, TmTextComponent],
+  imports: [ReactiveFormsModule, TmModalComponent, TmSelectComponent],
   templateUrl: './lista-espera-modal-preferencias.component.html',
   styleUrl: './lista-espera-modal-preferencias.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -50,6 +52,23 @@ export function horaJanelaValida(): ValidatorFn {
 export class ListaEsperaModalPreferenciasComponent {
   private readonly fb = inject(FormBuilder);
   private readonly agendamentoPublicoService = inject(AgendamentoPublicoService);
+  private readonly temaPublico = inject(TemaPublicoService);
+
+  /** Tema escuro ativo na tela pública — repassado ao dropdown dos selects. */
+  protected readonly isDark = computed(() => this.temaPublico.tema() === 'dark');
+
+  /**
+   * Janela "a partir de que horas" em HH:mm (24h — pt-BR): select com passo de 30 min.
+   * Input nativo `type="time"` segue o locale do navegador e pode exibir 12h (AM/PM).
+   */
+  protected readonly horaOptions = signal(
+    Array.from({ length: 48 }, (_, i) => {
+      const hora = String(Math.floor(i / 2)).padStart(2, '0');
+      const minuto = i % 2 === 0 ? '00' : '30';
+      const valor = `${hora}:${minuto}`;
+      return { value: valor, label: valor };
+    }),
+  );
 
   readonly show = model<boolean>(false);
   /** Estado do POST no pai — bloqueia reenvio enquanto a entrada é criada. */
