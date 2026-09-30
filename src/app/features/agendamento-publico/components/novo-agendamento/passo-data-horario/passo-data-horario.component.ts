@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, input, output, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, input, output, signal, viewChild } from '@angular/core';
 import { HorarioDisponivel, ServicoDisponivel } from '../../../../../core/models/agendamento-publico/agendamento-publico.model';
 import { ListaEsperaPortalComponent } from '../../lista-espera/lista-espera-portal/lista-espera-portal.component';
 
@@ -19,6 +19,8 @@ interface DiaCalendario {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PassoDataHorarioComponent {
+  private readonly portalLista = viewChild(ListaEsperaPortalComponent);
+
   readonly servico = input.required<ServicoDisponivel | null>();
   /** Duração em minutos quando o agendamento é via plano (o serviço não é selecionado). */
   readonly duracao = input<number | null>(null);
@@ -28,6 +30,27 @@ export class PassoDataHorarioComponent {
   readonly dataSelecionada = input<string | null>(null);
   readonly horarioSelecionado = input<string | null>(null);
   readonly isLoading = input(false);
+  /** Serviço/profissionais escolhidos nos passos anteriores — insumo do preset da lista de espera (RN-074). */
+  readonly profissionalId = input<string | null>(null);
+
+  /** Slot ocupado clicado: horário "HH:mm" que o cliente quer como janela da fila. */
+  readonly slotOcupadoClick = output<string>();
+
+  /**
+   * RN-074 — slot ocupado clicável: abre o modal da lista de espera pré-preenchido
+   * com a janela do slot clicado e as escolhas dos passos anteriores.
+   */
+  protected abrirListaPara(hora: string): void {
+    const portal = this.portalLista();
+    if (!portal) {
+      return;
+    }
+    portal.abrirComPreset({
+      servicoId: this.servico()?.id ?? null,
+      profissionalId: this.profissionalId() ?? null,
+      horaJanelaInicio: hora,
+    });
+  }
 
   readonly dataSelecionadaChange = output<string>();
   readonly horarioSelecionadoChange = output<string>();

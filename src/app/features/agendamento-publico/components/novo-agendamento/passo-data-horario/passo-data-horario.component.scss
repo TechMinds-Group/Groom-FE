@@ -178,6 +178,17 @@
       color: var(--tm-text-secondary);
     }
 
+    // RN-074 — slot ocupado é clicável: oferece entrada na fila do dia.
+    &--ocupado {
+      cursor: pointer;
+
+      &:hover {
+        opacity: 0.8;
+        border-color: var(--tm-primary);
+        color: var(--tm-primary);
+      }
+    }
+
     &--selected {
       border-color: var(--tm-primary);
       background: linear-gradient(135deg, var(--tm-primary), color-mix(in srgb, var(--tm-primary) 70%, #0b5ed7));

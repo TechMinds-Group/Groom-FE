@@ -113,7 +113,7 @@
 
         <div class="agendamento-wizard__body">
           <div class="agendamento-wizard__lista-espera mb-3">
-            <app-lista-espera-portal />
+            <app-lista-espera-portal [somenteStatus]="true" />
           </div>
           @if (!finalizandoCadastro()) {
             @if (meuPlano(); as plano) {
@@ -300,6 +300,7 @@
                       [dataSelecionada]="dataSelecionada()"
                       [horarioSelecionado]="horarioSelecionado()"
                       [isLoading]="isLoading()"
+                      [profissionalId]="profissionalSelecionado()?.id ?? null"
                       (dataSelecionadaChange)="selecionarData($event)"
                       (horarioSelecionadoChange)="selecionarHorario($event)"
                     />

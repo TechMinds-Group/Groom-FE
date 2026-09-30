@@ -74,6 +74,12 @@ export class ListaEsperaModalPreferenciasComponent {
   /** Estado do POST no pai — bloqueia reenvio enquanto a entrada é criada. */
   readonly enviando = input(false);
 
+  /**
+   * Preferências pré-preenchidas (entrada via horário ocupado clicado — RN-074):
+   * aplicadas ao abrir o modal, sobre os campos informados.
+   */
+  readonly preset = input<Partial<EntrarListaEsperaPayload> | null>(null);
+
   readonly confirm = output<EntrarListaEsperaPayload>();
 
   readonly form = this.fb.group({
@@ -97,10 +103,15 @@ export class ListaEsperaModalPreferenciasComponent {
   ]);
 
   constructor() {
-    // Recarrega as opções do catálogo sempre que o modal é aberto
+    // Recarrega as opções do catálogo e reaplica o preset sempre que o modal é aberto
     effect(() => {
       if (this.show()) {
-        this.form.reset({ servicoId: SEM_PREFERENCIA, profissionalId: SEM_PREFERENCIA, horaJanelaInicio: SEM_PREFERENCIA });
+        const preset = this.preset();
+        this.form.reset({
+          servicoId: preset?.servicoId ?? SEM_PREFERENCIA,
+          profissionalId: preset?.profissionalId ?? SEM_PREFERENCIA,
+          horaJanelaInicio: preset?.horaJanelaInicio ?? SEM_PREFERENCIA,
+        });
         void this.carregarOpcoes();
       }
     });
