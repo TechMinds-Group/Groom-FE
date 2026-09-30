@@ -12,6 +12,7 @@ import {
 import { AbstractControl, FormBuilder, ReactiveFormsModule, ValidationErrors, ValidatorFn } from '@angular/forms';
 import { TmModalComponent, TmSelectComponent } from '@techminds-group/tm-angular-lib';
 import { AgendamentoPublicoService } from '../../../../../core/services/agendamento-publico.service';
+import { EstabelecimentoService } from '../../../../../core/services/estabelecimento.service';
 import { ProfissionalDisponivel, ServicoDisponivel } from '../../../../../core/models/agendamento-publico/agendamento-publico.model';
 import { EntrarListaEsperaPayload } from '../../../../../core/models/lista-espera/lista-espera.model';
 import { TemaPublicoService } from '../../../services/tema-publico.service';
@@ -52,23 +53,40 @@ export function horaJanelaValida(): ValidatorFn {
 export class ListaEsperaModalPreferenciasComponent {
   private readonly fb = inject(FormBuilder);
   private readonly agendamentoPublicoService = inject(AgendamentoPublicoService);
+  private readonly estabelecimentoService = inject(EstabelecimentoService);
   private readonly temaPublico = inject(TemaPublicoService);
 
   /** Tema escuro ativo na tela pública — repassado ao dropdown dos selects. */
   protected readonly isDark = computed(() => this.temaPublico.tema() === 'dark');
 
   /**
-   * Janela "a partir de que horas" em HH:mm (24h — pt-BR): select com passo de 30 min.
-   * Input nativo `type="time"` segue o locale do navegador e pode exibir 12h (AM/PM).
+   * Janela "a partir de que horas" (24h, passo de 30 min) — só exibe horários
+   * possíveis: dentro do expediente de HOJE (getHorarioDia) e a partir de agora.
    */
-  protected readonly horaOptions = signal(
-    Array.from({ length: 48 }, (_, i) => {
-      const hora = String(Math.floor(i / 2)).padStart(2, '0');
-      const minuto = i % 2 === 0 ? '00' : '30';
-      const valor = `${hora}:${minuto}`;
-      return { value: valor, label: valor };
-    }),
-  );
+  protected readonly horaOptions = computed(() => {
+    const agora = new Date();
+    const expediente = this.estabelecimentoService.getHorarioDia(agora.getDay());
+    const agoraMinutos = agora.getHours() * 60 + agora.getMinutes();
+
+    const opcoes: { value: string; label: string }[] = [];
+    for (let i = 0; i < 48; i++) {
+      const hora = Math.floor(i / 2);
+      const minuto = i % 2 === 0 ? 0 : 30;
+      const minutosDoDia = hora * 60 + minuto;
+
+      // Já passou hoje — impossível.
+      if (minutosDoDia < agoraMinutos) {
+        continue;
+      }
+      // Estabelecimento fechado nessa faixa (quando há expediente configurado).
+      if (expediente.ativo && (hora < expediente.dayStartHour || hora >= expediente.dayEndHour)) {
+        continue;
+      }
+      const valor = `${String(hora).padStart(2, '0')}:${minuto === 0 ? '00' : '30'}`;
+      opcoes.push({ value: valor, label: valor });
+    }
+    return opcoes;
+  });
 
   readonly show = model<boolean>(false);
   /** Estado do POST no pai — bloqueia reenvio enquanto a entrada é criada. */
@@ -158,11 +176,23 @@ export class ListaEsperaModalPreferenciasComponent {
   }
 
   confirmar(): void {
+    const valores = this.form.getRawValue();
+    console.log('[ListaEsperaModal] Entrar na lista clicado', {
+      valores,
+      invalid: this.form.invalid,
+      erros: {
+        servicoId: this.form.controls.servicoId.errors,
+        profissionalId: this.form.controls.profissionalId.errors,
+        horaJanelaInicio: this.form.controls.horaJanelaInicio.errors,
+      },
+      enviando: this.enviando(),
+    });
     if (this.enviando()) {
       return;
     }
     if (this.form.invalid) {
       this.form.markAllAsTouched();
+      console.warn('[ListaEsperaModal] form inválido — early-return');
       return;
     }
     const { servicoId, profissionalId, horaJanelaInicio } = this.form.getRawValue();
