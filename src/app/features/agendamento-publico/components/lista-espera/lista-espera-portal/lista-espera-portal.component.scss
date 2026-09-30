@@ -49,3 +49,19 @@
   border-radius: 2rem;
   padding-inline: 1.25rem;
 }
+
+// Tema escuro do portal — card de status com contraste (RN-074).
+[data-theme='dark'] .lista-espera-portal__card,
+:host-context([data-theme='dark']) .lista-espera-portal__card {
+  background: #0d1117;
+  border-color: rgba(255, 255, 255, 0.15);
+
+  .lista-espera-portal__titulo,
+  .lista-espera-portal__posicao {
+    color: rgba(255, 255, 255, 0.92) !important;
+  }
+
+  .lista-espera-portal__icone {
+    color: #58a6ff !important;
+  }
+}
