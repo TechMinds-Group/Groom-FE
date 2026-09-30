@@ -1,0 +1,16 @@
+<tm-modal
+  [title]="titulo()"
+  [confirmLabel]="confirmLabel()"
+  [cancelLabel]="cancelLabel()"
+  [show]="show()"
+  (showChange)="show.set($event)"
+  (confirm)="confirmar.emit()"
+  (cancel)="cancelar.emit()"
+  [confirmClass]="confirmClass()"
+  [icon]="icon()"
+  size="md"
+>
+  <div class="p-1 text-start">
+    <p class="text-muted mb-0 modal-confirmacao__mensagem">{{ mensagem() }}</p>
+  </div>
+</tm-modal>
