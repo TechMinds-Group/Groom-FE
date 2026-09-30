@@ -303,6 +303,7 @@
                       [profissionalId]="profissionalSelecionado()?.id ?? null"
                       (dataSelecionadaChange)="selecionarData($event)"
                       (horarioSelecionadoChange)="selecionarHorario($event)"
+                      (listaEsperaSolicitada)="solicitarEntradaLista($event)"
                     />
                   }
                   @case (4) {
