@@ -9,10 +9,9 @@ import {
   output,
   signal,
 } from '@angular/core';
-import { AbstractControl, FormBuilder, ReactiveFormsModule, ValidationErrors, ValidatorFn } from '@angular/forms';
+import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { TmModalComponent, TmSelectComponent } from '@techminds-group/tm-angular-lib';
 import { AgendamentoPublicoService } from '../../../../../core/services/agendamento-publico.service';
-import { EstabelecimentoService } from '../../../../../core/services/estabelecimento.service';
 import { ProfissionalDisponivel, ServicoDisponivel } from '../../../../../core/models/agendamento-publico/agendamento-publico.model';
 import { EntrarListaEsperaPayload } from '../../../../../core/models/lista-espera/lista-espera.model';
 import { TemaPublicoService } from '../../../services/tema-publico.service';
@@ -21,26 +20,11 @@ import { TemaPublicoService } from '../../../services/tema-publico.service';
 const SEM_PREFERENCIA = '';
 
 /**
- * Valida "HH:mm" informado contra a hora atual (fuso UTC-3 — DEC-002):
- * campo opcional, mas quando informado não pode estar no passado.
- */
-export function horaJanelaValida(): ValidatorFn {
-  return (control: AbstractControl): ValidationErrors | null => {
-    const valor = control.value as string;
-    if (!valor) {
-      return null;
-    }
-    const [hora, minuto] = valor.split(':').map(Number);
-    const agora = new Date();
-    const minutosAgora = agora.getHours() * 60 + agora.getMinutes();
-    return hora * 60 + minuto >= minutosAgora ? null : { horaPassada: true };
-  };
-}
-
-/**
  * Modal de preferências opcionais para entrar na lista de espera do dia (UI_SPEC §5.14/§6.4):
- * serviço desejado (catálogo ativo), profissional (com "Qualquer profissional" — RN-042)
- * e "a partir de que horas". Todos opcionais; o componente pai executa a entrada (POST).
+ * serviço desejado (catálogo ativo) e profissional (com "Qualquer profissional" — RN-042).
+ * O horário desejado é implícito: vem do slot ocupado clicado (preset — RN-074) ou é
+ * "a partir de agora" (dia sem expediente). Todos os campos são opcionais; o componente
+ * pai executa a entrada (POST).
  */
 @Component({
   selector: 'app-lista-espera-modal-preferencias',
@@ -53,40 +37,10 @@ export function horaJanelaValida(): ValidatorFn {
 export class ListaEsperaModalPreferenciasComponent {
   private readonly fb = inject(FormBuilder);
   private readonly agendamentoPublicoService = inject(AgendamentoPublicoService);
-  private readonly estabelecimentoService = inject(EstabelecimentoService);
   private readonly temaPublico = inject(TemaPublicoService);
 
   /** Tema escuro ativo na tela pública — repassado ao dropdown dos selects. */
   protected readonly isDark = computed(() => this.temaPublico.tema() === 'dark');
-
-  /**
-   * Janela "a partir de que horas" (24h, passo de 30 min) — só exibe horários
-   * possíveis: dentro do expediente de HOJE (getHorarioDia) e a partir de agora.
-   */
-  protected readonly horaOptions = computed(() => {
-    const agora = new Date();
-    const expediente = this.estabelecimentoService.getHorarioDia(agora.getDay());
-    const agoraMinutos = agora.getHours() * 60 + agora.getMinutes();
-
-    const opcoes: { value: string; label: string }[] = [];
-    for (let i = 0; i < 48; i++) {
-      const hora = Math.floor(i / 2);
-      const minuto = i % 2 === 0 ? 0 : 30;
-      const minutosDoDia = hora * 60 + minuto;
-
-      // Já passou hoje — impossível.
-      if (minutosDoDia < agoraMinutos) {
-        continue;
-      }
-      // Estabelecimento fechado nessa faixa (quando há expediente configurado).
-      if (expediente.ativo && (hora < expediente.dayStartHour || hora >= expediente.dayEndHour)) {
-        continue;
-      }
-      const valor = `${String(hora).padStart(2, '0')}:${minuto === 0 ? '00' : '30'}`;
-      opcoes.push({ value: valor, label: valor });
-    }
-    return opcoes;
-  });
 
   readonly show = model<boolean>(false);
   /** Estado do POST no pai — bloqueia reenvio enquanto a entrada é criada. */
@@ -94,7 +48,8 @@ export class ListaEsperaModalPreferenciasComponent {
 
   /**
    * Preferências pré-preenchidas (entrada via horário ocupado clicado — RN-074):
-   * aplicadas ao abrir o modal, sobre os campos informados.
+   * aplicadas ao abrir o modal, sobre os campos informados. `horaJanelaInicio`
+   * NÃO é campo do form — vai direto no payload a partir do preset.
    */
   readonly preset = input<Partial<EntrarListaEsperaPayload> | null>(null);
 
@@ -103,7 +58,6 @@ export class ListaEsperaModalPreferenciasComponent {
   readonly form = this.fb.group({
     servicoId: [SEM_PREFERENCIA],
     profissionalId: [SEM_PREFERENCIA],
-    horaJanelaInicio: [SEM_PREFERENCIA, [horaJanelaValida()]],
   });
 
   private readonly _servicos = signal<ServicoDisponivel[]>([]);
@@ -128,7 +82,6 @@ export class ListaEsperaModalPreferenciasComponent {
         this.form.reset({
           servicoId: preset?.servicoId ?? SEM_PREFERENCIA,
           profissionalId: preset?.profissionalId ?? SEM_PREFERENCIA,
-          horaJanelaInicio: preset?.horaJanelaInicio ?? SEM_PREFERENCIA,
         });
         void this.carregarOpcoes();
       }
@@ -170,37 +123,18 @@ export class ListaEsperaModalPreferenciasComponent {
     }
   }
 
-  protected get horaPassada(): boolean {
-    const control = this.form.controls.horaJanelaInicio;
-    return control.invalid && (control.touched || control.dirty);
-  }
-
   confirmar(): void {
-    const valores = this.form.getRawValue();
-    console.log('[ListaEsperaModal] Entrar na lista clicado', {
-      valores,
-      invalid: this.form.invalid,
-      erros: {
-        servicoId: this.form.controls.servicoId.errors,
-        profissionalId: this.form.controls.profissionalId.errors,
-        horaJanelaInicio: this.form.controls.horaJanelaInicio.errors,
-      },
-      enviando: this.enviando(),
-    });
     if (this.enviando()) {
       return;
     }
-    if (this.form.invalid) {
-      this.form.markAllAsTouched();
-      console.warn('[ListaEsperaModal] form inválido — early-return');
-      return;
-    }
-    const { servicoId, profissionalId, horaJanelaInicio } = this.form.getRawValue();
+    const { servicoId, profissionalId } = this.form.getRawValue();
+    // O horário desejado é o do slot clicado (preset); dia apagado = sem janela (agora em diante).
     this.confirm.emit({
       servicoId: servicoId || null,
       profissionalId: profissionalId || null,
-      horaJanelaInicio: horaJanelaInicio || null,
+      horaJanelaInicio: this.preset()?.horaJanelaInicio ?? null,
     });
+    this.show.set(false);
   }
 
   protected fechar(): void {
