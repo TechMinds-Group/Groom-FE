@@ -39,10 +39,11 @@
           <button
             type="button"
             class="agendamento-calendario__celula"
-            [class.agendamento-calendario__celula--disabled]="!dia.habilitado"
+            [class.agendamento-calendario__celula--disabled]="!dia.habilitado && !dia.listaEspera"
+            [class.agendamento-calendario__celula--lista-espera]="dia.listaEspera"
             [class.agendamento-calendario__celula--selected]="dia.selecionado"
             [class.agendamento-calendario__celula--hoje]="dia.hoje"
-            [disabled]="!dia.habilitado"
+            [title]="dia.listaEspera ? 'Sem horários neste dia — clique para entrar na lista de espera' : null"
             (click)="selecionarDia(dia)"
           >
             {{ dia.date.getDate() }}
@@ -72,10 +73,7 @@
     @if (diaEsgotado()) {
       <p class="text-muted">Os horários de hoje já se encerraram. Selecione outro dia.</p>
     } @else {
-      <p class="text-muted">Nenhum horário disponível para esta data.</p>
-      <div class="agendamento-horarios__lista-espera mt-3">
-        <app-lista-espera-portal />
-      </div>
+      <p class="text-muted">Nenhum horário disponível para esta data. Dias apagados no calendário oferecem entrada na lista de espera.</p>
     }
   } @else {
     <div class="agendamento-horarios">
@@ -100,12 +98,12 @@
     </div>
 
     @if (nenhorHorarioDisponivel()) {
-      <p class="text-muted small mt-2 mb-0">Nenhum horário disponível para esta data — clique em um horário ocupado ou entre na lista de espera para ser avisado quando uma vaga abrir.</p>
-      <div class="agendamento-horarios__lista-espera mt-3">
-        <app-lista-espera-portal />
-      </div>
+      <p class="text-muted small mt-2 mb-0">Nenhum horário disponível nesta data — clique em um horário ocupado para entrar na lista de espera.</p>
     }
   }
+
+  <!-- Status da fila (quando o cliente já está nela) + hospedeiro do modal da lista de espera. -->
+  <app-lista-espera-portal [somenteStatus]="true" />
 } @else {
   <p class="text-muted mb-0">Selecione uma data para ver os horários disponíveis.</p>
 }

@@ -6,6 +6,8 @@ interface DiaCalendario {
   date: Date;
   vazio: boolean;
   habilitado: boolean;
+  /** RN-074 — dia sem expediente (apagado) que abre a lista de espera ao clicar. */
+  listaEspera: boolean;
   selecionado: boolean;
   hoje: boolean;
 }
@@ -37,10 +39,10 @@ export class PassoDataHorarioComponent {
   readonly slotOcupadoClick = output<string>();
 
   /**
-   * RN-074 — slot ocupado clicável: abre o modal da lista de espera pré-preenchido
-   * com a janela do slot clicado e as escolhas dos passos anteriores.
+   * RN-074 — abre o modal da lista de espera com as escolhas dos passos anteriores;
+   * `hora` pré-preenche a janela quando a entrada vem de um slot ocupado clicado.
    */
-  protected abrirListaPara(hora: string): void {
+  protected abrirListaPara(hora: string | null): void {
     const portal = this.portalLista();
     if (!portal) {
       return;
@@ -48,7 +50,7 @@ export class PassoDataHorarioComponent {
     portal.abrirComPreset({
       servicoId: this.servico()?.id ?? null,
       profissionalId: this.profissionalId() ?? null,
-      horaJanelaInicio: hora,
+      ...(hora ? { horaJanelaInicio: hora } : {}),
     });
   }
 
@@ -109,11 +111,12 @@ export class PassoDataHorarioComponent {
 
     const dias: DiaCalendario[] = [];
     for (let i = 0; i < offset; i++) {
-      dias.push({ date: new Date(0), vazio: true, habilitado: false, selecionado: false, hoje: false });
+      dias.push({ date: new Date(0), vazio: true, habilitado: false, listaEspera: false, selecionado: false, hoje: false });
     }
     for (let dia = 1; dia <= ultimoDia; dia++) {
       const date = new Date(mes.getFullYear(), mes.getMonth(), dia);
       const ehHoje = date.getTime() === inicioHoje.getTime();
+      const ehFuturo = date.getTime() > inicioHoje.getTime();
       const habilitado = diasDisponiveis.includes(date.getDay())
         && date >= inicioHoje
         && !(ehHoje && diaEsgotado);
@@ -121,6 +124,8 @@ export class PassoDataHorarioComponent {
         date,
         vazio: false,
         habilitado,
+        // RN-074 — dia apagado futuro (sem expediente): clique abre a lista de espera.
+        listaEspera: !habilitado && ehFuturo,
         selecionado: this.dataSelecionada() === this.toIso(date),
         hoje: ehHoje,
       });
@@ -136,6 +141,11 @@ export class PassoDataHorarioComponent {
   selecionarDia(dia: DiaCalendario): void {
     if (dia.habilitado) {
       this.dataSelecionadaChange.emit(this.toIso(dia.date));
+      return;
+    }
+    // RN-074 — dia apagado (sem expediente, futuro): clique abre a fila do dia.
+    if (dia.listaEspera) {
+      this.abrirListaPara(null);
     }
   }
 
