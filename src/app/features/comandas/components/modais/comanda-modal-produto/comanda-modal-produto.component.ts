@@ -26,6 +26,8 @@ export class ComandaModalProdutoComponent {
 
   /** Seleção do produto via tm-select com busca (nome, marca e código no label). */
   protected readonly produtoControl = new FormControl<string>('', { nonNullable: true });
+  /** Espelho em signal do control — FormControl não é rastreável por computed. */
+  protected readonly produtoSelecionadoId = signal<string>('');
   protected readonly quantidade = signal<number>(1);
   protected readonly observacoes = signal('');
   protected readonly carregando = signal(false);
@@ -41,7 +43,7 @@ export class ComandaModalProdutoComponent {
   );
 
   protected readonly selecionado = computed<ProdutoEstoque | null>(() => {
-    const id = this.produtoControl.value;
+    const id = this.produtoSelecionadoId();
     return this.produtos().find((p) => p.id === id) ?? null;
   });
 
@@ -56,14 +58,16 @@ export class ComandaModalProdutoComponent {
   );
 
   constructor() {
-    // DEBUG — rastreia a seleção chegando pelo CVA do tm-select
+    // DEBUG — espelha o FormControl no signal (FormControl não é rastreável por computed)
     this.produtoControl.valueChanges.subscribe((v) => {
       console.log('[ComandaModalProduto] produtoControl mudou:', v);
+      this.produtoSelecionadoId.set(v ?? '');
     });
 
     effect(() => {
       if (this.show()) {
         this.produtoControl.setValue('');
+        this.produtoSelecionadoId.set('');
         this.quantidade.set(1);
         this.observacoes.set('');
         void this.carregarProdutos();
