@@ -469,6 +469,7 @@ export class NovoAgendamentoComponent implements OnInit, OnDestroy {
   }
 
   async salvarFinalizacaoCadastro(dados: DadosFinalizacaoCadastro): Promise<void> {
+    console.log('[FinalizacaoCadastro] salvar clicado', dados, '| pendenteLista:', this.listaEsperaPendenteHora);
     this.salvandoCadastro.set(true);
     this.errorMessage.set(null);
     try {
@@ -477,6 +478,7 @@ export class NovoAgendamentoComponent implements OnInit, OnDestroy {
         email: dados.email,
         celular: dados.celular,
       });
+      console.log('[FinalizacaoCadastro] cadastro salvo com sucesso');
       this.dadosFinalizacao.set(null);
       this.finalizandoCadastro.set(false);
 
@@ -485,13 +487,15 @@ export class NovoAgendamentoComponent implements OnInit, OnDestroy {
       if (this.listaEsperaPendenteHora !== undefined) {
         const hora = this.listaEsperaPendenteHora;
         this.listaEsperaPendenteHora = undefined;
+        console.log('[FinalizacaoCadastro] reabrindo modal da lista com hora:', hora);
         this.passoDataHorario()?.abrirModalLista({
           servicoId: this.servicoSelecionado()?.id ?? null,
           profissionalId: this.profissionalSelecionado()?.id ?? null,
           ...(hora ? { horaJanelaInicio: hora } : {}),
         });
       }
-    } catch {
+    } catch (err) {
+      console.error('[FinalizacaoCadastro] falha ao salvar cadastro', err);
       this.errorMessage.set('Não foi possível salvar seus dados. Confira as informações e tente novamente.');
     } finally {
       this.salvandoCadastro.set(false);
@@ -567,6 +571,7 @@ export class NovoAgendamentoComponent implements OnInit, OnDestroy {
    * concluída a etapa, o modal de confirmação da fila é aberto com o preset.
    */
   async solicitarEntradaLista(request: { hora: string | null }): Promise<void> {
+    console.log('[ListaEsperaWizard] solicitação de entrada', request);
     const presetBase = {
       servicoId: this.servicoSelecionado()?.id ?? null,
       profissionalId: this.profissionalSelecionado()?.id ?? null,
@@ -575,12 +580,15 @@ export class NovoAgendamentoComponent implements OnInit, OnDestroy {
     let me: { nome?: string; email?: string; celular?: string } | null = null;
     try {
       me = await this.agendamentoPublicoService.getMe();
-    } catch {
+    } catch (err) {
+      console.error('[ListaEsperaWizard] getMe falhou', err);
       me = null;
     }
+    console.log('[ListaEsperaWizard] me:', me);
 
     if (!me) {
       // Cliente novo (sem sessão): login/cadastro do portal primeiro.
+      console.warn('[ListaEsperaWizard] sem sessão — redirecionando para login do portal');
       const slug =
         this.agendamentoPublicoService.estabelecimento() ||
         this.route.snapshot.paramMap.get('estabelecimento') ||
@@ -596,6 +604,7 @@ export class NovoAgendamentoComponent implements OnInit, OnDestroy {
     const partesNome = (me.nome ?? '').trim().split(/\s+/).filter(Boolean);
     const cadastroIncompleto =
       !me.celular || !me.email || partesNome.length < 2;
+    console.log('[ListaEsperaWizard] cadastroIncompleto:', cadastroIncompleto, { celular: me.celular, email: me.email, partesNome: partesNome.length });
 
     if (cadastroIncompleto) {
       this.listaEsperaPendenteHora = request.hora;
@@ -603,6 +612,7 @@ export class NovoAgendamentoComponent implements OnInit, OnDestroy {
       return;
     }
 
+    console.log('[ListaEsperaWizard] cadastro completo — abrindo modal da fila');
     this.passoDataHorario()?.abrirModalLista({
       ...presetBase,
       ...(request.hora ? { horaJanelaInicio: request.hora } : {}),
