@@ -34,7 +34,7 @@
         ></tm-select>
       </div>
 
-      <div class="mb-3">
+      <div class="mb-2">
         <tm-select
           formControlName="profissionalId"
           [control]="form.controls.profissionalId"
@@ -45,25 +45,6 @@
           [clearable]="true"
           [darkMode]="isDark()"
         ></tm-select>
-      </div>
-
-      <div class="mb-2">
-        <tm-select
-          formControlName="horaJanelaInicio"
-          [control]="form.controls.horaJanelaInicio"
-          [options]="horaOptions()"
-          label="A partir de que horas"
-          icon="fa-solid fa-clock"
-          placeholder="Agora"
-          [clearable]="true"
-          [darkMode]="isDark()"
-        ></tm-select>
-        @if (horaPassada) {
-          <div class="text-danger extra-small mt-1">
-            <i class="fas fa-triangle-exclamation me-1"></i>
-            Informe um horário a partir de agora.
-          </div>
-        }
       </div>
     }
   </div>
