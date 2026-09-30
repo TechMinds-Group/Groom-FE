@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, inject, input, output, signal, viewChild } from '@angular/core';
 import { HorarioDisponivel, ServicoDisponivel } from '../../../../../core/models/agendamento-publico/agendamento-publico.model';
+import { EntrarListaEsperaPayload } from '../../../../../core/models/lista-espera/lista-espera.model';
 import { ListaEsperaPortalComponent } from '../../lista-espera/lista-espera-portal/lista-espera-portal.component';
 
 interface DiaCalendario {
@@ -38,20 +39,20 @@ export class PassoDataHorarioComponent {
   /** Slot ocupado clicado: horário "HH:mm" que o cliente quer como janela da fila. */
   readonly slotOcupadoClick = output<string>();
 
+  /** RN-074 — cliente pediu entrada na fila; o pai valida cadastro e devolve a abertura do modal. */
+  readonly listaEsperaSolicitada = output<{ hora: string | null }>();
+
   /**
-   * RN-074 — abre o modal da lista de espera com as escolhas dos passos anteriores;
-   * `hora` pré-preenche a janela quando a entrada vem de um slot ocupado clicado.
+   * RN-074 — slot ocupado clicável / dia apagado: solicita entrada na fila;
+   * o pai valida o cadastro e devolve a abertura do modal via abrirModalLista.
    */
-  protected abrirListaPara(hora: string | null): void {
-    const portal = this.portalLista();
-    if (!portal) {
-      return;
-    }
-    portal.abrirComPreset({
-      servicoId: this.servico()?.id ?? null,
-      profissionalId: this.profissionalId() ?? null,
-      ...(hora ? { horaJanelaInicio: hora } : {}),
-    });
+  abrirListaPara(hora: string | null): void {
+    this.listaEsperaSolicitada.emit({ hora });
+  }
+
+  /** Abre o modal de preferências pré-preenchido (chamado pelo wizard após validar cadastro). */
+  abrirModalLista(preset: Partial<EntrarListaEsperaPayload>): void {
+    this.portalLista()?.abrirComPreset(preset);
   }
 
   readonly dataSelecionadaChange = output<string>();

@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, inject, OnDestroy, OnInit, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, OnDestroy, OnInit, signal, viewChild } from '@angular/core';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AgendamentoPublicoService } from '../../../../core/services/agendamento-publico.service';
@@ -479,6 +479,18 @@ export class NovoAgendamentoComponent implements OnInit, OnDestroy {
       });
       this.dadosFinalizacao.set(null);
       this.finalizandoCadastro.set(false);
+
+      // RN-074 — cadastro concluído a partir do pedido de entrada na fila:
+      // abre o modal de confirmação da fila com o horário pendente.
+      if (this.listaEsperaPendenteHora !== undefined) {
+        const hora = this.listaEsperaPendenteHora;
+        this.listaEsperaPendenteHora = undefined;
+        this.passoDataHorario()?.abrirModalLista({
+          servicoId: this.servicoSelecionado()?.id ?? null,
+          profissionalId: this.profissionalSelecionado()?.id ?? null,
+          ...(hora ? { horaJanelaInicio: hora } : {}),
+        });
+      }
     } catch {
       this.errorMessage.set('Não foi possível salvar seus dados. Confira as informações e tente novamente.');
     } finally {
@@ -541,6 +553,61 @@ export class NovoAgendamentoComponent implements OnInit, OnDestroy {
   }
 
   readonly clienteLogado = this.agendamentoPublicoService.clienteLogado;
+
+  /** Passo data/horário — hospedeiro do modal da lista de espera (RN-074). */
+  private readonly passoDataHorario = viewChild(PassoDataHorarioComponent);
+
+  /** Hora pendente do pedido de entrada na lista aguardando conclusão do cadastro. */
+  private listaEsperaPendenteHora: string | null | undefined;
+
+  /**
+   * RN-074 — cliente pediu entrada na fila (slot ocupado/dia apagado). Cadastro
+   * completo só é exigido quando ele for CONFIRMAR o agendamento; aqui, sem
+   * login direciona ao portal-login e sem cadastro completo abre a finalização;
+   * concluída a etapa, o modal de confirmação da fila é aberto com o preset.
+   */
+  async solicitarEntradaLista(request: { hora: string | null }): Promise<void> {
+    const presetBase = {
+      servicoId: this.servicoSelecionado()?.id ?? null,
+      profissionalId: this.profissionalSelecionado()?.id ?? null,
+    };
+
+    let me: { nome?: string; email?: string; celular?: string } | null = null;
+    try {
+      me = await this.agendamentoPublicoService.getMe();
+    } catch {
+      me = null;
+    }
+
+    if (!me) {
+      // Cliente novo (sem sessão): login/cadastro do portal primeiro.
+      const slug =
+        this.agendamentoPublicoService.estabelecimento() ||
+        this.route.snapshot.paramMap.get('estabelecimento') ||
+        '';
+      if (slug) {
+        await this.router.navigate(['/agendamento', slug, 'login']);
+      } else {
+        await this.router.navigate(['/login']);
+      }
+      return;
+    }
+
+    const partesNome = (me.nome ?? '').trim().split(/\s+/).filter(Boolean);
+    const cadastroIncompleto =
+      !me.celular || !me.email || partesNome.length < 2;
+
+    if (cadastroIncompleto) {
+      this.listaEsperaPendenteHora = request.hora;
+      await this.abrirFinalizacaoCadastro();
+      return;
+    }
+
+    this.passoDataHorario()?.abrirModalLista({
+      ...presetBase,
+      ...(request.hora ? { horaJanelaInicio: request.hora } : {}),
+    });
+  }
 
   /** Alterna entre tema claro e escuro na tela pública. */
   alternarTema(): void {
