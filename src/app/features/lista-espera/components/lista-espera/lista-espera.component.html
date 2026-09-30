@@ -1,0 +1,147 @@
+<div class="container mt-5 mb-5">
+  <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between mb-4 gap-3">
+    <div>
+      <h1 class="h2 text-primary fw-bold mb-2 custom-dark-text d-flex align-items-center gap-2">
+        <i class="fas fa-hourglass-half me-2"></i>Lista de Espera
+      </h1>
+      <p class="text-muted custom-dark-text mb-0">
+        Fila do dia em ordem de chegada (FIFO). Quando uma vaga abre, o próximo cliente compatível recebe uma
+        reserva temporária do slot — acompanhe a contagem regressiva abaixo.
+      </p>
+    </div>
+
+    <div class="d-flex align-items-center gap-2">
+      <label class="form-label fw-bold custom-dark-text small mb-0" for="filtro-data">Data</label>
+      <input
+        id="filtro-data"
+        type="date"
+        class="form-control"
+        [ngModel]="dataSelecao()"
+        (ngModelChange)="onDataChange($event)"
+        [disabled]="carregando()"
+      />
+    </div>
+  </div>
+
+  @if (carregando()) {
+    <div class="text-center text-muted py-5">
+      <i class="fas fa-spinner fa-spin me-2 fs-4"></i>
+      <span>Carregando lista de espera...</span>
+    </div>
+  } @else if (semEntradas()) {
+    <div class="text-center text-muted py-5 estado-vazio">
+      <i class="fas fa-hourglass-empty fs-1 mb-3 d-block"></i>
+      <span class="fw-semibold">Nenhum cliente na lista de espera nesta data.</span>
+    </div>
+  } @else {
+    <div class="mb-5">
+      <tm-table
+        [cols]="colunas()"
+        [data]="entradas()"
+        [paginated]="true"
+        [pageSize]="tamanhoPagina()"
+        (pageSizeChange)="tamanhoPagina.set($event)"
+        [showControls]="true"
+      ></tm-table>
+    </div>
+  }
+</div>
+
+<ng-template #posicaoTemplate let-item>
+  <span class="badge border rounded-circle p-0 posicao-badge bg-primary-subtle text-primary border-primary-subtle">
+    {{ item.posicao }}
+  </span>
+</ng-template>
+
+<ng-template #clienteTemplate let-item>
+  <div class="d-flex flex-column text-start">
+    <strong class="fw-bold custom-dark-text">{{ item.clienteNome }}</strong>
+  </div>
+</ng-template>
+
+<ng-template #servicoTemplate let-item>
+  <div class="d-flex align-items-center text-start">
+    @if (item.servicoNome) {
+      <span class="custom-dark-text"><i class="fas fa-cut me-2 text-muted"></i>{{ item.servicoNome }}</span>
+    } @else {
+      <span class="text-muted">—</span>
+    }
+  </div>
+</ng-template>
+
+<ng-template #profissionalTemplate let-item>
+  <div class="d-flex align-items-center text-start">
+    @if (item.profissionalNome) {
+      <span class="custom-dark-text"><i class="fas fa-user me-2 text-muted"></i>{{ item.profissionalNome }}</span>
+    } @else {
+      <span class="text-muted">—</span>
+    }
+  </div>
+</ng-template>
+
+<ng-template #janelaTemplate let-item>
+  <div class="d-flex align-items-center text-start">
+    @if (item.horaJanelaInicio) {
+      <span class="custom-dark-text"><i class="fas fa-clock me-2 text-muted"></i>{{ item.horaJanelaInicio }}</span>
+    } @else {
+      <span class="text-muted">—</span>
+    }
+  </div>
+</ng-template>
+
+<ng-template #statusTemplate let-item>
+  <div class="d-flex align-items-center">
+    @if (item.status | statusListaEsperaBadge; as badge) {
+      <span class="badge border px-2.5 py-1 rounded-pill small fw-semibold" [ngClass]="badge.badgeClass">
+        <i [class]="badge.iconClass" class="me-1"></i>{{ badge.label }}
+      </span>
+    }
+  </div>
+</ng-template>
+
+<ng-template #reservaTemplate let-item>
+  <div class="d-flex align-items-center">
+    @if (item.reservaAtiva) {
+      <span
+        class="badge border px-2.5 py-1 rounded-pill small fw-semibold bg-info-subtle text-info border-info-subtle"
+        [title]="'Reserva com ' + item.reservaAtiva.profissionalNome + ' — expira às ' + item.reservaAtiva.expiraEmUtc"
+      >
+        <i class="fas fa-hourglass-half me-1"></i>{{ helper.contagemReserva(item.reservaAtiva.expiraEmUtc, agoraMs()) }}
+      </span>
+    } @else {
+      <span class="text-muted">—</span>
+    }
+  </div>
+</ng-template>
+
+<ng-template #entradaTemplate let-item>
+  <div class="d-flex align-items-center text-start">
+    <span class="custom-dark-text">{{ helper.horaDe(item.criadaEmUtc) }}</span>
+  </div>
+</ng-template>
+
+<ng-template #acoesTemplate let-item>
+  <div class="d-flex align-items-center justify-content-center">
+    @if (item.status === 'Ativa') {
+      <button
+        type="button"
+        class="btn btn-outline-danger btn-sm rounded-3 d-inline-flex align-items-center gap-1"
+        (click)="abrirRemocao(item)"
+        [title]="'Remover ' + item.clienteNome + ' da lista'"
+      >
+        <i class="fas fa-user-minus"></i><span>Remover</span>
+      </button>
+    } @else {
+      <span class="text-muted">—</span>
+    }
+  </div>
+</ng-template>
+
+<app-modal-confirmar-remocao
+  [show]="modalRemocaoAberto()"
+  (showChange)="modalRemocaoAberto.set($event)"
+  [clienteNome]="entradaSelecionada()?.clienteNome ?? ''"
+  [removendo]="removendo()"
+  (confirmar)="confirmarRemocao()"
+  (cancelar)="fecharModalRemocao()"
+/>

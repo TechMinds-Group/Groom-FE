@@ -1,0 +1,22 @@
+<tm-modal
+  [title]="'Remover da lista de espera'"
+  confirmLabel="Remover da lista"
+  cancelLabel="Cancelar"
+  [show]="show()"
+  (showChange)="show.set($event)"
+  (confirm)="confirmar.emit()"
+  (cancel)="cancelar.emit()"
+  confirmClass="btn-danger"
+  icon="fas fa-user-minus"
+  size="md"
+>
+  <div class="p-1 text-start">
+    <p class="text-muted mb-2">
+      Remover <strong class="custom-dark-text">{{ clienteNome() }}</strong> da lista de espera do dia?
+    </p>
+    <p class="text-muted small mb-0">
+      A entrada ficará com status <span class="badge border bg-secondary-subtle text-secondary border-secondary-subtle">Removida</span>
+      e o cliente deixará a fila. Esta ação não pode ser desfeita.
+    </p>
+  </div>
+</tm-modal>

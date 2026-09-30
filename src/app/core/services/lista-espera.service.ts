@@ -56,4 +56,24 @@ export class ListaEsperaService {
       }),
     );
   }
+
+  // ── Painel do estabelecimento (RN-077 — API_CONTRACTS §15.2) ──────────────
+  // Tenant via X-Tenant-Id do tenantInterceptor; autenticação por cookie staff.
+
+  /** Lista do dia em ordem FIFO com preferências, posição e reserva ativa (`data` = "YYYY-MM-DD"). */
+  async listarDoDia(data: string): Promise<ListaEsperaItem[]> {
+    return firstValueFrom(
+      this.http.get<ListaEsperaItem[]>(`${environment.apiUrl}/api/lista-espera`, {
+        params: { data },
+      }),
+    );
+  }
+
+  /**
+   * Remove cliente da lista pela recepção/admin (Status → "Removida").
+   * 403 `Agendamento.Forbidden` quando o perfil não tem permissão (RN-015); 404 quando inexistente.
+   */
+  async remover(id: string): Promise<void> {
+    await firstValueFrom(this.http.delete<void>(`${environment.apiUrl}/api/lista-espera/${id}`));
+  }
 }

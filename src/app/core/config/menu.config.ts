@@ -25,6 +25,7 @@ export const ALL_SIDEBAR_MENU_ITEMS: MenuItem[] = [
       { label: 'Profissionais', icon: 'fas fa-user-tie', route: '/gestao/profissionais' },
       { label: 'Estoque', icon: 'fas fa-boxes-stacked', route: '/gestao/estoque', roles: ['Administrador'] },
       { label: 'Comandas', icon: 'fas fa-receipt', route: '/gestao/comandas' },
+      { label: 'Lista de Espera', icon: 'fas fa-hourglass-half', route: '/gestao/lista-espera' },
       { label: 'Usuários', icon: 'fas fa-user-shield', route: '/gestao/gestao-usuarios', roles: ['Administrador'] },
     ],
   },

@@ -170,6 +170,13 @@ export const routes: Routes = [
               ),
           },
           {
+            path: 'lista-espera',
+            loadComponent: () =>
+              import('./features/lista-espera/components/lista-espera/lista-espera.component').then(
+                (m) => m.ListaEsperaComponent,
+              ),
+          },
+          {
             path: 'gestao-usuarios',
             loadComponent: () =>
               import('./features/gestao-usuarios/components/gestao-usuarios/gestao-usuarios.component').then(

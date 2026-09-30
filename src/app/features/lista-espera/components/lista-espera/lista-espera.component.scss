@@ -1,0 +1,14 @@
+.posicao-badge {
+  width: 32px;
+  height: 32px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.85rem;
+}
+
+.estado-vazio {
+  border: 1px dashed var(--bs-border-color);
+  border-radius: 0.75rem;
+}
