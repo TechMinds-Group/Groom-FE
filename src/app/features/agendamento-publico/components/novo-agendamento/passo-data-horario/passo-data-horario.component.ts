@@ -71,6 +71,11 @@ export class PassoDataHorarioComponent {
     return this.horarios().length > 0 && this.horariosVisiveis().length === 0;
   });
 
+  /** RN-074 — dia lotado: há slots, mas nenhum disponível — oferece a fila do dia. */
+  protected readonly nenhorHorarioDisponivel = computed(
+    () => this.horariosVisiveis().length > 0 && this.horariosVisiveis().every((h) => !h.disponivel),
+  );
+
   protected readonly diasCalendario = computed<DiaCalendario[]>(() => {
     const mes = this.mesExibido();
     const offset = new Date(mes.getFullYear(), mes.getMonth(), 1).getDay();
