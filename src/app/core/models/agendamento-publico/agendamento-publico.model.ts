@@ -49,6 +49,8 @@ export interface CriarAgendamentoPayload {
   servicoId: string;
   dataInicio: string;
   observacoes?: string;
+  /** Id da reserva da lista de espera (RN-076) — presente apenas na confirmação do slot reservado. */
+  reservaId?: string;
 }
 
 export interface CriarAgendamentoPlanoPayload {
