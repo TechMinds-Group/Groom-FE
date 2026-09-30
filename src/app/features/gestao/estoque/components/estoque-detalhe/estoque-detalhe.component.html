@@ -490,3 +490,15 @@
     }
   }
 </div>
+
+<app-modal-confirmacao
+  [show]="confirmacao() !== null"
+  [titulo]="confirmacao()?.titulo ?? ''"
+  [mensagem]="confirmacao()?.mensagem ?? ''"
+  [confirmLabel]="confirmacao()?.confirmLabel ?? 'Confirmar'"
+  [confirmClass]="confirmacao()?.confirmClass ?? 'btn-primary'"
+  [icon]="confirmacao()?.icon ?? 'fa-solid fa-circle-question'"
+  [processando]="executandoConfirmacao()"
+  (confirmar)="confirmarAcao()"
+  (cancelar)="cancelarAcao()"
+/>
