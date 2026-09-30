@@ -7,6 +7,27 @@
   overflow-y: auto;
 }
 
+// Card do produto selecionado — segue o tema via variáveis da lib (claro/escuro).
+.produto-selecionado {
+  background: var(--tm-input-bg, var(--bs-body-bg));
+  border: 1px solid var(--tm-border-color, var(--bs-border-color));
+
+  &__detalhe {
+    color: var(--tm-text-secondary, var(--bs-secondary-color));
+  }
+}
+
+// Tema escuro do painel — reforço de contraste sobre a superfície do modal.
+[data-theme='dark'] .produto-selecionado,
+:host-context([data-theme='dark']) .produto-selecionado {
+  background-color: #161b22 !important;
+  border-color: rgba(255, 255, 255, 0.15) !important;
+
+  .produto-selecionado__detalhe {
+    color: rgba(255, 255, 255, 0.65) !important;
+  }
+}
+
 [data-theme='dark'] .produto-item,
 :host-context([data-theme='dark']) .produto-item {
   background-color: #0d1117 !important;

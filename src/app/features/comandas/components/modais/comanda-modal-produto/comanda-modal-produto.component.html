@@ -31,11 +31,11 @@
     </div>
 
     @if (selecionado(); as p) {
-      <div class="mb-3 p-3 bg-dark-subtle rounded border border-secondary border-opacity-25">
+      <div class="produto-selecionado mb-3 p-3 rounded">
         <div class="d-flex justify-content-between align-items-center">
           <div>
             <strong class="d-block custom-dark-text">{{ p.nome }}</strong>
-            <span class="text-muted small">
+            <span class="produto-selecionado__detalhe small">
               {{ p.precoVenda | currency:'BRL':'symbol':'1.2-2':'pt-BR' }} / {{ p.unidadeMedida }}
               •
               <span
@@ -47,7 +47,7 @@
             </span>
           </div>
           @if (p.marca) {
-            <span class="text-muted small">{{ p.marca }}</span>
+            <span class="produto-selecionado__detalhe small">{{ p.marca }}</span>
           }
         </div>
 

@@ -212,19 +212,14 @@ export class ComandaDetalhesComponent implements OnInit {
 
   protected async onProdutoConfirm(request: { produtoId: string; quantidade: number; observacoes?: string }): Promise<void> {
     const c = this.comanda();
-    console.log('[ComandaDetalhes] onProdutoConfirm', { request, comandaId: c?.id, comandaAberta: this.comandaAberta() });
-    if (!c) {
-      console.warn('[ComandaDetalhes] sem comanda carregada — abortando');
-      return;
-    }
+    if (!c) return;
     this.processando.set(true);
     try {
       await firstValueFrom(this.comandaService.adicionarProduto(c.id, request));
-      console.log('[ComandaDetalhes] produto adicionado com sucesso');
       this.toastService.success('Produto adicionado à comanda.');
       await this.carregar(c.id);
-    } catch (err) {
-      console.error('[ComandaDetalhes] falha ao adicionar produto', err);
+    } catch {
+      // Erro específico (estoque insuficiente) já exibido pelo interceptor.
     } finally {
       this.processando.set(false);
     }
