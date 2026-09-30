@@ -58,9 +58,8 @@ export class ComandaModalProdutoComponent {
   );
 
   constructor() {
-    // DEBUG — espelha o FormControl no signal (FormControl não é rastreável por computed)
+    // FormControl não é rastreável por computed — espelha no signal a cada mudança.
     this.produtoControl.valueChanges.subscribe((v) => {
-      console.log('[ComandaModalProduto] produtoControl mudou:', v);
       this.produtoSelecionadoId.set(v ?? '');
     });
 
@@ -73,19 +72,6 @@ export class ComandaModalProdutoComponent {
         void this.carregarProdutos();
       }
     });
-
-    // DEBUG — estado das opções a cada mudança
-    effect(() => {
-      console.log('[ComandaModalProduto] estado', {
-        show: this.show(),
-        carregando: this.carregando(),
-        produtos: this.produtos().length,
-        selecionado: this.selecionado()?.nome ?? null,
-        control: this.produtoControl.value,
-        quantidade: this.quantidade(),
-        podeConfirmar: this.podeConfirmar(),
-      });
-    });
   }
 
   private formatarPreco(valor: number): string {
@@ -96,30 +82,16 @@ export class ComandaModalProdutoComponent {
     this.carregando.set(true);
     try {
       await this.estoqueService.carregarProdutos();
-      console.log('[ComandaModalProduto] estoque carregado:', this.produtos().length, 'produtos');
     } finally {
       this.carregando.set(false);
     }
   }
 
   confirmar(): void {
-    console.log('[ComandaModalProduto] Salvar clicado', {
-      control: this.produtoControl.value,
-      selecionado: this.selecionado(),
-      quantidade: this.quantidade(),
-      podeConfirmar: this.podeConfirmar(),
-      excedeSaldo: this.quantidadeExcedeSaldo(),
-    });
-
     const produto = this.selecionado();
     if (!produto || !this.podeConfirmar()) {
-      console.warn('[ComandaModalProduto] early-return — selecionado ou validação falhou');
       return;
     }
-    console.log('[ComandaModalProduto] emitindo confirm:', {
-      produtoId: produto.id,
-      quantidade: this.quantidade(),
-    });
     this.confirm.emit({
       produtoId: produto.id,
       quantidade: this.quantidade(),
