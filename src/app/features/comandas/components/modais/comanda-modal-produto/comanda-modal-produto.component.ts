@@ -30,11 +30,11 @@ export class ComandaModalProdutoComponent {
   protected readonly observacoes = signal('');
   protected readonly carregando = signal(false);
 
-  private readonly _produtos = signal<ProdutoEstoque[]>([]);
-  protected readonly produtos = this._produtos.asReadonly();
+  /** Fonte única: o signal público do EstoqueService (carregarProdutos o popula). */
+  protected readonly produtos = this.estoqueService.produtos;
 
   protected readonly produtoOptions = computed(() =>
-    this._produtos().map((p) => ({
+    this.produtos().map((p) => ({
       value: p.id,
       label: `${p.nome} — R$ ${this.formatarPreco(p.precoVenda)} (Saldo: ${p.quantidadeAtual} ${p.unidadeMedida})`,
     })),
@@ -42,7 +42,7 @@ export class ComandaModalProdutoComponent {
 
   protected readonly selecionado = computed<ProdutoEstoque | null>(() => {
     const id = this.produtoControl.value;
-    return this._produtos().find((p) => p.id === id) ?? null;
+    return this.produtos().find((p) => p.id === id) ?? null;
   });
 
   /** Bloqueia quantidade acima do saldo — o backend valida de novo (400 estoque insuficiente). */
