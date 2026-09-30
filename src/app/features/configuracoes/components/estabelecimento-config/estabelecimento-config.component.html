@@ -353,6 +353,33 @@
               </div>
             </div>
           </div>
+
+          <!-- Seção de Lista de Espera (RN-076) -->
+          <div class="col-12 mt-3 pt-3 border-top border-secondary-subtle">
+            <div class="d-flex align-items-center gap-2 mb-2">
+              <i class="fa-solid fa-hourglass-half text-primary fs-5"></i>
+              <h6 class="fw-bold mb-0 custom-dark-text">Lista de Espera</h6>
+            </div>
+            <p class="text-muted small custom-dark-text mb-3">
+              Define por quantos minutos o slot fica reservado para o próximo cliente da lista de espera quando uma
+              vaga abre. Após esse tempo sem confirmação, a reserva expira e a vaga é ofertada ao próximo da fila.
+            </p>
+            <div class="row g-3">
+              <div class="col-12 col-sm-6 col-md-4">
+                <label class="form-label fw-bold custom-dark-text small">Minutos de reserva da lista de espera</label>
+                <div class="input-group">
+                  <input
+                    type="number"
+                    class="form-control"
+                    min="1"
+                    [ngModel]="minutosReservaListaEspera()"
+                    (ngModelChange)="atualizarMinutosReserva($event)"
+                  />
+                  <span class="input-group-text bg-body-secondary text-secondary">min</span>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>

@@ -71,6 +71,7 @@ export class NotificacoesListaComponent implements OnInit, AfterViewInit {
     { value: 'ClienteNoShow', label: 'Falta (No-Show)' },
     { value: 'AssinaturaVencendo', label: 'Assinatura Vencendo' },
     { value: 'ComandaEsquecida', label: 'Comanda Esquecida' },
+    { value: 'ListaEsperaEntrada', label: 'Lista de Espera' },
     { value: 'Geral', label: 'Geral' },
   ]);
 
@@ -216,6 +217,8 @@ export class NotificacoesListaComponent implements OnInit, AfterViewInit {
         return { label: 'Falta (No-Show)', class: 'bg-danger-subtle text-danger border-danger-subtle', icon: 'fas fa-user-slash' };
       case 'AssinaturaVencendo':
         return { label: 'Assinatura Vencendo', class: 'bg-purple-subtle text-purple border-purple-subtle', icon: 'fas fa-credit-card' };
+      case 'ListaEsperaEntrada':
+        return { label: 'Lista de Espera', class: 'bg-info-subtle text-info border-info-subtle', icon: 'fas fa-hourglass-half' };
       default:
         return { label: 'Geral', class: 'bg-primary-subtle text-primary border-primary-subtle', icon: 'fas fa-info-circle' };
     }
