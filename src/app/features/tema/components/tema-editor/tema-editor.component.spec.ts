@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { fakeAsync, tick } from '@angular/core/testing';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { provideRouter } from '@angular/router';
@@ -57,33 +58,41 @@ describe('TemaEditorComponent', () => {
     httpMock.verify();
   });
 
-  it('should create', () => {
-    expect(component).toBeTruthy();
-  });
+  /** Flush do GET do boot (ngOnInit) + tick para o carregamento assíncrono concluir. */
+  function carregarBoot(tema: TemaLeitura): void {
+    httpMock.expectOne((r) => r.method === 'GET' && r.url.endsWith('/api/tema')).flush(tema);
+    tick();
+  }
 
-  it('deve carregar o tema salvo no boot (§5.30)', () => {
-    httpMock.expectOne((r) => r.url.endsWith('/api/tema') && r.method === 'GET').flush(temaSalvo);
+  it('should create', fakeAsync(() => {
+    carregarBoot(temaSalvo);
+    expect(component).toBeTruthy();
+  }));
+
+  it('deve carregar o tema salvo no boot (§5.30)', fakeAsync(() => {
+    carregarBoot(temaSalvo);
     expect(component['configurado']()).toBeTrue();
     expect(component['modoPaleta']()).toBe('Unica');
     expect(component['base']()['primaria'].cor).toBe('#2563EB');
-  });
+  }));
 
-  it('deve bloquear o Salvar no cliente com hex inválida (RN-101)', () => {
-    httpMock.expectOne((r) => r.url.endsWith('/api/tema') && r.method === 'GET').flush(temaSalvo);
+  it('deve bloquear o Salvar no cliente com hex inválida (RN-101)', fakeAsync(() => {
+    carregarBoot(temaSalvo);
 
     component['base'].update((campos) => ({
       ...campos,
       primaria: { ...campos['primaria'], cor: 'zzz' },
     }));
     component['salvar']();
+    tick();
 
     httpMock.expectNone((r) => r.method === 'PUT');
     expect(component['campoDestacado']()).toBe('primaria');
     expect(component['erroLocal']()).toContain('#RRGGBB');
-  });
+  }));
 
-  it('deve limpar o grupo escuro ao alternar para Unica (RN-099)', () => {
-    httpMock.expectOne((r) => r.url.endsWith('/api/tema') && r.method === 'GET').flush(temaSalvo);
+  it('deve limpar o grupo escuro ao alternar para Unica (RN-099)', fakeAsync(() => {
+    carregarBoot(temaSalvo);
 
     component['definirModoPaleta']('PorModo');
     expect(component['modoPaleta']()).toBe('PorModo');
@@ -95,20 +104,21 @@ describe('TemaEditorComponent', () => {
 
     component['definirModoPaleta']('Unica');
     expect(component['escuro']()['escuroPrimaria'].cor).toBe('');
-  });
+  }));
 
-  it('deve bloquear PorModo incompleto antes do request (RN-099/101)', () => {
-    httpMock.expectOne((r) => r.url.endsWith('/api/tema') && r.method === 'GET').flush(temaSalvo);
+  it('deve bloquear PorModo incompleto antes do request (RN-099/101)', fakeAsync(() => {
+    carregarBoot(temaSalvo);
 
     component['definirModoPaleta']('PorModo');
     component['salvar']();
+    tick();
 
     httpMock.expectNone((r) => r.method === 'PUT');
     expect(component['campoDestacado']()).toBe('escuro');
-  });
+  }));
 
-  it('deve salvar (PUT) um PorModo completo e recarregar o payload salvo', () => {
-    httpMock.expectOne((r) => r.url.endsWith('/api/tema') && r.method === 'GET').flush(temaSalvo);
+  it('deve salvar (PUT) um PorModo completo e recarregar o payload salvo', fakeAsync(() => {
+    carregarBoot(temaSalvo);
 
     component['definirModoPaleta']('PorModo');
     component['escuro'].set({
@@ -120,40 +130,40 @@ describe('TemaEditorComponent', () => {
     });
 
     component['salvar']();
-
     const req = httpMock.expectOne((r) => r.method === 'PUT' && r.url.endsWith('/api/tema'));
     expect(req.request.body.modoPaleta).toBe('PorModo');
     expect(req.request.body.escuroFundo).toBe('#0F172A');
     expect(req.request.body.escuroPrimaria).toBe('#3B82F6');
 
     req.flush({ ...temaSalvo, modoPaleta: 'PorModo', escuroFundo: '#0F172A', escuroTexto: '#F8FAFC' });
+    tick();
+
     expect(toastSpy.success).toHaveBeenCalled();
     expect(component['configurado']()).toBeTrue();
-  });
+  }));
 
-  it('deve destacar o campo ao receber 422 Tema.ContrasteInsuficiente mantendo as edições (RN-101)', () => {
-    httpMock.expectOne((r) => r.url.endsWith('/api/tema') && r.method === 'GET').flush(temaSalvo);
+  it('deve destacar o campo ao receber 422 Tema.ContrasteInsuficiente mantendo as edições (RN-101)', fakeAsync(() => {
+    carregarBoot(temaSalvo);
 
     component['salvar']();
-
     const req = httpMock.expectOne((r) => r.method === 'PUT' && r.url.endsWith('/api/tema'));
     req.flush(
       { code: 'Tema.ContrasteInsuficiente', message: 'Contraste insuficiente entre fundo e texto.' },
       { status: 422, statusText: 'Unprocessable Entity' },
     );
+    tick();
 
     expect(component['campoDestacado']()).toBe('contraste');
     expect(component['erroLocal']()).toContain('Contraste insuficiente');
     expect(component['base']()['primaria'].cor).toBe('#2563EB');
     expect(component['configurado']()).toBeTrue();
-  });
+  }));
 
-  it('deve preencher o grupo escuro com a sugestão do modo oposto sem persistir (RN-102)', () => {
-    httpMock.expectOne((r) => r.url.endsWith('/api/tema') && r.method === 'GET').flush(temaSalvo);
+  it('deve preencher o grupo escuro com a sugestão do modo oposto sem persistir (RN-102)', fakeAsync(() => {
+    carregarBoot(temaSalvo);
 
     component['definirModoPaleta']('PorModo');
     component['gerarModoOposto']();
-
     const req = httpMock.expectOne((r) => r.method === 'POST' && r.url.endsWith('/api/tema/gerar-modo-oposto'));
     expect(req.request.body).toEqual({ origem: 'claro' });
     req.flush({
@@ -167,6 +177,7 @@ describe('TemaEditorComponent', () => {
         primaria: { cor1: '#3B82F6', cor2: '#1D4ED8', direcao: 'diagonal' },
       },
     });
+    tick();
 
     expect(component['escuro']()['escuroFundo'].cor).toBe('#0F172A');
     expect(component['escuro']()['escuroPrimaria'].tipo).toBe('gradiente');
@@ -174,21 +185,22 @@ describe('TemaEditorComponent', () => {
     expect(component['escuro']()['escuroPrimaria'].direcao).toBe('diagonal');
     // Nada foi persistido — nenhum PUT disparado (RN-102).
     httpMock.expectNone((r) => r.method === 'PUT');
-  });
+  }));
 
-  it('deve excluir o tema (DELETE) ao confirmar a restauração (RN-103/100)', async () => {
-    httpMock.expectOne((r) => r.url.endsWith('/api/tema') && r.method === 'GET').flush(temaSalvo);
+  it('deve excluir o tema (DELETE) ao confirmar a restauração (RN-103/100)', fakeAsync(() => {
+    carregarBoot(temaSalvo);
 
     component['abrirRestaurar']();
     expect(component['modalRestaurar']()).toBeTrue();
 
-    const promise = component['confirmarRestaurar']();
+    component['confirmarRestaurar']();
     httpMock.expectOne((r) => r.method === 'DELETE' && r.url.endsWith('/api/tema')).flush(null, {
       status: 204,
       statusText: 'No Content',
     });
+    tick();
     // Reload do payload após o reset (configurado: false — RN-100).
-    httpMock.expectOne((r) => r.url.endsWith('/api/tema') && r.method === 'GET').flush({
+    httpMock.expectOne((r) => r.method === 'GET' && r.url.endsWith('/api/tema')).flush({
       ...temaSalvo,
       configurado: false,
       modoPaleta: null,
@@ -198,10 +210,10 @@ describe('TemaEditorComponent', () => {
       fundo: null,
       texto: null,
     });
-    await promise;
+    tick();
 
     expect(component['modalRestaurar']()).toBeFalse();
     expect(component['configurado']()).toBeFalse();
     expect(toastSpy.success).toHaveBeenCalled();
-  });
+  }));
 });

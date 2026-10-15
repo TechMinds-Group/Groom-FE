@@ -241,7 +241,7 @@ export function camposEscurosDeSugestao(
   const grupo: Record<string, TemaCampoCor> = {};
   for (const slot of TEMA_SLOTS_ESCURO) {
     const chaveBase = slot.charAt(6).toLowerCase() + slot.slice(7);
-    const gradiente = gradientes[slot];
+    const gradiente = gradientes[chaveBase];
     grupo[slot] = campoCorDe(coresDaSugestao[chaveBase] ?? '', gradiente);
   }
   return grupo;
