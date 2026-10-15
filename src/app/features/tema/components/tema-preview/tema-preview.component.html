@@ -1,0 +1,53 @@
+<!-- Mock do painel interno (UI_SPEC §5.30): sidebar + card + botão com as variáveis do tema -->
+<div class="preview-superficie preview-painel">
+  <aside class="preview-sidebar">
+    @if (logoVisivel(tema()?.logoUrl ?? null)) {
+      <img
+        class="preview-logo"
+        [src]="tema()?.logoUrl ?? ''"
+        alt="Logo do estabelecimento"
+        (error)="logoErro.set(true)"
+      />
+    } @else {
+      <span class="preview-marca">
+        <i class="fas fa-scissors"></i>
+        <span>Groom</span>
+      </span>
+    }
+    <span class="preview-item preview-item-ativo"><i class="fas fa-calendar"></i><span></span></span>
+    <span class="preview-item"><i class="fas fa-users"></i><span></span></span>
+    <span class="preview-item"><i class="fas fa-cog"></i><span></span></span>
+  </aside>
+  <div class="preview-conteudo">
+    <div class="preview-card">
+      <h5 class="preview-card-titulo">Agendamentos</h5>
+      <p class="preview-card-texto">Prévia do painel interno com o tema em edição.</p>
+      <button type="button" class="preview-botao" tabindex="-1">Confirmar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Mock do portal público: cabeçalho + cartão de serviço + botão -->
+<div class="preview-superficie preview-portal">
+  <div class="preview-portal-topo">
+    @if (logoVisivel(tema()?.logoUrl ?? null)) {
+      <img
+        class="preview-logo"
+        [src]="tema()?.logoUrl ?? ''"
+        alt="Logo do estabelecimento"
+        (error)="logoErro.set(true)"
+      />
+    } @else {
+      <span class="preview-marca">
+        <i class="fas fa-scissors"></i>
+        <span>Groom</span>
+      </span>
+    }
+  </div>
+  <div class="preview-card preview-portal-card">
+    <h5 class="preview-card-titulo">Agende seu horário</h5>
+    <span class="preview-tag"></span>
+    <span class="preview-tag"></span>
+    <button type="button" class="preview-botao" tabindex="-1">Agendar</button>
+  </div>
+</div>

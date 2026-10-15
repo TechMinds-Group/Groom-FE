@@ -1,0 +1,20 @@
+<app-modal-form-base
+  [(show)]="show"
+  title="Restaurar tema padrão"
+  confirmLabel="Restaurar padrão"
+  cancelLabel="Cancelar"
+  icon="fas fa-palette"
+  confirmClass="btn-danger"
+  size="md"
+  (confirm)="confirm.emit()"
+  (cancel)="cancel.emit()"
+>
+  <div class="tema-restaurar-conteudo text-start">
+    <p class="mb-2">
+      O tema personalizado do estabelecimento será <strong>excluído</strong> e o visual
+      padrão do Groom voltará a ser aplicado. Esta ação não pode ser desfeita.
+    </p>
+    <p class="mb-3"><strong>Prévia do tema padrão:</strong></p>
+    <app-tema-preview [tema]="null" />
+  </div>
+</app-modal-form-base>
