@@ -1,12 +1,14 @@
 import { inject, Injectable, signal } from '@angular/core';
 import { ActivatedRouteSnapshot, ResolveFn } from '@angular/router';
 import { AgendamentoPublicoService } from './agendamento-publico.service';
+import { TemaVisualService } from './tema-visual.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class TenantResolverService {
   private readonly agendamentoPublicoService = inject(AgendamentoPublicoService);
+  private readonly temaVisual = inject(TemaVisualService);
 
   private readonly _tenant = signal<string | null>(null);
   readonly tenant = this._tenant.asReadonly();
@@ -19,6 +21,8 @@ export class TenantResolverService {
       const normalizado = estabelecimento.trim().toUpperCase();
       this._tenant.set(normalizado);
       this.agendamentoPublicoService.setEstabelecimento(normalizado);
+      // RN-098: aplica o tema do estabelecimento junto da resolução do slug (RN-098-7).
+      void this.temaVisual.carregarAplicarPublico(normalizado);
       return true;
     }
     return false;
