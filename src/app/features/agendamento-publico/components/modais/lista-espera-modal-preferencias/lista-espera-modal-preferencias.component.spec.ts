@@ -37,7 +37,7 @@ describe('ListaEsperaModalPreferenciasComponent', () => {
     });
   });
 
-  it('deve carregar a janela do preset (slot ocupado clicado — RN-074) mesmo sem campo no form', () => {
+  it('deve carregar a janela do preset (slot ocupado clicado — RN-074) como default do campo "a partir de que horas"', () => {
     let emitido: EntrarListaEsperaPayload | null = null;
     component.confirm.subscribe((p) => (emitido = p));
     fixture.componentRef.setInput('preset', {
@@ -48,12 +48,31 @@ describe('ListaEsperaModalPreferenciasComponent', () => {
     fixture.componentRef.setInput('show', true);
     fixture.detectChanges();
 
+    expect(component.form.controls.horaJanelaInicio.value).toBe('14:00');
+
     component.confirmar();
 
     expect(emitido!).toEqual({
       servicoId: 'svc-1',
       profissionalId: 'prof-1',
       horaJanelaInicio: '14:00',
+    });
+  });
+
+  it('deve enviar a janela informada no campo "a partir de que horas" quando o preset não traz hora', () => {
+    let emitido: EntrarListaEsperaPayload | null = null;
+    component.confirm.subscribe((p) => (emitido = p));
+    fixture.componentRef.setInput('preset', null);
+    fixture.componentRef.setInput('show', true);
+    fixture.detectChanges();
+
+    component.form.controls.horaJanelaInicio.setValue('15:30');
+    component.confirmar();
+
+    expect(emitido!).toEqual({
+      servicoId: null,
+      profissionalId: null,
+      horaJanelaInicio: '15:30',
     });
   });
 });

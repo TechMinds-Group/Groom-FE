@@ -10,7 +10,7 @@ import {
   signal,
 } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
-import { TmModalComponent, TmSelectComponent } from '@techminds-group/tm-angular-lib';
+import { TmModalComponent, TmSelectComponent, TmTimeComponent } from '@techminds-group/tm-angular-lib';
 import { AgendamentoPublicoService } from '../../../../../core/services/agendamento-publico.service';
 import { ProfissionalDisponivel, ServicoDisponivel } from '../../../../../core/models/agendamento-publico/agendamento-publico.model';
 import { EntrarListaEsperaPayload } from '../../../../../core/models/lista-espera/lista-espera.model';
@@ -21,15 +21,14 @@ const SEM_PREFERENCIA = '';
 
 /**
  * Modal de preferências opcionais para entrar na lista de espera do dia (UI_SPEC §5.14/§6.4):
- * serviço desejado (catálogo ativo) e profissional (com "Qualquer profissional" — RN-042).
- * O horário desejado é implícito: vem do slot ocupado clicado (preset — RN-074) ou é
- * "a partir de agora" (dia sem expediente). Todos os campos são opcionais; o componente
- * pai executa a entrada (POST).
+ * serviço desejado (catálogo ativo), profissional (com "Qualquer profissional" — RN-042)
+ * e janela "a partir de que horas". O preset (slot ocupado clicado — RN-074) preenche os
+ * campos por default; todos são opcionais. O componente pai executa a entrada (POST).
  */
 @Component({
   selector: 'app-lista-espera-modal-preferencias',
   standalone: true,
-  imports: [ReactiveFormsModule, TmModalComponent, TmSelectComponent],
+  imports: [ReactiveFormsModule, TmModalComponent, TmSelectComponent, TmTimeComponent],
   templateUrl: './lista-espera-modal-preferencias.component.html',
   styleUrl: './lista-espera-modal-preferencias.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -49,7 +48,7 @@ export class ListaEsperaModalPreferenciasComponent {
   /**
    * Preferências pré-preenchidas (entrada via horário ocupado clicado — RN-074):
    * aplicadas ao abrir o modal, sobre os campos informados. `horaJanelaInicio`
-   * NÃO é campo do form — vai direto no payload a partir do preset.
+   * do preset é o default do campo "a partir de que horas" quando vier preenchido.
    */
   readonly preset = input<Partial<EntrarListaEsperaPayload> | null>(null);
 
@@ -58,6 +57,7 @@ export class ListaEsperaModalPreferenciasComponent {
   readonly form = this.fb.group({
     servicoId: [SEM_PREFERENCIA],
     profissionalId: [SEM_PREFERENCIA],
+    horaJanelaInicio: [SEM_PREFERENCIA],
   });
 
   private readonly _servicos = signal<ServicoDisponivel[]>([]);
@@ -82,6 +82,7 @@ export class ListaEsperaModalPreferenciasComponent {
         this.form.reset({
           servicoId: preset?.servicoId ?? SEM_PREFERENCIA,
           profissionalId: preset?.profissionalId ?? SEM_PREFERENCIA,
+          horaJanelaInicio: preset?.horaJanelaInicio ?? SEM_PREFERENCIA,
         });
         void this.carregarOpcoes();
       }
@@ -127,12 +128,11 @@ export class ListaEsperaModalPreferenciasComponent {
     if (this.enviando()) {
       return;
     }
-    const { servicoId, profissionalId } = this.form.getRawValue();
-    // O horário desejado é o do slot clicado (preset); dia apagado = sem janela (agora em diante).
+    const { servicoId, profissionalId, horaJanelaInicio } = this.form.getRawValue();
     this.confirm.emit({
       servicoId: servicoId || null,
       profissionalId: profissionalId || null,
-      horaJanelaInicio: this.preset()?.horaJanelaInicio ?? null,
+      horaJanelaInicio: horaJanelaInicio || null,
     });
     this.show.set(false);
   }
