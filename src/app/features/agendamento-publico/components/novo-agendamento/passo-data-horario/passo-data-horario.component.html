@@ -74,6 +74,14 @@
       <p class="text-muted">Os horários de hoje já se encerraram. Selecione outro dia.</p>
     } @else {
       <p class="text-muted">Nenhum horário disponível para esta data. Dias apagados no calendário oferecem entrada na lista de espera.</p>
+      <button
+        type="button"
+        class="btn btn-primary agendamento-lista-espera__acao"
+        (click)="abrirListaPara(null)"
+      >
+        <i class="fa-solid fa-hourglass-half me-2"></i>
+        Entrar na lista de espera
+      </button>
     }
   } @else {
     <div class="agendamento-horarios">
