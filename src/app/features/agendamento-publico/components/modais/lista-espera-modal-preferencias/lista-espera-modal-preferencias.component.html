@@ -46,6 +46,17 @@
           [darkMode]="isDark()"
         ></tm-select>
       </div>
+
+      <div class="mt-3">
+        <tm-time
+          formControlName="horaJanelaInicio"
+          [control]="form.controls.horaJanelaInicio"
+          label="A partir de que horas (opcional)"
+          icon="fa-regular fa-clock text-muted"
+          placeholder="00:00"
+          [darkMode]="isDark()"
+        ></tm-time>
+      </div>
     }
   </div>
 </tm-modal>
