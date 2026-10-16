@@ -14,8 +14,9 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TableColumn, TmTableComponent, TmToastService } from '@techminds-group/tm-angular-lib';
 import { ListaEsperaService } from '../../../../core/services/lista-espera.service';
-import { ListaEsperaItem } from '../../../../core/models/lista-espera/lista-espera.model';
+import { AdicionarListaEsperaPayload, ListaEsperaItem } from '../../../../core/models/lista-espera/lista-espera.model';
 import { ModalConfirmarRemocaoComponent } from '../modais/modal-confirmar-remocao/modal-confirmar-remocao.component';
+import { ModalAdicionarEntradaComponent } from '../modais/modal-adicionar-entrada/modal-adicionar-entrada.component';
 import { StatusListaEsperaPipe } from '../../pipes/status-lista-espera.pipe';
 import { ListaEsperaHelperService } from '../../services/lista-espera-helper.service';
 
@@ -36,7 +37,7 @@ function hojeIso(): string {
 @Component({
   selector: 'app-lista-espera',
   standalone: true,
-  imports: [CommonModule, FormsModule, TmTableComponent, ModalConfirmarRemocaoComponent, StatusListaEsperaPipe],
+  imports: [CommonModule, FormsModule, TmTableComponent, ModalConfirmarRemocaoComponent, ModalAdicionarEntradaComponent, StatusListaEsperaPipe],
   templateUrl: './lista-espera.component.html',
   styleUrl: './lista-espera.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -88,6 +89,9 @@ export class ListaEsperaComponent implements OnInit, AfterViewInit, OnDestroy {
   protected readonly modalRemocaoAberto = signal(false);
   protected readonly entradaSelecionada = signal<ListaEsperaItem | null>(null);
   protected readonly removendo = signal(false);
+
+  protected readonly modalCadastroAberto = signal(false);
+  protected readonly cadastrando = signal(false);
 
   protected readonly colunas = computed<TableColumn<ListaEsperaItem>[]>(() => {
     if (!this.templatesReady()) {
@@ -185,6 +189,28 @@ export class ListaEsperaComponent implements OnInit, AfterViewInit, OnDestroy {
       // 403 `Agendamento.Forbidden` (RN-015) e 404 → toast do errorInterceptor.
     } finally {
       this.removendo.set(false);
+    }
+  }
+
+  /**
+   * Adiciona o cliente à lista do dia pela recepção (regra 1 do RN-074); em
+   * seguida recarrega a tabela para exibir a posição FIFO atualizada.
+   * 409 `ListaEspera.Duplicada`, 404 e 400 → toast do errorInterceptor.
+   */
+  protected async confirmarCadastro(payload: AdicionarListaEsperaPayload): Promise<void> {
+    if (this.cadastrando()) {
+      return;
+    }
+    this.cadastrando.set(true);
+    try {
+      await this.listaEsperaService.adicionarEntrada(payload);
+      this.toastService.success('Cliente adicionado à lista de espera.', 'Lista de Espera');
+      this.modalCadastroAberto.set(false);
+      await this.carregar();
+    } catch {
+      // Erros de negócio (409 duplicada / 404 / 400) exibidos pelo errorInterceptor.
+    } finally {
+      this.cadastrando.set(false);
     }
   }
 }

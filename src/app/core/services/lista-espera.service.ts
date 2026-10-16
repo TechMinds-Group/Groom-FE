@@ -3,7 +3,13 @@ import { inject, Injectable } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { AgendamentoPublicoService } from './agendamento-publico.service';
-import { EntrarListaEsperaPayload, ListaEsperaItem, ListaEsperaReserva } from '../models/lista-espera/lista-espera.model';
+import {
+  AdicionarListaEsperaPayload,
+  EntrarListaEsperaPayload,
+  ListaEsperaCriada,
+  ListaEsperaItem,
+  ListaEsperaReserva,
+} from '../models/lista-espera/lista-espera.model';
 
 /**
  * Endpoints da lista de espera no portal do cliente (RN-074 — API_CONTRACTS §15.1).
@@ -66,6 +72,17 @@ export class ListaEsperaService {
       this.http.get<ListaEsperaItem[]>(`${environment.apiUrl}/api/lista-espera`, {
         params: { data },
       }),
+    );
+  }
+
+  /**
+   * Adiciona cliente à lista do dia pela recepção (regra 1 do RN-074 — [Authorize] staff).
+   * 409 `ListaEspera.Duplicada` quando o cliente já tem entrada ativa no dia;
+   * 404 cliente/serviço/profissional inexistente.
+   */
+  async adicionarEntrada(payload: AdicionarListaEsperaPayload): Promise<ListaEsperaCriada> {
+    return firstValueFrom(
+      this.http.post<ListaEsperaCriada>(`${environment.apiUrl}/api/lista-espera`, payload),
     );
   }
 
