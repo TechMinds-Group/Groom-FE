@@ -11,6 +11,27 @@ export interface EntrarListaEsperaPayload {
   horaJanelaInicio?: string | null;
 }
 
+/**
+ * Payload da recepção para adicionar um cliente à lista do dia (staff — API_CONTRACTS §15.2).
+ * Diferente do portal, `clienteId` é obrigatório; os demais campos são opcionais
+ * (`profissionalId` null = "Qualquer profissional" — RN-042).
+ */
+export interface AdicionarListaEsperaPayload {
+  clienteId: string;
+  servicoId?: string | null;
+  profissionalId?: string | null;
+  horaJanelaInicio?: string | null;
+}
+
+/** Resposta 201 do POST staff de entrada — campos espelham o DTO do backend (não renomear). */
+export interface ListaEsperaCriada {
+  id: string;
+  clienteId: string;
+  posicao: number;
+  status: string;
+  criadaEmUtc: string;
+}
+
 /** Reserva temporária do slot vagado, ofertada à entrada (RN-075/076). */
 export interface ListaEsperaReserva {
   reservaId: string;

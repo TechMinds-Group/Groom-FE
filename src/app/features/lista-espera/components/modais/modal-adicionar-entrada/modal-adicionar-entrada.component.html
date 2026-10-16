@@ -1,0 +1,79 @@
+<tm-modal
+  [title]="'Adicionar à lista de espera'"
+  confirmLabel="Cadastrar"
+  cancelLabel="Cancelar"
+  [show]="show()"
+  (showChange)="show.set($event)"
+  (confirm)="confirmar()"
+  (cancel)="fechar()"
+  confirmClass="btn-primary"
+  icon="fas fa-hourglass-half"
+  size="md"
+>
+  <div class="p-1 text-start" [formGroup]="form">
+    <p class="modal-adicionar-entrada__descricao text-muted mb-3">
+      Coloque um cliente na fila do dia. Todos os campos, exceto o cliente, são
+      opcionais.
+    </p>
+
+    @if (carregandoOpcoes()) {
+      <div class="text-center text-muted py-4">
+        <i class="fas fa-spinner fa-spin me-2"></i>Carregando opções...
+      </div>
+    } @else {
+      <div class="mb-3">
+        <tm-select
+          formControlName="clienteId"
+          [control]="form.controls.clienteId"
+          [options]="clienteOptions()"
+          label="Cliente"
+          icon="fa-solid fa-user"
+          placeholder="Selecione o cliente"
+          [clearable]="false"
+          [isInvalid]="form.controls.clienteId.invalid && form.controls.clienteId.touched"
+          [darkMode]="themeService.isDarkMode()"
+        ></tm-select>
+        @if (form.controls.clienteId.invalid && form.controls.clienteId.touched) {
+          <span class="text-danger small">Selecione o cliente.</span>
+        }
+      </div>
+
+      <div class="mb-3">
+        <tm-select
+          formControlName="servicoId"
+          [control]="form.controls.servicoId"
+          [options]="servicoOptions()"
+          label="Serviço desejado"
+          icon="fa-solid fa-scissors"
+          placeholder="Qualquer serviço"
+          [clearable]="true"
+          [darkMode]="themeService.isDarkMode()"
+        ></tm-select>
+      </div>
+
+      <div class="mb-3">
+        <tm-select
+          formControlName="profissionalId"
+          [control]="form.controls.profissionalId"
+          [options]="profissionalOptions()"
+          label="Profissional"
+          icon="fa-solid fa-user-check"
+          placeholder="Qualquer profissional"
+          [clearable]="true"
+          [darkMode]="themeService.isDarkMode()"
+        ></tm-select>
+      </div>
+
+      <div>
+        <tm-time
+          formControlName="horaJanelaInicio"
+          [control]="form.controls.horaJanelaInicio"
+          label="A partir de que horas (opcional)"
+          icon="fa-regular fa-clock text-muted"
+          placeholder="00:00"
+          [darkMode]="themeService.isDarkMode()"
+        ></tm-time>
+      </div>
+    }
+  </div>
+</tm-modal>
