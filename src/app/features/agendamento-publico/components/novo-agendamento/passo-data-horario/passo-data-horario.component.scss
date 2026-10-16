@@ -302,3 +302,12 @@
     min-height: 56px;
   }
 }
+
+/* RN-074 — ação de entrar na lista de espera quando não há horários disponíveis */
+.agendamento-lista-espera__acao {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+}
+
