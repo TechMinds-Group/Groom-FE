@@ -257,6 +257,17 @@ export class NovoAgendamentoComponent implements OnInit, OnDestroy {
     await this.carregarProfissionais();
   }
 
+  /** Navega para a página dedicada da lista de espera (RN-074 — entry point do portal). */
+  irParaListaEspera(): void {
+    const slug =
+      this.agendamentoPublicoService.estabelecimento() ||
+      this.route.snapshot.paramMap.get('estabelecimento') ||
+      this.route.snapshot.parent?.paramMap.get('estabelecimento');
+    if (slug) {
+      void this.router.navigate(['/agendamento', slug, 'lista-espera']);
+    }
+  }
+
   private async carregarInfoEstabelecimento(): Promise<void> {
     const slug =
       this.agendamentoPublicoService.estabelecimento() ||

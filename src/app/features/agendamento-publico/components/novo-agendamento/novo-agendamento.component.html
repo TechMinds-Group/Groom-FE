@@ -20,6 +20,15 @@
           <div class="agendamento-wizard__acoes">
             <button
               type="button"
+              class="agendamento-wizard__lista-espera"
+              (click)="irParaListaEspera()"
+              title="Acompanhar minha posição na fila do dia"
+            >
+              <i class="fa-solid fa-hourglass-half"></i>
+              <span class="d-none d-md-inline">Lista de espera</span>
+            </button>
+            <button
+              type="button"
               class="agendamento-wizard__tema"
               (click)="alternarTema()"
               [attr.aria-label]="
