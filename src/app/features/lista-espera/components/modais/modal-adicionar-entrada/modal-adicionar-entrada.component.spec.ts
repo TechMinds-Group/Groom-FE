@@ -53,10 +53,10 @@ describe('ModalAdicionarEntradaComponent', () => {
     fixture.detectChanges();
 
     // Só clientes ativos entram nas opções, com celular entre parênteses
-    expect(component.clienteOptions().map((o) => o.value)).toEqual(['cli-1']);
-    expect(component.clienteOptions()[0].label).toBe('Ana Silva (51999990001)');
-    expect(component.servicoOptions().map((o) => o.value)).toEqual(['', 'svc-1']);
-    expect(component.profissionalOptions().map((o) => o.value)).toEqual(['', 'prof-1']);
+    expect(component['clienteOptions']().map((o) => o.value)).toEqual(['cli-1']);
+    expect(component['clienteOptions']()[0].label).toBe('Ana Silva (51999990001)');
+    expect(component['servicoOptions']().map((o) => o.value)).toEqual(['', 'svc-1']);
+    expect(component['profissionalOptions']().map((o) => o.value)).toEqual(['', 'prof-1']);
 
     component.form.controls.clienteId.setValue('cli-1');
     component.form.controls.servicoId.setValue('svc-1');

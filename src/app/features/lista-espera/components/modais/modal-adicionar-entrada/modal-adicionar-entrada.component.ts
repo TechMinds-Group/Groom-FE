@@ -46,7 +46,7 @@ export class ModalAdicionarEntradaComponent {
 
   readonly confirm = output<AdicionarListaEsperaPayload>();
 
-  readonly form = this.fb.group({
+  readonly form = this.fb.nonNullable.group({
     clienteId: ['', Validators.required],
     servicoId: [SEM_PREFERENCIA],
     profissionalId: [SEM_PREFERENCIA],
