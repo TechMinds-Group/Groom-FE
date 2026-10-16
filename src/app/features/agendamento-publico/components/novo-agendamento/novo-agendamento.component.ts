@@ -12,6 +12,7 @@ import { PassoDataHorarioComponent } from './passo-data-horario/passo-data-horar
 import { PassoResumoComponent } from './passo-resumo/passo-resumo.component';
 import { ConfirmacaoComponent } from './confirmacao/confirmacao.component';
 import { DadosFinalizacaoCadastro, FinalizarCadastroComponent } from './finalizar-cadastro/finalizar-cadastro.component';
+import { ClienteSessionKeepAliveService } from '../../services/cliente-session-keep-alive.service';
 import { AppFooterComponent } from '../../../../shared/components/footer/app-footer.component';
 import { ImageViewerModalComponent } from '../../../../shared/modais/image-viewer-modal/image-viewer-modal.component';
 
@@ -35,6 +36,7 @@ import { ImageViewerModalComponent } from '../../../../shared/modais/image-viewe
 })
 export class NovoAgendamentoComponent implements OnInit, OnDestroy {
   private readonly agendamentoPublicoService = inject(AgendamentoPublicoService);
+  private readonly clienteKeepAlive = inject(ClienteSessionKeepAliveService);
 
   /** Estado do Modal de Visualizacao e Zoom de Imagens */
   readonly showImageViewer = signal<boolean>(false);
@@ -223,6 +225,8 @@ export class NovoAgendamentoComponent implements OnInit, OnDestroy {
         return nextMap;
       });
     }, 3000);
+    // Mantém a sessão do cliente viva (cookie de 30s da RN-028) durante o wizard
+    void this.clienteKeepAlive.start();
     await Promise.all([this.carregarProfissionais(), this.carregarInfoEstabelecimento(), this.carregarMeuPlano()]);
   }
 
@@ -551,6 +555,7 @@ export class NovoAgendamentoComponent implements OnInit, OnDestroy {
       this.route.snapshot.paramMap.get('estabelecimento') ||
       this.route.snapshot.parent?.paramMap.get('estabelecimento') ||
       '';
+    this.clienteKeepAlive.stop();
     await this.agendamentoPublicoService.logout();
     if (slug) {
       await this.router.navigate(['/agendamento', slug, 'login']);
