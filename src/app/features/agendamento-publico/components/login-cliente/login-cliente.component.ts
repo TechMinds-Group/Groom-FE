@@ -5,6 +5,7 @@ import { TmButtonComponent, TmTextComponent } from '@techminds-group/tm-angular-
 import { AgendamentoPublicoService } from '../../../../core/services/agendamento-publico.service';
 import { EstabelecimentoInfo, EstabelecimentoService, obterIconeAleatorioLogo, obterIconeAleatorioCapa } from '../../../../core/services/estabelecimento.service';
 import { AuthClienteHelperService } from '../../services/auth-cliente-helper.service';
+import { ClienteSessionKeepAliveService } from '../../services/cliente-session-keep-alive.service';
 import { GoogleOAuthClienteService } from '../../services/google-oauth-cliente.service';
 import { TemaPublicoService } from '../../services/tema-publico.service';
 import { CadastroClienteComponent } from '../cadastro-cliente/cadastro-cliente.component';
@@ -26,6 +27,7 @@ export class LoginClienteComponent implements OnInit, OnDestroy {
   private readonly estabelecimentoService = inject(EstabelecimentoService);
   private readonly authClienteHelper = inject(AuthClienteHelperService);
   private readonly googleOAuthCliente = inject(GoogleOAuthClienteService);
+  private readonly clienteKeepAlive = inject(ClienteSessionKeepAliveService);
 
   private readonly temaPublico = inject(TemaPublicoService);
 
@@ -151,6 +153,7 @@ export class LoginClienteComponent implements OnInit, OnDestroy {
     const slug = this.getEstabelecimentoSlug();
     const cliente = await this.agendamentoPublicoService.getMe();
     if (cliente && slug) {
+      void this.clienteKeepAlive.start();
       await this.router.navigate(this.destinoPosLogin(slug));
     }
   }
@@ -177,6 +180,7 @@ export class LoginClienteComponent implements OnInit, OnDestroy {
       const slug = this.getEstabelecimentoSlug();
       const { email, senha, rememberMe } = this.form.value;
       await this.agendamentoPublicoService.login({ email: email!, senha: senha! }, rememberMe ?? false);
+      void this.clienteKeepAlive.start();
       await this.router.navigate(this.destinoPosLogin(slug));
     } catch (err) {
       this.errorMessage.set(this.extrairMensagemErro(err));
@@ -192,6 +196,7 @@ export class LoginClienteComponent implements OnInit, OnDestroy {
     try {
       const slug = this.getEstabelecimentoSlug();
       await this.agendamentoPublicoService.loginGoogle(idToken);
+      void this.clienteKeepAlive.start();
       await this.router.navigate(this.destinoPosLogin(slug));
     } catch (err) {
       this.errorMessage.set(this.extrairMensagemErro(err));
@@ -202,6 +207,7 @@ export class LoginClienteComponent implements OnInit, OnDestroy {
 
   onCadastrado(): void {
     const slug = this.getEstabelecimentoSlug();
+    void this.clienteKeepAlive.start();
     void this.router.navigate(this.destinoPosLogin(slug));
   }
 

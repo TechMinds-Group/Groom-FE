@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, inject, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { AgendamentoPublicoService } from '../../../../core/services/agendamento-publico.service';
+import { ClienteSessionKeepAliveService } from '../../services/cliente-session-keep-alive.service';
 import { AppFooterComponent } from '../../../../shared/components/footer/app-footer.component';
 import { TemaPublicoService } from '../../services/tema-publico.service';
 import { ListaEsperaPortalComponent } from './lista-espera-portal/lista-espera-portal.component';
@@ -21,6 +22,7 @@ import { ListaEsperaPortalComponent } from './lista-espera-portal/lista-espera-p
 export class ListaEsperaComponent implements OnInit, OnDestroy {
   private readonly route = inject(ActivatedRoute);
   private readonly agendamentoPublicoService = inject(AgendamentoPublicoService);
+  private readonly clienteKeepAlive = inject(ClienteSessionKeepAliveService);
   private readonly temaPublico = inject(TemaPublicoService);
 
   ngOnInit(): void {
@@ -30,6 +32,8 @@ export class ListaEsperaComponent implements OnInit, OnDestroy {
     if (slug) {
       this.agendamentoPublicoService.setEstabelecimento(slug);
     }
+    // Mantém a sessão do cliente viva (cookie de 30s da RN-028) nesta página
+    void this.clienteKeepAlive.start();
   }
 
   ngOnDestroy(): void {

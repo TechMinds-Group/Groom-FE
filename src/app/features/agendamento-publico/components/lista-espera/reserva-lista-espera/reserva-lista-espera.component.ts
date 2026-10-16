@@ -6,6 +6,7 @@ import { ListaEsperaService } from '../../../../../core/services/lista-espera.se
 import { EntrarListaEsperaPayload, ListaEsperaReserva } from '../../../../../core/models/lista-espera/lista-espera.model';
 import { agendamentoParaDateLocal } from '../../../../../core/models/agenda.model';
 import { ListaEsperaModalPreferenciasComponent } from '../../modais/lista-espera-modal-preferencias/lista-espera-modal-preferencias.component';
+import { ClienteSessionKeepAliveService } from '../../../services/cliente-session-keep-alive.service';
 import { AppFooterComponent } from '../../../../../shared/components/footer/app-footer.component';
 import { TemaPublicoService } from '../../../services/tema-publico.service';
 
@@ -69,6 +70,7 @@ export class ReservaListaEsperaComponent implements OnInit, OnDestroy {
   private readonly agendamentoPublicoService = inject(AgendamentoPublicoService);
   private readonly toastService = inject(TmToastService);
   private readonly temaPublico = inject(TemaPublicoService);
+  private readonly clienteKeepAlive = inject(ClienteSessionKeepAliveService);
 
   private contagemTimer: ReturnType<typeof setInterval> | null = null;
   private estabelecimentoSlug = '';
@@ -113,6 +115,8 @@ export class ReservaListaEsperaComponent implements OnInit, OnDestroy {
       this.agendamentoPublicoService.setEstabelecimento(slug);
     }
     this.estabelecimentoSlug = slug || this.agendamentoPublicoService.estabelecimento() || '';
+    // Mantém a sessão do cliente viva (cookie de 30s da RN-028) no deep link da reserva
+    void this.clienteKeepAlive.start();
     await this.carregarReserva();
   }
 
