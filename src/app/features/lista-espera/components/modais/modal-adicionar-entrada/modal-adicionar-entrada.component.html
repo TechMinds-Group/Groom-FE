@@ -30,7 +30,6 @@
           icon="fa-solid fa-user"
           placeholder="Selecione o cliente"
           [clearable]="false"
-          [isInvalid]="form.controls.clienteId.invalid && form.controls.clienteId.touched"
           [darkMode]="themeService.isDarkMode()"
         ></tm-select>
         @if (form.controls.clienteId.invalid && form.controls.clienteId.touched) {
