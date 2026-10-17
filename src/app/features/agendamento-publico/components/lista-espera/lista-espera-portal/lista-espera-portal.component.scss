@@ -49,13 +49,20 @@
 // RN-074 — o footer fixo de copyright (41px, z-index 99999) cobre o rodapé do modal da
 // lib (z-index 2100): reservo o espaço dele no backdrop e reduzo o max-height do modal
 // para que os botões de ação apareçam por completo, com folga acima do footer.
+// !important: em empate de especificidade com a lib (que carrega depois), ela vencia.
+// overflow-y: o content da lib usa overflow: hidden — em telas baixas o rodapé do modal
+// seria cortado por dentro em vez de rolar.
 :host ::ng-deep {
   .modal-backdrop-blur {
-    padding-bottom: 4.5rem; // 41px do footer + folga
+    padding-bottom: 4.5rem !important; // 41px do footer + folga
   }
 
   .modal-premium {
-    max-height: calc(100vh - 6rem);
+    max-height: calc(100vh - 6rem) !important;
+  }
+
+  .modal-premium-content {
+    overflow-y: auto !important;
   }
 }
 
