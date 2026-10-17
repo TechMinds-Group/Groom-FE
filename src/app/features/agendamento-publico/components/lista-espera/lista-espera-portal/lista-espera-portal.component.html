@@ -19,6 +19,7 @@
           label="Sair da lista"
           variant="outline-danger"
           size="sm"
+          [isFullWidth]="false"
           [loading]="saindo()"
           [icon]="saindo() ? '' : 'fa-solid fa-right-from-bracket'"
           (onClick)="sair()"
@@ -33,6 +34,7 @@
           label="Entrar na lista de espera"
           variant="primary"
           icon="fa-solid fa-hourglass-half"
+          [isFullWidth]="false"
           [loading]="entrando()"
           (onClick)="abrirModal()"
         ></tm-button>
