@@ -47,16 +47,26 @@
         ></tm-select>
       </div>
 
-      <div class="mt-3">
-        <tm-time
-          formControlName="horaJanelaInicio"
-          [control]="form.controls.horaJanelaInicio"
-          label="A partir de que horas (opcional)"
-          icon="fa-regular fa-clock text-muted"
-          placeholder="00:00"
-          [darkMode]="isDark()"
-        ></tm-time>
-      </div>
+      @if (horaEspecifica()) {
+        <!-- RN-074 — modo slot clicado: o horário desejado é exatamente o clicado; a
+        janela início+fim é calculada automaticamente (sem campo editável). -->
+        <div class="lista-espera-modal__horario mt-3">
+          <i class="fa-regular fa-clock me-2"></i>
+          Horário desejado: <strong>{{ horaEspecifica() }}</strong> — avisaremos assim que
+          ele abrir.
+        </div>
+      } @else {
+        <div class="mt-3">
+          <tm-time
+            formControlName="horaJanelaInicio"
+            [control]="form.controls.horaJanelaInicio"
+            label="A partir de que horas (opcional)"
+            icon="fa-regular fa-clock text-muted"
+            placeholder="00:00"
+            [darkMode]="isDark()"
+          ></tm-time>
+        </div>
+      }
     }
   </div>
 </tm-modal>

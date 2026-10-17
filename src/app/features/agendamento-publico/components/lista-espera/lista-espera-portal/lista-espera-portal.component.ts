@@ -38,11 +38,18 @@ export class ListaEsperaPortalComponent implements OnInit {
   /** Preferências pré-preenchidas (ex.: slot ocupado clicado) aplicadas ao abrir o modal. */
   readonly preset = signal<Partial<EntrarListaEsperaPayload> | null>(null);
 
+  /**
+   * RN-074 — modo slot específico (hora clicada ocupada): repassado ao modal, que oculta
+   * o campo "a partir de que horas" e cria a entrada com janela início+fim. Null = modo dia.
+   */
+  readonly horaEspecifica = signal<string | null>(null);
+
   constructor() {
     // Preset é consumido pelo modal na abertura; limpa ao fechar para não reaparecer.
     effect(() => {
       if (!this.modalAberto()) {
         this.preset.set(null);
+        this.horaEspecifica.set(null);
       }
     });
   }
@@ -69,10 +76,12 @@ export class ListaEsperaPortalComponent implements OnInit {
 
   /**
    * Abre o modal de preferências pré-preenchido (entrada via horário ocupado
-   * clicado no passo data/horário — RN-074).
+   * clicado no passo data/horário — RN-074). `horaEspecifica` ativa o modo slot:
+   * horário exato (janela início+fim), sem o campo "a partir de que horas".
    */
-  abrirComPreset(preset: Partial<EntrarListaEsperaPayload>): void {
+  abrirComPreset(preset: Partial<EntrarListaEsperaPayload>, horaEspecifica: string | null = null): void {
     this.preset.set(preset);
+    this.horaEspecifica.set(horaEspecifica);
     this.modalAberto.set(true);
   }
 

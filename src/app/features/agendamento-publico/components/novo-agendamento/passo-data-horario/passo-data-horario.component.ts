@@ -50,9 +50,10 @@ export class PassoDataHorarioComponent {
     this.listaEsperaSolicitada.emit({ hora });
   }
 
-  /** Abre o modal de preferências pré-preenchido (chamado pelo wizard após validar cadastro). */
-  abrirModalLista(preset: Partial<EntrarListaEsperaPayload>): void {
-    this.portalLista()?.abrirComPreset(preset);
+  /** Abre o modal de preferências pré-preenchido (chamado pelo wizard após validar cadastro).
+   * `horaEspecifica` (RN-074): modo slot clicado — horário exato, sem campo de janela. */
+  abrirModalLista(preset: Partial<EntrarListaEsperaPayload>, horaEspecifica: string | null = null): void {
+    this.portalLista()?.abrirComPreset(preset, horaEspecifica);
   }
 
   readonly dataSelecionadaChange = output<string>();

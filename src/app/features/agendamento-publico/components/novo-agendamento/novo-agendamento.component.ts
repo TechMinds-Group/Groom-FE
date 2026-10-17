@@ -505,7 +505,7 @@ export class NovoAgendamentoComponent implements OnInit, OnDestroy {
           servicoId: this.servicoSelecionado()?.id ?? null,
           profissionalId: this.profissionalSelecionado()?.id ?? null,
           ...(hora ? { horaJanelaInicio: hora } : {}),
-        });
+        }, hora);
       }
     } catch {
       this.errorMessage.set('Não foi possível salvar seus dados. Confira as informações e tente novamente.');
@@ -622,7 +622,7 @@ export class NovoAgendamentoComponent implements OnInit, OnDestroy {
     this.passoDataHorario()?.abrirModalLista({
       ...presetBase,
       ...(request.hora ? { horaJanelaInicio: request.hora } : {}),
-    });
+    }, request.hora);
   }
 
   /** Alterna entre tema claro e escuro na tela pública. */

@@ -9,6 +9,11 @@ export interface EntrarListaEsperaPayload {
   profissionalId?: string | null;
   /** Janela mínima de aviso em "HH:mm" — vagas apenas a partir desta hora (UTC-3 — DEC-002). */
   horaJanelaInicio?: string | null;
+  /**
+   * Fim da janela em "HH:mm" (RN-074 — horário específico): slot clicado envia início+fim
+   * (vale só aquele horário); null = sem limite superior ("a partir de" — dia lotado).
+   */
+  horaJanelaFim?: string | null;
 }
 
 /**
@@ -53,6 +58,7 @@ export interface ListaEsperaItem {
   profissionalId?: string | null;
   profissionalNome?: string | null;
   horaJanelaInicio?: string | null;
+  horaJanelaFim?: string | null;
   status: string;
   criadaEmUtc: string;
   reservaAtiva?: ListaEsperaReserva | null;

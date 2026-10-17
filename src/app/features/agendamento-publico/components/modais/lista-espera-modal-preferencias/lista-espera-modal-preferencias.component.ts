@@ -52,6 +52,14 @@ export class ListaEsperaModalPreferenciasComponent {
    */
   readonly preset = input<Partial<EntrarListaEsperaPayload> | null>(null);
 
+  /**
+   * RN-074 — modo slot específico: cliente clicou num horário ocupado (dia ainda com
+   * horários livres). O campo "a partir de que horas" NÃO é exibido — o horário desejado
+   * é exatamente o clicado, e a entrada é criada com janela início+fim (início = hora
+   * clicada; fim = início + duração do serviço selecionado). Null = modo dia (campo visível).
+   */
+  readonly horaEspecifica = input<string | null>(null);
+
   readonly confirm = output<EntrarListaEsperaPayload>();
 
   readonly form = this.fb.group({
@@ -129,12 +137,34 @@ export class ListaEsperaModalPreferenciasComponent {
       return;
     }
     const { servicoId, profissionalId, horaJanelaInicio } = this.form.getRawValue();
+
+    // RN-074 — modo slot: janela início+fim delimitando o horário exato clicado; o fim
+    // usa a duração do serviço selecionado (fallback 30 min) para a vaga caber inteira.
+    if (this.horaEspecifica()) {
+      this.confirm.emit({
+        servicoId: servicoId || null,
+        profissionalId: profissionalId || null,
+        horaJanelaInicio: this.horaEspecifica(),
+        horaJanelaFim: this.calcularFimJanela(servicoId || null),
+      });
+      this.show.set(false);
+      return;
+    }
+
     this.confirm.emit({
       servicoId: servicoId || null,
       profissionalId: profissionalId || null,
       horaJanelaInicio: horaJanelaInicio || null,
     });
     this.show.set(false);
+  }
+
+  /** Fim da janela do slot clicado = início + duração do serviço escolhido (HH:mm). */
+  private calcularFimJanela(servicoId: string | null): string {
+    const [hora, minuto] = this.horaEspecifica()!.split(':').map(Number);
+    const duracao = this._servicos().find((s) => s.id === servicoId)?.duracao ?? 30;
+    const fim = new Date(2000, 0, 1, hora, minuto + duracao);
+    return `${String(fim.getHours()).padStart(2, '0')}:${String(fim.getMinutes()).padStart(2, '0')}`;
   }
 
   protected fechar(): void {
