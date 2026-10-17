@@ -14,6 +14,7 @@ import { TmToastService } from '@techminds-group/tm-angular-lib';
 import {
   TemaCampoCor,
   TemaEditorForm,
+  TEMA_CORES_PADRAO,
   TEMA_DIRECOES_LABELS,
   TEMA_ERRO_CAMPO,
   TEMA_GRUPOS,
@@ -23,6 +24,7 @@ import {
   labelDeSlot,
   payloadDeForm,
   temaPreviewDeForm,
+  usoDeSlot,
 } from '../../models/tema-editor.model';
 import { TemaValidacaoService, TEMA_HEX_REGEX } from '../../services/tema-validacao.service';
 import {
@@ -38,17 +40,19 @@ import { TemaVisualService } from '../../../../core/services/tema-visual.service
 import { TemaPreviewComponent } from '../tema-preview/tema-preview.component';
 import { TemaRestaurarModalComponent } from '../modais/tema-restaurar-modal/tema-restaurar-modal.component';
 
-/** Pré-preenchimento da paleta base quando não há tema salvo (tokens do design system — _tokens.scss). */
-const CORES_PADRAO_SISTEMA: Record<string, string> = {
-  primaria: '#0d6efd',
-  secundaria: '#6c757d',
-  acento: '#f59e0b',
-  fundo: '#f8fafc',
-  texto: '#0f172a',
-};
-
-/** Tipo de um grupo de cor do formulário. */
+/** Grupo de cor do formulário: base ou escuro. */
 type GrupoForm = 'base' | 'escuro';
+
+/** Seções colapsáveis do editor (accordions — estado no componente). */
+type SecaoEditor = 'paleta' | 'escuro' | 'identidade' | 'tokens';
+
+/** Seções abertas por padrão (primeira visita — tudo visível). */
+const SECOES_INICIAIS: Record<SecaoEditor, boolean> = {
+  paleta: true,
+  escuro: true,
+  identidade: true,
+  tokens: true,
+};
 
 /**
  * Editor de Tema Visual (RN-098..103 — UI_SPEC §5.30/§6.8), rota /configuracoes/tema.
@@ -76,12 +80,15 @@ export class TemaEditorComponent implements OnInit {
   protected readonly slotsEscuro = TEMA_SLOTS_ESCURO;
   protected readonly direcoes = TEMA_DIRECOES_LABELS;
   protected readonly labelDeSlot = labelDeSlot;
+  protected readonly usoDeSlot = usoDeSlot;
   protected readonly grupos = TEMA_GRUPOS;
 
   protected readonly carregando = signal(true);
   protected readonly salvando = signal(false);
   protected readonly gerando = signal(false);
   protected readonly configurado = signal(false);
+  /** Estado dos accordions (Paleta base / Modo escuro / Identidade / Tokens). */
+  protected readonly secoesAbertas = signal<Record<SecaoEditor, boolean>>(SECOES_INICIAIS);
   protected readonly modoPaleta = signal<TemaModoPaleta>('Unica');
   protected readonly base = signal<Record<string, TemaCampoCor>>(criarCamposVazios(TEMA_SLOTS_BASE));
   protected readonly escuro = signal<Record<string, TemaCampoCor>>(criarCamposVazios(TEMA_SLOTS_ESCURO));
@@ -100,10 +107,13 @@ export class TemaEditorComponent implements OnInit {
   /** Modal de confirmação da restauração (RN-103). */
   protected readonly modalRestaurar = model(false);
 
-  /** Preview ao vivo: payload sintético montado do formulário a cada mudança. */
-  protected readonly temaPreview = computed<TemaLeitura>(() =>
-    temaPreviewDeForm(this.montarForm(), this.configurado()),
-  );
+  /** Preview ao vivo: payload sintético montado do formulário a cada mudança (fiel ao form). */
+  protected readonly temaPreview = computed<TemaLeitura>(() => temaPreviewDeForm(this.montarForm()));
+
+  /** Alterna a seção colapsável (accordion — UI_SPEC §5.30). */
+  protected alternarSecao(secao: SecaoEditor): void {
+    this.secoesAbertas.update((estado) => ({ ...estado, [secao]: !estado[secao] }));
+  }
 
   /** Logo válido exibido no preview de identidade (http(s) — §6.8). */
   protected readonly logoPreviewVisivel = computed(() => {
@@ -284,7 +294,10 @@ export class TemaEditorComponent implements OnInit {
   }
 
   /** Validações do cliente (§6.8) — retorno com campo destacável; null quando válido. */
-  private validarFormulario(): { campo: string; mensagem: string } | null {
+  private validarFormulario(): {
+    campo: string;
+    mensagem: string;
+  } | null {
     const form = this.montarForm();
 
     for (const slot of TEMA_SLOTS_BASE) {
@@ -313,7 +326,10 @@ export class TemaEditorComponent implements OnInit {
 
     const contraste = this.validacao.contrasteValido(form);
     if (!contraste.valido) {
-      return { campo: contraste.campo ?? 'cores', mensagem: contraste.mensagem ?? 'Contraste insuficiente.' };
+      return {
+        campo: contraste.campo ?? 'cores',
+        mensagem: contraste.mensagem ?? 'Contraste insuficiente.',
+      };
     }
 
     return null;
@@ -332,7 +348,7 @@ export class TemaEditorComponent implements OnInit {
   }
 
   private carregarDePayload(tema: TemaLeitura): void {
-    const form = formDePayload(tema, CORES_PADRAO_SISTEMA);
+    const form = formDePayload(tema, TEMA_CORES_PADRAO);
     this.configurado.set(tema.configurado);
     this.modoPaleta.set(form.modoPaleta);
     this.base.set(form.base);
@@ -376,9 +392,7 @@ export class TemaEditorComponent implements OnInit {
   }
 
   private limparErros(): void {
-    if (this.campoDestacado() !== null || this.erroLocal() !== null) {
-      this.campoDestacado.set(null);
-      this.erroLocal.set(null);
-    }
+    this.campoDestacado.set(null);
+    this.erroLocal.set(null);
   }
 }

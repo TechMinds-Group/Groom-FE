@@ -59,7 +59,7 @@
           </div>
         </div>
 
-        <!-- Grupos de cores: base (sempre) e escuro (somente PorModo — RN-099) -->
+        <!-- Grupos de cores: base (sempre) e escuro (somente PorModo — RN-099), seções colapsáveis -->
         @for (grupo of grupos; track grupo.escuro) {
           @if (!grupo.escuro || modoPaleta() === 'PorModo') {
             <div
@@ -67,14 +67,27 @@
               [class.tema-card--destaque]="campoDestacado() === (grupo.escuro ? 'escuro' : 'cores')"
             >
               <div class="card-body">
-                <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3">
-                  <h6 class="fw-bold mb-0">
-                    @if (grupo.escuro) {
-                      <i class="fas fa-moon me-2"></i>Cores do modo escuro
-                    } @else {
-                      <i class="fas fa-sun me-2"></i>Paleta base
-                    }
-                  </h6>
+                <div class="tema-secao-cabecalho">
+                  <button
+                    type="button"
+                    class="tema-secao-botao"
+                    (click)="alternarSecao(grupo.escuro ? 'escuro' : 'paleta')"
+                    [attr.aria-expanded]="secoesAbertas()[grupo.escuro ? 'escuro' : 'paleta']"
+                    [attr.aria-controls]="grupo.escuro ? 'tema-secao-escuro' : 'tema-secao-paleta'"
+                  >
+                    <h6 class="fw-bold mb-0">
+                      @if (grupo.escuro) {
+                        <i class="fas fa-moon me-2"></i>Cores do modo escuro
+                      } @else {
+                        <i class="fas fa-sun me-2"></i>Paleta base
+                      }
+                    </h6>
+                    <i
+                      class="fas fa-chevron-down tema-secao-seta"
+                      [class.tema-secao-seta--aberta]="secoesAbertas()[grupo.escuro ? 'escuro' : 'paleta']"
+                      aria-hidden="true"
+                    ></i>
+                  </button>
                   @if (grupo.escuro) {
                     <button
                       type="button"
@@ -92,178 +105,221 @@
                   }
                 </div>
 
-                @for (slot of grupo.slots; track slot) {
-                  <div
-                    class="tema-campo"
-                    [class.tema-campo--destaque]="campoDestacado() === slot"
-                  >
-                    <span class="tema-campo-label">{{ labelDeSlot(slot) }}</span>
+                @if (secoesAbertas()[grupo.escuro ? 'escuro' : 'paleta']) {
+                  <div [id]="grupo.escuro ? 'tema-secao-escuro' : 'tema-secao-paleta'" class="tema-secao-conteudo">
+                    @for (slot of grupo.slots; track slot) {
+                      <div
+                        class="tema-campo"
+                        [class.tema-campo--destaque]="campoDestacado() === slot"
+                      >
+                        <span class="tema-campo-label">{{ labelDeSlot(slot) }}</span>
 
-                    <div class="btn-group btn-group-sm" role="group" aria-label="Tipo de preenchimento">
-                      <button
-                        type="button"
-                        class="btn"
-                        [class.btn-primary]="camposDe(grupo.escuro)[slot].tipo === 'solido'"
-                        [class.btn-outline-secondary]="camposDe(grupo.escuro)[slot].tipo !== 'solido'"
-                        (click)="atualizarCampo(nomeGrupo(grupo.escuro), slot, { tipo: 'solido' })"
-                      >
-                        Sólido
-                      </button>
-                      <button
-                        type="button"
-                        class="btn"
-                        [class.btn-primary]="camposDe(grupo.escuro)[slot].tipo === 'gradiente'"
-                        [class.btn-outline-secondary]="camposDe(grupo.escuro)[slot].tipo !== 'gradiente'"
-                        (click)="atualizarCampo(nomeGrupo(grupo.escuro), slot, { tipo: 'gradiente' })"
-                      >
-                        Gradiente
-                      </button>
-                    </div>
+                        <div class="btn-group btn-group-sm" role="group" aria-label="Tipo de preenchimento">
+                          <button
+                            type="button"
+                            class="btn"
+                            [class.btn-primary]="camposDe(grupo.escuro)[slot].tipo === 'solido'"
+                            [class.btn-outline-secondary]="camposDe(grupo.escuro)[slot].tipo !== 'solido'"
+                            (click)="atualizarCampo(nomeGrupo(grupo.escuro), slot, { tipo: 'solido' })"
+                          >
+                            Sólido
+                          </button>
+                          <button
+                            type="button"
+                            class="btn"
+                            [class.btn-primary]="camposDe(grupo.escuro)[slot].tipo === 'gradiente'"
+                            [class.btn-outline-secondary]="camposDe(grupo.escuro)[slot].tipo !== 'gradiente'"
+                            (click)="atualizarCampo(nomeGrupo(grupo.escuro), slot, { tipo: 'gradiente' })"
+                          >
+                            Gradiente
+                          </button>
+                        </div>
 
-                    @if (camposDe(grupo.escuro)[slot].tipo === 'solido') {
-                      <input
-                        type="color"
-                        class="tema-picker"
-                        [value]="hexPicker(camposDe(grupo.escuro)[slot].cor)"
-                        (input)="definirCor(nomeGrupo(grupo.escuro), slot, 'cor', valorEntrada($event))"
-                        aria-label="Cor sólida"
-                      />
-                      <input
-                        type="text"
-                        class="form-control form-control-sm tema-hex"
-                        maxlength="7"
-                        placeholder="#RRGGBB"
-                        [value]="camposDe(grupo.escuro)[slot].cor"
-                        (input)="definirCor(nomeGrupo(grupo.escuro), slot, 'cor', valorEntrada($event))"
-                      />
-                    } @else {
-                      <span
-                        class="tema-swatch"
-                        [style.background]="estiloGradiente(nomeGrupo(grupo.escuro), slot) ?? hexPicker(camposDe(grupo.escuro)[slot].cor1)"
-                      ></span>
-                      <input
-                        type="color"
-                        class="tema-picker"
-                        [value]="hexPicker(camposDe(grupo.escuro)[slot].cor1)"
-                        (input)="definirCor(nomeGrupo(grupo.escuro), slot, 'cor1', valorEntrada($event))"
-                        aria-label="Cor 1 do gradiente"
-                      />
-                      <input
-                        type="text"
-                        class="form-control form-control-sm tema-hex"
-                        maxlength="7"
-                        placeholder="#RRGGBB"
-                        [value]="camposDe(grupo.escuro)[slot].cor1"
-                        (input)="definirCor(nomeGrupo(grupo.escuro), slot, 'cor1', valorEntrada($event))"
-                      />
-                      <span class="tema-swatch-seta"><i class="fas fa-arrow-right"></i></span>
-                      <input
-                        type="color"
-                        class="tema-picker"
-                        [value]="hexPicker(camposDe(grupo.escuro)[slot].cor2)"
-                        (input)="definirCor(nomeGrupo(grupo.escuro), slot, 'cor2', valorEntrada($event))"
-                        aria-label="Cor 2 do gradiente"
-                      />
-                      <input
-                        type="text"
-                        class="form-control form-control-sm tema-hex"
-                        maxlength="7"
-                        placeholder="#RRGGBB"
-                        [value]="camposDe(grupo.escuro)[slot].cor2"
-                        (input)="definirCor(nomeGrupo(grupo.escuro), slot, 'cor2', valorEntrada($event))"
-                      />
-                      <select
-                        class="form-select form-select-sm tema-direcao"
-                        [value]="camposDe(grupo.escuro)[slot].direcao"
-                        (change)="definirDirecao(nomeGrupo(grupo.escuro), slot, direcaoEntrada($event))"
-                        aria-label="Direção do gradiente"
-                      >
-                        @for (d of direcoes; track d.valor) {
-                          <option [value]="d.valor">{{ d.label }}</option>
+                        @if (camposDe(grupo.escuro)[slot].tipo === 'solido') {
+                          <input
+                            type="color"
+                            class="tema-picker"
+                            [value]="hexPicker(camposDe(grupo.escuro)[slot].cor)"
+                            (input)="definirCor(nomeGrupo(grupo.escuro), slot, 'cor', valorEntrada($event))"
+                            aria-label="Cor sólida"
+                          />
+                          <input
+                            type="text"
+                            class="form-control form-control-sm tema-hex"
+                            maxlength="7"
+                            placeholder="#RRGGBB"
+                            [value]="camposDe(grupo.escuro)[slot].cor"
+                            (input)="definirCor(nomeGrupo(grupo.escuro), slot, 'cor', valorEntrada($event))"
+                          />
+                        } @else {
+                          <span
+                            class="tema-swatch"
+                            [style.background]="estiloGradiente(nomeGrupo(grupo.escuro), slot) ?? hexPicker(camposDe(grupo.escuro)[slot].cor1)"
+                          ></span>
+                          <input
+                            type="color"
+                            class="tema-picker"
+                            [value]="hexPicker(camposDe(grupo.escuro)[slot].cor1)"
+                            (input)="definirCor(nomeGrupo(grupo.escuro), slot, 'cor1', valorEntrada($event))"
+                            aria-label="Cor 1 do gradiente"
+                          />
+                          <input
+                            type="text"
+                            class="form-control form-control-sm tema-hex"
+                            maxlength="7"
+                            placeholder="#RRGGBB"
+                            [value]="camposDe(grupo.escuro)[slot].cor1"
+                            (input)="definirCor(nomeGrupo(grupo.escuro), slot, 'cor1', valorEntrada($event))"
+                          />
+                          <span class="tema-swatch-seta"><i class="fas fa-arrow-right"></i></span>
+                          <input
+                            type="color"
+                            class="tema-picker"
+                            [value]="hexPicker(camposDe(grupo.escuro)[slot].cor2)"
+                            (input)="definirCor(nomeGrupo(grupo.escuro), slot, 'cor2', valorEntrada($event))"
+                            aria-label="Cor 2 do gradiente"
+                          />
+                          <input
+                            type="text"
+                            class="form-control form-control-sm tema-hex"
+                            maxlength="7"
+                            placeholder="#RRGGBB"
+                            [value]="camposDe(grupo.escuro)[slot].cor2"
+                            (input)="definirCor(nomeGrupo(grupo.escuro), slot, 'cor2', valorEntrada($event))"
+                          />
+                          <select
+                            class="form-select form-select-sm tema-direcao"
+                            [value]="camposDe(grupo.escuro)[slot].direcao"
+                            (change)="definirDirecao(nomeGrupo(grupo.escuro), slot, direcaoEntrada($event))"
+                            aria-label="Direção do gradiente"
+                          >
+                            @for (d of direcoes; track d.valor) {
+                              <option [value]="d.valor">{{ d.label }}</option>
+                            }
+                          </select>
                         }
-                      </select>
+
+                        <span class="tema-chip" title="Onde esta cor é usada">
+                          <i class="fas fa-tag me-1" aria-hidden="true"></i>usado em: {{ usoDeSlot(slot) }}
+                        </span>
+                      </div>
+                    }
+
+                    @if (grupo.escuro) {
+                      <p class="tema-ajuda mb-0">A sugestão gerada não é persistida — clique em Salvar para aplicá-la (RN-102).</p>
                     }
                   </div>
-                }
-
-                @if (grupo.escuro) {
-                  <p class="tema-ajuda mb-0">A sugestão gerada não é persistida — clique em Salvar para aplicá-la (RN-102).</p>
                 }
               </div>
             </div>
           }
         }
 
-        <!-- Identidade (RN-098/100) -->
+        <!-- Identidade (RN-098/100) — seção colapsável -->
         <div class="card tema-card mb-3" [class.tema-card--destaque]="campoDestacado() === 'logoUrl'">
           <div class="card-body">
-            <h6 class="fw-bold mb-3"><i class="fas fa-image me-2"></i>Identidade</h6>
+            <button
+              type="button"
+              class="tema-secao-botao"
+              (click)="alternarSecao('identidade')"
+              [attr.aria-expanded]="secoesAbertas().identidade"
+              aria-controls="tema-secao-identidade"
+            >
+              <h6 class="fw-bold mb-0"><i class="fas fa-image me-2"></i>Identidade</h6>
+              <i
+                class="fas fa-chevron-down tema-secao-seta"
+                [class.tema-secao-seta--aberta]="secoesAbertas().identidade"
+                aria-hidden="true"
+              ></i>
+            </button>
 
-            <label class="form-label tema-label" for="tema-logo-url">URL do logo</label>
-            <input
-              id="tema-logo-url"
-              type="text"
-              class="form-control"
-              placeholder="https://exemplo.com/logo.png"
-              [ngModel]="logoUrl()"
-              (ngModelChange)="logoUrl.set($event); logoRecuperado()"
-            />
-            @if (logoPreviewVisivel()) {
-              <div class="tema-logo-preview">
-                <img
-                  [src]="logoUrl().trim()"
-                  alt="Prévia do logo"
-                  (error)="logoFalhou()"
-                />
-              </div>
-            } @else {
-              <div class="tema-logo-preview tema-logo-fallback">
-                <i class="fas fa-scissors me-2"></i>Marca padrão do sistema
-              </div>
-            }
-            @if (logoErro()) {
-              <p class="tema-ajuda mb-0">Não foi possível carregar a imagem do logo — exibindo a marca padrão.</p>
-            }
-
-            <div class="row g-2 mt-2">
-              <div class="col-12 col-md-6">
-                <label class="form-label tema-label" for="tema-fonte-titulo">Fonte dos títulos</label>
+            @if (secoesAbertas().identidade) {
+              <div id="tema-secao-identidade" class="tema-secao-conteudo">
+                <label class="form-label tema-label" for="tema-logo-url">URL do logo</label>
                 <input
-                  id="tema-fonte-titulo"
+                  id="tema-logo-url"
                   type="text"
                   class="form-control"
-                  placeholder="Ex.: Montserrat"
-                  [ngModel]="fonteTitulo()"
-                  (ngModelChange)="fonteTitulo.set($event)"
+                  placeholder="https://exemplo.com/logo.png"
+                  [ngModel]="logoUrl()"
+                  (ngModelChange)="logoUrl.set($event); logoRecuperado()"
                 />
+                @if (logoPreviewVisivel()) {
+                  <div class="tema-logo-preview">
+                    <img
+                      [src]="logoUrl().trim()"
+                      alt="Prévia do logo"
+                      (error)="logoFalhou()"
+                    />
+                  </div>
+                } @else {
+                  <div class="tema-logo-preview tema-logo-fallback">
+                    <i class="fas fa-scissors me-2"></i>Marca padrão do sistema
+                  </div>
+                }
+                @if (logoErro()) {
+                  <p class="tema-ajuda mb-0">Não foi possível carregar a imagem do logo — exibindo a marca padrão.</p>
+                }
+
+                <div class="row g-2 mt-2">
+                  <div class="col-12 col-md-6">
+                    <label class="form-label tema-label" for="tema-fonte-titulo">Fonte dos títulos</label>
+                    <input
+                      id="tema-fonte-titulo"
+                      type="text"
+                      class="form-control"
+                      placeholder="Ex.: Montserrat"
+                      [ngModel]="fonteTitulo()"
+                      (ngModelChange)="fonteTitulo.set($event)"
+                    />
+                  </div>
+                  <div class="col-12 col-md-6">
+                    <label class="form-label tema-label" for="tema-fonte-corpo">Fonte do corpo</label>
+                    <input
+                      id="tema-fonte-corpo"
+                      type="text"
+                      class="form-control"
+                      placeholder="Ex.: Inter"
+                      [ngModel]="fonteCorpo()"
+                      (ngModelChange)="fonteCorpo.set($event)"
+                    />
+                  </div>
+                </div>
               </div>
-              <div class="col-12 col-md-6">
-                <label class="form-label tema-label" for="tema-fonte-corpo">Fonte do corpo</label>
-                <input
-                  id="tema-fonte-corpo"
-                  type="text"
-                  class="form-control"
-                  placeholder="Ex.: Inter"
-                  [ngModel]="fonteCorpo()"
-                  (ngModelChange)="fonteCorpo.set($event)"
-                />
-              </div>
-            </div>
+            }
           </div>
         </div>
 
-        <!-- Tokens (RN-098/101) -->
+        <!-- Tokens (RN-098/101) — seção colapsável -->
         <div class="card tema-card mb-3" [class.tema-card--destaque]="campoDestacado() === 'tokens'">
           <div class="card-body">
-            <h6 class="fw-bold mb-3"><i class="fas fa-code me-2"></i>Tokens (JSON)</h6>
-            <textarea
-              class="form-control tema-tokens"
-              rows="5"
-              placeholder='{ "raioCantos": "8px", "sombra": "0 2px 8px rgba(0,0,0,.15)" }'
-              [ngModel]="tokensJson()"
-              (ngModelChange)="tokensJson.set($event)"
-            ></textarea>
-            <p class="tema-ajuda mb-0">Objeto JSON livre (raio de cantos, sombras...). Deixe vazio para não enviar.</p>
+            <button
+              type="button"
+              class="tema-secao-botao"
+              (click)="alternarSecao('tokens')"
+              [attr.aria-expanded]="secoesAbertas().tokens"
+              aria-controls="tema-secao-tokens"
+            >
+              <h6 class="fw-bold mb-0"><i class="fas fa-code me-2"></i>Tokens (JSON)</h6>
+              <i
+                class="fas fa-chevron-down tema-secao-seta"
+                [class.tema-secao-seta--aberta]="secoesAbertas().tokens"
+                aria-hidden="true"
+              ></i>
+            </button>
+
+            @if (secoesAbertas().tokens) {
+              <div id="tema-secao-tokens" class="tema-secao-conteudo">
+                <textarea
+                  class="form-control tema-tokens"
+                  rows="5"
+                  placeholder='{ "raioCantos": "8px", "sombra": "0 2px 8px rgba(0,0,0,.15)" }'
+                  [ngModel]="tokensJson()"
+                  (ngModelChange)="tokensJson.set($event)"
+                ></textarea>
+                <p class="tema-ajuda mb-0">Objeto JSON livre (raio de cantos, sombras...). Deixe vazio para não enviar.</p>
+              </div>
+            }
           </div>
         </div>
 
@@ -299,7 +355,7 @@
       <!-- Preview ao vivo (sticky — UI_SPEC §5.30) -->
       <div class="col-12 col-xl-5">
         <div class="tema-preview-sticky">
-          <div class="card tema-card">
+          <div class="card tema-card tema-preview-card">
             <div class="card-body">
               <h6 class="fw-bold mb-3"><i class="fas fa-eye me-2"></i>Preview ao vivo</h6>
               <p class="tema-ajuda">Miniaturas do painel interno e do portal com as cores/fontes/logo em edição.</p>

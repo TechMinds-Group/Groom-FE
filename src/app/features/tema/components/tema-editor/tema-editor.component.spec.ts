@@ -216,4 +216,36 @@ describe('TemaEditorComponent', () => {
     expect(component['configurado']()).toBeFalse();
     expect(toastSpy.success).toHaveBeenCalled();
   }));
+
+  it('deve alternar o estado das seções colapsáveis (accordions — UI_SPEC §5.30)', fakeAsync(() => {
+    carregarBoot(temaSalvo);
+
+    expect(component['secoesAbertas']()['paleta']).toBeTrue();
+    component['alternarSecao']('paleta');
+    expect(component['secoesAbertas']()['paleta']).toBeFalse();
+    component['alternarSecao']('paleta');
+    expect(component['secoesAbertas']()['paleta']).toBeTrue();
+  }));
+
+  it('deve derivar o preview do formulário mesmo sem tema configurado (RN-100/099)', fakeAsync(() => {
+    carregarBoot({
+      ...temaSalvo,
+      configurado: false,
+      modoPaleta: null,
+      primaria: null,
+      secundaria: null,
+      acento: null,
+      fundo: null,
+      texto: null,
+    });
+
+    expect(component['configurado']()).toBeFalse();
+    // Prefill do formulário (paleta padrão) vira a base do preview — fiel ao form, não ao painel.
+    expect((component['temaPreview']().fundo ?? '').toLowerCase()).toBe('#f8fafc');
+    expect(component['temaPreview']().configurado).toBeTrue();
+
+    // Editar um slot atualiza o preview imediatamente (ao vivo — §5.30).
+    component['atualizarCampo']('base', 'fundo', { cor: '#ABCDEF', cor1: '#ABCDEF' });
+    expect(component['temaPreview']().fundo).toBe('#ABCDEF');
+  }));
 });

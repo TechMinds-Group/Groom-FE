@@ -23,6 +23,45 @@ export const TEMA_SLOT_LABELS: Record<string, string> = {
   escuroTexto: 'Texto',
 };
 
+/**
+ * Legenda de uso real de cada slot no painel/portal (chips "usado em: ..." do editor):
+ * primária pinta botões e links; secundária, a barra superior do portal e apoios;
+ * acento, destaques/badges; fundo, o fundo das telas; texto, o texto corrente.
+ */
+export const TEMA_SLOT_USO: Record<string, string> = {
+  primaria: 'Botões e links',
+  secundaria: 'Topo do portal e elementos de apoio',
+  acento: 'Destaques e badges',
+  fundo: 'Fundo das telas',
+  texto: 'Texto corrente',
+};
+
+/** Uso do slot para a legenda do editor — grupos escuros compartilham os usos da base. */
+export function usoDeSlot(slot: string): string {
+  if (slot.startsWith('escuro')) {
+    return TEMA_SLOT_USO[slot.charAt(6).toLowerCase() + slot.slice(7)] ?? '';
+  }
+  return TEMA_SLOT_USO[slot] ?? '';
+}
+
+/** Paleta padrão do sistema (tokens do design system — _tokens.scss) usada no prefill e no preview. */
+export const TEMA_CORES_PADRAO: Record<string, string> = {
+  primaria: '#0d6efd',
+  secundaria: '#6c757d',
+  acento: '#f59e0b',
+  fundo: '#f8fafc',
+  texto: '#0f172a',
+};
+
+/** Paleta escura padrão do sistema para slots do modo escuro sem valor no preview (RN-099). */
+const TEMA_CORES_PADRAO_ESCURO: Record<string, string> = {
+  primaria: '#0d6efd',
+  secundaria: '#6c757d',
+  acento: '#f59e0b',
+  fundo: '#0b0f1a',
+  texto: '#f8fafc',
+};
+
 /** Config de exibição de um grupo de slots (base ou escuro) na tela do editor. */
 export interface TemaGrupoConfig {
   /** Slots do grupo, em ordem de exibição. */
@@ -180,47 +219,52 @@ export function payloadDeForm(form: TemaEditorForm): TemaGravacao {
   };
 }
 
-/** Monta um payload de leitura sintético para o preview ao vivo (UI_SPEC §5.30 — atualiza a cada mudança). */
-export function temaPreviewDeForm(
-  form: TemaEditorForm,
-  configurado: boolean,
-): TemaLeitura {
-  if (!configurado) {
-    return {
-      configurado: false,
-      modoPaleta: null,
-      primaria: null,
-      secundaria: null,
-      acento: null,
-      fundo: null,
-      texto: null,
-      escuroPrimaria: null,
-      escuroSecundaria: null,
-      escuroAcento: null,
-      escuroFundo: null,
-      escuroTexto: null,
-      logoUrl: null,
-      fonteTitulo: null,
-      fonteCorpo: null,
-      gradientes: null,
-      tokens: null,
-      atualizadoEm: null,
-    };
+/**
+ * Monta o payload de leitura sintético para o preview ao vivo (UI_SPEC §5.30 — atualiza
+ * a cada mudança). O preview é SEMPRE fiel ao formulário: slots vazios caem na paleta
+ * padrão do sistema (mesma do prefill — RN-100), inclusive sem tema configurado — o
+ * mock não herda o modo escuro do painel quando a paleta em edição é clara (RN-099:
+ * com Unica a mesma paleta vale para claro e escuro).
+ */
+export function temaPreviewDeForm(form: TemaEditorForm): TemaLeitura {
+  // Preview tolerante: JSON de tokens inválido/incompleto não pode quebrar o preview ao
+  // vivo — o payload é remontado sem tokens (payloadDeForm lança no parse — RN-101).
+  let payload: TemaGravacao;
+  try {
+    payload = payloadDeForm(form);
+  } catch {
+    payload = payloadDeForm({ ...form, tokensJson: '' });
   }
 
-  const payload = payloadDeForm(form);
-  // Preview tolerante: JSON de tokens incompleto não pode quebrar o preview ao vivo.
-  let tokensPreview: Record<string, unknown> | null = payload.tokens;
-  try {
-    tokensPreview = parseTokens(form.tokensJson);
-  } catch {
-    tokensPreview = null;
+  const corPreview = (valor: string | null, padrao: string): string =>
+    valor?.trim() ? valor : padrao;
+
+  const cores: Record<string, string | null> = {
+    primaria: corPreview(payload.primaria, TEMA_CORES_PADRAO['primaria']),
+    secundaria: corPreview(payload.secundaria, TEMA_CORES_PADRAO['secundaria']),
+    acento: corPreview(payload.acento, TEMA_CORES_PADRAO['acento']),
+    fundo: corPreview(payload.fundo, TEMA_CORES_PADRAO['fundo']),
+    texto: corPreview(payload.texto, TEMA_CORES_PADRAO['texto']),
+    escuroPrimaria: corPreview(payload.escuroPrimaria, TEMA_CORES_PADRAO_ESCURO['primaria']),
+    escuroSecundaria: corPreview(payload.escuroSecundaria, TEMA_CORES_PADRAO_ESCURO['secundaria']),
+    escuroAcento: corPreview(payload.escuroAcento, TEMA_CORES_PADRAO_ESCURO['acento']),
+    escuroFundo: corPreview(payload.escuroFundo, TEMA_CORES_PADRAO_ESCURO['fundo']),
+    escuroTexto: corPreview(payload.escuroTexto, TEMA_CORES_PADRAO_ESCURO['texto']),
+  };
+
+  // RN-099: em Unica o grupo escuro não existe — o preview usa a mesma paleta nos dois modos.
+  if (form.modoPaleta === 'Unica') {
+    cores['escuroPrimaria'] = null;
+    cores['escuroSecundaria'] = null;
+    cores['escuroAcento'] = null;
+    cores['escuroFundo'] = null;
+    cores['escuroTexto'] = null;
   }
 
   return {
     configurado: true,
     ...payload,
-    tokens: tokensPreview,
+    ...cores,
     atualizadoEm: null,
   };
 }
