@@ -50,7 +50,7 @@
       @if (horaEspecifica()) {
         <!-- RN-074 — modo slot clicado: o horário desejado é exatamente o clicado; a
         janela início+fim é calculada automaticamente (sem campo editável). -->
-        <div class="lista-espera-modal__horario mt-3" [class.lista-espera-modal__horario--dark]="isDark()">
+        <div class="alert alert-info py-2 px-3 mb-0 mt-3" role="status">
           <i class="fa-regular fa-clock me-2"></i>
           Horário desejado: <strong>{{ horaEspecifica() }}</strong> — avisaremos assim que
           ele abrir.

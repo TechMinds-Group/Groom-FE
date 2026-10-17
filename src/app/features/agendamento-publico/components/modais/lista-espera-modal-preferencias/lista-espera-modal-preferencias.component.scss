@@ -2,20 +2,3 @@
   font-size: 0.9rem;
 }
 
-/* RN-074 — modo slot clicado: destaque do horário exato escolhido (tema claro/escuro). */
-.lista-espera-modal__horario {
-  font-size: 0.95rem;
-  color: var(--bs-body-color);
-  background-color: rgba(13, 110, 253, 0.08);
-  border: 1px solid rgba(13, 110, 253, 0.25);
-  border-radius: 0.5rem;
-  padding: 0.65rem 0.85rem;
-}
-
-/* Tema escuro — texto branco com contraste (padrão das telas do portal — RN-074). */
-.lista-espera-modal__horario--dark {
-  color: #ffffff;
-  background-color: rgba(13, 110, 253, 0.25);
-  border-color: rgba(255, 255, 255, 0.3);
-}
-

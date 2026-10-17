@@ -15,34 +15,27 @@
             </span>
           </div>
         </div>
-        <button
-          type="button"
-          class="btn btn-outline-danger btn-sm lista-espera-portal__sair"
-          [disabled]="saindo()"
-          (click)="sair()"
-        >
-          @if (saindo()) {
-            <i class="fas fa-spinner fa-spin me-1"></i>
-          } @else {
-            <i class="fa-solid fa-right-from-bracket me-1"></i>
-          }
-          Sair da lista
-        </button>
+        <tm-button
+          label="Sair da lista"
+          variant="outline-danger"
+          size="sm"
+          [loading]="saindo()"
+          [icon]="saindo() ? '' : 'fa-solid fa-right-from-bracket'"
+          (onClick)="sair()"
+        ></tm-button>
       </div>
     } @else if (!somenteStatus()) {
       <div class="lista-espera-portal__vazio">
         <span class="lista-espera-portal__vazio-texto text-muted">
           Você não está na lista de espera hoje
         </span>
-        <button
-          type="button"
-          class="btn btn-primary lista-espera-portal__entrar"
-          [disabled]="entrando()"
-          (click)="abrirModal()"
-        >
-          <i class="fa-solid fa-hourglass-half me-2"></i>
-          Entrar na lista de espera
-        </button>
+        <tm-button
+          label="Entrar na lista de espera"
+          variant="primary"
+          icon="fa-solid fa-hourglass-half"
+          [loading]="entrando()"
+          (onClick)="abrirModal()"
+        ></tm-button>
       </div>
     }
   }

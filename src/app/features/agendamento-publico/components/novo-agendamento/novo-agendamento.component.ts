@@ -258,17 +258,6 @@ export class NovoAgendamentoComponent implements OnInit, OnDestroy {
     await this.carregarProfissionais();
   }
 
-  /** Navega para a página dedicada da lista de espera (RN-074 — entry point do portal). */
-  irParaListaEspera(): void {
-    const slug =
-      this.agendamentoPublicoService.estabelecimento() ||
-      this.route.snapshot.paramMap.get('estabelecimento') ||
-      this.route.snapshot.parent?.paramMap.get('estabelecimento');
-    if (slug) {
-      void this.router.navigate(['/agendamento', slug, 'lista-espera']);
-    }
-  }
-
   private async carregarInfoEstabelecimento(): Promise<void> {
     const slug =
       this.agendamentoPublicoService.estabelecimento() ||
@@ -497,15 +486,15 @@ export class NovoAgendamentoComponent implements OnInit, OnDestroy {
       this.finalizandoCadastro.set(false);
 
       // RN-074 — cadastro concluído a partir do pedido de entrada na fila:
-      // abre o modal de confirmação da fila com o horário pendente.
-      if (this.listaEsperaPendenteHora !== undefined) {
-        const hora = this.listaEsperaPendenteHora;
-        this.listaEsperaPendenteHora = undefined;
-        this.passoDataHorario()?.abrirModalLista({
+      // abre o modal de confirmação da fila no widget de origem, com o horário pendente.
+      if (this.listaEsperaPendente !== undefined) {
+        const pendente = this.listaEsperaPendente;
+        this.listaEsperaPendente = undefined;
+        this.abrirModalListaNa(pendente.origem, {
           servicoId: this.servicoSelecionado()?.id ?? null,
           profissionalId: this.profissionalSelecionado()?.id ?? null,
-          ...(hora ? { horaJanelaInicio: hora } : {}),
-        }, hora);
+          ...(pendente.hora ? { horaJanelaInicio: pendente.hora } : {}),
+        }, pendente.hora);
       }
     } catch {
       this.errorMessage.set('Não foi possível salvar seus dados. Confira as informações e tente novamente.');
@@ -570,19 +559,31 @@ export class NovoAgendamentoComponent implements OnInit, OnDestroy {
 
   readonly clienteLogado = this.agendamentoPublicoService.clienteLogado;
 
-  /** Passo data/horário — hospedeiro do modal da lista de espera (RN-074). */
+  /** Passo data/horário — hospedeiro do modal da lista de espera no passo 3 (RN-074). */
   private readonly passoDataHorario = viewChild(PassoDataHorarioComponent);
 
-  /** Hora pendente do pedido de entrada na lista aguardando conclusão do cadastro. */
-  private listaEsperaPendenteHora: string | null | undefined;
+  /** Widget da lista de espera no topo do wizard — hospedeiro do modal do header (RN-074). */
+  private readonly portalTopo = viewChild('portalTopo', { read: ListaEsperaPortalComponent });
+
+  /** Pedido de entrada na fila aguardando conclusão do cadastro (hora + origem do clique). */
+  private listaEsperaPendente: { hora: string | null; origem: 'header' | 'passo' } | undefined;
 
   /**
-   * RN-074 — cliente pediu entrada na fila (slot ocupado/dia apagado). Cadastro
+   * RN-074 — botão "Lista de espera" do header: abre o modal de entrada no widget do
+   * topo (modo dia — sem horário específico), com a mesma validação de login/cadastro
+   * do fluxo do passo. Não navega para a página dedicada.
+   */
+  abrirListaEsperaHeader(): void {
+    void this.solicitarEntradaLista({ hora: null }, 'header');
+  }
+
+  /**
+   * RN-074 — cliente pediu entrada na fila (header, slot ocupado/dia apagado). Cadastro
    * completo só é exigido quando ele for CONFIRMAR o agendamento; aqui, sem
    * login direciona ao portal-login e sem cadastro completo abre a finalização;
-   * concluída a etapa, o modal de confirmação da fila é aberto com o preset.
+   * concluída a etapa, o modal de confirmação da fila é aberto no widget de origem.
    */
-  async solicitarEntradaLista(request: { hora: string | null }): Promise<void> {
+  async solicitarEntradaLista(request: { hora: string | null }, origem: 'header' | 'passo' = 'passo'): Promise<void> {
     const presetBase = {
       servicoId: this.servicoSelecionado()?.id ?? null,
       profissionalId: this.profissionalSelecionado()?.id ?? null,
@@ -614,15 +615,29 @@ export class NovoAgendamentoComponent implements OnInit, OnDestroy {
       !me.celular || !me.email || partesNome.length < 2;
 
     if (cadastroIncompleto) {
-      this.listaEsperaPendenteHora = request.hora;
+      this.listaEsperaPendente = { hora: request.hora, origem };
       await this.abrirFinalizacaoCadastro();
       return;
     }
 
-    this.passoDataHorario()?.abrirModalLista({
+    this.abrirModalListaNa(origem, {
       ...presetBase,
       ...(request.hora ? { horaJanelaInicio: request.hora } : {}),
     }, request.hora);
+  }
+
+  /** Abre o modal no widget de origem do clique (header → topo do wizard; passo 3 → widget do passo). */
+  private abrirModalListaNa(
+    origem: 'header' | 'passo',
+    preset: Partial<EntrarListaEsperaPayload>,
+    horaEspecifica: string | null,
+  ): void {
+    if (origem === 'header') {
+      this.portalTopo()?.abrirComPreset(preset, horaEspecifica);
+      return;
+    }
+
+    this.passoDataHorario()?.abrirModalLista(preset, horaEspecifica);
   }
 
   /** Alterna entre tema claro e escuro na tela pública. */

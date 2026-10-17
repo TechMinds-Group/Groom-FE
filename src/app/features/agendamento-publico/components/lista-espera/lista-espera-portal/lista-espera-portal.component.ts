@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, effect, inject, OnInit, input, signal } from '@angular/core';
-import { TmToastService } from '@techminds-group/tm-angular-lib';
+import { TmButtonComponent, TmToastService } from '@techminds-group/tm-angular-lib';
 import { ListaEsperaService } from '../../../../../core/services/lista-espera.service';
 import { EntrarListaEsperaPayload, ListaEsperaItem } from '../../../../../core/models/lista-espera/lista-espera.model';
 import { ListaEsperaModalPreferenciasComponent } from '../../modais/lista-espera-modal-preferencias/lista-espera-modal-preferencias.component';
@@ -13,7 +13,7 @@ import { ListaEsperaModalPreferenciasComponent } from '../../modais/lista-espera
 @Component({
   selector: 'app-lista-espera-portal',
   standalone: true,
-  imports: [ListaEsperaModalPreferenciasComponent],
+  imports: [TmButtonComponent, ListaEsperaModalPreferenciasComponent],
   templateUrl: './lista-espera-portal.component.html',
   styleUrl: './lista-espera-portal.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

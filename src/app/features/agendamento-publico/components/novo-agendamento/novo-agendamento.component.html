@@ -21,8 +21,8 @@
             <button
               type="button"
               class="agendamento-wizard__lista-espera"
-              (click)="irParaListaEspera()"
-              title="Acompanhar minha posição na fila do dia"
+              (click)="abrirListaEsperaHeader()"
+              title="Entrar na lista de espera do dia"
             >
               <i class="fa-solid fa-hourglass-half"></i>
               <span class="d-none d-md-inline">Lista de espera</span>
@@ -122,7 +122,7 @@
 
         <div class="agendamento-wizard__body">
           <div class="agendamento-wizard__lista-espera mb-3">
-            <app-lista-espera-portal [somenteStatus]="true" />
+            <app-lista-espera-portal #portalTopo [somenteStatus]="true" />
           </div>
           @if (!finalizandoCadastro()) {
             @if (meuPlano(); as plano) {
