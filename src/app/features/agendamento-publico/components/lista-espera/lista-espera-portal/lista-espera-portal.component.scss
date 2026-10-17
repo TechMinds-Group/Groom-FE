@@ -46,6 +46,19 @@
   font-size: 0.875rem;
 }
 
+// RN-074 — o footer fixo de copyright (41px, z-index 99999) cobre o rodapé do modal da
+// lib (z-index 2100): reservo o espaço dele no backdrop e reduzo o max-height do modal
+// para que os botões de ação apareçam por completo, com folga acima do footer.
+:host ::ng-deep {
+  .modal-backdrop-blur {
+    padding-bottom: 4.5rem; // 41px do footer + folga
+  }
+
+  .modal-premium {
+    max-height: calc(100vh - 6rem);
+  }
+}
+
 // Tema escuro do portal — card de status com contraste (RN-074).
 [data-theme='dark'] .lista-espera-portal__card,
 :host-context([data-theme='dark']) .lista-espera-portal__card {
