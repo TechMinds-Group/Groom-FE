@@ -2,7 +2,6 @@ import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@ang
 import { RouterOutlet } from '@angular/router';
 import { TmToastComponent } from '@techminds-group/tm-angular-lib';
 import { AuthService } from './core/services/auth.service';
-import { SessionKeepAliveService } from './core/services/session-keep-alive.service';
 
 @Component({
   selector: 'app-root',
@@ -14,29 +13,14 @@ import { SessionKeepAliveService } from './core/services/session-keep-alive.serv
 })
 export class AppComponent implements OnInit {
   private readonly authService = inject(AuthService);
-  private readonly sessionKeepAlive = inject(SessionKeepAliveService);
   protected readonly title = signal('Groom-FE');
 
   ngOnInit(): void {
-    if (typeof window !== 'undefined' && window.location.pathname.includes('/sg-')) {
-      return;
-    }
-
-    // Verificar sessão no startup: se ativa, inicia keep-alive
-    this.authService.checkAuth().subscribe({
-      next: () => {
-        this.sessionKeepAlive.start();
-      },
+    // A sessão é mantida pelo backend (TMAPI + TMCON com restauração transparente).
+    // Aqui só hidratamos o contexto do usuário para UI/tema quando já há sessão.
+    this.authService.getMe().subscribe({
       error: () => {
-        // Sessão expirada — verificar se há refresh cookie para restaurar
-        this.authService.getMe().subscribe({
-          next: () => {
-            this.sessionKeepAlive.start();
-          },
-          error: () => {
-            // Ambos falharam — redirecionamento é feito pelo guard de rota
-          }
-        });
+        // Sem sessão — o guard de rota cuida do redirecionamento
       }
     });
   }
