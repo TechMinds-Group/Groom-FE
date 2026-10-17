@@ -5,7 +5,7 @@
     </div>
   } @else {
     @if (entrada(); as ativa) {
-      <div class="lista-espera-portal__card" role="status">
+      <div class="lista-espera-portal__card mt-2" role="status">
         <div class="lista-espera-portal__card-info">
           <i class="fa-solid fa-hourglass-half lista-espera-portal__icone" aria-hidden="true"></i>
           <div>
@@ -49,4 +49,60 @@
     [horaEspecifica]="horaEspecifica()"
     (confirm)="entrar($event)"
   />
+
+  <!-- RN-074 — modal de status: quando o cliente já está na fila, o botão "Lista de
+  espera" do header/passo mostra a posição e as preferências em vez do formulário. -->
+  @if (entrada(); as ativa) {
+    <tm-modal
+      [title]="'Lista de espera'"
+      confirmLabel="Sair da lista"
+      cancelLabel="Fechar"
+      [show]="modalStatus()"
+      (showChange)="modalStatus.set($event)"
+      (confirm)="sairDoModal()"
+      (cancel)="fecharStatus()"
+      confirmClass="btn-danger"
+      icon="fa-solid fa-hourglass-half"
+      size="md"
+    >
+      <div class="text-start">
+        <div class="alert alert-info py-2 px-3 mb-3" role="status">
+          <i class="fa-solid fa-hourglass-half me-2"></i>
+          Você está na lista de espera — <strong>Posição {{ ativa.posicao }} do dia</strong>
+        </div>
+
+        <dl class="lista-espera-status mb-0">
+          <div class="lista-espera-status__linha">
+            <dt>Serviço desejado</dt>
+            <dd>{{ ativa.servicoNome || 'Qualquer serviço' }}</dd>
+          </div>
+          <div class="lista-espera-status__linha">
+            <dt>Profissional</dt>
+            <dd>{{ ativa.profissionalNome || 'Qualquer profissional' }}</dd>
+          </div>
+          <div class="lista-espera-status__linha">
+            <dt>Horário</dt>
+            <dd>
+              @if (ativa.horaJanelaInicio && ativa.horaJanelaFim) {
+                Apenas às {{ ativa.horaJanelaInicio }}
+              } @else if (ativa.horaJanelaInicio) {
+                A partir de {{ ativa.horaJanelaInicio }}
+              } @else {
+                Qualquer horário do dia
+              }
+            </dd>
+          </div>
+          @if (ativa.reservaAtiva; as reserva) {
+            <div class="lista-espera-status__linha">
+              <dt>Horário reservado para você</dt>
+              <dd>
+                {{ reserva.slotInicio.slice(11, 16) }} — confirme até
+                {{ reserva.expiraEmUtc | date: 'HH:mm' }}
+              </dd>
+            </div>
+          }
+        </dl>
+      </div>
+    </tm-modal>
+  }
 </div>

@@ -1,5 +1,6 @@
+import { DatePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, effect, inject, OnInit, input, signal } from '@angular/core';
-import { TmButtonComponent, TmToastService } from '@techminds-group/tm-angular-lib';
+import { TmButtonComponent, TmModalComponent, TmToastService } from '@techminds-group/tm-angular-lib';
 import { ListaEsperaService } from '../../../../../core/services/lista-espera.service';
 import { EntrarListaEsperaPayload, ListaEsperaItem } from '../../../../../core/models/lista-espera/lista-espera.model';
 import { ListaEsperaModalPreferenciasComponent } from '../../modais/lista-espera-modal-preferencias/lista-espera-modal-preferencias.component';
@@ -7,13 +8,15 @@ import { ListaEsperaModalPreferenciasComponent } from '../../modais/lista-espera
 /**
  * Widget da lista de espera no portal (UI_SPEC §5.14): com entrada ativa exibe o
  * card de status ("posição N do dia") com ação "Sair da lista"; sem entrada exibe
- * o botão "Entrar na lista de espera" que abre o modal de preferências.
- * Erros de negócio são exibidos como toast pelo errorInterceptor (§5.14).
+ * o botão "Entrar na lista de espera" que abre o modal de preferências. O pedido
+ * de entrada vindo do header/passo (`abrirComPreset`) abre o modal de STATUS quando
+ * o cliente já está na fila. Erros de negócio são exibidos como toast pelo
+ * errorInterceptor (§5.14).
  */
 @Component({
   selector: 'app-lista-espera-portal',
   standalone: true,
-  imports: [TmButtonComponent, ListaEsperaModalPreferenciasComponent],
+  imports: [DatePipe, TmButtonComponent, TmModalComponent, ListaEsperaModalPreferenciasComponent],
   templateUrl: './lista-espera-portal.component.html',
   styleUrl: './lista-espera-portal.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -35,6 +38,9 @@ export class ListaEsperaPortalComponent implements OnInit {
   readonly entrando = signal(false);
   readonly saindo = signal(false);
 
+  /** RN-074 — modal de status quando o cliente já está na fila e pede a lista de novo. */
+  readonly modalStatus = signal(false);
+
   /** Preferências pré-preenchidas (ex.: slot ocupado clicado) aplicadas ao abrir o modal. */
   readonly preset = signal<Partial<EntrarListaEsperaPayload> | null>(null);
 
@@ -47,7 +53,7 @@ export class ListaEsperaPortalComponent implements OnInit {
   constructor() {
     // Preset é consumido pelo modal na abertura; limpa ao fechar para não reaparecer.
     effect(() => {
-      if (!this.modalAberto()) {
+      if (!this.modalAberto() && !this.modalStatus()) {
         this.preset.set(null);
         this.horaEspecifica.set(null);
       }
@@ -78,11 +84,32 @@ export class ListaEsperaPortalComponent implements OnInit {
    * Abre o modal de preferências pré-preenchido (entrada via horário ocupado
    * clicado no passo data/horário — RN-074). `horaEspecifica` ativa o modo slot:
    * horário exato (janela início+fim), sem o campo "a partir de que horas".
+   * RN-074 — cliente já na fila: abre o modal de STATUS em vez do formulário.
    */
   abrirComPreset(preset: Partial<EntrarListaEsperaPayload>, horaEspecifica: string | null = null): void {
+    if (this.entrada()) {
+      this.modalStatus.set(true);
+      return;
+    }
+
     this.preset.set(preset);
     this.horaEspecifica.set(horaEspecifica);
     this.modalAberto.set(true);
+  }
+
+  /** Fecha o modal de status sem ações (botão Fechar/backdrop/X). */
+  fecharStatus(): void {
+    this.modalStatus.set(false);
+  }
+
+  /** Sair da lista a partir do modal de status: remove a entrada e fecha o modal. */
+  async sairDoModal(): Promise<void> {
+    if (this.saindo()) {
+      return;
+    }
+
+    await this.sair();
+    this.modalStatus.set(false);
   }
 
   /** Cria a entrada com as preferências do modal; 409 `ListaEspera.Duplicada` vira toast do backend. */

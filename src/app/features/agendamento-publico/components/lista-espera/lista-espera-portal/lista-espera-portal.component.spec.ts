@@ -79,4 +79,33 @@ describe('ListaEsperaPortalComponent', () => {
 
     expect(component.entrada()).toBeNull();
   });
+
+  // RN-074 — cliente já na fila que pede a lista de novo (header/passo): abre o modal
+  // de STATUS em vez do formulário de preferências.
+  it('deve abrir o modal de status ao pedir entrada quando já está na lista', async () => {
+    fixture.detectChanges();
+    httpMock.expectOne((r) => r.url.endsWith('/lista-espera/meu-status')).flush(entradaAtiva);
+    await fixture.whenStable();
+
+    component.abrirComPreset({ servicoId: null });
+
+    expect(component.modalStatus()).toBeTrue();
+    expect(component.modalAberto()).toBeFalse();
+  });
+
+  // RN-074 — sair pelo modal de status remove a entrada e fecha o modal.
+  it('deve sair da lista pelo modal de status e fechar o modal', async () => {
+    fixture.detectChanges();
+    httpMock.expectOne((r) => r.url.endsWith('/lista-espera/meu-status')).flush(entradaAtiva);
+    await fixture.whenStable();
+
+    component.modalStatus.set(true);
+    const promessaSaida = component.sairDoModal();
+    const deleteReq = httpMock.expectOne((r) => r.url.endsWith('/lista-espera/guid-entrada'));
+    deleteReq.flush(null, { status: 204, statusText: 'No Content' });
+    await promessaSaida;
+
+    expect(component.entrada()).toBeNull();
+    expect(component.modalStatus()).toBeFalse();
+  });
 });

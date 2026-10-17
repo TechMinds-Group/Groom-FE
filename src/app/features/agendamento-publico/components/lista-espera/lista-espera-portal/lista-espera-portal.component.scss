@@ -46,6 +46,35 @@
   font-size: 0.875rem;
 }
 
+// RN-074 — modal de status: pares preferência/valor sem CSS pesado (Bootstrap-first).
+:host ::ng-deep .lista-espera-status {
+  &__linha {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--tm-border-color);
+
+    &:last-child {
+      border-bottom: none;
+    }
+
+    dt {
+      color: var(--tm-text-secondary);
+      font-weight: 600;
+      font-size: 0.85rem;
+    }
+
+    dd {
+      margin: 0;
+      text-align: end;
+      font-weight: 600;
+      font-size: 0.9rem;
+      color: var(--tm-text-primary);
+    }
+  }
+}
+
 // RN-074 — o footer fixo de copyright (41px, z-index 99999) cobre o rodapé do modal da
 // lib (z-index 2100): reservo o espaço dele no backdrop e reduzo o max-height do modal
 // para que os botões de ação apareçam por completo, com folga acima do footer.
