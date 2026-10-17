@@ -9,9 +9,9 @@
   gap: 0.75rem;
   flex-wrap: wrap;
   padding: 0.875rem 1rem;
-  border: 1px solid var(--bs-border-color);
+  border: 1px solid var(--tm-border-color);
   border-radius: 0.75rem;
-  background: var(--bs-body-bg);
+  background: color-mix(in srgb, var(--tm-primary) 4%, var(--tm-surface-color));
 }
 
 .lista-espera-portal__card-info {
@@ -23,11 +23,12 @@
 
 .lista-espera-portal__icone {
   font-size: 1.25rem;
-  color: var(--bs-primary);
+  color: var(--tm-primary);
 }
 
 .lista-espera-portal__titulo {
   font-size: 0.95rem;
+  color: var(--tm-text-primary);
 }
 
 .lista-espera-portal__posicao {
@@ -53,12 +54,12 @@
 // Tema escuro do portal — card de status com contraste (RN-074).
 [data-theme='dark'] .lista-espera-portal__card,
 :host-context([data-theme='dark']) .lista-espera-portal__card {
-  background: #0d1117;
-  border-color: rgba(255, 255, 255, 0.15);
+  background: var(--tm-input-bg);
+  border-color: var(--tm-border-color);
 
   .lista-espera-portal__titulo,
   .lista-espera-portal__posicao {
-    color: rgba(255, 255, 255, 0.92) !important;
+    color: #ffffff !important;
   }
 
   .lista-espera-portal__icone {
