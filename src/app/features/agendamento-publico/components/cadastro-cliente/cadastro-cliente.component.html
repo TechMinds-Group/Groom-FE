@@ -21,14 +21,31 @@
   </div>
 
   <div class="mb-3">
-    <tm-text
-      formControlName="celular"
-      [control]="form.controls.celular"
-      label="Celular (WhatsApp)"
-      mask="phone"
-      icon="fa-solid fa-phone text-muted"
-      placeholder="(00) 00000-0000"
-    ></tm-text>
+    <div class="row g-2">
+      <div class="col-5 col-sm-4">
+        <!-- RN-074 — código do país (DDI) com tema escuro -->
+        <tm-select
+          formControlName="codigoPais"
+          [control]="form.controls.codigoPais"
+          [options]="paisesOptions"
+          label="País"
+          icon="fa-solid fa-globe text-muted"
+          placeholder="+55"
+          [darkMode]="isDark()"
+        ></tm-select>
+      </div>
+
+      <div class="col-7 col-sm-8">
+        <tm-text
+          formControlName="celular"
+          [control]="form.controls.celular"
+          label="Celular (WhatsApp)"
+          mask="phone"
+          icon="fa-solid fa-phone text-muted"
+          placeholder="(00) 00000-0000"
+        ></tm-text>
+      </div>
+    </div>
   </div>
 
   <div class="mb-3">

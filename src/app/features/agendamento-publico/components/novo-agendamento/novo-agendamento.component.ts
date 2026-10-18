@@ -469,6 +469,8 @@ export class NovoAgendamentoComponent implements OnInit, OnDestroy {
       primeiroNome: partes[0] ?? '',
       ultimoNome: partes.slice(1).join(' '),
       email: me?.email ?? this.clienteLogado()?.email ?? '',
+      // RN-074 — default Brasil; o celular vindo do backend já é canônico (com DDI 55)
+      codigoPais: '55',
       celular: me?.celular ?? this.clienteLogado()?.celular ?? '',
     });
     this.finalizandoCadastro.set(true);
@@ -481,6 +483,7 @@ export class NovoAgendamentoComponent implements OnInit, OnDestroy {
       await this.agendamentoPublicoService.atualizarDadosCadastro({
         nome: `${dados.primeiroNome} ${dados.ultimoNome}`.trim(),
         email: dados.email,
+        codigoPais: dados.codigoPais,
         celular: dados.celular,
       });
       this.dadosFinalizacao.set(null);

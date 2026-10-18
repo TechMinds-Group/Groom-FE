@@ -40,7 +40,7 @@ export class AgendamentoPublicoService {
     this._clienteLogado.set({ id: result.cliente.id, nome: result.cliente.nome, email: result.cliente.email, celular: result.cliente.celular });
   }
 
-  async cadastro(dados: { nome: string; email: string; senha: string; celular?: string }, rememberMe = false): Promise<LoginClienteResult> {
+  async cadastro(dados: { nome: string; email: string; senha: string; celular?: string; codigoPais?: string }, rememberMe = false): Promise<LoginClienteResult> {
     const result = await firstValueFrom(
       this.http.post<LoginClienteResult>(`${this.baseUrl}/cadastro?rememberMe=${rememberMe}`, dados, { withCredentials: true })
     );
@@ -65,7 +65,7 @@ export class AgendamentoPublicoService {
   }
 
   /** Finaliza o cadastro do cliente (nome completo, e-mail e celular) — usado na tela de finalização de cadastro. */
-  async atualizarDadosCadastro(dados: { nome: string; email: string; celular: string }): Promise<ClienteAgendamento> {
+  async atualizarDadosCadastro(dados: { nome: string; email: string; celular: string; codigoPais?: string }): Promise<ClienteAgendamento> {
     // Erros de validação são exibidos na própria tela de finalização de cadastro
     const headers = new HttpHeaders({ 'X-Skip-Error-Toast': 'true' });
     const cliente = await firstValueFrom(
@@ -92,9 +92,10 @@ export class AgendamentoPublicoService {
     }
   }
 
-  async atualizarCelular(celular: string): Promise<void> {
+  /** RN-074 — atualiza o celular do cliente (canônico no backend; codigoPais default 55). */
+  async atualizarCelular(celular: string, codigoPais?: string): Promise<void> {
     await firstValueFrom(
-      this.http.put<void>(`${this.baseUrl}/me/celular`, { celular }, { withCredentials: true })
+      this.http.put<void>(`${this.baseUrl}/me/celular`, { celular, codigoPais }, { withCredentials: true })
     );
     const atual = this._clienteLogado();
     if (atual) {
