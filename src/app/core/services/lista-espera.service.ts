@@ -1,5 +1,5 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { inject, Injectable } from '@angular/core';
+import { inject, Injectable, signal } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { AgendamentoPublicoService } from './agendamento-publico.service';
@@ -27,18 +27,30 @@ export class ListaEsperaService {
     return `${environment.apiUrl}/api/publico/${estabelecimento}/lista-espera`;
   }
 
+  /**
+   * RN-074 — entrada ativa do cliente no dia compartilhada entre todos os widgets
+   * do portal (topo do wizard e passo data/horário). Mantém ambos sincronizados
+   * após entrar/sair: o botão "Lista de espera" nunca abre o formulário de
+   * entrada quando o cliente já está na fila — apenas o modal informativo.
+   */
+  readonly statusAtual = signal<ListaEsperaItem | null>(null);
+
   /** Entra na lista do dia com preferências opcionais. 409 `ListaEspera.Duplicada` quando já há entrada ativa. */
   async entrar(preferencias: EntrarListaEsperaPayload): Promise<ListaEsperaItem> {
-    return firstValueFrom(
+    const criada = await firstValueFrom(
       this.http.post<ListaEsperaItem>(this.baseUrl, preferencias, { withCredentials: true }),
     );
+    this.statusAtual.set(criada);
+    return criada;
   }
 
   /** Entrada ativa do cliente no dia (posição FIFO) ou null quando não está na lista. */
   async meuStatus(): Promise<ListaEsperaItem | null> {
-    return firstValueFrom(
+    const status = await firstValueFrom(
       this.http.get<ListaEsperaItem | null>(`${this.baseUrl}/meu-status`, { withCredentials: true }),
     );
+    this.statusAtual.set(status);
+    return status;
   }
 
   /** Sai da lista: apenas a própria entrada ativa (Status → "Removida"). */
@@ -46,6 +58,7 @@ export class ListaEsperaService {
     await firstValueFrom(
       this.http.delete<void>(`${this.baseUrl}/${id}`, { withCredentials: true }),
     );
+    this.statusAtual.set(null);
   }
 
   /**
@@ -57,6 +70,21 @@ export class ListaEsperaService {
     const headers = new HttpHeaders({ 'X-Skip-Error-Toast': 'true' });
     return firstValueFrom(
       this.http.get<ListaEsperaReserva>(`${this.baseUrl}/reserva/${reservaId}`, {
+        withCredentials: true,
+        headers,
+      }),
+    );
+  }
+
+  /**
+   * RN-074/075 — recusa da oferta pelo portal: Status → "Cancelada" e repasse
+   * FIFO imediato para o próximo da fila. Erros tratados pelo chamador: 403
+   * (reserva de outro cliente), 410 (expirada/já processada), 404 (não encontrada).
+   */
+  async recusarReserva(reservaId: string): Promise<void> {
+    const headers = new HttpHeaders({ 'X-Skip-Error-Toast': 'true' });
+    await firstValueFrom(
+      this.http.post<void>(`${this.baseUrl}/reserva/${reservaId}/recusar`, {}, {
         withCredentials: true,
         headers,
       }),

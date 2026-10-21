@@ -24,6 +24,11 @@ export const clienteAuthGuard: CanActivateFn = async (route, state) => {
     agendamentoPublicoService.setEstabelecimento(estab);
   }
 
+  // RN-028/074 — restauração da sessão ANTES do getMe: com o cookie de 30s expirado,
+  // o ClienteRefresh ("Manter conectado") reemite o JWT e o cliente volta sem logar
+  // de novo (o guard roda antes do componente, que faria o restore tarde demais).
+  await agendamentoPublicoService.restaurarSessao();
+
   const cliente = await agendamentoPublicoService.getMe();
   if (cliente) {
     return true;

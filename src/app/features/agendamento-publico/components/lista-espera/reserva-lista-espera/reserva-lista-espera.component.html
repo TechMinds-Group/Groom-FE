@@ -61,19 +61,33 @@
               <div class="alert alert-warning py-2" role="alert">{{ msg }}</div>
             }
 
-            <button
-              type="button"
-              class="btn btn-primary w-100 reserva-page__acao"
-              [disabled]="confirmando() || restanteSegundos() <= 0"
-              (click)="confirmar()"
-            >
-              @if (confirmando()) {
-                <i class="fas fa-spinner fa-spin me-2"></i>
-              } @else {
-                <i class="fa-solid fa-calendar-check me-2"></i>
-              }
-              Confirmar horário
-            </button>
+            <!-- RN-074/075 — tm-button da lib; col-12 empilha em telas md e menores, col-lg-6 lado a lado -->
+            <div class="row g-2">
+              <div class="col-12 col-lg-6">
+                <tm-button
+                  type="button"
+                  variant="primary"
+                  label="Confirmar horário"
+                  icon="fa-solid fa-calendar-check"
+                  [isFullWidth]="true"
+                  [disabled]="confirmando() || recusando() || restanteSegundos() <= 0"
+                  [loading]="confirmando()"
+                  (onClick)="confirmar()"
+                ></tm-button>
+              </div>
+              <div class="col-12 col-lg-6">
+                <tm-button
+                  type="button"
+                  variant="outline-danger"
+                  label="Recusar horário"
+                  icon="fa-solid fa-xmark"
+                  [isFullWidth]="true"
+                  [disabled]="confirmando() || recusando() || restanteSegundos() <= 0"
+                  [loading]="recusando()"
+                  (onClick)="recusar()"
+                ></tm-button>
+              </div>
+            </div>
           }
         }
         @case ('expirada') {
@@ -82,7 +96,7 @@
             <p class="reserva-aviso__texto text-muted mb-0">
               {{
                 mensagemExpiracao()
-                  ?? 'Sua reserva expirou e o horário voltou para a fila. Entre na lista novamente para ser avisado da próxima vaga (sujeito ao limite de 1 entrada por dia).'
+                  ?? 'Sua reserva expirou, o horário seguiu para o próximo da lista e você saiu automaticamente da lista de espera. Pode entrar novamente quando quiser (sujeito ao limite de 1 entrada por dia).'
               }}
             </p>
           </div>
@@ -104,6 +118,32 @@
             Ir para o agendamento
           </button>
         }
+        @case ('recusado') {
+          <div class="reserva-aviso">
+            <i class="fa-regular fa-circle-xmark reserva-aviso__icone" aria-hidden="true"></i>
+            <p class="reserva-aviso__texto text-muted mb-0">
+              Sem problemas! O horário foi liberado e ofertado ao próximo da lista. Você pode entrar na lista novamente para ser avisado da próxima vaga (sujeito ao limite de 1 entrada por dia).
+            </p>
+          </div>
+          <tm-button
+            type="button"
+            variant="primary"
+            label="Entrar na lista novamente"
+            icon="fa-solid fa-hourglass-half"
+            [isFullWidth]="true"
+            [disabled]="entrandoNovamente()"
+            [loading]="entrandoNovamente()"
+            (onClick)="entrarNaListaNovamente()"
+          ></tm-button>
+          <tm-button
+            type="button"
+            variant="outline-secondary"
+            label="Ir para o agendamento"
+            icon="fa-regular fa-calendar"
+            [isFullWidth]="true"
+            (onClick)="irParaAgendamento()"
+          ></tm-button>
+        }
         @case ('confirmado') {
           <div class="reserva-aviso">
             <i class="fa-regular fa-circle-check reserva-aviso__icone reserva-aviso__icone--sucesso" aria-hidden="true"></i>
@@ -111,28 +151,28 @@
               Seu agendamento foi criado no horário reservado. Chegue com alguns minutos de antecedência!
             </p>
           </div>
-          <button
+          <tm-button
             type="button"
-            class="btn btn-primary w-100 reserva-page__acao"
-            (click)="irParaAgendamento()"
-          >
-            <i class="fa-regular fa-calendar me-2"></i>
-            Fazer novo agendamento
-          </button>
+            variant="primary"
+            label="Fazer novo agendamento"
+            icon="fa-regular fa-calendar"
+            [isFullWidth]="true"
+            (onClick)="irParaAgendamento()"
+          ></tm-button>
         }
         @case ('erro') {
           <div class="reserva-aviso">
             <i class="fa-regular fa-circle-xmark reserva-aviso__icone reserva-aviso__icone--erro" aria-hidden="true"></i>
             <p class="reserva-aviso__texto text-muted mb-0">{{ erroMensagem() }}</p>
           </div>
-          <button
+          <tm-button
             type="button"
-            class="btn btn-primary w-100 reserva-page__acao"
-            (click)="irParaAgendamento()"
-          >
-            <i class="fa-regular fa-calendar me-2"></i>
-            Ir para o agendamento
-          </button>
+            variant="primary"
+            label="Ir para o agendamento"
+            icon="fa-regular fa-calendar"
+            [isFullWidth]="true"
+            (onClick)="irParaAgendamento()"
+          ></tm-button>
         }
       }
     </div>

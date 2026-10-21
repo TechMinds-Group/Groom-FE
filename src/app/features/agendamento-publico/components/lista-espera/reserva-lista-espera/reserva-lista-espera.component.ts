@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, OnDestroy, OnInit, computed, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { TmToastService } from '@techminds-group/tm-angular-lib';
+import { TmButtonComponent, TmToastService } from '@techminds-group/tm-angular-lib';
 import { AgendamentoPublicoService } from '../../../../../core/services/agendamento-publico.service';
 import { ListaEsperaService } from '../../../../../core/services/lista-espera.service';
 import { EntrarListaEsperaPayload, ListaEsperaReserva } from '../../../../../core/models/lista-espera/lista-espera.model';
@@ -9,41 +9,14 @@ import { ListaEsperaModalPreferenciasComponent } from '../../modais/lista-espera
 import { ClienteSessionKeepAliveService } from '../../../services/cliente-session-keep-alive.service';
 import { AppFooterComponent } from '../../../../../shared/components/footer/app-footer.component';
 import { TemaPublicoService } from '../../../services/tema-publico.service';
+import { IdsDaReserva, ReservaSlotResolverService, codigoDeErro, slotParaDataInicio } from '../../../services/reserva-slot-resolver.service';
 
 /** Estados da tela de confirmação do slot reservado (UI_SPEC §5.14). */
-type EstadoReserva = 'carregando' | 'reserva' | 'expirada' | 'confirmado' | 'erro';
-
-/** Corpo de erro do backend { code, description } — camelCase ou PascalCase. */
-interface ErroApi {
-  code?: string;
-  Code?: string;
-  description?: string;
-  Description?: string;
-}
-
-/** Extrai o código de negócio do corpo do erro HTTP sem perder tipagem. */
-function codigoDeErro(err: unknown): string | null {
-  if (err && typeof err === 'object' && 'error' in err) {
-    const corpo = (err as { error?: ErroApi }).error;
-    return corpo?.code ?? corpo?.Code ?? null;
-  }
-  return null;
-}
+type EstadoReserva = 'carregando' | 'reserva' | 'expirada' | 'confirmado' | 'recusado' | 'erro';
 
 /**
- * Normaliza o ISO do slot para "YYYY-MM-DDTHH:mm:00" sem conversão de fuso —
- * convenção do portal (hora local tratada como UTC; ver agendamentoParaDateLocal).
+ * Normaliza o ISO do slot — movido para reserva-slot-resolver.service (compartilhado).
  */
-function slotParaDataInicio(slot: string): string {
-  const partes = /^(\d{4}-\d{2}-\d{2})T(\d{2}:\d{2})/.exec(slot);
-  return partes ? `${partes[1]}T${partes[2]}:00` : slot;
-}
-
-/** Ids exigidos pelo POST do portal — ausentes no DTO do deep link (só nomes). */
-interface IdsDaReserva {
-  profissionalId: string;
-  servicoId: string;
-}
 
 /**
  * Tela de confirmação do slot reservado (UI_SPEC §5.14 — rota
@@ -58,10 +31,11 @@ interface IdsDaReserva {
 @Component({
   selector: 'app-reserva-lista-espera',
   standalone: true,
-  imports: [AppFooterComponent, ListaEsperaModalPreferenciasComponent],
+  imports: [AppFooterComponent, ListaEsperaModalPreferenciasComponent, TmButtonComponent],
   templateUrl: './reserva-lista-espera.component.html',
   styleUrl: './reserva-lista-espera.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
+  providers: [ReservaSlotResolverService],
 })
 export class ReservaListaEsperaComponent implements OnInit, OnDestroy {
   private readonly route = inject(ActivatedRoute);
@@ -71,6 +45,7 @@ export class ReservaListaEsperaComponent implements OnInit, OnDestroy {
   private readonly toastService = inject(TmToastService);
   private readonly temaPublico = inject(TemaPublicoService);
   private readonly clienteKeepAlive = inject(ClienteSessionKeepAliveService);
+  private readonly reservaSlotResolver = inject(ReservaSlotResolverService);
 
   private contagemTimer: ReturnType<typeof setInterval> | null = null;
   private estabelecimentoSlug = '';
@@ -79,6 +54,7 @@ export class ReservaListaEsperaComponent implements OnInit, OnDestroy {
   readonly reserva = signal<ListaEsperaReserva | null>(null);
   readonly restanteSegundos = signal(0);
   readonly confirmando = signal(false);
+  readonly recusando = signal(false);
   readonly entrandoNovamente = signal(false);
   readonly modalReentrada = signal(false);
   readonly erroMensagem = signal<string | null>(null);
@@ -100,6 +76,8 @@ export class ReservaListaEsperaComponent implements OnInit, OnDestroy {
         return 'Reserva expirada';
       case 'confirmado':
         return 'Horário confirmado!';
+      case 'recusado':
+        return 'Reserva recusada';
       case 'carregando':
         return 'Consultando sua reserva...';
       default:
@@ -235,6 +213,41 @@ export class ReservaListaEsperaComponent implements OnInit, OnDestroy {
     }
   }
 
+  /**
+   * RN-074/075 — recusa da oferta pelo portal: reserva Pendente → "Cancelada" e
+   * repasse FIFO imediato para o próximo da fila (mesma mecânica da recusa pelo bot).
+   */
+  async recusar(): Promise<void> {
+    const reserva = this.reserva();
+    if (!reserva || this.estado() !== 'reserva' || this.recusando() || this.restanteSegundos() <= 0) {
+      return;
+    }
+    this.recusando.set(true);
+    this.erroMensagem.set(null);
+    try {
+      await this.listaEsperaService.recusarReserva(reserva.reservaId);
+      this.pararContagem();
+      this.estado.set('recusado');
+      this.toastService.success('Recusa registrada — o horário foi liberado.', 'Lista de Espera');
+    } catch (err) {
+      this.tratarFalhaAoRecusar(err);
+    } finally {
+      this.recusando.set(false);
+    }
+  }
+
+  /** 403/404/410 do backend → estados coerentes com a situação atual da reserva. */
+  private tratarFalhaAoRecusar(err: unknown): void {
+    const codigo = codigoDeErro(err);
+    if (codigo === 'ListaEspera.ReservaExpirada' || codigo === 'ListaEspera.ReservaNaoEncontrada') {
+      this.expirarComAviso('Sua reserva já foi processada ou expirou.');
+    } else if (codigo === 'ListaEspera.ReservaProibida') {
+      this.erroMensagem.set('Esta reserva pertence a outro cliente.');
+    } else {
+      this.erroMensagem.set('Não foi possível recusar a reserva. Tente novamente.');
+    }
+  }
+
   /** RN-007..009 e RN-076 no backend → estado expirado com explicação. */
   private tratarFalhaAoConfirmar(err: unknown): void {
     const codigo = codigoDeErro(err);
@@ -258,24 +271,11 @@ export class ReservaListaEsperaComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Resolve os ids do payload a partir dos nomes da reserva — o DTO do deep link
-   * (API_CONTRACTS §15.1) retorna apenas `profissionalNome`/`servicoNome`, enquanto
-   * o POST do portal exige Guids válidos. Sem `servicoNome`, usa a preferência
-   * salva na entrada ativa do dia.
+   * Resolve os ids do payload via serviço compartilhado (mesma lógica usada pelo
+   * widget da lista de espera no portal — RN-074/075).
    */
   private async resolverIdsDaReserva(reserva: ListaEsperaReserva): Promise<IdsDaReserva | null> {
-    const profissionais = await this.agendamentoPublicoService.getProfissionais().catch(() => []);
-    const profissional = profissionais.find((p) => p.nome === reserva.profissionalNome);
-    if (!profissional) {
-      return null;
-    }
-    if (reserva.servicoNome) {
-      const servicos = await this.agendamentoPublicoService.getServicosProfissional(profissional.id).catch(() => []);
-      const servico = servicos.find((s) => s.nome === reserva.servicoNome);
-      return servico ? { profissionalId: profissional.id, servicoId: servico.id } : null;
-    }
-    const entrada = await this.listaEsperaService.meuStatus().catch(() => null);
-    return entrada?.servicoId ? { profissionalId: profissional.id, servicoId: entrada.servicoId } : null;
+    return this.reservaSlotResolver.resolver(reserva);
   }
 
   /** Reentrada na lista — sujeita ao limite de 1 entrada ativa/dia (RN-074). */

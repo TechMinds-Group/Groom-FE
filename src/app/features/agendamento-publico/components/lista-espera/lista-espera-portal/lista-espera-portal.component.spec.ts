@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 import { ListaEsperaPortalComponent } from './lista-espera-portal.component';
+import { ListaEsperaService } from '../../../../../core/services/lista-espera.service';
 import { ListaEsperaItem } from '../../../../../core/models/lista-espera/lista-espera.model';
 
 describe('ListaEsperaPortalComponent', () => {
@@ -87,10 +88,42 @@ describe('ListaEsperaPortalComponent', () => {
     httpMock.expectOne((r) => r.url.endsWith('/lista-espera/meu-status')).flush(entradaAtiva);
     await fixture.whenStable();
 
-    component.abrirComPreset({ servicoId: null });
+    const promessaAbertura = component.abrirComPreset({ servicoId: null });
+    // abrirComPreset re-sincroniza o status antes de decidir qual modal abrir
+    httpMock.expectOne((r) => r.url.endsWith('/lista-espera/meu-status')).flush(entradaAtiva);
+    await promessaAbertura;
 
     expect(component.modalStatus()).toBeTrue();
     expect(component.modalAberto()).toBeFalse();
+  });
+
+  // RN-074 — estado compartilhado: entrada criada por OUTRA instância do widget
+  // (ex.: cliente entrou no passo 3 e clica no botão do header) deve abrir o modal
+  // informativo de status, nunca o formulário de entrada.
+  it('deve abrir o modal de status quando a entrada foi criada por outro widget do portal', async () => {
+    const service = TestBed.inject(ListaEsperaService);
+    service.statusAtual.set(entradaAtiva);
+
+    const promessaAbertura = component.abrirComPreset({ servicoId: null });
+    httpMock.expectOne((r) => r.url.endsWith('/lista-espera/meu-status')).flush(entradaAtiva);
+    await promessaAbertura;
+
+    expect(component.modalStatus()).toBeTrue();
+    expect(component.modalAberto()).toBeFalse();
+  });
+
+  // RN-074 — sem entrada (mesmo após re-sincronização): abre o formulário de entrada.
+  it('deve abrir o modal de preferências quando não está na lista', async () => {
+    fixture.detectChanges();
+    httpMock.expectOne((r) => r.url.endsWith('/lista-espera/meu-status')).flush(null);
+    await fixture.whenStable();
+
+    const promessaAbertura = component.abrirComPreset({ servicoId: null });
+    httpMock.expectOne((r) => r.url.endsWith('/lista-espera/meu-status')).flush(null);
+    await promessaAbertura;
+
+    expect(component.modalAberto()).toBeTrue();
+    expect(component.modalStatus()).toBeFalse();
   });
 
   // RN-074 — sair pelo modal de status remove a entrada e fecha o modal.

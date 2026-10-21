@@ -195,7 +195,9 @@ export class LoginClienteComponent implements OnInit, OnDestroy {
 
     try {
       const slug = this.getEstabelecimentoSlug();
-      await this.agendamentoPublicoService.loginGoogle(idToken);
+      // RN-028/074 — Google sempre "Manter conectado": cookie ClienteRefresh de 14 dias
+      // (mesma mecânica do login por e-mail), senão a sessão morre ~30s após o keep-alive.
+      await this.agendamentoPublicoService.loginGoogle(idToken, true);
       void this.clienteKeepAlive.start();
       await this.router.navigate(this.destinoPosLogin(slug));
     } catch (err) {

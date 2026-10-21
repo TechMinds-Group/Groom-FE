@@ -30,6 +30,11 @@ export class ClienteSessionKeepAliveService {
       return;
     }
 
+    // RN-028/074 — restauração ANTES do getMe: o cookie ClienteAuth dura 30s; com o JWT
+    // expirado o getMe 401a e nada restauraria a sessão. O refresh-session cobre os dois
+    // casos (JWT válido → sliding; ClienteRefresh "Manter conectado" → 14 dias).
+    await this.agendamentoPublicoService.restaurarSessao();
+
     // Sem sessão ativa não há nada para manter vivo (o próprio getMe popula o signal)
     const cliente = await this.agendamentoPublicoService.getMe().catch(() => null);
     if (!cliente || this.intervalId) {

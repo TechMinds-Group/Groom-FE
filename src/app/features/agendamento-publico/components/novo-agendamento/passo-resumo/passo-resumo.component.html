@@ -1,6 +1,52 @@
-<h2 class="agendamento-passo__titulo">Confirme seu agendamento</h2>
+@if (listaEsperaSucesso()) {
+  <h2 class="agendamento-passo__titulo">Você entrou na lista de espera!</h2>
 
-<div class="agendamento-resumo">
+  <div class="alert alert-success d-flex align-items-start gap-3 mb-3" role="status">
+    <i class="fa-solid fa-circle-check fa-2x flex-shrink-0"></i>
+    <div class="text-start">
+      <strong>Entrada confirmada para {{ horario() }}h.</strong>
+      <p class="mb-1">
+        Avisaremos no WhatsApp assim que esse horário abrir. A reserva fica no seu nome
+        por tempo limitado após o aviso — confirme rápido para garantir a vaga!
+      </p>
+      <span class="small text-muted">
+        Enquanto isso, acompanhe sua posição pelo botão "Lista de espera" no topo.
+      </span>
+    </div>
+  </div>
+
+  <tm-button
+    variant="primary"
+    [isFullWidth]="true"
+    label="Voltar ao início"
+    icon="fa-solid fa-house me-2"
+    (onClick)="voltarInicio.emit()"
+  ></tm-button>
+} @else {
+  <h2 class="agendamento-passo__titulo">
+    {{ modoListaEspera() ? 'Confirme sua entrada na lista de espera' : 'Confirme seu agendamento' }}
+  </h2>
+
+  @if (modoListaEspera()) {
+    <!-- RN-074 — transparência: horário ocupado ≠ agendamento; entrar na fila não garante atendimento -->
+    <div class="alert alert-warning mb-3" role="alert">
+      <div class="d-flex align-items-start gap-2">
+        <i class="fa-solid fa-triangle-exclamation fa-lg mt-3 flex-shrink-0"></i>
+        <div>
+          <strong>Este horário já está ocupado por outro cliente.</strong>
+          <p class="mb-1">
+            Ao confirmar, você entra na <strong>lista de espera</strong> deste dia — e isso
+            <strong>não é garantia de atendimento</strong>. O horário só será liberado se o
+            cliente principal cancelar. Abrindo a vaga, avisamos você no
+            WhatsApp ou pelo portal de agendamentos e o horário fica reservado no seu nome por tempo limitado.
+          </p>
+          <span class="small">Nenhuma cobrança é feita ao entrar na lista de espera.</span>
+        </div>
+      </div>
+    </div>
+  }
+
+  <div class="agendamento-resumo">
   <div class="agendamento-resumo__bloco">
     <div class="agendamento-resumo__linha">
       <span class="agendamento-resumo__rotulo">
@@ -75,21 +121,24 @@
     </div>
   </div>
 
-  <div class="agendamento-resumo__total">
-    <span class="agendamento-resumo__total-rotulo">Total a pagar</span>
-    @if (planoNome()) {
-      <span class="agendamento-resumo__total-valor">Incluso no plano</span>
-    } @else {
-      <span class="agendamento-resumo__total-valor">{{ formatarPreco(servico()?.preco ?? 0) }}</span>
-    }
-  </div>
+  @if (!modoListaEspera()) {
+    <div class="agendamento-resumo__total">
+      <span class="agendamento-resumo__total-rotulo">Total a pagar</span>
+      @if (planoNome()) {
+        <span class="agendamento-resumo__total-valor">Incluso no plano</span>
+      } @else {
+        <span class="agendamento-resumo__total-valor">{{ formatarPreco(servico()?.preco ?? 0) }}</span>
+      }
+    </div>
+  }
 </div>
 
 <tm-button
   variant="primary"
   [isFullWidth]="true"
-  label="Confirmar agendamento"
-  icon="fa-solid fa-calendar-check me-2"
+  [label]="modoListaEspera() ? 'Entrar na lista de espera' : 'Confirmar agendamento'"
+  [icon]="modoListaEspera() ? 'fa-solid fa-hourglass-half me-2' : 'fa-solid fa-calendar-check me-2'"
   [loading]="isLoading()"
   (onClick)="confirmar.emit()"
 ></tm-button>
+}

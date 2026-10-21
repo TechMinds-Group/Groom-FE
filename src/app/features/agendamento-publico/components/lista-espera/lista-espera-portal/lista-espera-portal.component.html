@@ -5,26 +5,70 @@
     </div>
   } @else {
     @if (entrada(); as ativa) {
-      <div class="lista-espera-portal__card mt-2" role="status">
-        <div class="lista-espera-portal__card-info">
-          <i class="fa-solid fa-hourglass-half lista-espera-portal__icone" aria-hidden="true"></i>
-          <div>
-            <strong class="lista-espera-portal__titulo">Você está na lista de espera</strong>
-            <span class="lista-espera-portal__posicao text-muted d-block">
-              Posição {{ ativa.posicao }} do dia
-            </span>
+      @if (ativa.reservaAtiva; as reserva) {
+        <!-- RN-074/075 — card destacado: vaga reservada com contador ao vivo e ações -->
+        <div class="lista-espera-portal__reserva mt-2" role="alert">
+          <div class="lista-espera-portal__reserva-header">
+            <i class="fa-solid fa-bell lista-espera-portal__reserva-icone" aria-hidden="true"></i>
+            <div class="lista-espera-portal__reserva-info">
+              <strong class="lista-espera-portal__reserva-titulo">Uma vaga abriu para você!</strong>
+              <span class="lista-espera-portal__reserva-slot text-muted d-block">
+                {{ formatarSlotReservado() }} · {{ reserva.profissionalNome }}
+              </span>
+            </div>
+            <div class="lista-espera-portal__reserva-contagem" role="timer" aria-live="polite">
+              <span class="lista-espera-portal__reserva-rotulo">Expira em</span>
+              <strong class="lista-espera-portal__reserva-tempo">{{ contagemFormatada() }}</strong>
+            </div>
+          </div>
+          <!-- RN-074/075 — tm-button da lib; col-12 empilha em telas md e menores, col-lg-6 lado a lado -->
+          <div class="lista-espera-portal__reserva-acoes row g-2">
+            <div class="col-12 col-lg-6">
+              <tm-button
+                label="Confirmar horário"
+                variant="primary"
+                icon="fa-solid fa-calendar-check"
+                [isFullWidth]="true"
+                [disabled]="confirmandoReserva() || recusandoReserva() || restanteSegundos() <= 0"
+                [loading]="confirmandoReserva()"
+                (onClick)="confirmarReservaVaga()"
+              ></tm-button>
+            </div>
+            <div class="col-12 col-lg-6">
+              <tm-button
+                label="Recusar"
+                variant="outline-danger"
+                icon="fa-solid fa-xmark"
+                [isFullWidth]="true"
+                [disabled]="confirmandoReserva() || recusandoReserva()"
+                [loading]="recusandoReserva()"
+                (onClick)="recusarReservaVaga()"
+              ></tm-button>
+            </div>
           </div>
         </div>
-        <tm-button
-          label="Sair da lista"
-          variant="outline-danger"
-          size="sm"
-          [isFullWidth]="false"
-          [loading]="saindo()"
-          [icon]="saindo() ? '' : 'fa-solid fa-right-from-bracket'"
-          (onClick)="sair()"
-        ></tm-button>
-      </div>
+      } @else {
+        <div class="lista-espera-portal__card mt-2" role="status">
+          <div class="lista-espera-portal__card-info">
+            <i class="fa-solid fa-hourglass-half lista-espera-portal__icone" aria-hidden="true"></i>
+            <div>
+              <strong class="lista-espera-portal__titulo">Você está na lista de espera</strong>
+              <span class="lista-espera-portal__posicao text-muted d-block">
+                Posição {{ ativa.posicao }} do dia
+              </span>
+            </div>
+          </div>
+          <tm-button
+            label="Sair da lista"
+            variant="outline-danger"
+            size="sm"
+            [isFullWidth]="false"
+            [loading]="saindo()"
+            [icon]="saindo() ? '' : 'fa-solid fa-right-from-bracket'"
+            (onClick)="sair()"
+          ></tm-button>
+        </div>
+      }
     } @else if (!somenteStatus()) {
       <div class="lista-espera-portal__vazio">
         <span class="lista-espera-portal__vazio-texto text-muted">

@@ -1,7 +1,9 @@
 import { ChangeDetectionStrategy, Component, computed, inject, OnDestroy, OnInit, signal, viewChild } from '@angular/core';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { ActivatedRoute, Router } from '@angular/router';
+import { TmToastService } from '@techminds-group/tm-angular-lib';
 import { AgendamentoPublicoService } from '../../../../core/services/agendamento-publico.service';
+import { ListaEsperaService } from '../../../../core/services/lista-espera.service';
 import { EstabelecimentoInfo, EstabelecimentoService, obterIconeAleatorioCapa, obterIconeAleatorioLogo } from '../../../../core/services/estabelecimento.service';
 import { AgendamentoPublico, HorarioDisponivel, PlanoAtivoCliente, ProfissionalDisponivel, ServicoDisponivel } from '../../../../core/models/agendamento-publico/agendamento-publico.model';
 import { AGENDAMENTO_PUBLICO_CONFIG } from '../../models/agendamento-publico.config';
@@ -39,7 +41,9 @@ import { ImageViewerModalComponent } from '../../../../shared/modais/image-viewe
 })
 export class NovoAgendamentoComponent implements OnInit, OnDestroy {
   private readonly agendamentoPublicoService = inject(AgendamentoPublicoService);
+  private readonly listaEsperaService = inject(ListaEsperaService);
   private readonly clienteKeepAlive = inject(ClienteSessionKeepAliveService);
+  private readonly toastService = inject(TmToastService);
 
   /** Estado do Modal de Visualizacao e Zoom de Imagens */
   readonly showImageViewer = signal<boolean>(false);
@@ -405,10 +409,20 @@ export class NovoAgendamentoComponent implements OnInit, OnDestroy {
 
   selecionarHorario(horario: string): void {
     this.horarioSelecionado.set(horario);
+    // RN-074 — slot disponível escolhido: garante o fluxo normal de agendamento
+    this.modoListaEspera.set(false);
+    this.listaEsperaSucesso.set(false);
+    this.listaEsperaHora.set(null);
     this.passo.set(4);
   }
 
   async confirmar(): Promise<void> {
+    // RN-074 — passo 4 em modo lista de espera: confirma a ENTRADA NA FILA, não o agendamento.
+    if (this.modoListaEspera()) {
+      await this.confirmarEntradaListaEspera();
+      return;
+    }
+
     const profissional = this.profissionalSelecionado();
     const data = this.dataSelecionada();
     const horario = this.horarioSelecionado();
@@ -459,6 +473,50 @@ export class NovoAgendamentoComponent implements OnInit, OnDestroy {
     }
   }
 
+  /**
+   * RN-074 — confirmação da entrada na fila a partir do passo 4 (slot ocupado escolhido).
+   * A entrada usa a janela início+fim do slot (vale apenas por aquele horário) e as
+   * preferências já escolhidas nos passos 1-2. `ListaEspera.Duplicada` vira estado de
+   * sucesso (o cliente já está na fila — toast do errorInterceptor).
+   */
+  private async confirmarEntradaListaEspera(): Promise<void> {
+    const data = this.dataSelecionada();
+    const hora = this.listaEsperaHora();
+    if (!data || !hora) {
+      return;
+    }
+
+    this.isLoading.set(true);
+    this.errorMessage.set(null);
+    try {
+      const duracao = this.duracaoAtual() ?? 30;
+      const [horaNum, minutoNum] = hora.split(':').map(Number);
+      const fim = new Date(2000, 0, 1, horaNum, minutoNum + duracao);
+      const horaFim = `${String(fim.getHours()).padStart(2, '0')}:${String(fim.getMinutes()).padStart(2, '0')}`;
+
+      await this.listaEsperaService.entrar({
+        servicoId: this.servicoSelecionado()?.id ?? null,
+        profissionalId: this.profissionalSelecionado()?.id ?? null,
+        horaJanelaInicio: hora,
+        horaJanelaFim: horaFim,
+      });
+      this.listaEsperaSucesso.set(true);
+      this.toastService.success('Você entrou na lista de espera!', 'Lista de Espera');
+    } catch (err: any) {
+      const code = err?.error?.code ?? err?.error?.Code;
+      if (code === 'ListaEspera.Duplicada') {
+        // Já está na fila (toast do errorInterceptor) — o estado de sucesso é o mesmo
+        this.listaEsperaSucesso.set(true);
+      } else if (code === 'Cliente.CadastroIncompleto') {
+        await this.abrirFinalizacaoCadastro();
+      } else {
+        this.errorMessage.set('Não foi possível entrar na lista de espera. Tente novamente.');
+      }
+    } finally {
+      this.isLoading.set(false);
+    }
+  }
+
   /** Abre a tela de finalização de cadastro com os dados atuais do cliente. */
   private async abrirFinalizacaoCadastro(): Promise<void> {
     const me = await this.agendamentoPublicoService.getMe();
@@ -489,10 +547,23 @@ export class NovoAgendamentoComponent implements OnInit, OnDestroy {
       this.finalizandoCadastro.set(false);
 
       // RN-074 — cadastro concluído a partir do pedido de entrada na fila:
-      // abre o modal de confirmação da fila no widget de origem, com o horário pendente.
+      // slot ocupado escolhido → avança para o passo de confirmação (modo lista);
+      // demais origens → modal de confirmação da fila no widget de origem.
       if (this.listaEsperaPendente !== undefined) {
         const pendente = this.listaEsperaPendente;
         this.listaEsperaPendente = undefined;
+
+        if (pendente.origem === 'passo' && pendente.hora) {
+          this.modoListaEspera.set(true);
+          this.listaEsperaSucesso.set(false);
+          this.listaEsperaHora.set(pendente.hora);
+          this.passo.set(4);
+          return;
+        }
+
+        // O fechamento da finalização recria os widgets do portal no próximo ciclo;
+        // o viewChild ainda não existe de forma síncrona — aguarda a re-renderização.
+        await new Promise<void>((resolve) => setTimeout(resolve));
         this.abrirModalListaNa(pendente.origem, {
           servicoId: this.servicoSelecionado()?.id ?? null,
           profissionalId: this.profissionalSelecionado()?.id ?? null,
@@ -522,6 +593,14 @@ export class NovoAgendamentoComponent implements OnInit, OnDestroy {
 
     if (numero > this.passo() && !this.passoNavegavel(numero)) {
       return;
+    }
+
+    // RN-074 — voltar do passo de confirmação cancela o modo lista de espera
+    // (o cliente volta ao passo 3 no fluxo normal).
+    if (numero < 4) {
+      this.modoListaEspera.set(false);
+      this.listaEsperaSucesso.set(false);
+      this.listaEsperaHora.set(null);
     }
 
     this.passo.set(numero);
@@ -558,6 +637,9 @@ export class NovoAgendamentoComponent implements OnInit, OnDestroy {
     this.agendamentoConfirmado.set(null);
     this.horarios.set([]);
     this.diasDisponiveis.set([]);
+    this.modoListaEspera.set(false);
+    this.listaEsperaSucesso.set(false);
+    this.listaEsperaHora.set(null);
   }
 
   readonly clienteLogado = this.agendamentoPublicoService.clienteLogado;
@@ -570,6 +652,15 @@ export class NovoAgendamentoComponent implements OnInit, OnDestroy {
 
   /** Pedido de entrada na fila aguardando conclusão do cadastro (hora + origem do clique). */
   private listaEsperaPendente: { hora: string | null; origem: 'header' | 'passo' } | undefined;
+
+  /**
+   * RN-074 — passo 4 em modo lista de espera: o cliente clicou um horário OCUPADO no
+   * passo 3 e avançou para a confirmação. Nesse modo o botão confirma a ENTRADA NA FILA
+   * (não cria agendamento) e o aviso do passo deixa a condição explícita ao cliente.
+   */
+  readonly modoListaEspera = signal(false);
+  readonly listaEsperaSucesso = signal(false);
+  readonly listaEsperaHora = signal<string | null>(null);
 
   /**
    * RN-074 — botão "Lista de espera" do header: abre o modal de entrada no widget do
@@ -620,6 +711,18 @@ export class NovoAgendamentoComponent implements OnInit, OnDestroy {
     if (cadastroIncompleto) {
       this.listaEsperaPendente = { hora: request.hora, origem };
       await this.abrirFinalizacaoCadastro();
+      return;
+    }
+
+    // RN-074 — slot ocupado escolhido no passo 3: em vez do modal, avança para o
+    // passo de confirmação, que deixa explícito que é lista de espera sem garantia
+    // de atendimento; só o "Confirmar" ali entra na fila. Demais origens (header,
+    // dia apagado/lotado) mantêm o modal de preferências.
+    if (origem === 'passo' && request.hora) {
+      this.modoListaEspera.set(true);
+      this.listaEsperaSucesso.set(false);
+      this.listaEsperaHora.set(request.hora);
+      this.passo.set(4);
       return;
     }
 

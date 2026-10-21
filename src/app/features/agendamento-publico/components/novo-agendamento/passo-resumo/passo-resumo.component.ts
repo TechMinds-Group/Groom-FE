@@ -23,7 +23,17 @@ export class PassoResumoComponent {
   /** Duração em minutos quando o agendamento é via plano. */
   readonly duracao = input<number | null>(null);
 
+  /**
+   * RN-074 — modo lista de espera: o horário escolhido no passo 3 está OCUPADO; o
+   * botão desta tela confirma a ENTRADA NA FILA (sem garantia de atendimento), não
+   * o agendamento. O aviso destacado explica a condição antes da confirmação.
+   */
+  readonly modoListaEspera = input(false);
+  /** RN-074 — entrada na fila confirmada: tela de sucesso substitui o resumo. */
+  readonly listaEsperaSucesso = input(false);
+
   readonly confirmar = output<void>();
+  readonly voltarInicio = output<void>();
   readonly expandirImagem = output<{ url?: string; urls?: string[]; titulo: string }>();
 
   onImagemClick(event: Event, url: string, nome: string): void {

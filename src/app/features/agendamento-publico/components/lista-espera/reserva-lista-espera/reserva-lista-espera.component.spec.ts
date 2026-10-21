@@ -175,6 +175,8 @@ describe('ReservaListaEsperaComponent', () => {
 
   it('deve confirmar o horário criando o agendamento com os ids resolvidos e o reservaId', async () => {
     spyOn(agendamentoPublicoService, 'getProfissionais').and.resolveTo(profissionaisFake);
+    // RN-074 — resolver consulta a entrada preferida; sem entrada, usa o serviço do DTO
+    spyOn(listaEsperaService, 'meuStatus').and.rejectWith({});
     spyOn(agendamentoPublicoService, 'getServicosProfissional').and.resolveTo(servicosFake);
     const criar = spyOn(agendamentoPublicoService, 'criarAgendamento').and.resolveTo(agendamentoFake);
     await carregarTela(reservaComJanela(15 * 60));
@@ -220,6 +222,7 @@ describe('ReservaListaEsperaComponent', () => {
 
   it('deve tratar conflito na confirmação transicionando para expirado com explicação (RN-009)', async () => {
     spyOn(agendamentoPublicoService, 'getProfissionais').and.resolveTo(profissionaisFake);
+    spyOn(listaEsperaService, 'meuStatus').and.rejectWith({});
     spyOn(agendamentoPublicoService, 'getServicosProfissional').and.resolveTo(servicosFake);
     spyOn(agendamentoPublicoService, 'criarAgendamento').and.rejectWith({
       error: { code: 'Agendamento.Conflito' },
@@ -234,6 +237,7 @@ describe('ReservaListaEsperaComponent', () => {
 
   it('deve tratar reserva expirada durante a confirmação como estado expirado (RN-076)', async () => {
     spyOn(agendamentoPublicoService, 'getProfissionais').and.resolveTo(profissionaisFake);
+    spyOn(listaEsperaService, 'meuStatus').and.rejectWith({});
     spyOn(agendamentoPublicoService, 'getServicosProfissional').and.resolveTo(servicosFake);
     spyOn(agendamentoPublicoService, 'criarAgendamento').and.rejectWith({
       error: { code: 'ListaEspera.ReservaExpirada' },
@@ -248,6 +252,7 @@ describe('ReservaListaEsperaComponent', () => {
 
   it('deve manter o estado de reserva com mensagem quando a confirmação falha por erro mapeável', async () => {
     spyOn(agendamentoPublicoService, 'getProfissionais').and.resolveTo(profissionaisFake);
+    spyOn(listaEsperaService, 'meuStatus').and.rejectWith({});
     spyOn(agendamentoPublicoService, 'getServicosProfissional').and.resolveTo(servicosFake);
     spyOn(agendamentoPublicoService, 'criarAgendamento').and.rejectWith({
       error: { code: 'Agendamento.ProfissionalSemWhatsApp' },

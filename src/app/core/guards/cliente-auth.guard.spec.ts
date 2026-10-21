@@ -21,6 +21,8 @@ describe('clienteAuthGuard', () => {
 
   it('deve liberar a rota do portal quando o cliente está autenticado', async () => {
     const agendamentoPublicoService = TestBed.inject(AgendamentoPublicoService);
+    // RN-028/074 — o guard restaura a sessão (refresh-session) antes do getMe
+    spyOn(agendamentoPublicoService, 'restaurarSessao').and.resolveTo(undefined);
     spyOn(agendamentoPublicoService, 'getMe').and.resolveTo({ id: 'guid-cliente', nome: 'Cliente', email: 'cliente@teste.com' });
 
     const resultado = (await TestBed.runInInjectionContext(() =>
@@ -28,10 +30,12 @@ describe('clienteAuthGuard', () => {
     )) as boolean;
 
     expect(resultado).toBeTrue();
+    expect(agendamentoPublicoService.restaurarSessao).toHaveBeenCalled();
   });
 
   it('deve redirecionar para o login do portal com returnUrl do deep link quando não autenticado', async () => {
     const agendamentoPublicoService = TestBed.inject(AgendamentoPublicoService);
+    spyOn(agendamentoPublicoService, 'restaurarSessao').and.resolveTo(undefined);
     spyOn(agendamentoPublicoService, 'getMe').and.resolveTo(null);
 
     const resultado = (await TestBed.runInInjectionContext(() =>

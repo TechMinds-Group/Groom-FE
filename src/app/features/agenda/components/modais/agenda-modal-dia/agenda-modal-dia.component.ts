@@ -92,6 +92,13 @@ export class AgendaModalDiaComponent implements OnChanges, OnDestroy {
   protected readonly agendamentoEditando = signal<Agendamento | null>(null);
   protected readonly agendamentoCancelando = signal<Agendamento | null>(null);
   protected readonly showCancelModal = signal(false);
+
+  /**
+   * RN-074 — motivo do impedimento para alterar manualmente o horário (conflito de
+   * agenda e/ou clientes na lista de espera): preenchido abre o tm-modal da lib com
+   * a explicação e a saída pela opção "Permitir Encaixe de Horário".
+   */
+  protected readonly impedimentoMensagem = signal<string | null>(null);
   /** Quando true, os botões de decisão dão lugar à confirmação de recusa (Sim/Não). */
   protected readonly confirmandoRecusa = signal(false);
   protected readonly confirmandoRemocao = signal(false);
@@ -689,6 +696,8 @@ export class AgendaModalDiaComponent implements OnChanges, OnDestroy {
           status: val.statusDecisao,
           tipo: val.tipo,
           observacoes: val.observacoes,
+          // RN-074 — encaixe força a alteração mesmo com impedimentos no novo horário
+          ehEncaixe: val.ehEncaixe ?? false,
         });
         this.toastService.success('Agendamento atualizado com sucesso');
       } else {
@@ -711,11 +720,26 @@ export class AgendaModalDiaComponent implements OnChanges, OnDestroy {
       this.mudancaAgendamento.emit();
     } catch (err: any) {
       console.error('Erro ao salvar agendamento:', err);
-      const mensagemErro = err?.error?.message || err?.message || 'Erro ao salvar agendamento';
-      this.toastService.error(mensagemErro);
+      const code = err?.error?.code ?? err?.error?.Code;
+
+      // RN-074 — impedimento para alterar manualmente o horário (conflito de agenda
+      // e/ou lista de espera): modal da lib com o motivo e a saída pelo Encaixe.
+      if (code === 'Agendamento.ConflitoHorario') {
+        this.impedimentoMensagem.set(
+          err?.error?.message || 'Não é possível alterar manualmente para este horário.',
+        );
+      } else {
+        const mensagemErro = err?.error?.message || err?.message || 'Erro ao salvar agendamento';
+        this.toastService.error(mensagemErro);
+      }
     } finally {
       this.salvando.set(false);
     }
+  }
+
+  /** RN-074 — fecha o modal de impedimento da alteração manual. */
+  protected fecharImpedimento(): void {
+    this.impedimentoMensagem.set(null);
   }
 
   protected confirmarCancelar(agendamento: Agendamento): void {

@@ -110,3 +110,83 @@
     color: #58a6ff !important;
   }
 }
+
+// RN-074/075 — card destacado da vaga reservada: contador ao vivo + ações imediatas.
+.lista-espera-portal__reserva {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  padding: 0.875rem 1rem;
+  border: 1px solid var(--tm-primary);
+  border-radius: 0.75rem;
+  background: color-mix(in srgb, var(--tm-primary) 10%, var(--tm-surface-color));
+}
+
+.lista-espera-portal__reserva-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-width: 0;
+}
+
+.lista-espera-portal__reserva-icone {
+  font-size: 1.25rem;
+  color: var(--tm-primary);
+  animation: lista-espera-pulse 2s infinite;
+}
+
+@keyframes lista-espera-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.45; }
+}
+
+.lista-espera-portal__reserva-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.lista-espera-portal__reserva-titulo {
+  font-size: 0.95rem;
+  color: var(--tm-text-primary);
+}
+
+.lista-espera-portal__reserva-slot {
+  font-size: 0.8rem;
+}
+
+.lista-espera-portal__reserva-contagem {
+  text-align: end;
+  flex-shrink: 0;
+}
+
+.lista-espera-portal__reserva-rotulo {
+  display: block;
+  font-size: 0.7rem;
+  color: var(--tm-text-secondary);
+}
+
+.lista-espera-portal__reserva-tempo {
+  font-size: 1.35rem;
+  font-variant-numeric: tabular-nums;
+  color: var(--tm-primary);
+}
+
+// RN-074/075 — ações em row do Bootstrap: col-12 empilha em telas md e menores,
+// col-lg-6 coloca lado a lado a partir de lg. Botões são tm-button da lib.
+
+// Tema escuro do portal — card de vaga com contraste (RN-074/075).
+[data-theme='dark'] .lista-espera-portal__reserva,
+:host-context([data-theme='dark']) .lista-espera-portal__reserva {
+  background: var(--tm-input-bg);
+  border-color: #58a6ff;
+
+  .lista-espera-portal__reserva-titulo,
+  .lista-espera-portal__reserva-slot {
+    color: #ffffff !important;
+  }
+
+  .lista-espera-portal__reserva-icone,
+  .lista-espera-portal__reserva-tempo {
+    color: #58a6ff !important;
+  }
+}

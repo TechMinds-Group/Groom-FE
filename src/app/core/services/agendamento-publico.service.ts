@@ -103,8 +103,25 @@ export class AgendamentoPublicoService {
     }
   }
 
-  async logout(): Promise<void> {
+  /**
+   * RN-028/074 — restaura a sessão do cliente via POST refresh-session: com o JWT ainda
+   * válido renova o cookie (sliding); com o ClienteRefresh ("Manter conectado" — 14 dias)
+   * reemite o JWT. Sem cookies responde 401 — o chamador decide o fluxo.
+   */
+  async restaurarSessao(): Promise<void> {
     try {
+      await firstValueFrom(
+        this.http.post(`${this.baseUrl}/refresh-session`, {}, {
+          withCredentials: true,
+          headers: new HttpHeaders({ 'X-Skip-Error-Toast': 'true' }),
+        }),
+      );
+    } catch {
+      // sem sessão (nenhum cookie válido) — nada a restaurar
+    }
+  }
+
+  async logout(): Promise<void> {    try {
       await firstValueFrom(
         this.http.post(`${this.baseUrl}/logout`, {}, { withCredentials: true })
       );

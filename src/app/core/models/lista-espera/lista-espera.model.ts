@@ -42,8 +42,11 @@ export interface ListaEsperaReserva {
   reservaId: string;
   slotInicio: string;
   slotFim: string;
+  profissionalId?: string | null;
   profissionalNome: string;
   expiraEmUtc: string;
+  /** RN-074 — serviço preferido da entrada (fila por horário); fallback = serviço do slot vagado. */
+  servicoId?: string | null;
   servicoNome?: string | null;
 }
 
