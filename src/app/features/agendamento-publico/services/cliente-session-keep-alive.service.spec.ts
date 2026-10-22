@@ -35,7 +35,11 @@ describe('ClienteSessionKeepAliveService', () => {
   });
 
   it('mantém a sessão chamando o keep-alive a cada 20s quando há cliente logado', async () => {
+    // RN-028/074 — a restauração (refresh-session) é testada indiretamente; aqui o
+    // foco é o polling: mocka a restauração para isolar o fluxo do getMe.
+    spyOn(agendamentoPublicoService, 'restaurarSessao').and.resolveTo(undefined);
     const startPromise = service.start();
+    await Promise.resolve(); // microtask: restauraSessao resolve → start() segue e dispara o getMe
     const meReq = httpMock.expectOne(`${environment.apiUrl}/api/publico/TESTE/agendamento/me`);
     meReq.flush({ id: 'c1', nome: 'QA', email: 'qa@groom.dev' });
     await startPromise;
@@ -47,7 +51,9 @@ describe('ClienteSessionKeepAliveService', () => {
   });
 
   it('não inicia o polling quando não há cliente logado (getMe 401)', async () => {
+    spyOn(agendamentoPublicoService, 'restaurarSessao').and.resolveTo(undefined);
     const startPromise = service.start();
+    await Promise.resolve(); // microtask: restauraSessao resolve → start() segue e dispara o getMe
     const meReq = httpMock.expectOne(`${environment.apiUrl}/api/publico/TESTE/agendamento/me`);
     meReq.flush({ message: 'não autenticado' }, { status: 401, statusText: 'Unauthorized' });
     await startPromise;

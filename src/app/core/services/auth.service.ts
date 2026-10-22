@@ -2,7 +2,7 @@ import { Injectable, inject, signal, computed } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, Subject, tap, switchMap, catchError, of } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { SessionKeepAliveService } from './session-keep-alive.service';
+import { ThemeService } from './theme.service';
 
 
 export interface LoginRequest {
@@ -28,15 +28,12 @@ export interface UserContext {
   tema?: 'dispositivo' | 'escuro' | 'claro';
 }
 
-import { ThemeService } from './theme.service';
-
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
   private readonly http = inject(HttpClient);
   private readonly themeService = inject(ThemeService);
-  private readonly sessionKeepAlive = inject(SessionKeepAliveService);
   
   private readonly _currentUser = signal<UserContext | null>(null);
   public readonly currentUser = this._currentUser.asReadonly();
@@ -88,8 +85,8 @@ export class AuthService {
         if (user && user.tenantId) {
           localStorage.setItem('tenant_id', user.tenantId);
         }
-        // Iniciar keep-alive após login bem-sucedido
-        this.sessionKeepAlive.start();
+        // A persistência da sessão é papel do backend (TMAPI 20s + TMCON via restauração
+        // transparente) — o frontend não faz polling.
       })
     );
   }
@@ -123,12 +120,8 @@ export class AuthService {
     });
   }
 
-  // To properly implement sliding expiration, any authorized request 
-  // will automatically slide the cookie expiration if halfway through its life.
-  
   // Logout will clear the cookie from the backend
   logout(): Observable<any> {
-    this.sessionKeepAlive.stop();
     return this.http.post<any>(`${environment.apiUrl}/logout`, {}, {
       withCredentials: true
     }).pipe(

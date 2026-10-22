@@ -121,6 +121,22 @@ export class LoginClienteComponent implements OnInit, OnDestroy {
     return slug;
   }
 
+  /**
+   * Destino pós-autenticação: `returnUrl` devolve o cliente ao deep link original
+   * (ex.: confirmação da reserva da lista de espera — RN-075/076); validado contra
+   * o slug do tenant para não abrir caminhos de outro estabelecimento. Sem
+   * returnUrl, mantém o destino padrão do portal ("novo" agendamento).
+   */
+  private destinoPosLogin(slug: string): string[] {
+    const returnUrl = this.route.snapshot.queryParamMap.get('returnUrl');
+    const prefixoTenant = `/agendamento/${slug}/`.toLowerCase();
+    if (returnUrl?.toLowerCase().startsWith(prefixoTenant)) {
+      const segmentos = returnUrl.split('/').filter(Boolean);
+      return ['/', ...segmentos];
+    }
+    return ['/agendamento', slug, 'novo'];
+  }
+
   private async carregarInfoEstabelecimento(): Promise<void> {
     const slug = this.getEstabelecimentoSlug();
     if (slug) {
@@ -138,7 +154,7 @@ export class LoginClienteComponent implements OnInit, OnDestroy {
     const cliente = await this.agendamentoPublicoService.getMe();
     if (cliente && slug) {
       void this.clienteKeepAlive.start();
-      await this.router.navigate(['/agendamento', slug, 'novo']);
+      await this.router.navigate(this.destinoPosLogin(slug));
     }
   }
 
@@ -165,7 +181,7 @@ export class LoginClienteComponent implements OnInit, OnDestroy {
       const { email, senha, rememberMe } = this.form.value;
       await this.agendamentoPublicoService.login({ email: email!, senha: senha! }, rememberMe ?? false);
       void this.clienteKeepAlive.start();
-      await this.router.navigate(['/agendamento', slug, 'novo']);
+      await this.router.navigate(this.destinoPosLogin(slug));
     } catch (err) {
       this.errorMessage.set(this.extrairMensagemErro(err));
     } finally {
@@ -179,9 +195,11 @@ export class LoginClienteComponent implements OnInit, OnDestroy {
 
     try {
       const slug = this.getEstabelecimentoSlug();
-      await this.agendamentoPublicoService.loginGoogle(idToken);
+      // RN-028/074 — Google sempre "Manter conectado": cookie ClienteRefresh de 14 dias
+      // (mesma mecânica do login por e-mail), senão a sessão morre ~30s após o keep-alive.
+      await this.agendamentoPublicoService.loginGoogle(idToken, true);
       void this.clienteKeepAlive.start();
-      await this.router.navigate(['/agendamento', slug, 'novo']);
+      await this.router.navigate(this.destinoPosLogin(slug));
     } catch (err) {
       this.errorMessage.set(this.extrairMensagemErro(err));
     } finally {
@@ -192,7 +210,7 @@ export class LoginClienteComponent implements OnInit, OnDestroy {
   onCadastrado(): void {
     const slug = this.getEstabelecimentoSlug();
     void this.clienteKeepAlive.start();
-    void this.router.navigate(['/agendamento', slug, 'novo']);
+    void this.router.navigate(this.destinoPosLogin(slug));
   }
 
   private extrairMensagemErro(err: unknown): string {

@@ -1,10 +1,14 @@
-import { ChangeDetectionStrategy, Component, computed, input, output, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, input, output, signal, viewChild } from '@angular/core';
 import { HorarioDisponivel, ServicoDisponivel } from '../../../../../core/models/agendamento-publico/agendamento-publico.model';
+import { EntrarListaEsperaPayload } from '../../../../../core/models/lista-espera/lista-espera.model';
+import { ListaEsperaPortalComponent } from '../../lista-espera/lista-espera-portal/lista-espera-portal.component';
 
 interface DiaCalendario {
   date: Date;
   vazio: boolean;
   habilitado: boolean;
+  /** RN-074 — dia sem expediente (apagado) que abre a lista de espera ao clicar. */
+  listaEspera: boolean;
   selecionado: boolean;
   hoje: boolean;
 }
@@ -12,12 +16,14 @@ interface DiaCalendario {
 @Component({
   selector: 'app-passo-data-horario',
   standalone: true,
-  imports: [],
+  imports: [ListaEsperaPortalComponent],
   templateUrl: './passo-data-horario.component.html',
   styleUrl: './passo-data-horario.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PassoDataHorarioComponent {
+  private readonly portalLista = viewChild(ListaEsperaPortalComponent);
+
   readonly servico = input.required<ServicoDisponivel | null>();
   /** Duração em minutos quando o agendamento é via plano (o serviço não é selecionado). */
   readonly duracao = input<number | null>(null);
@@ -27,6 +33,28 @@ export class PassoDataHorarioComponent {
   readonly dataSelecionada = input<string | null>(null);
   readonly horarioSelecionado = input<string | null>(null);
   readonly isLoading = input(false);
+  /** Serviço/profissionais escolhidos nos passos anteriores — insumo do preset da lista de espera (RN-074). */
+  readonly profissionalId = input<string | null>(null);
+
+  /** Slot ocupado clicado: horário "HH:mm" que o cliente quer como janela da fila. */
+  readonly slotOcupadoClick = output<string>();
+
+  /** RN-074 — cliente pediu entrada na fila; o pai valida cadastro e devolve a abertura do modal. */
+  readonly listaEsperaSolicitada = output<{ hora: string | null }>();
+
+  /**
+   * RN-074 — slot ocupado clicável / dia apagado: solicita entrada na fila;
+   * o pai valida o cadastro e devolve a abertura do modal via abrirModalLista.
+   */
+  abrirListaPara(hora: string | null): void {
+    this.listaEsperaSolicitada.emit({ hora });
+  }
+
+  /** Abre o modal de preferências pré-preenchido (chamado pelo wizard após validar cadastro).
+   * `horaEspecifica` (RN-074): modo slot clicado — horário exato, sem campo de janela. */
+  abrirModalLista(preset: Partial<EntrarListaEsperaPayload>, horaEspecifica: string | null = null): void {
+    this.portalLista()?.abrirComPreset(preset, horaEspecifica);
+  }
 
   readonly dataSelecionadaChange = output<string>();
   readonly horarioSelecionadoChange = output<string>();
@@ -70,6 +98,11 @@ export class PassoDataHorarioComponent {
     return this.horarios().length > 0 && this.horariosVisiveis().length === 0;
   });
 
+  /** RN-074 — dia lotado: há slots, mas nenhum disponível — oferece a fila do dia. */
+  protected readonly nenhorHorarioDisponivel = computed(
+    () => this.horariosVisiveis().length > 0 && this.horariosVisiveis().every((h) => !h.disponivel),
+  );
+
   protected readonly diasCalendario = computed<DiaCalendario[]>(() => {
     const mes = this.mesExibido();
     const offset = new Date(mes.getFullYear(), mes.getMonth(), 1).getDay();
@@ -80,11 +113,12 @@ export class PassoDataHorarioComponent {
 
     const dias: DiaCalendario[] = [];
     for (let i = 0; i < offset; i++) {
-      dias.push({ date: new Date(0), vazio: true, habilitado: false, selecionado: false, hoje: false });
+      dias.push({ date: new Date(0), vazio: true, habilitado: false, listaEspera: false, selecionado: false, hoje: false });
     }
     for (let dia = 1; dia <= ultimoDia; dia++) {
       const date = new Date(mes.getFullYear(), mes.getMonth(), dia);
       const ehHoje = date.getTime() === inicioHoje.getTime();
+      const ehFuturo = date.getTime() > inicioHoje.getTime();
       const habilitado = diasDisponiveis.includes(date.getDay())
         && date >= inicioHoje
         && !(ehHoje && diaEsgotado);
@@ -92,6 +126,8 @@ export class PassoDataHorarioComponent {
         date,
         vazio: false,
         habilitado,
+        // RN-074 — dia apagado futuro (sem expediente): clique abre a lista de espera.
+        listaEspera: !habilitado && ehFuturo,
         selecionado: this.dataSelecionada() === this.toIso(date),
         hoje: ehHoje,
       });
@@ -107,6 +143,11 @@ export class PassoDataHorarioComponent {
   selecionarDia(dia: DiaCalendario): void {
     if (dia.habilitado) {
       this.dataSelecionadaChange.emit(this.toIso(dia.date));
+      return;
+    }
+    // RN-074 — dia apagado (sem expediente, futuro): clique abre a fila do dia.
+    if (dia.listaEspera) {
+      this.abrirListaPara(null);
     }
   }
 

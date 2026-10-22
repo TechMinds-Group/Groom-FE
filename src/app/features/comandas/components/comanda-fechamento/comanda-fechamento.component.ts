@@ -6,11 +6,15 @@ import { firstValueFrom } from 'rxjs';
 import { TmToastService } from '@techminds-group/tm-angular-lib';
 import { ComandaService } from '../../../../core/services/comanda.service';
 import { Comanda, ComandaItem, TipoDesconto } from '../../../../core/models/comanda/comanda.model';
+import {
+  ConfirmacaoConfig,
+  ModalConfirmacaoComponent,
+} from '../../../../shared/components/modais/modal-confirmacao/modal-confirmacao.component';
 
 @Component({
   selector: 'app-comanda-fechamento',
   standalone: true,
-  imports: [CommonModule, CurrencyPipe, DatePipe, FormsModule],
+  imports: [CommonModule, CurrencyPipe, DatePipe, FormsModule, ModalConfirmacaoComponent],
   templateUrl: './comanda-fechamento.component.html',
   styleUrls: ['./comanda-fechamento.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -108,13 +112,13 @@ export class ComandaFechamentoComponent implements OnInit {
     this.router.navigate(['/gestao/comandas', c ? c.id : '']);
   }
 
-  async confirmarFechamento(): Promise<void> {
+  protected readonly confirmacao = signal<ConfirmacaoConfig | null>(null);
+  protected readonly executandoConfirmacao = signal(false);
+
+  /** RN-068 — abre a confirmação do fechamento com o valor final calculado. */
+  confirmarFechamento(): void {
     const c = this.comanda();
     if (!c || this.descontoInvalido() || this.salvando()) return;
-
-    if (!confirm(`Fechar a comanda #${c.numero}? Valor final: R$ ${this.valorFinal().toFixed(2).replace('.', ',')}`)) {
-      return;
-    }
 
     const valor = this.descontoValor();
     const payload = {
@@ -125,15 +129,40 @@ export class ComandaFechamentoComponent implements OnInit {
       observacoes: this.observacoes().trim() || undefined,
     };
 
-    this.salvando.set(true);
+    this.confirmacao.set({
+      titulo: 'Fechar comanda',
+      mensagem: `Fechar a comanda #${c.numero}? Valor final: R$ ${this.valorFinal().toFixed(2).replace('.', ',')}`,
+      confirmLabel: 'Fechar comanda',
+      confirmClass: 'btn-success',
+      icon: 'fa-solid fa-file-invoice-dollar',
+      acao: async () => {
+        this.salvando.set(true);
+        try {
+          await firstValueFrom(this.comandaService.fechar(c.id, payload));
+          this.toastService.success('Comanda fechada.');
+          this.router.navigate(['/gestao/comandas', c.id]);
+        } catch {
+          // Erro específico (desconto > total etc.) já exibido pelo interceptor.
+        } finally {
+          this.salvando.set(false);
+        }
+      },
+    });
+  }
+
+  protected async executarConfirmacao(): Promise<void> {
+    const config = this.confirmacao();
+    if (!config || this.executandoConfirmacao()) return;
+    this.executandoConfirmacao.set(true);
     try {
-      await firstValueFrom(this.comandaService.fechar(c.id, payload));
-      this.toastService.success('Comanda fechada.');
-      this.router.navigate(['/gestao/comandas', c.id]);
-    } catch {
-      // Erro específico (desconto > total etc.) já exibido pelo interceptor.
+      await config.acao();
+      this.confirmacao.set(null);
     } finally {
-      this.salvando.set(false);
+      this.executandoConfirmacao.set(false);
     }
+  }
+
+  protected cancelarConfirmacao(): void {
+    this.confirmacao.set(null);
   }
 }

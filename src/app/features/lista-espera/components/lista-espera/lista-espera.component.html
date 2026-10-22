@@ -1,0 +1,131 @@
+<div class="container mt-5 mb-5">
+  <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between mb-4 gap-3">
+    <div>
+      <h1 class="h2 text-primary fw-bold mb-2 custom-dark-text d-flex align-items-center gap-2">
+        <i class="fas fa-hourglass-half me-2"></i>Lista de Espera
+      </h1>
+      <p class="text-muted custom-dark-text mb-0">
+        Fila do dia em ordem de chegada (FIFO). Quando uma vaga abre, o próximo cliente compatível recebe uma
+        reserva temporária do slot — acompanhe a contagem regressiva abaixo.
+      </p>
+    </div>
+
+    <div>
+      <button
+        (click)="modalCadastroAberto.set(true)"
+        class="btn btn-primary px-4 py-2.5 shadow-sm fw-bold rounded-3 d-inline-flex align-items-center gap-2"
+      >
+        <i class="fas fa-plus"></i><span>Cadastrar</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Filtros -->
+  <div class="card border-0 shadow-sm p-3 details-card custom-dark-card rounded-4 mb-4">
+    <div class="row g-3 align-items-end">
+      <div class="col-12 col-md-4">
+        <label class="form-label small fw-semibold custom-dark-text mb-1" for="filtro-data">
+          <i class="fas fa-calendar-day me-1"></i>Data
+        </label>
+        <input
+          type="date"
+          id="filtro-data"
+          class="form-control custom-dark-input"
+          [ngModel]="dataSelecao()"
+          (ngModelChange)="onDataChange($event)"
+        />
+      </div>
+    </div>
+  </div>
+
+  <div class="mb-5">
+    <tm-table
+      [cols]="colunas()"
+      [data]="entradas()"
+      [isLoading]="carregando()"
+      [paginated]="true"
+      [pageSize]="tamanhoPagina()"
+      (pageSizeChange)="tamanhoPagina.set($event)"
+      [showControls]="true"
+    ></tm-table>
+  </div>
+</div>
+
+<ng-template #posicaoTemplate let-item>
+  <span class="badge border rounded-circle p-0 posicao-badge bg-primary-subtle text-primary border-primary-subtle">
+    {{ item.posicao }}
+  </span>
+</ng-template>
+
+<ng-template #clienteTemplate let-item>
+  <div class="d-flex flex-column text-start">
+    <strong class="fw-bold custom-dark-text">{{ item.clienteNome }}</strong>
+  </div>
+</ng-template>
+
+<ng-template #servicoTemplate let-item>
+  <div class="d-flex align-items-center text-start">
+    @if (item.servicoNome) {
+      <span class="custom-dark-text"><i class="fas fa-cut me-2 text-muted"></i>{{ item.servicoNome }}</span>
+    } @else {
+      <span class="custom-dark-text">—</span>
+    }
+  </div>
+</ng-template>
+
+<ng-template #profissionalTemplate let-item>
+  <div class="d-flex align-items-center text-start">
+    @if (item.profissionalNome) {
+      <span class="custom-dark-text"><i class="fas fa-user me-2 text-muted"></i>{{ item.profissionalNome }}</span>
+    } @else {
+      <span class="custom-dark-text">—</span>
+    }
+  </div>
+</ng-template>
+
+<ng-template #janelaTemplate let-item>
+  <div class="d-flex align-items-center text-start">
+    @if (item.horaJanelaInicio) {
+      <span class="custom-dark-text"><i class="fas fa-clock me-2 text-muted"></i>{{ item.horaJanelaInicio }}</span>
+    } @else {
+      <span class="custom-dark-text">—</span>
+    }
+  </div>
+</ng-template>
+
+<ng-template #statusTemplate let-item>
+  <div class="d-flex align-items-center">
+    @if (item.status | statusListaEsperaBadge; as badge) {
+      <span class="badge border px-2.5 py-1 rounded-pill small fw-semibold" [ngClass]="badge.badgeClass">
+        <i [class]="badge.iconClass" class="me-1"></i>{{ badge.label }}
+      </span>
+    }
+  </div>
+</ng-template>
+
+<ng-template #reservaTemplate let-item>
+  <div class="d-flex align-items-center">
+    @if (item.reservaAtiva) {
+      <span
+        class="badge border px-2.5 py-1 rounded-pill small fw-semibold bg-info-subtle text-info border-info-subtle"
+        [title]="'Reserva com ' + item.reservaAtiva.profissionalNome + ' — expira às ' + item.reservaAtiva.expiraEmUtc"
+      >
+        <i class="fas fa-hourglass-half me-1"></i>{{ helper.contagemReserva(item.reservaAtiva.expiraEmUtc, agoraMs()) }}
+      </span>
+    } @else {
+      <span class="custom-dark-text">—</span>
+    }
+  </div>
+</ng-template>
+
+<ng-template #entradaTemplate let-item>
+  <div class="d-flex align-items-center text-start">
+    <span class="custom-dark-text">{{ helper.horaDe(item.criadaEmUtc) }}</span>
+  </div>
+</ng-template>
+
+<app-modal-adicionar-entrada
+  [(show)]="modalCadastroAberto"
+  [enviando]="cadastrando()"
+  (confirm)="confirmarCadastro($event)"
+/>

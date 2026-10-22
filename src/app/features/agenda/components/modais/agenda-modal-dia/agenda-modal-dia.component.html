@@ -527,27 +527,6 @@
               </div>
             </div>
 
-            <!-- Row 4: Permissão de Encaixe -->
-            <div class="row g-3 mb-3">
-              <div class="col-12">
-                <div class="form-check form-switch custom-dark-card p-3 rounded-3 border d-flex align-items-center justify-content-between m-0">
-                  <div>
-                    <label class="form-check-label fw-bold custom-dark-text d-block cursor-pointer mb-0" for="switchEhEncaixe">
-                      ⚡ Permitir Encaixe de Horário
-                    </label>
-                    <span class="text-muted extra-small custom-dark-text d-block mt-1">
-                      Ignora restrições de agenda e horários fechados, disponibilizando 24h para agendar.
-                    </span>
-                  </div>
-                  <input
-                    class="form-check-input flex-shrink-0 ms-3"
-                    type="checkbox"
-                    id="switchEhEncaixe"
-                    formControlName="ehEncaixe"
-                  />
-                </div>
-              </div>
-            </div>
           }
 
           @if (agendamentoEditando()) {
@@ -629,6 +608,29 @@
             ></tm-text>
           </div>
 
+          <!-- Row 4: Permissão de Encaixe — comum à CRIAÇÃO e à EDIÇÃO (RN-074: única forma
+          de forçar a alteração quando há impedimento de agenda ou lista de espera) -->
+          <div class="row g-3 mb-3">
+            <div class="col-12">
+              <div class="form-check form-switch custom-dark-card p-3 rounded-3 border d-flex align-items-center justify-content-between m-0">
+                <div>
+                  <label class="form-check-label fw-bold custom-dark-text d-block cursor-pointer mb-0" for="switchEhEncaixe">
+                    ⚡ Permitir Encaixe de Horário
+                  </label>
+                  <span class="text-muted extra-small custom-dark-text d-block mt-1">
+                    Ignora restrições de agenda e horários fechados, disponibilizando 24h para agendar.
+                  </span>
+                </div>
+                <input
+                  class="form-check-input flex-shrink-0 ms-3"
+                  type="checkbox"
+                  id="switchEhEncaixe"
+                  formControlName="ehEncaixe"
+                />
+              </div>
+            </div>
+          </div>
+
           <div
             class="form-actions d-flex flex-column flex-sm-row justify-content-between align-items-stretch align-items-sm-center gap-2 mt-4"
           >
@@ -699,5 +701,34 @@
       <i class="fas fa-exclamation-triangle me-1"></i
       >{{ 'AGENDA_MODAL.CANCEL_MODAL.WARNING_MSG' | translate }}
     </p>
+  </div>
+</tm-modal>
+
+<!-- Modal de impedimento (RN-074): alteração manual bloqueada por conflito de agenda
+e/ou clientes aguardando na lista de espera — a saída é marcar o Encaixe no formulário.
+showFooter=false: o rodapé padrão (Cancelar/Confirmar) fica oculto; o "Entendi" é um
+tm-button da lib no conteúdo — apenas uma ação. -->
+<tm-modal
+  [show]="impedimentoMensagem() !== null"
+  title="Alteração manual não permitida"
+  icon="fas fa-triangle-exclamation"
+  iconClass="warning"
+  [showFooter]="false"
+  (cancel)="fecharImpedimento()"
+>
+  <div class="text-center">
+    <p class="mb-3 custom-dark-text">{{ impedimentoMensagem() }}</p>
+    <p class="text-muted small mb-3">
+      <i class="fas fa-lightbulb me-1"></i>
+      Marque a opção "Permitir Encaixe de Horário" no formulário e salve novamente para forçar a alteração.
+    </p>
+    <tm-button
+      type="button"
+      variant="primary"
+      label="Entendi"
+      icon="fa-solid fa-check me-2"
+      [isFullWidth]="true"
+      (onClick)="fecharImpedimento()"
+    ></tm-button>
   </div>
 </tm-modal>

@@ -1,5 +1,5 @@
 import { inject, Injectable, signal } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { Agendamento, agendamentoParaDateLocal } from '../models/agenda.model';
@@ -141,10 +141,16 @@ export class AgendamentosService {
       status?: 'confirmado' | 'recusado' | 'nao_compareceu' | 'concluido' | 'agendado';
       tipo?: string;
       observacoes?: string;
+      /** RN-074 — força a alteração mesmo com impedimentos (encaixe). */
+      ehEncaixe?: boolean;
     },
   ): Promise<Agendamento> {
+    // RN-074 — o impedimento de horário (conflito/lista de espera) é exibido como
+    // tm-modal pelo componente; sem toast duplicado do errorInterceptor. Os demais
+    // erros continuam com toast — pelo próprio catch de quem chama.
+    const headers = new HttpHeaders({ 'X-Skip-Error-Toast': 'true' });
     const data = await firstValueFrom(
-      this.http.put<AgendamentoApi>(`${this.apiUrl}/${id}`, dados, { withCredentials: true }),
+      this.http.put<AgendamentoApi>(`${this.apiUrl}/${id}`, dados, { withCredentials: true, headers }),
     );
     return mapearAgendamento(data);
   }

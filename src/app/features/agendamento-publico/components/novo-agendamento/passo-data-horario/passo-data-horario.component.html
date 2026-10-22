@@ -39,10 +39,11 @@
           <button
             type="button"
             class="agendamento-calendario__celula"
-            [class.agendamento-calendario__celula--disabled]="!dia.habilitado"
+            [class.agendamento-calendario__celula--disabled]="!dia.habilitado && !dia.listaEspera"
+            [class.agendamento-calendario__celula--lista-espera]="dia.listaEspera"
             [class.agendamento-calendario__celula--selected]="dia.selecionado"
             [class.agendamento-calendario__celula--hoje]="dia.hoje"
-            [disabled]="!dia.habilitado"
+            [title]="dia.listaEspera ? 'Sem horários neste dia — clique para entrar na lista de espera' : null"
             (click)="selecionarDia(dia)"
           >
             {{ dia.date.getDate() }}
@@ -72,7 +73,15 @@
     @if (diaEsgotado()) {
       <p class="text-muted">Os horários de hoje já se encerraram. Selecione outro dia.</p>
     } @else {
-      <p class="text-muted">Nenhum horário disponível para esta data.</p>
+      <p class="text-muted">Nenhum horário disponível para esta data. Dias apagados no calendário oferecem entrada na lista de espera.</p>
+      <button
+        type="button"
+        class="btn btn-primary agendamento-lista-espera__acao"
+        (click)="abrirListaPara(null)"
+      >
+        <i class="fa-solid fa-hourglass-half me-2"></i>
+        Entrar na lista de espera
+      </button>
     }
   } @else {
     <div class="agendamento-horarios">
@@ -81,20 +90,28 @@
           type="button"
           class="agendamento-horarios__slot"
           [class.agendamento-horarios__slot--disabled]="!horario.disponivel"
+          [class.agendamento-horarios__slot--ocupado]="!horario.disponivel"
           [class.agendamento-horarios__slot--selected]="horarioSelecionado() === horario.hora"
-          [disabled]="!horario.disponivel"
-          (click)="onHorarioChange(horario)"
+          [title]="horario.disponivel ? null : 'Ocupado — clique para entrar na lista de espera às ' + horario.hora"
+          (click)="horario.disponivel ? onHorarioChange(horario) : abrirListaPara(horario.hora)"
         >
           @if (horario.disponivel) {
             <i class="fa-regular fa-clock agendamento-horarios__slot-icone"></i>
           } @else {
-            <i class="fa-solid fa-ban agendamento-horarios__slot-icone"></i>
+            <i class="fa-solid fa-hourglass-half agendamento-horarios__slot-icone"></i>
           }
           {{ horario.hora }}
         </button>
       }
     </div>
+
+    @if (nenhorHorarioDisponivel()) {
+      <p class="text-muted small mt-2 mb-0">Nenhum horário disponível nesta data — clique em um horário ocupado para entrar na lista de espera.</p>
+    }
   }
+
+  <!-- Status da fila (quando o cliente já está nela) + hospedeiro do modal da lista de espera. -->
+  <app-lista-espera-portal [somenteStatus]="true" />
 } @else {
   <p class="text-muted mb-0">Selecione uma data para ver os horários disponíveis.</p>
 }

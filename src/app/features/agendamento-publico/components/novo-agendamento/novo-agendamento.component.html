@@ -20,6 +20,15 @@
           <div class="agendamento-wizard__acoes">
             <button
               type="button"
+              class="agendamento-wizard__lista-espera"
+              (click)="abrirListaEsperaHeader()"
+              title="Lista de espera do dia"
+            >
+              <i class="fa-solid fa-hourglass-half"></i>
+              <span class="d-none d-md-inline">Lista de espera</span>
+            </button>
+            <button
+              type="button"
               class="agendamento-wizard__tema"
               (click)="alternarTema()"
               [attr.aria-label]="
@@ -112,6 +121,9 @@
         </header>
 
         <div class="agendamento-wizard__body">
+          <div class="agendamento-wizard__lista-espera-widget mb-3">
+            <app-lista-espera-portal #portalTopo [somenteStatus]="true" />
+          </div>
           @if (!finalizandoCadastro()) {
             @if (meuPlano(); as plano) {
               <div
@@ -297,8 +309,10 @@
                       [dataSelecionada]="dataSelecionada()"
                       [horarioSelecionado]="horarioSelecionado()"
                       [isLoading]="isLoading()"
+                      [profissionalId]="profissionalSelecionado()?.id ?? null"
                       (dataSelecionadaChange)="selecionarData($event)"
                       (horarioSelecionadoChange)="selecionarHorario($event)"
+                      (listaEsperaSolicitada)="solicitarEntradaLista($event)"
                     />
                   }
                   @case (4) {
@@ -310,9 +324,12 @@
                       "
                       [duracao]="duracaoAtual()"
                       [data]="dataSelecionada()"
-                      [horario]="horarioSelecionado()"
+                      [horario]="modoListaEspera() ? listaEsperaHora() : horarioSelecionado()"
                       [isLoading]="isLoading()"
+                      [modoListaEspera]="modoListaEspera()"
+                      [listaEsperaSucesso]="listaEsperaSucesso()"
                       (confirmar)="confirmar()"
+                      (voltarInicio)="reiniciar()"
                       (expandirImagem)="abrirImagemModal($event)"
                     />
                   }
@@ -323,7 +340,7 @@
             <aside class="agendamento-wizard__resumo">
               <div class="agendamento-wizard__resumo-header">
                 <i class="fa-solid fa-file-lines"></i>
-                <span class="fw-semibold">Seu agendamento</span>
+                <span class="fw-semibold">{{ modoListaEspera() ? 'Sua lista de espera' : 'Seu agendamento' }}</span>
               </div>
 
               <dl class="agendamento-wizard__resumo-lista mb-0">
@@ -353,23 +370,31 @@
                 </div>
                 <div class="agendamento-wizard__resumo-item">
                   <dt><i class="fa-solid fa-clock"></i> Horário</dt>
-                  <dd>{{ horarioSelecionado() ? horarioSelecionado() + 'h' : '—' }}</dd>
+                  <dd>@if (modoListaEspera() ? listaEsperaHora() : horarioSelecionado(); as hora) {
+                    {{ hora }}h
+                  } @else {
+                    —
+                  }</dd>
                 </div>
               </dl>
 
               <div class="agendamento-wizard__resumo-total">
-                <span>Total</span>
-                <strong>
-                  @if (tipoAgendamento() === 'plano') {
-                    Incluso no plano
-                  } @else {
-                    @if (totalServico(); as total) {
-                      {{ formatarPreco(total) }}
+                @if (modoListaEspera()) {
+                  <span class="text-muted small">Sem cobrança ao entrar na lista</span>
+                } @else {
+                  <span>Total</span>
+                  <strong>
+                    @if (tipoAgendamento() === 'plano') {
+                      Incluso no plano
                     } @else {
-                      —
+                      @if (totalServico(); as total) {
+                        {{ formatarPreco(total) }}
+                      } @else {
+                        —
+                      }
                     }
-                  }
-                </strong>
+                  </strong>
+                }
               </div>
             </aside>
           </div>
