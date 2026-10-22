@@ -1,4 +1,4 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+﻿import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import {
   ListaEsperaModalPreferenciasComponent,
@@ -22,7 +22,7 @@ describe('ListaEsperaModalPreferenciasComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('deve emitir payload com preferências parciais (null quando vazio)', () => {
+  it('deve emitir payload com preferÃªncias parciais (null quando vazio)', () => {
     let emitido: EntrarListaEsperaPayload | null = null;
     component.confirm.subscribe((p) => (emitido = p));
     fixture.componentRef.setInput('show', true);
@@ -31,16 +31,18 @@ describe('ListaEsperaModalPreferenciasComponent', () => {
     component.confirmar();
 
     expect(emitido!).toEqual({
+      dataLista: null,
       servicoId: null,
       profissionalId: null,
       horaJanelaInicio: null,
     });
   });
 
-  it('deve carregar a janela do preset (slot ocupado clicado — RN-074) como default do campo "a partir de que horas"', () => {
+  it('deve carregar a janela do preset (slot ocupado clicado â€” RN-074) como default do campo "a partir de que horas"', () => {
     let emitido: EntrarListaEsperaPayload | null = null;
     component.confirm.subscribe((p) => (emitido = p));
     fixture.componentRef.setInput('preset', {
+      dataLista: '2026-10-22',
       servicoId: 'svc-1',
       profissionalId: 'prof-1',
       horaJanelaInicio: '14:00',
@@ -53,13 +55,14 @@ describe('ListaEsperaModalPreferenciasComponent', () => {
     component.confirmar();
 
     expect(emitido!).toEqual({
+      dataLista: '2026-10-22',
       servicoId: 'svc-1',
       profissionalId: 'prof-1',
       horaJanelaInicio: '14:00',
     });
   });
 
-  it('deve enviar a janela informada no campo "a partir de que horas" quando o preset não traz hora', () => {
+  it('deve enviar a janela informada no campo "a partir de que horas" quando o preset nÃ£o traz hora', () => {
     let emitido: EntrarListaEsperaPayload | null = null;
     component.confirm.subscribe((p) => (emitido = p));
     fixture.componentRef.setInput('preset', null);
@@ -70,15 +73,16 @@ describe('ListaEsperaModalPreferenciasComponent', () => {
     component.confirmar();
 
     expect(emitido!).toEqual({
+      dataLista: null,
       servicoId: null,
       profissionalId: null,
       horaJanelaInicio: '15:30',
     });
   });
 
-  // RN-074 — modo slot clicado: janela início+fim delimita o horário exato; o fim usa a
-  // duração do serviço selecionado no modal (fallback 30 min quando serviço é "qualquer").
-  it('deve emitir janela inicio+fim do horário específico quando horaEspecifica está ativa', () => {
+  // RN-074 â€” modo slot clicado: janela inÃ­cio+fim delimita o horÃ¡rio exato; o fim usa a
+  // duraÃ§Ã£o do serviÃ§o selecionado no modal (fallback 30 min quando serviÃ§o Ã© "qualquer").
+  it('deve emitir janela inicio+fim do horÃ¡rio especÃ­fico quando horaEspecifica estÃ¡ ativa', () => {
     let emitido: EntrarListaEsperaPayload | null = null;
     component.confirm.subscribe((p) => (emitido = p));
     fixture.componentRef.setInput('preset', { servicoId: 'svc-1' });
@@ -92,6 +96,7 @@ describe('ListaEsperaModalPreferenciasComponent', () => {
     component.confirmar();
 
     expect(emitido!).toEqual({
+      dataLista: null,
       servicoId: 'svc-1',
       profissionalId: null,
       horaJanelaInicio: '14:00',
@@ -99,9 +104,9 @@ describe('ListaEsperaModalPreferenciasComponent', () => {
     });
   });
 
-  // RN-074 — modo slot: mesmo que o form carregue preset de janela (ex.: reabertura),
-  // o payload usa o horário específico clicado — o campo não é editável nesse modo.
-  it('deve ignorar a janela do form no modo slot específico', () => {
+  // RN-074 â€” modo slot: mesmo que o form carregue preset de janela (ex.: reabertura),
+  // o payload usa o horÃ¡rio especÃ­fico clicado â€” o campo nÃ£o Ã© editÃ¡vel nesse modo.
+  it('deve ignorar a janela do form no modo slot especÃ­fico', () => {
     let emitido: EntrarListaEsperaPayload | null = null;
     component.confirm.subscribe((p) => (emitido = p));
     fixture.componentRef.setInput('preset', { horaJanelaInicio: '09:00' });
@@ -112,6 +117,7 @@ describe('ListaEsperaModalPreferenciasComponent', () => {
     component.confirmar();
 
     expect(emitido!).toEqual({
+      dataLista: null,
       servicoId: null,
       profissionalId: null,
       horaJanelaInicio: '14:00',
@@ -119,3 +125,4 @@ describe('ListaEsperaModalPreferenciasComponent', () => {
     });
   });
 });
+

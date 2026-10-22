@@ -87,6 +87,7 @@ export class ListaEsperaModalPreferenciasComponent {
     effect(() => {
       if (this.show()) {
         const preset = this.preset();
+        this.dataNavegada.set(preset?.dataLista ?? null);
         this.form.reset({
           servicoId: preset?.servicoId ?? SEM_PREFERENCIA,
           profissionalId: preset?.profissionalId ?? SEM_PREFERENCIA,
@@ -96,6 +97,9 @@ export class ListaEsperaModalPreferenciasComponent {
       }
     });
   }
+
+  /** RN-074 — dia navegado no portal (preset): vai no payload para a fila do dia certo. */
+  readonly dataNavegada = signal<string | null>(null);
 
   /** União dos serviços ativos dos profissionais do portal (não há endpoint público de catálogo único). */
   private async carregarOpcoes(): Promise<void> {
@@ -142,6 +146,7 @@ export class ListaEsperaModalPreferenciasComponent {
     // usa a duração do serviço selecionado (fallback 30 min) para a vaga caber inteira.
     if (this.horaEspecifica()) {
       this.confirm.emit({
+        dataLista: this.dataNavegada(),
         servicoId: servicoId || null,
         profissionalId: profissionalId || null,
         horaJanelaInicio: this.horaEspecifica(),
@@ -152,6 +157,7 @@ export class ListaEsperaModalPreferenciasComponent {
     }
 
     this.confirm.emit({
+      dataLista: this.dataNavegada(),
       servicoId: servicoId || null,
       profissionalId: profissionalId || null,
       horaJanelaInicio: horaJanelaInicio || null,

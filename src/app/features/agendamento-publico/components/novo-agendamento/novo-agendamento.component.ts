@@ -495,6 +495,7 @@ export class NovoAgendamentoComponent implements OnInit, OnDestroy {
       const horaFim = `${String(fim.getHours()).padStart(2, '0')}:${String(fim.getMinutes()).padStart(2, '0')}`;
 
       await this.listaEsperaService.entrar({
+        dataLista: data,
         servicoId: this.servicoSelecionado()?.id ?? null,
         profissionalId: this.profissionalSelecionado()?.id ?? null,
         horaJanelaInicio: hora,
@@ -679,6 +680,7 @@ export class NovoAgendamentoComponent implements OnInit, OnDestroy {
    */
   async solicitarEntradaLista(request: { hora: string | null }, origem: 'header' | 'passo' = 'passo'): Promise<void> {
     const presetBase = {
+      dataLista: this.dataSelecionada(),
       servicoId: this.servicoSelecionado()?.id ?? null,
       profissionalId: this.profissionalSelecionado()?.id ?? null,
     };

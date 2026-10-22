@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { HttpClientTestingModule, HttpTestingController, TestRequest } from '@angular/common/http/testing';
+import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 import { ListaEsperaComponent } from './lista-espera.component';
 import { ListaEsperaItem } from '../../../../core/models/lista-espera/lista-espera.model';
 
@@ -70,31 +70,6 @@ describe('ListaEsperaComponent', () => {
     req.flush(itens);
   }
 
-  /**
-   * Espera (em microtasks) a emissão de uma request e responde imediatamente —
-   * o flush ocorre no mesmo tick do match: a continuação assíncrona do
-   * componente (teardown da subscription) pode invalidar a request se o
-   * retorno ao teste passar por microtasks antes do flush.
-   */
-  async function aguardarRequest(
-    match: (r: { url: string; method: string }) => boolean,
-    responder: (req: TestRequest) => void = (req) => req.flush(null),
-  ): Promise<TestRequest> {
-    for (let i = 0; i < 50; i++) {
-      const encontradas = httpMock.match(match as never);
-      if (encontradas.length > 0) {
-        const req = encontradas[0];
-        responder(req);
-        return req;
-      }
-      // Macrotask: entre macrotasks toda a fila de microtasks da cadeia de
-      // promises do componente é executada — cede espaço para a emissão.
-      await new Promise((resolve) => setTimeout(resolve, 0));
-    }
-    fail('Requisição esperada não foi emitida a tempo');
-    throw new Error('unreachable');
-  }
-
   it('deve criar o componente', () => {
     fixture.detectChanges();
     flushLista([]);
@@ -131,65 +106,14 @@ describe('ListaEsperaComponent', () => {
     expect(el.textContent).toContain('Ativa');
   });
 
-  it('deve exibir o estado vazio quando não há entradas na data', async () => {
+  it('deve exibir o estado vazio da tabela quando não há entradas na data', async () => {
     fixture.detectChanges();
     flushLista([]);
     await fixture.whenStable();
     fixture.detectChanges();
 
     const el: HTMLElement = fixture.nativeElement;
-    expect(el.textContent).toContain('Nenhum cliente na lista de espera nesta data.');
-  });
-
-  it('deve remover entrada ativa com confirmação e refletir status Removida na linha (AC 2)', async () => {
-    fixture.detectChanges();
-    flushLista(tresEntradasAtivas);
-    await fixture.whenStable();
-    fixture.detectChanges();
-
-    component['abrirRemocao'](component['entradas']()[0]);
-    expect(component['modalRemocaoAberto']()).toBeTrue();
-    fixture.detectChanges();
-    expect(fixture.nativeElement.textContent).toContain('Remover da lista de espera');
-
-    const promessa = component['confirmarRemocao']();
-    const deleteReq = httpMock.expectOne((r) => r.url.endsWith('/api/lista-espera/guid-1'));
-    expect(deleteReq.request.method).toBe('DELETE');
-    deleteReq.flush(null, { status: 204, statusText: 'No Content' });
-
-    // A recarga só é emitida quando a promise do DELETE resolve no componente.
-    await aguardarRequest((r) => r.url.endsWith('/api/lista-espera') && r.method === 'GET', (req) =>
-      req.flush([{ ...tresEntradasAtivas[0], status: 'Removida' }, { ...tresEntradasAtivas[1] }, { ...tresEntradasAtivas[2] }]),
-    );
-    await promessa;
-    await fixture.whenStable();
-    fixture.detectChanges();
-
-    expect(component['modalRemocaoAberto']()).toBeFalse();
-    expect(fixture.nativeElement.textContent).toContain('Ana Silva');
-    const atualizada = component['entradas']().find((e) => e.id === 'guid-1');
-    expect(atualizada?.status).toBe('Removida');
-  });
-
-  it('deve oferecer ação de remoção apenas para entradas com status Ativa', async () => {
-    fixture.detectChanges();
-    flushLista([
-      entrada({ id: 'guid-ativa', clienteNome: 'Ativa', status: 'Ativa' }),
-      entrada({ id: 'guid-removida', clienteNome: 'Removida', status: 'Removida' }),
-      entrada({ id: 'guid-expirada', clienteNome: 'Expirada', status: 'Expirada' }),
-      entrada({ id: 'guid-convertida', clienteNome: 'Convertida', status: 'Convertida' }),
-    ]);
-    await fixture.whenStable();
-    fixture.detectChanges();
-
-    // TmTable renderiza visões desktop e mobile — compara por cliente (title
-    // único do botão), não por contagem absoluta de botões.
-    const botoes = fixture.nativeElement.querySelectorAll('tm-table button.btn-outline-danger');
-    const botoesRemover = Array.from(botoes as NodeListOf<HTMLButtonElement>).map((b) =>
-      b.getAttribute('title'),
-    );
-    expect(botoesRemover).toContain('Remover Ativa da lista');
-    expect(botoesRemover.some((t) => /Removida|Expirada|Convertida/.test(t ?? ''))).toBeFalse();
+    expect(el.textContent).toContain('Nenhum registro encontrado');
   });
 
   it('deve exibir badge de reserva ativa com contagem regressiva (MM:SS)', async () => {

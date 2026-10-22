@@ -5,6 +5,8 @@
 
 /** Preferências opcionais ao entrar na lista (null = sem preferência). */
 export interface EntrarListaEsperaPayload {
+  /** Dia da lista "YYYY-MM-DD" — o dia navegado no portal (hoje ou futuro). Null = hoje. Espelha `DataLista` do comando. */
+  dataLista?: string | null;
   servicoId?: string | null;
   profissionalId?: string | null;
   /** Janela mínima de aviso em "HH:mm" — vagas apenas a partir desta hora (UTC-3 — DEC-002). */

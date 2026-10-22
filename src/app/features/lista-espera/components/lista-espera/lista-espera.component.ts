@@ -15,7 +15,6 @@ import { FormsModule } from '@angular/forms';
 import { TableColumn, TmTableComponent, TmToastService } from '@techminds-group/tm-angular-lib';
 import { ListaEsperaService } from '../../../../core/services/lista-espera.service';
 import { AdicionarListaEsperaPayload, ListaEsperaItem } from '../../../../core/models/lista-espera/lista-espera.model';
-import { ModalConfirmarRemocaoComponent } from '../modais/modal-confirmar-remocao/modal-confirmar-remocao.component';
 import { ModalAdicionarEntradaComponent } from '../modais/modal-adicionar-entrada/modal-adicionar-entrada.component';
 import { StatusListaEsperaPipe } from '../../pipes/status-lista-espera.pipe';
 import { ListaEsperaHelperService } from '../../services/lista-espera-helper.service';
@@ -31,13 +30,13 @@ function hojeIso(): string {
 /**
  * Painel da lista de espera do dia (RN-077 — UI_SPEC §5.15): tabela FIFO com
  * posição, preferências, status e badge de reserva ativa com contagem
- * regressiva; filtro de data (default hoje) e remoção com modal de confirmação.
- * Sem edição de posição — a ordem é FIFO por entrada.
+ * regressiva; filtro de data (default hoje). Sem edição de posição — a ordem é
+ * FIFO por entrada.
  */
 @Component({
   selector: 'app-lista-espera',
   standalone: true,
-  imports: [CommonModule, FormsModule, TmTableComponent, ModalConfirmarRemocaoComponent, ModalAdicionarEntradaComponent, StatusListaEsperaPipe],
+  imports: [CommonModule, FormsModule, TmTableComponent, ModalAdicionarEntradaComponent, StatusListaEsperaPipe],
   templateUrl: './lista-espera.component.html',
   styleUrl: './lista-espera.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -72,9 +71,6 @@ export class ListaEsperaComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('entradaTemplate', { static: true })
   entradaTemplate!: TemplateRef<{ $implicit: ListaEsperaItem }>;
 
-  @ViewChild('acoesTemplate', { static: true })
-  acoesTemplate!: TemplateRef<{ $implicit: ListaEsperaItem }>;
-
   private readonly templatesReady = signal(false);
 
   protected readonly tamanhoPagina = signal<number>(10);
@@ -85,10 +81,6 @@ export class ListaEsperaComponent implements OnInit, AfterViewInit, OnDestroy {
   /** Tick de 1s que alimenta a contagem regressiva dos badges de reserva. */
   protected readonly agoraMs = signal<number>(Date.now());
   private contagemTimer: ReturnType<typeof setInterval> | null = null;
-
-  protected readonly modalRemocaoAberto = signal(false);
-  protected readonly entradaSelecionada = signal<ListaEsperaItem | null>(null);
-  protected readonly removendo = signal(false);
 
   protected readonly modalCadastroAberto = signal(false);
   protected readonly cadastrando = signal(false);
@@ -106,14 +98,8 @@ export class ListaEsperaComponent implements OnInit, AfterViewInit, OnDestroy {
       { header: 'Status', template: this.statusTemplate, width: '10%' },
       { header: 'Reserva ativa', template: this.reservaTemplate, width: '12%' },
       { header: 'Entrada às', template: this.entradaTemplate, width: '9%' },
-      { header: 'Ações', template: this.acoesTemplate, width: '80px', sortable: false },
     ];
   });
-
-  /** Lista vazia e carregamento concluído — estado vazio do painel. */
-  protected readonly semEntradas = computed(
-    () => !this.carregando() && this.entradas().length === 0,
-  );
 
   ngOnInit(): void {
     void this.carregar();
@@ -159,37 +145,6 @@ export class ListaEsperaComponent implements OnInit, AfterViewInit, OnDestroy {
   protected onDataChange(valor: string | null): void {
     this.dataSelecao.set(valor || hojeIso());
     void this.carregar();
-  }
-
-  /** Remoção apenas de entradas ativas (AC: status ativo → `Removida`). */
-  protected abrirRemocao(item: ListaEsperaItem): void {
-    if (item.status !== 'Ativa') {
-      return;
-    }
-    this.entradaSelecionada.set(item);
-    this.modalRemocaoAberto.set(true);
-  }
-
-  protected fecharModalRemocao(): void {
-    this.modalRemocaoAberto.set(false);
-  }
-
-  protected async confirmarRemocao(): Promise<void> {
-    const item = this.entradaSelecionada();
-    if (!item || this.removendo()) {
-      return;
-    }
-    this.removendo.set(true);
-    try {
-      await this.listaEsperaService.remover(item.id);
-      this.toastService.success(`${item.clienteNome} foi removido da lista de espera.`, 'Lista de Espera');
-      this.modalRemocaoAberto.set(false);
-      await this.carregar();
-    } catch {
-      // 403 `Agendamento.Forbidden` (RN-015) e 404 → toast do errorInterceptor.
-    } finally {
-      this.removendo.set(false);
-    }
   }
 
   /**

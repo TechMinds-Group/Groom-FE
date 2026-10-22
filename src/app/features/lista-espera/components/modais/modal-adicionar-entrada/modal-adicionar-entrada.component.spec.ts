@@ -49,7 +49,9 @@ describe('ModalAdicionarEntradaComponent', () => {
 
     await fixture.whenStable();
     flushOpcoes();
-    await fixture.whenStable();
+    // Macrotask: entre macrotasks toda a fila de microtasks das promise chains
+    // do modal (flush → firstValueFrom → .then dos signals) é executada.
+    await new Promise((resolve) => setTimeout(resolve, 0));
     fixture.detectChanges();
 
     // Só clientes ativos entram nas opções, com celular entre parênteses
@@ -78,6 +80,9 @@ describe('ModalAdicionarEntradaComponent', () => {
     fixture.componentRef.setInput('show', true);
     fixture.detectChanges();
 
+    // A abertura dispara a carga de opções — flush evita open requests no verify().
+    flushOpcoes();
+
     component.form.controls.clienteId.setValue('cli-1');
     component.confirmar();
 
@@ -94,6 +99,9 @@ describe('ModalAdicionarEntradaComponent', () => {
     component.confirm.subscribe((p) => (emitido = p));
     fixture.componentRef.setInput('show', true);
     fixture.detectChanges();
+
+    // A abertura dispara a carga de opções — flush evita open requests no verify().
+    flushOpcoes();
 
     component.confirmar();
 

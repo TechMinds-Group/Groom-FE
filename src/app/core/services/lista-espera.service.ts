@@ -113,12 +113,4 @@ export class ListaEsperaService {
       this.http.post<ListaEsperaCriada>(`${environment.apiUrl}/api/lista-espera`, payload),
     );
   }
-
-  /**
-   * Remove cliente da lista pela recepção/admin (Status → "Removida").
-   * 403 `Agendamento.Forbidden` quando o perfil não tem permissão (RN-015); 404 quando inexistente.
-   */
-  async remover(id: string): Promise<void> {
-    await firstValueFrom(this.http.delete<void>(`${environment.apiUrl}/api/lista-espera/${id}`));
-  }
 }
