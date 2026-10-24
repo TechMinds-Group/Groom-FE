@@ -20,8 +20,8 @@ import {
   AniversarioConfigDTO,
   JanelaAniversariantes,
 } from '../../../../core/services/aniversariantes.service';
-import { MESES_ANO, montarComandoSalvar, montarPreviewMensagem } from '../../models/aniversariantes.model';
-import { EnviarParabensModalComponent } from '../modais/enviar-parabens-modal/enviar-parabens-modal.component';
+import { MESES_ANO, montarComandoSalvar, montarPreviewMensagem } from '../../../../core/models/aniversariantes/aniversariantes.model';
+import { EnviarParabensModalComponent } from '../../../../shared/components/modais/enviar-parabens-modal/enviar-parabens-modal.component';
 
 /**
  * Menu ConfiguraÃ§Ãµes â€º Aniversariantes (RN-078/079/080 â€” CR-004): mensagem de parabÃ©ns

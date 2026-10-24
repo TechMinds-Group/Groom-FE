@@ -6,6 +6,7 @@ export type TipoNotificacao =
   | 'AssinaturaVencendo'
   | 'ClienteNoShow'
   | 'ListaEsperaEntrada'
+  | 'AniversariantesDoDia'
   | 'Geral';
 
 export interface NotificacaoItem {

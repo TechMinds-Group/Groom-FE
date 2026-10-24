@@ -170,6 +170,13 @@
     </div>
   </div>
 
+  <!-- WIDGET ANIVERSARIANTES (RN-078/CR-004): hoje + próximos 7 dias -->
+  <div class="row g-4 mb-4">
+    <div class="col-12">
+      <app-aniversariantes-widget></app-aniversariantes-widget>
+    </div>
+  </div>
+
   <!-- BLOCO DE KPIS DE ESTOQUE E INVENTÁRIO (CLICÁVEIS) -->
   <div class="row g-4 mb-4" *ngIf="estoqueService.resumoEstoque() as resumo">
     <div class="col-12 col-lg-4">

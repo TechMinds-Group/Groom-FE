@@ -15,6 +15,7 @@ import { AgendamentosService } from '../../core/services/agendamentos.service';
 import { GestaoUsuariosService } from '../../core/services/gestao-usuarios.service';
 
 import { EstoqueService } from '../../core/services/estoque.service';
+import { AniversariantesWidgetComponent } from './components/aniversariantes-widget/aniversariantes-widget.component';
 import { Router } from '@angular/router';
 
 export type FiltroPeriodo = 'hoje' | '7d' | '30d' | '90d' | 'mes' | 'ano';
@@ -23,7 +24,7 @@ export type AbaDashboard = 'desempenho' | 'previsao';
 @Component({
   selector: 'app-inicio',
   standalone: true,
-  imports: [CommonModule, FormsModule, BaseChartDirective, TmSelectComponent],
+  imports: [CommonModule, FormsModule, BaseChartDirective, TmSelectComponent, AniversariantesWidgetComponent],
   providers: [
     provideCharts({
       registerables: [

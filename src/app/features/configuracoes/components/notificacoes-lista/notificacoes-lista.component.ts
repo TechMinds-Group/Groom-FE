@@ -72,6 +72,7 @@ export class NotificacoesListaComponent implements OnInit, AfterViewInit {
     { value: 'AssinaturaVencendo', label: 'Assinatura Vencendo' },
     { value: 'ComandaEsquecida', label: 'Comanda Esquecida' },
     { value: 'ListaEsperaEntrada', label: 'Lista de Espera' },
+    { value: 'AniversariantesDoDia', label: 'Aniversariantes' },
     { value: 'Geral', label: 'Geral' },
   ]);
 

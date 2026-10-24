@@ -1,0 +1,107 @@
+<div class="card tm-card border-0 shadow-sm rounded-4 h-100 custom-dark-card">
+  <div class="card-header bg-transparent border-0 pt-4 px-4 pb-0 d-flex flex-column flex-sm-row align-items-sm-center justify-content-between gap-2">
+    <div>
+      <h5 class="fw-bold custom-dark-text mb-0 d-flex align-items-center gap-2">
+        <i class="fas fa-cake-candles text-primary"></i>Aniversariantes
+      </h5>
+      <p class="text-muted custom-dark-text extra-small mb-0">Envie o parabéns com cupom de desconto</p>
+    </div>
+
+    <!-- Abas: Hoje | Próximos 7 dias -->
+    <div class="btn-group" role="group">
+      <button
+        type="button"
+        class="btn btn-sm"
+        [class.btn-primary]="abaAtiva() === 'hoje'"
+        [class.btn-outline-secondary]="abaAtiva() !== 'hoje'"
+        (click)="alternarAba('hoje')"
+      >
+        Hoje
+      </button>
+      <button
+        type="button"
+        class="btn btn-sm"
+        [class.btn-primary]="abaAtiva() === '7dias'"
+        [class.btn-outline-secondary]="abaAtiva() !== '7dias'"
+        (click)="alternarAba('7dias')"
+      >
+        Próximos 7 dias
+      </button>
+    </div>
+  </div>
+
+  <div class="card-body p-4">
+    @if (carregando()) {
+      <div class="text-center py-4">
+        <div class="spinner-border text-primary" role="status">
+          <span class="visually-hidden">Carregando...</span>
+        </div>
+      </div>
+    } @else if (listaVisivel().length === 0) {
+      <div class="text-center text-muted py-4 custom-dark-text small" data-testid="widget-vazio">
+        <i class="fas fa-cake-candles me-2"></i>{{ vazioMensagem() }}
+      </div>
+    } @else {
+      <div class="d-flex flex-column gap-2">
+        @for (item of listaVisivel(); track item.clienteId) {
+          <div class="d-flex align-items-center justify-content-between gap-3 aniversariante-item rounded-3 p-2 px-3">
+            <div class="d-flex align-items-center gap-3 flex-grow-1 min-w-0">
+              <div class="icon-circle bg-primary-subtle text-primary flex-shrink-0">
+                <i class="fas fa-user"></i>
+              </div>
+              <div class="min-w-0">
+                <div class="fw-semibold custom-dark-text text-truncate">{{ item.nome }}</div>
+                <div class="extra-small custom-dark-muted">
+                  @if (abaAtiva() === '7dias') {
+                    <i class="fas fa-calendar-day me-1"></i>{{ item.diaMes }}
+                  }
+                  @if (item.cupom) {
+                    @if (item.cupom.status === 'Ativo') {
+                      <span class="ms-1">• ✅ cupom {{ item.cupom.percentualDesconto }}% até {{ item.cupom.expiraEmUtc | date: 'dd/MM' }}</span>
+                    } @else if (item.cupom.status === 'Usado') {
+                      <span class="ms-1">• cupom usado</span>
+                    } @else {
+                      <span class="ms-1">• cupom expirado</span>
+                    }
+                  } @else if (item.enviado) {
+                    <span class="ms-1">• ✅ parabéns enviado</span>
+                  }
+                </div>
+              </div>
+            </div>
+
+            @if (item.enviado || item.cupom) {
+              <span class="badge bg-success-subtle text-success border px-2.5 py-1 rounded-pill small fw-semibold flex-shrink-0">
+                <i class="fas fa-check me-1"></i>✅ Enviado
+              </span>
+            } @else {
+              <button
+                type="button"
+                class="btn btn-sm btn-outline-primary rounded-pill px-3 py-1 fw-semibold d-inline-flex align-items-center gap-1 flex-shrink-0"
+                [disabled]="item.temWhatsapp === false || whatsappConectado() === false"
+                [title]="item.temWhatsapp === false ? 'Cliente sem celular cadastrado' : whatsappConectado() === false ? 'WhatsApp não conectado' : 'Enviar parabéns'"
+                (click)="abrirEnvio(item)"
+              >
+                <i class="fas fa-cake-candles"></i><span>Enviar</span>
+              </button>
+            }
+          </div>
+        }
+      </div>
+    }
+  </div>
+</div>
+
+<!-- Modal de envio (compartilhado com o menu Aniversariantes) -->
+<app-enviar-parabens-modal
+  [show]="modalEnvioAberto()"
+  (showChange)="modalEnvioAberto.set($event)"
+  [clienteId]="clienteSelecionado()?.clienteId ?? ''"
+  [clienteNome]="clienteSelecionado()?.nome ?? ''"
+  [percentualPadrao]="percentualPadrao()"
+  [validadePadrao]="validadePadrao()"
+  [mensagemConfig]="mensagemConfig()"
+  [whatsappConectado]="whatsappConectado()"
+  [enviando]="enviando()"
+  (confirmar)="confirmarEnvioParabens($event)"
+></app-enviar-parabens-modal>
