@@ -317,6 +317,13 @@ export const routes: Routes = [
               ).then((m) => m.FeriadosConfigComponent),
           },
           {
+            path: 'aniversariantes',
+            loadComponent: () =>
+              import(
+                './features/configuracoes/components/aniversariantes-config/aniversariantes-config.component'
+              ).then((m) => m.AniversariantesConfigComponent),
+          },
+          {
             path: 'logs',
             loadComponent: () =>
               import('./features/logs-sistema/components/logs-sistema/logs-sistema.component').then(
