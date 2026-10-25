@@ -15,6 +15,15 @@ import {
   ServicoDisponivel,
 } from '../models/agendamento-publico/agendamento-publico.model';
 
+/** Cupom de aniversário validado com sucesso (RN-080/CR-004). */
+export interface CupomAniversarioValido {
+  cupomAniversarioId: string;
+  codigo: string;
+  percentualDesconto: number;
+  validadeDias: number;
+  expiraEmUtc: string;
+}
+
 @Injectable({
   providedIn: 'root',
 })
@@ -23,7 +32,7 @@ export class AgendamentoPublicoService {
 
   private readonly _estabelecimento = signal<string | null>(null);
   readonly estabelecimento = this._estabelecimento.asReadonly();
-  private readonly _clienteLogado = signal<{ id: string; nome: string; email: string; celular?: string } | null>(null);
+  private readonly _clienteLogado = signal<{ id: string; nome: string; email: string; celular?: string; dataNascimento?: string | null } | null>(null);
   readonly clienteLogado = this._clienteLogado.asReadonly();
 
   setEstabelecimento(estabelecimento: string): void {
@@ -37,10 +46,19 @@ export class AgendamentoPublicoService {
 
   /** Registra o cliente logado quando a resposta contém dados de cliente autenticado. */
   private registrarClienteLogado(result: LoginClienteResult): void {
-    this._clienteLogado.set({ id: result.cliente.id, nome: result.cliente.nome, email: result.cliente.email, celular: result.cliente.celular });
+    this._clienteLogado.set({
+      id: result.cliente.id,
+      nome: result.cliente.nome,
+      email: result.cliente.email,
+      celular: result.cliente.celular,
+      dataNascimento: result.cliente.dataNascimento ?? null,
+    });
   }
 
-  async cadastro(dados: { nome: string; email: string; senha: string; celular?: string; codigoPais?: string }, rememberMe = false): Promise<LoginClienteResult> {
+  async cadastro(
+    dados: { nome: string; email: string; senha: string; celular?: string; codigoPais?: string; dataNascimento?: string },
+    rememberMe = false,
+  ): Promise<LoginClienteResult> {
     const result = await firstValueFrom(
       this.http.post<LoginClienteResult>(`${this.baseUrl}/cadastro?rememberMe=${rememberMe}`, dados, { withCredentials: true })
     );
@@ -65,7 +83,7 @@ export class AgendamentoPublicoService {
   }
 
   /** Finaliza o cadastro do cliente (nome completo, e-mail e celular) — usado na tela de finalização de cadastro. */
-  async atualizarDadosCadastro(dados: { nome: string; email: string; celular: string; codigoPais?: string }): Promise<ClienteAgendamento> {
+  async atualizarDadosCadastro(dados: { nome: string; email: string; celular: string; codigoPais?: string; dataNascimento?: string }): Promise<ClienteAgendamento> {
     // Erros de validação são exibidos na própria tela de finalização de cadastro
     const headers = new HttpHeaders({ 'X-Skip-Error-Toast': 'true' });
     const cliente = await firstValueFrom(
@@ -75,11 +93,11 @@ export class AgendamentoPublicoService {
     return cliente;
   }
 
-  async getMe(): Promise<{ id: string; nome: string; email: string; celular?: string } | null> {
+  async getMe(): Promise<{ id: string; nome: string; email: string; celular?: string; dataNascimento?: string | null } | null> {
     try {
       const headers = new HttpHeaders({ 'X-Skip-Error-Toast': 'true' });
       const data = await firstValueFrom(
-        this.http.get<{ id: string; nome: string; email: string; celular?: string }>(`${this.baseUrl}/me`, {
+        this.http.get<{ id: string; nome: string; email: string; celular?: string; dataNascimento?: string | null }>(`${this.baseUrl}/me`, {
           withCredentials: true,
           headers,
         })
@@ -152,6 +170,21 @@ export class AgendamentoPublicoService {
     const headers = new HttpHeaders({ 'X-Skip-Error-Toast': 'true' });
     return firstValueFrom(
       this.http.post<AgendamentoPublico>(this.baseUrl, dados, { withCredentials: true, headers })
+    );
+  }
+
+  /**
+   * RN-080 (CR-004) — valida o código do cupom de aniversário pelo portal (cliente
+   * autenticado via cookie; rate limit no backend). Erros de negócio tratados no chamador.
+   */
+  async validarCupomAniversario(codigo: string): Promise<CupomAniversarioValido> {
+    const headers = new HttpHeaders({ 'X-Skip-Error-Toast': 'true' });
+    return firstValueFrom(
+      this.http.post<CupomAniversarioValido>(
+        `${environment.apiUrl}/api/aniversariantes/cupons/validar`,
+        { codigo },
+        { withCredentials: true, headers },
+      )
     );
   }
 

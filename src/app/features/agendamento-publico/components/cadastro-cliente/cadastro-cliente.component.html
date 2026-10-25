@@ -70,6 +70,17 @@
     ></tm-text>
   </div>
 
+  <div class="mb-3">
+    <tm-text
+      formControlName="dataNascimento"
+      [control]="form.controls.dataNascimento"
+      label="Data de nascimento (opcional)"
+      type="date"
+      icon="fa-solid fa-cake-candles text-muted"
+    ></tm-text>
+    <span class="text-muted extra-small">Usamos sua data para o cupom de aniversário 🎂</span>
+  </div>
+
   <div class="form-check mb-3">
     <input
       class="form-check-input"

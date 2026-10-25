@@ -63,6 +63,8 @@ export interface EstabelecimentoInfo {
   cidade?: string;
   estado?: string;
   endereco?: string;
+  /** RN-078 (CR-004) — pergunta a data de nascimento na confirmação do agendamento. */
+  aniversarioColetaDataNascimento?: boolean;
 }
 
 export const ICONES_LOGO_ALEATORIOS = [

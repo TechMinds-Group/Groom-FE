@@ -11,6 +11,8 @@ export interface DadosFinalizacaoCadastro {
   email: string;
   codigoPais: string;
   celular: string;
+  /** RN-078 (CR-004) — data de nascimento opcional (ISO YYYY-MM-DD). */
+  dataNascimento?: string;
 }
 
 /**
@@ -45,6 +47,8 @@ export class FinalizarCadastroComponent implements OnInit {
     // RN-074 — código do país (DDI) selecionado; default Brasil
     codigoPais: ['55', [Validators.required]],
     celular: ['', [Validators.required, Validators.minLength(10)]],
+    // RN-078 (CR-004) — data de nascimento opcional (feature Aniversariantes)
+    dataNascimento: [''],
   });
 
   /** RN-074 — opções de DDI para o select de código do país (tema escuro). */
@@ -69,13 +73,14 @@ export class FinalizarCadastroComponent implements OnInit {
       return;
     }
 
-    const { primeiroNome, ultimoNome, email, codigoPais, celular } = this.form.value;
+    const { primeiroNome, ultimoNome, email, codigoPais, celular, dataNascimento } = this.form.value;
     this.salvar.emit({
       primeiroNome: primeiroNome!,
       ultimoNome: ultimoNome!,
       email: email!,
       codigoPais: codigoPais!,
       celular: celular!,
+      dataNascimento: dataNascimento || undefined,
     });
   }
 }

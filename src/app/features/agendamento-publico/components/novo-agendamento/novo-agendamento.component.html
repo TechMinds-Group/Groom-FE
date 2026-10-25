@@ -328,7 +328,9 @@
                       [isLoading]="isLoading()"
                       [modoListaEspera]="modoListaEspera()"
                       [listaEsperaSucesso]="listaEsperaSucesso()"
-                      (confirmar)="confirmar()"
+                      [clienteTemData]="clienteTemDataNascimento()"
+                      [coletaAtiva]="coletaDataNascimentoAtiva()"
+                      (confirmar)="confirmar($event)"
                       (voltarInicio)="reiniciar()"
                       (expandirImagem)="abrirImagemModal($event)"
                     />

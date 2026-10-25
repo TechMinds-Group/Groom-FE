@@ -4,6 +4,8 @@ export interface ClienteAgendamento {
   email: string;
   celular?: string;
   loginGoogle: boolean;
+  /** RN-078 (CR-004) — data de nascimento (ISO), usada na feature Aniversariantes. */
+  dataNascimento?: string | null;
 }
 
 export interface LoginClienteResult {
@@ -51,6 +53,8 @@ export interface CriarAgendamentoPayload {
   observacoes?: string;
   /** Id da reserva da lista de espera (RN-076) — presente apenas na confirmação do slot reservado. */
   reservaId?: string;
+  /** RN-080 (CR-004) — cupom de aniversário já validado pelo portal (checkbox + código). */
+  cupomAniversarioId?: string;
 }
 
 export interface CriarAgendamentoPlanoPayload {

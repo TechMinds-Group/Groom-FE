@@ -131,3 +131,8 @@
     font-size: 1rem;
   }
 }
+
+.cupom-validado {
+  background: var(--bs-success-bg-subtle, rgba(25, 135, 84, 0.1));
+  border: 1px solid var(--bs-success-border-subtle, rgba(25, 135, 84, 0.3));
+}

@@ -32,6 +32,8 @@ export class CadastroClienteComponent {
     senha: ['', [Validators.required, Validators.minLength(8)]],
     confirmarSenha: ['', [Validators.required]],
     rememberMe: [false],
+    // RN-078 (CR-004) — data de nascimento opcional (feature Aniversariantes)
+    dataNascimento: [''],
   });
 
   /** RN-074 — opções de DDI para o select de código do país (tema escuro). */
@@ -47,7 +49,7 @@ export class CadastroClienteComponent {
       return;
     }
 
-    const { nome, email, codigoPais, celular, senha, confirmarSenha, rememberMe } = this.form.value;
+    const { nome, email, codigoPais, celular, senha, confirmarSenha, rememberMe, dataNascimento } = this.form.value;
 
     const partes = (nome ?? '').trim().split(/\s+/).filter(Boolean);
     const primeiroNome = partes[0] || '';
@@ -78,6 +80,7 @@ export class CadastroClienteComponent {
         senha: senha!,
         codigoPais: codigoPais!,
         celular: celular!,
+        dataNascimento: dataNascimento || undefined,
       }, rememberMe ?? false);
       this.cadastrado.emit();
     } catch (err) {

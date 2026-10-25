@@ -14,6 +14,7 @@ import { PassoDataHorarioComponent } from './passo-data-horario/passo-data-horar
 import { PassoResumoComponent } from './passo-resumo/passo-resumo.component';
 import { ConfirmacaoComponent } from './confirmacao/confirmacao.component';
 import { DadosFinalizacaoCadastro, FinalizarCadastroComponent } from './finalizar-cadastro/finalizar-cadastro.component';
+import { ConfirmarAgendamentoExtras } from './passo-resumo/passo-resumo.component';
 import { ClienteSessionKeepAliveService } from '../../services/cliente-session-keep-alive.service';
 import { ListaEsperaPortalComponent } from '../lista-espera/lista-espera-portal/lista-espera-portal.component';
 import { EntrarListaEsperaPayload } from '../../../../core/models/lista-espera/lista-espera.model';
@@ -416,7 +417,7 @@ export class NovoAgendamentoComponent implements OnInit, OnDestroy {
     this.passo.set(4);
   }
 
-  async confirmar(): Promise<void> {
+  async confirmar(extras?: ConfirmarAgendamentoExtras): Promise<void> {
     // RN-074 — passo 4 em modo lista de espera: confirma a ENTRADA NA FILA, não o agendamento.
     if (this.modoListaEspera()) {
       await this.confirmarEntradaListaEspera();
@@ -453,7 +454,14 @@ export class NovoAgendamentoComponent implements OnInit, OnDestroy {
           profissionalId: profissional.id,
           servicoId: servico.id,
           dataInicio: `${data}T${horario}:00`,
+          cupomAniversarioId: extras?.cupomAniversarioId,
         });
+
+        // RN-078 (CR-004) — coleta de data de nascimento na confirmação (best-effort:
+        // falha não afeta o agendamento já criado).
+        if (extras?.dataNascimento) {
+          await this.salvarDataNascimentoCliente(extras.dataNascimento);
+        }
       }
       this.agendamentoConfirmado.set(agendamento);
       this.passo.set(5);
@@ -644,6 +652,38 @@ export class NovoAgendamentoComponent implements OnInit, OnDestroy {
   }
 
   readonly clienteLogado = this.agendamentoPublicoService.clienteLogado;
+
+  /** RN-078 (CR-004) — coleta de data de nascimento ativa nas configurações do estabelecimento. */
+  readonly coletaDataNascimentoAtiva = computed<boolean>(
+    () => this.estabelecimentoInfo()?.aniversarioColetaDataNascimento === true,
+  );
+
+  /** RN-078 (CR-004) — cliente já tem data de nascimento cadastrada (pergunta só pega quem falta). */
+  readonly clienteTemDataNascimento = computed<boolean>(
+    () => this.clienteLogado()?.dataNascimento != null,
+  );
+
+  /**
+   * RN-078 (CR-004) — grava a data informada na confirmação do agendamento. Melhor-esforço:
+   * usa os dados atuais do cliente (PUT me exige nome/e-mail/celular completos).
+   */
+  private async salvarDataNascimentoCliente(dataNascimento: string): Promise<void> {
+    try {
+      const me = await this.agendamentoPublicoService.getMe();
+      if (!me) {
+        return;
+      }
+
+      await this.agendamentoPublicoService.atualizarDadosCadastro({
+        nome: me.nome,
+        email: me.email,
+        celular: me.celular ?? '',
+        dataNascimento,
+      });
+    } catch {
+      // Silencioso: a data é opcional e o cliente pode informá-la depois no cadastro/perfil.
+    }
+  }
 
   /** Passo data/horário — hospedeiro do modal da lista de espera no passo 3 (RN-074). */
   private readonly passoDataHorario = viewChild(PassoDataHorarioComponent);
