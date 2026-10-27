@@ -2,7 +2,7 @@ import { AfterViewInit, ChangeDetectionStrategy, Component, computed, inject, On
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { TableColumn, TmModalComponent, TmTableComponent, TmTextComponent, TmToastService } from '@techminds-group/tm-angular-lib';
+import { TableColumn, TmDateComponent, TmModalComponent, TmTableComponent, TmTextComponent, TmToastService } from '@techminds-group/tm-angular-lib';
 import { ClientesService } from '../../../../core/services/clientes.service';
 import { AgendamentosService } from '../../../../core/services/agendamentos.service';
 import { Cliente } from '../../../../core/models/clientes/cliente.model';
@@ -18,6 +18,7 @@ import { ClienteModalExcluirComponent } from '../modais/cliente-modal-excluir/cl
     CommonModule,
     ReactiveFormsModule,
     TmTextComponent,
+    TmDateComponent,
     TmTableComponent,
     TmModalComponent,
     StatusClienteBadgePipe,

@@ -59,4 +59,18 @@ export class ClientesHelperService {
     if (nums.length !== 11) return cpf;
     return `${nums.slice(0, 3)}.${nums.slice(3, 6)}.${nums.slice(6, 9)}-${nums.slice(9)}`;
   }
+
+  /** Exibição padrão BR: remove o DDI 55 quando presente e formata (XX) XXXXX-XXXX. */
+  formatarCelularExibicao(celular: string | undefined): string {
+    if (!celular) return '';
+    const digits = celular.replace(/\D/g, '');
+    const local = digits.startsWith('55') && digits.length > 11 ? digits.slice(2) : digits;
+    if (local.length === 11) {
+      return `(${local.slice(0, 2)}) ${local.slice(2, 7)}-${local.slice(7)}`;
+    }
+    if (local.length === 10) {
+      return `(${local.slice(0, 2)}) ${local.slice(2, 6)}-${local.slice(6)}`;
+    }
+    return celular;
+  }
 }
