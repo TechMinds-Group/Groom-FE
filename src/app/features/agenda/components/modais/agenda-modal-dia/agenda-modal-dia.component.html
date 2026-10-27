@@ -134,6 +134,33 @@
               }
             </dd>
 
+            @if (temCupomDesconto(detalhe)) {
+              <dt class="col-5 col-sm-4 text-muted fw-semibold custom-dark-text">
+                {{ 'AGENDA_MODAL.DETALHES.CUPOM_LABEL' | translate }}
+              </dt>
+              <dd class="col-7 col-sm-8 mb-2 text-break custom-dark-text">
+                <span class="badge bg-success-subtle text-success border border-success-subtle fw-semibold px-2.5 py-1 small">
+                  <i class="fas fa-ticket me-1"></i
+                  >{{ detalhe.cupomAniversarioCodigo }} ({{ detalhe.cupomAniversarioPercentual }}%)
+                </span>
+              </dd>
+
+              <dt class="col-5 col-sm-4 text-muted fw-semibold custom-dark-text">
+                {{ 'AGENDA_MODAL.DETALHES.DESCONTO_LABEL' | translate }}
+              </dt>
+              <dd class="col-7 col-sm-8 mb-2 text-break custom-dark-text text-success fw-semibold">
+                <i class="fas fa-arrow-down text-success opacity-75 me-1"></i
+                >-{{ valorDescontoCupom(detalhe) | currency: 'BRL' }}
+              </dd>
+
+              <dt class="col-5 col-sm-4 text-muted fw-semibold custom-dark-text">
+                {{ 'AGENDA_MODAL.DETALHES.TOTAL_LABEL' | translate }}
+              </dt>
+              <dd class="col-7 col-sm-8 mb-2 text-break custom-dark-text fw-bold">
+                {{ totalComDescontoCupom(detalhe) | currency: 'BRL' }}
+              </dd>
+            }
+
             @if (detalhe.observacoes) {
               <dt class="col-5 col-sm-4 text-muted fw-semibold custom-dark-text">
                 {{ 'AGENDA_MODAL.DETALHES.OBSERVACOES_LABEL' | translate }}

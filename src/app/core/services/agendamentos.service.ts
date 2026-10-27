@@ -25,6 +25,9 @@ export interface AgendamentoApi {
   observacoes?: string;
   naoCompareceuNotificado?: boolean;
   ehEncaixe?: boolean;
+  /** CR-004 — cupom de aniversário vinculado (null quando sem cupom). */
+  cupomAniversarioCodigo?: string | null;
+  cupomAniversarioPercentual?: number | null;
 }
 
 const STATUS_VALIDOS = [
@@ -78,6 +81,8 @@ export function mapearAgendamento(api: AgendamentoApi): Agendamento {
     planoNome: api.planoNome,
     naoCompareceuNotificado: api.naoCompareceuNotificado ?? false,
     ehEncaixe: api.ehEncaixe ?? false,
+    cupomAniversarioCodigo: api.cupomAniversarioCodigo ?? null,
+    cupomAniversarioPercentual: api.cupomAniversarioPercentual ?? null,
   };
 }
 

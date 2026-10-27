@@ -31,6 +31,9 @@ export interface Agendamento {
   planoNome?: string;
   naoCompareceuNotificado?: boolean;
   ehEncaixe?: boolean;
+  /** CR-004 — cupom de aniversário vinculado (null/undefined quando sem cupom). */
+  cupomAniversarioCodigo?: string | null;
+  cupomAniversarioPercentual?: number | null;
 }
 
 /**

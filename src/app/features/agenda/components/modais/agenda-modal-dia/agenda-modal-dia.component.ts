@@ -454,6 +454,25 @@ export class AgendaModalDiaComponent implements OnChanges, OnDestroy {
     });
   }
 
+  /** CR-004 — cupom de aniversário exibível no detalhe (serviço pago com cupom vinculado). */
+  protected temCupomDesconto(detalhe: Agendamento): boolean {
+    return detalhe.tipo !== 'plano'
+      && !detalhe.planoId
+      && detalhe.preco > 0
+      && !!detalhe.cupomAniversarioPercentual
+      && detalhe.cupomAniversarioPercentual > 0;
+  }
+
+  /** Valor do desconto do cupom — mesma convenção do portal (Math.round(preco × %) / 100). */
+  protected valorDescontoCupom(detalhe: Agendamento): number {
+    const percentual = detalhe.cupomAniversarioPercentual ?? 0;
+    return Math.max(0, Math.round(detalhe.preco * percentual) / 100);
+  }
+
+  protected totalComDescontoCupom(detalhe: Agendamento): number {
+    return Math.max(0, detalhe.preco - this.valorDescontoCupom(detalhe));
+  }
+
   protected statusTraduzidoKey(status: string): TxKey {
     const s = status.toUpperCase().replace('-', '_');
     return `AGENDA_MODAL.STATUS.${s}` as TxKey;
