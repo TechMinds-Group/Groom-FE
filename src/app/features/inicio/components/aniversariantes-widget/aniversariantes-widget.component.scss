@@ -6,3 +6,16 @@
 .min-w-0 {
   min-width: 0;
 }
+
+.extra-small {
+  font-size: 0.75rem;
+}
+
+/* Tema escuro — linha do aniversariante em superfície escura para legibilidade do texto branco */
+:host-context([data-theme='dark']),
+[data-theme='dark'] {
+  .aniversariante-item {
+    background-color: #21262d !important;
+    border-color: rgba(255, 255, 255, 0.1) !important;
+  }
+}

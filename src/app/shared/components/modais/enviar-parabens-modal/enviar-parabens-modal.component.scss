@@ -9,3 +9,12 @@
 .whitespace-pre-line {
   white-space: pre-line;
 }
+
+/* Tema escuro — caixa de prévia em superfície escura para legibilidade do texto branco */
+:host-context([data-theme='dark']),
+[data-theme='dark'] {
+  .preview-box {
+    background-color: #0d1117 !important;
+    border-color: rgba(255, 255, 255, 0.1) !important;
+  }
+}

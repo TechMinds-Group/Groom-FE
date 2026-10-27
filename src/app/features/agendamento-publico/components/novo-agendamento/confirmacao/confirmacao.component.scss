@@ -75,6 +75,19 @@
     font-weight: 800;
     color: var(--tm-success);
   }
+
+  /* CR-004 — cupom aplicado: subtotal riscado e linha de desconto em verde */
+  &__subtotal {
+    font-size: 0.85rem;
+    opacity: 0.75;
+    text-decoration: line-through;
+  }
+
+  &__desconto {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--tm-success);
+  }
 }
 
 @keyframes agendamento-confirmacao-pop {

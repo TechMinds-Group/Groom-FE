@@ -24,7 +24,7 @@
   ></tm-button>
 } @else {
   <h2 class="agendamento-passo__titulo">
-    {{ modoListaEspera() ? 'Confirme sua entrada na lista de espera' : 'Confirme seu agendamento' }}
+    {{ modoRemarcacao() ? 'Confirme a remarcação' : modoListaEspera() ? 'Confirme sua entrada na lista de espera' : 'Confirme seu agendamento' }}
   </h2>
 
   @if (modoListaEspera()) {
@@ -127,13 +127,23 @@
       @if (planoNome()) {
         <span class="agendamento-resumo__total-valor">Incluso no plano</span>
       } @else {
-        <span class="agendamento-resumo__total-valor">{{ formatarPreco(servico()?.preco ?? 0) }}</span>
+        @if (cupomValidado(); as cupom) {
+          <div class="d-flex flex-column align-items-end gap-1">
+            <span class="agendamento-resumo__subtotal">Subtotal: {{ formatarPreco(precoServico()) }}</span>
+            <span class="agendamento-resumo__desconto">
+              Desconto ({{ cupom.percentual }}%): -{{ formatarPreco(valorDesconto()) }}
+            </span>
+            <span class="agendamento-resumo__total-valor">{{ formatarPreco(totalComDesconto()) }}</span>
+          </div>
+        } @else {
+          <span class="agendamento-resumo__total-valor">{{ formatarPreco(precoServico()) }}</span>
+        }
       }
     </div>
   }
 
-  <!-- RN-080 (CR-004) — cupom de aniversário (apenas agendamento de serviço) -->
-  @if (!modoListaEspera() && !planoNome()) {
+  <!-- RN-080 (CR-004) — cupom de aniversário (apenas agendamento de serviço; oculto na remarcação) -->
+  @if (!modoListaEspera() && !planoNome() && !modoRemarcacao()) {
     <div class="agendamento-resumo__bloco">
       <div class="form-check">
         <input
@@ -191,8 +201,8 @@
     </div>
   }
 
-  <!-- RN-078 (CR-004) — coleta de data de nascimento (opcional) -->
-  @if (coletaAtiva() && !clienteTemData()) {
+  <!-- RN-078 (CR-004) — coleta de data de nascimento (opcional; oculta na remarcação) -->
+  @if (coletaAtiva() && !clienteTemData() && !modoRemarcacao()) {
     <div class="agendamento-resumo__bloco">
       <label class="form-label small mb-1" for="inputDataNascimento">
         <i class="fa-solid fa-cake-candles me-1"></i>Data de nascimento (opcional)
@@ -213,7 +223,7 @@
 <tm-button
   variant="primary"
   [isFullWidth]="true"
-  [label]="modoListaEspera() ? 'Entrar na lista de espera' : 'Confirmar agendamento'"
+  [label]="modoRemarcacao() ? 'Confirmar remarcação' : modoListaEspera() ? 'Entrar na lista de espera' : 'Confirmar agendamento'"
   [icon]="modoListaEspera() ? 'fa-solid fa-hourglass-half me-2' : 'fa-solid fa-calendar-check me-2'"
   [loading]="isLoading()"
   (onClick)="confirmarAgendamento()"

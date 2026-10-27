@@ -719,6 +719,25 @@
     }
   }
 
+  /* CR-004 — cupom aplicado no resumo lateral: subtotal riscado + desconto em verde */
+  &__resumo-subtotal {
+    font-size: 0.8rem;
+    opacity: 0.75;
+    text-decoration: line-through;
+  }
+
+  &__resumo-desconto {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--tm-success);
+  }
+
+  /* CR-004 — banner do modo remarcação */
+  &__remarcacao {
+    background: var(--tm-hover-bg, rgba(13, 110, 253, 0.08));
+    border: 1px solid var(--tm-border-color);
+  }
+
   &__endereco-wrapper {
     display: flex;
     max-width: 100%;

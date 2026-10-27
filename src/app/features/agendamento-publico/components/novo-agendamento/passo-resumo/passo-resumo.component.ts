@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject, input, output, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, input, output, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TmButtonComponent } from '@techminds-group/tm-angular-lib';
 import { ProfissionalDisponivel, ServicoDisponivel } from '../../../../../core/models/agendamento-publico/agendamento-publico.model';
@@ -39,6 +39,8 @@ export class PassoResumoComponent {
    * o agendamento. O aviso destacado explica a condição antes da confirmação.
    */
   readonly modoListaEspera = input(false);
+  /** CR-004 — modo remarcação: confirma a mudança de horário (cupom/nascimento ocultos). */
+  readonly modoRemarcacao = input(false);
   /** RN-074 — entrada na fila confirmada: tela de sucesso substitui o resumo. */
   readonly listaEsperaSucesso = input(false);
 
@@ -51,6 +53,8 @@ export class PassoResumoComponent {
   readonly confirmar = output<ConfirmarAgendamentoExtras>();
   readonly voltarInicio = output<void>();
   readonly expandirImagem = output<{ url?: string; urls?: string[]; titulo: string }>();
+  /** CR-004 — cupom validado/removido, para o resumo lateral do wizard exibir desconto. */
+  readonly cupomAlterado = output<{ codigo: string; percentual: number } | null>();
 
   // RN-080 (CR-004) — cupom: checkbox → campo de código → validação antes de confirmar.
   protected readonly temCupom = signal(false);
@@ -58,6 +62,24 @@ export class PassoResumoComponent {
   protected readonly cupomValidando = signal(false);
   protected readonly cupomErro = signal<string | null>(null);
   protected readonly cupomValidado = signal<{ id: string; codigo: string; percentual: number } | null>(null);
+
+  /** Preço cheio do serviço (subtotal do resumo). */
+  protected readonly precoServico = computed<number>(() => this.servico()?.preco ?? 0);
+
+  /** Valor do desconto em reais com o cupom validado (0 sem cupom), arredondado em centavos. */
+  protected readonly valorDesconto = computed<number>(() => {
+    const cupom = this.cupomValidado();
+    if (!cupom) {
+      return 0;
+    }
+
+    return Math.max(0, Math.round(this.precoServico() * cupom.percentual) / 100);
+  });
+
+  /** Total com o desconto do cupom aplicado. */
+  protected readonly totalComDesconto = computed<number>(() =>
+    Math.max(0, this.precoServico() - this.valorDesconto()),
+  );
 
   // RN-078 (CR-004) — coleta de data de nascimento (opcional, pode deixar em branco).
   protected readonly dataNascimento = signal('');
@@ -74,9 +96,11 @@ export class PassoResumoComponent {
     try {
       const cupom = await this.agendamentoPublicoService.validarCupomAniversario(codigo);
       this.cupomValidado.set({ id: cupom.cupomAniversarioId, codigo: cupom.codigo, percentual: cupom.percentualDesconto });
+      this.cupomAlterado.emit({ codigo: cupom.codigo, percentual: cupom.percentualDesconto });
     } catch (err) {
       const httpError = err as { status?: number; error?: { message?: string } };
       this.cupomValidado.set(null);
+      this.cupomAlterado.emit(null);
       this.cupomErro.set(this.mensagemErroCupom(httpError?.status, httpError?.error?.message));
     } finally {
       this.cupomValidando.set(false);
@@ -87,6 +111,7 @@ export class PassoResumoComponent {
     this.cupomValidado.set(null);
     this.cupomErro.set(null);
     this.codigoCupom.set('');
+    this.cupomAlterado.emit(null);
   }
 
   protected confirmarAgendamento(): void {

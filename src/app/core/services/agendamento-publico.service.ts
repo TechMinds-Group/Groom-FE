@@ -24,6 +24,36 @@ export interface CupomAniversarioValido {
   expiraEmUtc: string;
 }
 
+/** Linha de "Meus agendamentos" do portal (ativos e histórico — CR-004). */
+export interface MeuAgendamentoItem {
+  id: string;
+  profissionalId: string;
+  servicoId?: string | null;
+  planoId?: string | null;
+  servicoDuracao: number;
+  profissionalNome: string;
+  servicoNome: string;
+  servicoPreco: number;
+  dataInicio: string;
+  dataFim: string;
+  status: string;
+  tipo: string;
+  planoNome?: string;
+  cupomAniversarioCodigo?: string | null;
+  cupomAniversarioPercentual?: number | null;
+  /** CR-004 — true quando ainda pode cancelar/remarcar (antecedência configurada). */
+  podeAlterar: boolean;
+  /** CR-004 — mensagem do prazo quando não pode mais alterar. */
+  mensagemPrazo?: string | null;
+}
+
+export interface MeusAgendamentosResponse {
+  itens: MeuAgendamentoItem[];
+  total: number;
+  pagina: number;
+  tamanhoPagina: number;
+}
+
 @Injectable({
   providedIn: 'root',
 })
@@ -170,6 +200,35 @@ export class AgendamentoPublicoService {
     const headers = new HttpHeaders({ 'X-Skip-Error-Toast': 'true' });
     return firstValueFrom(
       this.http.post<AgendamentoPublico>(this.baseUrl, dados, { withCredentials: true, headers })
+    );
+  }
+
+  // ─── CR-004 — Meus agendamentos do portal (ativos, histórico, cancelar, remarcar) ───
+
+  /** Lista os agendamentos da conta logada: janela "ativos" (futuros) ou "historico" (paginado). */
+  async listarMeusAgendamentos(janela: 'ativos' | 'historico', pagina = 1, tamanho = 10): Promise<MeusAgendamentosResponse> {
+    const params = new URLSearchParams({ janela, pagina: String(pagina), tamanho: String(tamanho) });
+    return firstValueFrom(
+      this.http.get<MeusAgendamentosResponse>(`${this.baseUrl}/me/agendamentos?${params.toString()}`, { withCredentials: true }),
+    );
+  }
+
+  /** Cancela um agendamento ativo futuro da conta logada. */
+  async cancelarMeuAgendamento(agendamentoId: string): Promise<void> {
+    await firstValueFrom(
+      this.http.post(`${this.baseUrl}/me/agendamentos/${agendamentoId}/cancelar`, {}, { withCredentials: true }),
+    );
+  }
+
+  /** Remarca um agendamento ativo futuro da conta logada para nova data/hora (ISO local sem fuso). */
+  async remarcarMeuAgendamento(agendamentoId: string, dataInicio: string): Promise<MeuAgendamentoItem> {
+    const headers = new HttpHeaders({ 'X-Skip-Error-Toast': 'true' });
+    return firstValueFrom(
+      this.http.post<MeuAgendamentoItem>(
+        `${this.baseUrl}/me/agendamentos/${agendamentoId}/remarcar`,
+        { dataInicio },
+        { withCredentials: true, headers },
+      ),
     );
   }
 

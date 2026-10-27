@@ -54,10 +54,6 @@ export class InicioComponent implements OnInit, OnDestroy {
     }
   }
 
-  public novoAgendamento(): void {
-    this.router.navigate(['/agenda/calendario']);
-  }
-
   public novoCliente(): void {
     this.router.navigate(['/gestao/clientes/novo']);
   }
@@ -187,16 +183,6 @@ export class InicioComponent implements OnInit, OnDestroy {
         return true;
       })
       .sort((a, b) => a.dataInicio.getTime() - b.dataInicio.getTime());
-  });
-
-  /** Próximo agendamento a ser atendido no dia atual */
-  protected readonly proximoAgendamento = computed(() => {
-    const pendentesOuProximos = this.agendamentosHoje().filter(a => {
-      const st = a.status?.toLowerCase() ?? '';
-      if (st === 'cancelado' || st === 'recusado' || st === 'nao_compareceu' || st === 'no-show' || st === 'concluido') return false;
-      return true;
-    });
-    return pendentesOuProximos.length > 0 ? pendentesOuProximos[0] : null;
   });
 
   /** Resumo estatístico e financeiro do dia atual */

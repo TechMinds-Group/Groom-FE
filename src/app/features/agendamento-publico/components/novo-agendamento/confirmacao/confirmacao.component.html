@@ -35,7 +35,17 @@
       @if (agendamento().planoNome) {
         <span class="agendamento-confirmacao__total">Incluso no plano</span>
       } @else {
-        <span class="agendamento-confirmacao__total">{{ formatarPreco(agendamento().servicoPreco) }}</span>
+        @if (agendamento().cupomAniversarioPercentual; as percentual) {
+          <div class="d-flex flex-column align-items-end gap-1">
+            <span class="agendamento-confirmacao__subtotal">Subtotal: {{ formatarPreco(agendamento().servicoPreco) }}</span>
+            <span class="agendamento-confirmacao__desconto">
+              Cupom {{ agendamento().cupomAniversarioCodigo }} ({{ percentual }}%): -{{ formatarPreco(valorDesconto()) }}
+            </span>
+            <span class="agendamento-confirmacao__total">{{ formatarPreco(totalComDesconto()) }}</span>
+          </div>
+        } @else {
+          <span class="agendamento-confirmacao__total">{{ formatarPreco(agendamento().servicoPreco) }}</span>
+        }
       }
     </div>
   </div>

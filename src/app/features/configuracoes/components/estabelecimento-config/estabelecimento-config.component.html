@@ -378,6 +378,23 @@
                   <span class="input-group-text bg-body-secondary text-secondary">min</span>
                 </div>
               </div>
+              <div class="col-12 col-sm-6 col-md-4">
+                <label class="form-label fw-bold custom-dark-text small">Antecedência p/ cancelar ou remarcar</label>
+                <div class="input-group">
+                  <input
+                    type="number"
+                    class="form-control"
+                    min="0"
+                    max="720"
+                    [ngModel]="horasLimiteAlteracao()"
+                    (ngModelChange)="atualizarHorasLimite($event)"
+                  />
+                  <span class="input-group-text bg-body-secondary text-secondary">h</span>
+                </div>
+                <p class="extra-small text-muted custom-dark-text mb-0 mt-1">
+                  Padrão 2h. 0 = sem limite — o cliente cancela/remarca pelo portal e WhatsApp somente dentro desse prazo.
+                </p>
+              </div>
             </div>
           </div>
         </div>

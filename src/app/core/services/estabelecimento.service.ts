@@ -211,6 +211,24 @@ export class EstabelecimentoService {
     );
   }
 
+  /** CR-004 — antecedência mínima (horas) para o cliente cancelar/remarcar pelo portal (0 = sem limite). */
+  async carregarHorasLimiteAlteracao(): Promise<number> {
+    try {
+      const response = await firstValueFrom(
+        this.http.get<{ horas: number }>(`${environment.apiUrl}/configuracoes/horas-limite-alteracao`),
+      );
+      return response.horas;
+    } catch {
+      return 24;
+    }
+  }
+
+  async salvarHorasLimiteAlteracao(horas: number): Promise<void> {
+    await firstValueFrom(
+      this.http.put(`${environment.apiUrl}/configuracoes/horas-limite-alteracao`, { horas }),
+    );
+  }
+
   /** Obtém o link público de agendamento; no primeiro acesso o backend gera e persiste. */
   async obterLinkAgendamento(): Promise<string> {
     const data = await firstValueFrom(this.http.get<{ link: string }>(`${this.apiUrl}/link-agendamento`));

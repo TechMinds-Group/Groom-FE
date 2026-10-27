@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
 import { TmButtonComponent } from '@techminds-group/tm-angular-lib';
 import { AgendamentoPublico } from '../../../../../core/models/agendamento-publico/agendamento-publico.model';
 
@@ -13,6 +13,16 @@ import { AgendamentoPublico } from '../../../../../core/models/agendamento-publi
 export class ConfirmacaoComponent {
   readonly agendamento = input.required<AgendamentoPublico>();
   readonly voltarInicio = output<void>();
+
+  /** CR-004 — desconto em reais com o cupom aplicado (0 sem cupom). */
+  readonly valorDesconto = computed<number>(() => {
+    const percentual = this.agendamento().cupomAniversarioPercentual ?? 0;
+    return Math.max(0, Math.round(this.agendamento().servicoPreco * percentual) / 100);
+  });
+
+  readonly totalComDesconto = computed<number>(() =>
+    Math.max(0, this.agendamento().servicoPreco - this.valorDesconto()),
+  );
 
   formatarData(data: Date): string {
     return new Date(data).toLocaleDateString('pt-BR');

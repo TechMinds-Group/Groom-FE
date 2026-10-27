@@ -32,6 +32,9 @@ export class EnviarParabensModalComponent {
   /** Mensagem configurada no menu (null = padrão do sistema). */
   readonly mensagemConfig = input<string | null>(null);
 
+  /** Nome real do estabelecimento para substituir {estabelecimento} no preview. */
+  readonly nomeEstabelecimento = input<string>('');
+
   /** Instância WhatsApp conectada — sem conexão o envio é bloqueado com aviso. */
   readonly whatsappConectado = input<boolean>(true);
 
@@ -42,7 +45,7 @@ export class EnviarParabensModalComponent {
   readonly confirmar = output<string>();
 
   protected readonly preview = computed<string>(() =>
-    montarPreviewMensagem(this.mensagemConfig(), this.percentualPadrao(), this.validadePadrao()),
+    montarPreviewMensagem(this.mensagemConfig(), this.percentualPadrao(), this.validadePadrao(), this.nomeEstabelecimento(), this.clienteNome()),
   );
 
   protected readonly podeEnviar = computed<boolean>(() => this.whatsappConectado() && this.enviando() === false);

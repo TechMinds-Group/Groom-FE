@@ -7,7 +7,7 @@
       <p class="text-muted custom-dark-text extra-small mb-0">Envie o parabéns com cupom de desconto</p>
     </div>
 
-    <!-- Abas: Hoje | Próximos 7 dias -->
+    <!-- Abas: Hoje | Próximos 7 dias | Atrasados -->
     <div class="btn-group" role="group">
       <button
         type="button"
@@ -26,6 +26,15 @@
         (click)="alternarAba('7dias')"
       >
         Próximos 7 dias
+      </button>
+      <button
+        type="button"
+        class="btn btn-sm"
+        [class.btn-primary]="abaAtiva() === 'atrasados'"
+        [class.btn-outline-secondary]="abaAtiva() !== 'atrasados'"
+        (click)="alternarAba('atrasados')"
+      >
+        Atrasados
       </button>
     </div>
   </div>
@@ -78,8 +87,8 @@
               <button
                 type="button"
                 class="btn btn-sm btn-outline-primary rounded-pill px-3 py-1 fw-semibold d-inline-flex align-items-center gap-1 flex-shrink-0"
-                [disabled]="item.temWhatsapp === false || whatsappConectado() === false"
-                [title]="item.temWhatsapp === false ? 'Cliente sem celular cadastrado' : whatsappConectado() === false ? 'WhatsApp não conectado' : 'Enviar parabéns'"
+                [disabled]="item.temWhatsapp === false || whatsappConectado() === false || !envioParabensDisponivel(item.dataNascimento)"
+                [title]="item.temWhatsapp === false ? 'Cliente sem celular cadastrado' : whatsappConectado() === false ? 'WhatsApp não conectado' : !envioParabensDisponivel(item.dataNascimento) ? 'Disponível no dia do aniversário e até 7 dias depois' : 'Enviar parabéns'"
                 (click)="abrirEnvio(item)"
               >
                 <i class="fas fa-cake-candles"></i><span>Enviar</span>
@@ -101,6 +110,7 @@
   [percentualPadrao]="percentualPadrao()"
   [validadePadrao]="validadePadrao()"
   [mensagemConfig]="mensagemConfig()"
+  [nomeEstabelecimento]="nomeEstabelecimento()"
   [whatsappConectado]="whatsappConectado()"
   [enviando]="enviando()"
   (confirmar)="confirmarEnvioParabens($event)"

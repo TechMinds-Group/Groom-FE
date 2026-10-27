@@ -38,54 +38,7 @@
     </div>
   </div>
 
-  <!-- HERO CARD: PRÓXIMO ATENDIMENTO DO DIA (MOBILE HERO) -->
-  @if (filtroPeriodo() === 'hoje' && proximoAgendamento(); as prox) {
-    <div class="card border-0 shadow-sm custom-dark-card rounded-4 p-3 mb-4 bg-gradient-hero border-primary-subtle position-relative overflow-hidden">
-      <div class="d-flex flex-column flex-sm-row align-items-sm-center justify-content-between gap-3">
-        <div class="d-flex align-items-center gap-3">
-          <div class="icon-circle bg-primary text-white flex-shrink-0 shadow-sm">
-            <i class="fas fa-clock"></i>
-          </div>
-          <div>
-            <div class="d-flex align-items-center gap-2 flex-wrap mb-1">
-              <span class="badge bg-primary text-white fw-bold px-2.5 py-1 rounded-pill small">
-                Próximo da Fila • {{ formatarHora(prox.dataInicio) }}
-              </span>
-              <span class="badge rounded-pill px-2.5 py-1 small fw-semibold" [ngClass]="obterStatusInfo(prox.status).class">
-                {{ obterStatusInfo(prox.status).label }}
-              </span>
-            </div>
-            <h4 class="h5 fw-bold custom-dark-text mb-0">{{ prox.clienteNome }}</h4>
-            <span class="custom-dark-muted small">
-              {{ prox.planoNome || prox.servicoNome || 'Serviço' }} • R$ {{ (prox.preco || 0).toFixed(2).replace('.', ',') }}
-            </span>
-          </div>
-        </div>
-
-        <div class="d-flex align-items-center gap-2 flex-shrink-0">
-          @if (prox.clienteTelefone) {
-            <a
-              [href]="'https://wa.me/' + prox.clienteTelefone.replace('+', '')"
-              target="_blank"
-              class="btn btn-success fw-bold px-3 py-2 rounded-3 d-inline-flex align-items-center gap-1.5 shadow-sm"
-            >
-              <i class="fab fa-whatsapp fs-6"></i>
-              <span>Lembrar Cliente</span>
-            </a>
-          }
-          <button
-            type="button"
-            class="btn btn-outline-secondary btn-sm rounded-3 py-2 px-3 fw-semibold"
-            (click)="novoAgendamento()"
-          >
-            Ver Agenda
-          </button>
-        </div>
-      </div>
-    </div>
-  }
-
-  <!-- OS 4 KPIS ESSENCIAIS DO TOPO (DINÂMICOS, CENTRALIZADOS E RESPONSIVOS) -->
+    <!-- OS 4 KPIS ESSENCIAIS DO TOPO (DINÂMICOS, CENTRALIZADOS E RESPONSIVOS) -->
   <div class="row g-4 mb-4">
     <!-- Card 1: Faturamento Total -->
     <div class="col-12 col-lg-6 col-xl-3">

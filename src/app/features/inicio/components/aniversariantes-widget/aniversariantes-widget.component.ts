@@ -3,10 +3,12 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TmToastService } from '@techminds-group/tm-angular-lib';
 import { AniversarianteItemDTO, AniversariantesService } from '../../../../core/services/aniversariantes.service';
+import { EstabelecimentoService } from '../../../../core/services/estabelecimento.service';
+import { envioParabensDisponivel } from '../../../../core/models/aniversariantes/aniversariantes.model';
 import { EnviarParabensModalComponent } from '../../../../shared/components/modais/enviar-parabens-modal/enviar-parabens-modal.component';
 
 /** Aba do widget de aniversariantes do dashboard (RN-078/CR-004). */
-export type AbaAniversariantes = 'hoje' | '7dias';
+export type AbaAniversariantes = 'hoje' | '7dias' | 'atrasados';
 
 /**
  * Widget "Aniversariantes" do dashboard (RN-078/CR-004): duas listas — Hoje e
@@ -22,6 +24,7 @@ export type AbaAniversariantes = 'hoje' | '7dias';
 })
 export class AniversariantesWidgetComponent implements OnInit {
   private readonly aniversariantesService = inject(AniversariantesService);
+  private readonly estabelecimentoService = inject(EstabelecimentoService);
   private readonly toastService = inject(TmToastService);
   private readonly cdr = inject(ChangeDetectorRef);
 
@@ -31,6 +34,7 @@ export class AniversariantesWidgetComponent implements OnInit {
 
   readonly aniversariantesHoje = signal<AniversarianteItemDTO[]>([]);
   readonly aniversariantesProximos = signal<AniversarianteItemDTO[]>([]);
+  readonly aniversariantesAtrasados = signal<AniversarianteItemDTO[]>([]);
 
   readonly modalEnvioAberto = signal(false);
   readonly clienteSelecionado = signal<AniversarianteItemDTO | null>(null);
@@ -40,14 +44,31 @@ export class AniversariantesWidgetComponent implements OnInit {
   readonly percentualPadrao = signal(0);
   readonly validadePadrao = signal<number | null>(null);
   readonly whatsappConectado = signal(true);
+  readonly nomeEstabelecimento = signal('');
 
-  protected readonly listaVisivel = computed<AniversarianteItemDTO[]>(() =>
-    this.abaAtiva() === 'hoje' ? this.aniversariantesHoje() : this.aniversariantesProximos(),
-  );
+  protected readonly listaVisivel = computed<AniversarianteItemDTO[]>(() => {
+    if (this.abaAtiva() === '7dias') {
+      return this.aniversariantesProximos();
+    }
 
-  protected readonly vazioMensagem = computed<string>(() =>
-    this.abaAtiva() === 'hoje' ? 'Nenhum aniversariante hoje.' : 'Nenhum aniversariante nos próximos 7 dias.',
-  );
+    if (this.abaAtiva() === 'atrasados') {
+      return this.aniversariantesAtrasados();
+    }
+
+    return this.aniversariantesHoje();
+  });
+
+  protected readonly vazioMensagem = computed<string>(() => {
+    if (this.abaAtiva() === '7dias') {
+      return 'Nenhum aniversariante nos próximos 7 dias.';
+    }
+
+    if (this.abaAtiva() === 'atrasados') {
+      return 'Nenhum aniversário atrasado nos últimos 7 dias.';
+    }
+
+    return 'Nenhum aniversariante hoje.';
+  });
 
   ngOnInit(): void {
     void this.carregar();
@@ -57,14 +78,19 @@ export class AniversariantesWidgetComponent implements OnInit {
     this.carregando.set(true);
 
     try {
-      const [hoje, proximos, config] = await Promise.all([
+      const [hoje, proximos, atrasados, config, info] = await Promise.all([
         this.aniversariantesService.listar('hoje'),
         this.aniversariantesService.listar('7dias'),
+        this.aniversariantesService.listar('atrasados'),
         this.aniversariantesService.obterConfig(),
+        // Best-effort: nome real do estabelecimento para o {estabelecimento} do preview.
+        this.estabelecimentoService.carregarInfo().catch(() => null),
       ]);
 
       this.aniversariantesHoje.set(hoje);
       this.aniversariantesProximos.set(proximos);
+      this.aniversariantesAtrasados.set(atrasados);
+      this.nomeEstabelecimento.set(info?.nomeExibicao || info?.nome || '');
       this.mensagemConfig.set(config.mensagem);
       this.percentualPadrao.set(config.percentualDescontoPadrao);
       this.validadePadrao.set(config.validadeDiasPadrao);
@@ -86,6 +112,9 @@ export class AniversariantesWidgetComponent implements OnInit {
     this.modalEnvioAberto.set(true);
     this.cdr.markForCheck();
   }
+
+  /** Referência do template para a janela de envio (dia do aniversário + 7 dias). */
+  protected readonly envioParabensDisponivel = envioParabensDisponivel;
 
   protected async confirmarEnvioParabens(clienteId: string): Promise<void> {
     this.enviando.set(true);

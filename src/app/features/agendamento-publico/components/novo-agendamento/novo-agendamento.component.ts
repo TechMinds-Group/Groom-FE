@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, Component, computed, inject, OnDestroy, OnInit
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TmToastService } from '@techminds-group/tm-angular-lib';
+import { MeuAgendamentoItem } from '../../../../core/services/agendamento-publico.service';
 import { AgendamentoPublicoService } from '../../../../core/services/agendamento-publico.service';
 import { ListaEsperaService } from '../../../../core/services/lista-espera.service';
 import { EstabelecimentoInfo, EstabelecimentoService, obterIconeAleatorioCapa, obterIconeAleatorioLogo } from '../../../../core/services/estabelecimento.service';
@@ -13,6 +14,7 @@ import { PassoServicoComponent } from './passo-servico/passo-servico.component';
 import { PassoDataHorarioComponent } from './passo-data-horario/passo-data-horario.component';
 import { PassoResumoComponent } from './passo-resumo/passo-resumo.component';
 import { ConfirmacaoComponent } from './confirmacao/confirmacao.component';
+import { MeusAgendamentosComponent } from '../meus-agendamentos/meus-agendamentos.component';
 import { DadosFinalizacaoCadastro, FinalizarCadastroComponent } from './finalizar-cadastro/finalizar-cadastro.component';
 import { ConfirmarAgendamentoExtras } from './passo-resumo/passo-resumo.component';
 import { ClienteSessionKeepAliveService } from '../../services/cliente-session-keep-alive.service';
@@ -35,6 +37,7 @@ import { ImageViewerModalComponent } from '../../../../shared/modais/image-viewe
     ListaEsperaPortalComponent,
     AppFooterComponent,
     ImageViewerModalComponent,
+    MeusAgendamentosComponent,
   ],
   templateUrl: './novo-agendamento.component.html',
   styleUrl: './novo-agendamento.component.scss',
@@ -194,6 +197,28 @@ export class NovoAgendamentoComponent implements OnInit, OnDestroy {
   /** Total do serviço selecionado (resumo lateral). */
   readonly totalServico = computed(() => this.servicoSelecionado()?.preco ?? null);
 
+  /** CR-004 — visão "Meus agendamentos" no lugar do wizard (cliente logado). */
+  readonly visaoMeusAgendamentos = signal(false);
+
+  /** CR-004 — agendamento em remarcação (passo 3 reutilizado com profissional/serviço fixados). */
+  readonly remarcacaoAlvo = signal<MeuAgendamentoItem | null>(null);
+
+  /** CR-004 — cupom validado no passo-resumo, refletido no resumo lateral. */
+  readonly cupomAplicado = signal<{ codigo: string; percentual: number } | null>(null);
+
+  readonly valorDescontoCupom = computed<number>(() => {
+    const cupom = this.cupomAplicado();
+    if (!cupom) {
+      return 0;
+    }
+
+    return Math.max(0, Math.round((this.totalServico() ?? 0) * cupom.percentual) / 100);
+  });
+
+  readonly totalComCupom = computed<number>(() =>
+    Math.max(0, (this.totalServico() ?? 0) - this.valorDescontoCupom()),
+  );
+
   /** Duração do agendamento atual: serviço selecionado ou duração total do plano. */
   readonly duracaoAtual = computed(() => {
     if (this.tipoAgendamento() === 'plano') {
@@ -325,6 +350,78 @@ export class NovoAgendamentoComponent implements OnInit, OnDestroy {
     await this.carregarProfissionais();
   }
 
+  // ─── CR-004 — Meus agendamentos no portal ───────────────────────────────
+
+  /** Abre a visão "Meus agendamentos" (botão do banner — só cliente logado). */
+  abrirMeusAgendamentos(): void {
+    this.visaoMeusAgendamentos.set(true);
+  }
+
+  /** Fecha a visão "Meus agendamentos" e volta ao wizard. */
+  voltarDoMeusAgendamentos(): void {
+    this.visaoMeusAgendamentos.set(false);
+  }
+
+  /**
+   * Remarcação: fixa profissional/serviço do agendamento, entra no seletor de
+   * data/horário do wizard (passo 3) e confirma via endpoint de remarcação.
+   */
+  async remarcarAgendamento(item: MeuAgendamentoItem): Promise<void> {
+    this.visaoMeusAgendamentos.set(false);
+    this.remarcacaoAlvo.set(item);
+
+    // Contexto mínimo para o seletor de disponibilidade do wizard.
+    this.profissionalSelecionado.set({ id: item.profissionalId, nome: item.profissionalNome });
+    if (item.tipo === 'plano' && item.planoId) {
+      this.tipoAgendamento.set('plano');
+      this.servicoSelecionado.set(null);
+    } else {
+      this.tipoAgendamento.set('servico');
+      this.servicoSelecionado.set({
+        id: item.servicoId ?? '',
+        nome: item.servicoNome,
+        preco: item.servicoPreco,
+        duracao: item.servicoDuracao,
+      } as ServicoDisponivel);
+    }
+
+    this.dataSelecionada.set(null);
+    this.horarioSelecionado.set(null);
+    this.horarios.set([]);
+    this.diasDisponiveis.set([]);
+    await this.carregarDisponibilidadeRemarcacao();
+    this.passo.set(3);
+  }
+
+  /** Carrega os dias disponíveis do profissional para o modo remarcação. */
+  private async carregarDisponibilidadeRemarcacao(): Promise<void> {
+    const profissional = this.profissionalSelecionado();
+    if (!profissional) {
+      return;
+    }
+
+    this.isLoading.set(true);
+    try {
+      const disponibilidade = await this.agendamentoPublicoService.getDisponibilidadeSemanal(profissional.id);
+      this.diasDisponiveis.set(
+        disponibilidade.filter((d) => d.trabalhaHoje && d.intervalos.length > 0).map((d) => d.diaSemana),
+      );
+    } catch {
+      this.errorMessage.set('Não foi possível carregar a disponibilidade. Tente novamente.');
+    } finally {
+      this.isLoading.set(false);
+    }
+  }
+
+  /** Sai do modo remarcação e volta para "Meus agendamentos". */
+  cancelarRemarcacao(): void {
+    this.remarcacaoAlvo.set(null);
+    this.visaoMeusAgendamentos.set(true);
+  }
+
+  /** True quando o passo de data/horário está em modo remarcação. */
+  readonly emRemarcacao = computed<boolean>(() => this.remarcacaoAlvo() !== null);
+
   async selecionarProfissional(profissional: ProfissionalDisponivel): Promise<void> {
     this.profissionalSelecionado.set(profissional);
     this.servicoSelecionado.set(null);
@@ -424,6 +521,13 @@ export class NovoAgendamentoComponent implements OnInit, OnDestroy {
       return;
     }
 
+    // CR-004 — modo remarcação: confirma a mudança de horário do agendamento alvo.
+    const alvoRemarcacao = this.remarcacaoAlvo();
+    if (alvoRemarcacao) {
+      await this.confirmarRemarcacao(alvoRemarcacao);
+      return;
+    }
+
     const profissional = this.profissionalSelecionado();
     const data = this.dataSelecionada();
     const horario = this.horarioSelecionado();
@@ -475,6 +579,41 @@ export class NovoAgendamentoComponent implements OnInit, OnDestroy {
         this.errorMessage.set('Sua assinatura do plano não está ativa. Escolha um serviço avulso ou renove sua assinatura.');
       } else {
         this.errorMessage.set('Não foi possível concluir o agendamento. Tente novamente.');
+      }
+    } finally {
+      this.isLoading.set(false);
+    }
+  }
+
+  /**
+   * CR-004 — confirma a remarcação do agendamento alvo para a data/horário escolhidos
+   * no wizard (hora local tratada como UTC — sem conversão de fuso).
+   */
+  private async confirmarRemarcacao(alvo: MeuAgendamentoItem): Promise<void> {
+    const data = this.dataSelecionada();
+    const horario = this.horarioSelecionado();
+    if (!data || !horario) {
+      return;
+    }
+
+    this.isLoading.set(true);
+    this.errorMessage.set(null);
+
+    try {
+      await this.agendamentoPublicoService.remarcarMeuAgendamento(alvo.id, `${data}T${horario}:00`);
+      this.toastService.success('Agendamento remarcado! O profissional receberá uma nova solicitação de confirmação.');
+      this.remarcacaoAlvo.set(null);
+      this.visaoMeusAgendamentos.set(true);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    } catch (err: any) {
+      const code = err?.error?.code ?? err?.error?.Code;
+      const mensagem = err?.error?.message ?? err?.error?.Message;
+      if (code === 'Agendamento.HorarioIndisponivel' || code === 'Agendamento.Conflito') {
+        this.errorMessage.set(mensagem || 'O horário selecionado não está disponível. Escolha outro.');
+      } else if (code === 'Agendamento.JaIniciado' || code === 'Agendamento.StatusInvalido') {
+        this.errorMessage.set(mensagem || 'Este agendamento não pode mais ser remarcado.');
+      } else {
+        this.errorMessage.set(mensagem || 'Não foi possível remarcar o agendamento. Tente novamente.');
       }
     } finally {
       this.isLoading.set(false);
@@ -597,6 +736,12 @@ export class NovoAgendamentoComponent implements OnInit, OnDestroy {
    */
   navegarParaStep(numero: number): void {
     if (numero === this.passo()) {
+      return;
+    }
+
+    // CR-004 — em remarcação, voltar para os steps de escolha sai do modo e volta à lista.
+    if (this.emRemarcacao() && numero < 3) {
+      this.cancelarRemarcacao();
       return;
     }
 

@@ -124,6 +124,19 @@
     &__total-valor {
       font-size: 1.5rem;
     }
+
+    /* Cupom aplicado — subtotal riscado e linha de desconto em verde */
+    &__subtotal {
+      font-size: 0.85rem;
+      opacity: 0.75;
+      text-decoration: line-through;
+    }
+
+    &__desconto {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--tm-success, #198754);
+    }
   }
 
   ::ng-deep .btn {
@@ -133,6 +146,7 @@
 }
 
 .cupom-validado {
-  background: var(--bs-success-bg-subtle, rgba(25, 135, 84, 0.1));
-  border: 1px solid var(--bs-success-border-subtle, rgba(25, 135, 84, 0.3));
+  /* Verde translúcido: legível nos dois temas (fundo escuro + texto branco no escuro) */
+  background: rgba(25, 135, 84, 0.12);
+  border: 1px solid rgba(25, 135, 84, 0.35);
 }

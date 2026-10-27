@@ -90,4 +90,7 @@ export interface AgendamentoPublico {
   dataInicio: Date;
   dataFim: Date;
   status: 'confirmado' | 'cancelado' | 'concluido';
+  /** CR-004 — cupom de aniversário aplicado (null/undefined quando sem cupom). */
+  cupomAniversarioCodigo?: string | null;
+  cupomAniversarioPercentual?: number | null;
 }

@@ -82,6 +82,10 @@ export class EstabelecimentoConfigComponent implements OnInit {
   protected readonly minutosReservaListaEspera = signal<number>(15);
   protected readonly minutosReservaListaEsperaOriginal = signal<number>(15);
 
+  /** CR-004 — antecedência mínima (horas) p/ cancelar/remarcar pelo portal e WhatsApp (0 = sem limite). */
+  protected readonly horasLimiteAlteracao = signal<number>(2);
+  protected readonly horasLimiteAlteracaoOriginal = signal<number>(2);
+
   protected readonly temAlteracoesInfo = computed(() => {
     if (this.logoFile() !== null || this.capaFile() !== null || this.logoRemovida() || this.capaRemovida()) {
       return true;
@@ -90,6 +94,9 @@ export class EstabelecimentoConfigComponent implements OnInit {
       return true;
     }
     if (this.minutosReservaListaEspera() !== this.minutosReservaListaEsperaOriginal()) {
+      return true;
+    }
+    if (this.horasLimiteAlteracao() !== this.horasLimiteAlteracaoOriginal()) {
       return true;
     }
     const cur = this.estabelecimentoInfo();
@@ -244,12 +251,20 @@ export class EstabelecimentoConfigComponent implements OnInit {
     this.cdr.markForCheck();
   }
 
+  /** CR-004: inteiro 0..720; default 2 quando o campo é esvaziado. */
+  protected atualizarHorasLimite(valor: number | string): void {
+    const parsed = typeof valor === 'number' ? valor : parseInt(valor, 10);
+    this.horasLimiteAlteracao.set(isNaN(parsed) ? 2 : Math.min(720, Math.max(0, parsed)));
+    this.cdr.markForCheck();
+  }
+
   protected async carregarInfo(): Promise<void> {
     try {
-      const [data, dias, minutos] = await Promise.all([
+      const [data, dias, minutos, horas] = await Promise.all([
         this.estabelecimentoService.carregarInfo(),
         this.estabelecimentoService.carregarValidadeLink(),
         this.estabelecimentoService.carregarMinutosReservaListaEspera(),
+        this.estabelecimentoService.carregarHorasLimiteAlteracao(),
       ]);
       if (data) {
         this.estabelecimentoInfo.set(structuredClone(data));
@@ -260,6 +275,8 @@ export class EstabelecimentoConfigComponent implements OnInit {
       this.diasValidadeLinkOriginal.set(dias);
       this.minutosReservaListaEspera.set(minutos);
       this.minutosReservaListaEsperaOriginal.set(minutos);
+      this.horasLimiteAlteracao.set(horas);
+      this.horasLimiteAlteracaoOriginal.set(horas);
       this.resetImagens();
       this.cdr.markForCheck();
     } catch {
@@ -272,6 +289,7 @@ export class EstabelecimentoConfigComponent implements OnInit {
     this.estabelecimentoInfo.set(structuredClone(orig));
     this.diasValidadeLink.set(this.diasValidadeLinkOriginal());
     this.minutosReservaListaEspera.set(this.minutosReservaListaEsperaOriginal());
+    this.horasLimiteAlteracao.set(this.horasLimiteAlteracaoOriginal());
     this.resetImagens();
     this.cdr.markForCheck();
   }
@@ -373,6 +391,11 @@ export class EstabelecimentoConfigComponent implements OnInit {
       if (this.minutosReservaListaEspera() !== this.minutosReservaListaEsperaOriginal()) {
         await this.estabelecimentoService.salvarMinutosReservaListaEspera(this.minutosReservaListaEspera());
         this.minutosReservaListaEsperaOriginal.set(this.minutosReservaListaEspera());
+      }
+
+      if (this.horasLimiteAlteracao() !== this.horasLimiteAlteracaoOriginal()) {
+        await this.estabelecimentoService.salvarHorasLimiteAlteracao(this.horasLimiteAlteracao());
+        this.horasLimiteAlteracaoOriginal.set(this.horasLimiteAlteracao());
       }
 
       const atualizado = await this.estabelecimentoService.carregarInfo();

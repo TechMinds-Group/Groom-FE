@@ -1,6 +1,6 @@
 <div class="d-flex flex-column h-100 overflow-hidden main-layout-container">
-  <!-- Top Bar para Dispositivos Móveis Móvel (< 576px / menor que sm) -->
-  <header class="mobile-header d-sm-none d-flex align-items-center justify-content-between px-3 py-2 border-bottom">
+  <!-- Top Bar para Dispositivos Móveis (< 768px / menor que md) -->
+  <header class="mobile-header d-md-none d-flex align-items-center justify-content-between px-3 py-2 border-bottom">
     <div class="d-flex align-items-center gap-3">
       <button
         type="button"
@@ -20,8 +20,8 @@
   </header>
 
   <div class="d-flex flex-grow-1 overflow-hidden position-relative">
-    <!-- Sidebar Desktop (>= 576px / >= sm) -->
-    <aside class="sidebar-column d-none d-sm-flex flex-column" [class.is-collapsed]="sidebarCollapsed()">
+    <!-- Sidebar Desktop (>= 768px / >= md) -->
+    <aside class="sidebar-column d-none d-md-flex flex-column" [class.is-collapsed]="sidebarCollapsed()">
       <app-sidebar (logout)="handleLogout()" (themeToggle)="handleThemeToggle()" (collapseChange)="sidebarCollapsed.set($event)"></app-sidebar>
       <a class="version-badge" routerLink="/guia" title="Guia do Sistema">
         <i class="fas fa-tag"></i>
@@ -31,13 +31,13 @@
       </a>
     </aside>
 
-    <!-- Overlay / Offcanvas Drawer Mobile (< 576px / menor que sm) -->
+    <!-- Overlay / Offcanvas Drawer Mobile (< 768px / menor que md) -->
     @if (mobileDrawerOpen()) {
-      <div class="mobile-drawer-backdrop d-sm-none" (click)="closeMobileDrawer()"></div>
+      <div class="mobile-drawer-backdrop d-md-none" (click)="closeMobileDrawer()"></div>
     }
 
     <aside
-      class="mobile-drawer-panel d-sm-none flex-column"
+      class="mobile-drawer-panel d-md-none flex-column"
       [class.is-open]="mobileDrawerOpen()"
     >
       <button
@@ -63,7 +63,7 @@
 
     <!-- Conteúdo Principal da Aplicação -->
     <div class="main-column flex-grow-1 d-flex flex-column min-width-0 overflow-hidden">
-      <header class="top-header-bar d-none d-sm-flex align-items-center justify-content-end px-4 py-2">
+      <header class="top-header-bar d-none d-md-flex align-items-center justify-content-end px-4 py-2">
         <app-header-notificacoes></app-header-notificacoes>
       </header>
       <main class="main-content flex-grow-1 overflow-auto position-relative">

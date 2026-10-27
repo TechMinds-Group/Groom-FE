@@ -1,0 +1,159 @@
+<div class="meus-agendamentos">
+  <!-- Header: Voltar + Título + Subtítulo (padrão dos menus do Groom) -->
+  <div class="d-flex align-items-center gap-3 mb-4">
+    <button
+      type="button"
+      class="btn btn-light shadow-sm rounded-circle p-0 d-flex align-items-center justify-content-center meus-agendamentos__voltar"
+      (click)="voltar.emit()"
+      title="Voltar"
+    >
+      <i class="fa-solid fa-arrow-left"></i>
+    </button>
+
+    <div>
+      <h2 class="h4 mb-0 fw-bold meus-agendamentos__titulo">Meus agendamentos</h2>
+      <span class="text-muted small meus-agendamentos__subtitulo">
+        Acompanhe, remarque ou cancele seus horários
+      </span>
+    </div>
+  </div>
+
+  <!-- Abas: Ativos | Histórico -->
+  <div class="btn-group meus-agendamentos__abas mb-4" role="group">
+    <button
+      type="button"
+      class="btn btn-sm"
+      [class.btn-primary]="abaAtiva() === 'ativos'"
+      [class.btn-outline-secondary]="abaAtiva() !== 'ativos'"
+      (click)="trocarAba('ativos')"
+    >
+      Próximos ({{ abaAtiva() === 'ativos' ? total() : '·' }})
+    </button>
+    <button
+      type="button"
+      class="btn btn-sm"
+      [class.btn-primary]="abaAtiva() === 'historico'"
+      [class.btn-outline-secondary]="abaAtiva() !== 'historico'"
+      (click)="trocarAba('historico')"
+    >
+      Histórico
+    </button>
+  </div>
+
+  @if (carregando()) {
+    <div class="text-center py-5">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Carregando...</span>
+      </div>
+    </div>
+  } @else if (itens().length === 0) {
+    <div class="text-center text-muted py-5 meus-agendamentos__subtitulo">
+      <i class="fa-regular fa-calendar mb-2 d-block fs-1 opacity-50"></i>
+      @if (abaAtiva() === 'ativos') {
+        Você não tem agendamentos futuros.
+      } @else {
+        Nenhum agendamento no histórico.
+      }
+    </div>
+  } @else {
+    <div class="d-flex flex-column gap-3">
+      @for (item of itens(); track item.id) {
+        <div class="card border-0 shadow-sm rounded-4 p-3 p-sm-4 meus-agendamentos__card">
+          <div class="d-flex align-items-start justify-content-between gap-2 mb-3">
+            <div class="min-w-0">
+              <div class="fw-bold text-truncate meus-agendamentos__titulo">{{ item.servicoNome }}</div>
+              <div class="extra-small text-muted meus-agendamentos__subtitulo">
+                <i class="fa-solid fa-user me-1"></i>{{ item.profissionalNome }}
+                @if (item.planoNome) {
+                  <span class="badge text-bg-success ms-1">Plano</span>
+                }
+              </div>
+            </div>
+            <span class="badge rounded-pill px-2 py-1 extra-small flex-shrink-0" [class]="statusBadge(item.status).classe">
+              {{ statusBadge(item.status).rotulo }}
+            </span>
+          </div>
+
+          <div class="extra-small mb-3 meus-agendamentos__subtitulo">
+            <i class="fa-regular fa-calendar me-1 text-primary"></i>{{ formatarDataHora(item.dataInicio) }}
+          </div>
+
+          <!-- Valor com cupom (CR-004) -->
+          <div class="meus-agendamentos__valor rounded-3 p-3 mb-3">
+            @if (item.cupomAniversarioPercentual) {
+              <span class="extra-small d-block meus-agendamentos__subtotal">
+                Subtotal: {{ formatarPreco(item.servicoPreco) }}
+              </span>
+              <span class="extra-small d-block meus-agendamentos__desconto">
+                Cupom {{ item.cupomAniversarioCodigo }} ({{ item.cupomAniversarioPercentual }}%): -{{ formatarPreco(descontoItem(item)) }}
+              </span>
+              <strong class="small meus-agendamentos__titulo">Total: {{ formatarPreco(totalItem(item)) }}</strong>
+            } @else {
+              <strong class="small meus-agendamentos__titulo">Valor: {{ formatarPreco(item.servicoPreco) }}</strong>
+            }
+          </div>
+
+          @if (ativoFuturo(item)) {
+            <div class="d-flex flex-column flex-sm-row gap-2">
+              <tm-button
+                size="sm"
+                variant="outline-primary"
+                label="Remarcar"
+                icon="fa-solid fa-arrows-rotate"
+                [disabled]="!item.podeAlterar"
+                [title]="item.podeAlterar ? 'Escolher novo horário' : 'Fora do prazo configurado pelo estabelecimento'"
+                (onClick)="remarcar.emit(item)"
+              ></tm-button>
+              <tm-button
+                size="sm"
+                variant="outline-danger"
+                label="Cancelar"
+                icon="fa-solid fa-xmark"
+                [disabled]="!item.podeAlterar"
+                [title]="item.podeAlterar ? 'Cancelar este agendamento' : 'Fora do prazo configurado pelo estabelecimento'"
+                (onClick)="abrirCancelar(item)"
+              ></tm-button>
+            </div>
+            @if (!item.podeAlterar && item.mensagemPrazo; as mensagem) {
+              <div class="meus-agendamentos__prazo rounded-3 p-2 extra-small d-flex align-items-start gap-2 mt-2">
+                <i class="fa-solid fa-lock mt-1"></i>
+                <span>{{ mensagem }}</span>
+              </div>
+            }
+          }
+        </div>
+      }
+    </div>
+
+    @if (abaAtiva() === 'historico' && haMaisPaginas()) {
+      <tm-button
+        class="mt-4"
+        variant="outline-secondary"
+        label="Carregar mais"
+        [loading]="carregandoMais()"
+        (onClick)="carregarMais()"
+      ></tm-button>
+    }
+  }
+</div>
+
+<!-- Modal: confirmação do cancelamento -->
+<tm-modal
+  title="Cancelar agendamento"
+  confirmLabel="Cancelar agendamento"
+  cancelLabel="Manter"
+  [show]="itemCancelar() !== null"
+  (showChange)="itemCancelar() !== null ? itemCancelar.set(null) : null"
+  (confirm)="confirmarCancelamento()"
+  (cancel)="fecharCancelar()"
+  confirmClass="btn-danger"
+  icon="fa-solid fa-triangle-exclamation"
+>
+  <p class="mb-0">
+    Deseja realmente cancelar o agendamento de <strong>{{ itemCancelar()?.servicoNome }}</strong>
+    em {{ itemCancelar() ? formatarDataHora(itemCancelar()!.dataInicio) : '' }}?
+  </p>
+  <p class="extra-small text-muted mb-0 mt-2">
+    O horário será liberado para outros clientes. Se houver cupom de aniversário aplicado, ele volta a ficar disponível.
+  </p>
+</tm-modal>

@@ -1,0 +1,85 @@
+/* Padrão dos menus do Groom: botão voltar redondo 40px, cards rounded-4 com
+   sombra suave, tipografia fw-bold no título e subtítulo muted (tokens do tema). */
+.meus-agendamentos {
+  &__voltar {
+    width: 40px !important;
+    height: 40px !important;
+    min-width: 40px !important;
+    border-radius: 50% !important;
+    flex-shrink: 0;
+    padding: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    line-height: 1 !important;
+    transition: all 0.2s ease;
+
+    &:hover {
+      background-color: #e9ecef !important;
+      transform: translateX(-2px);
+    }
+  }
+
+  &__titulo {
+    color: var(--tm-text-primary);
+  }
+
+  &__subtitulo {
+    color: var(--tm-text-secondary);
+  }
+
+  &__card {
+    background-color: var(--tm-surface-color);
+    border: 1px solid var(--tm-border-color) !important;
+  }
+
+  &__valor {
+    background: var(--tm-hover-bg, rgba(13, 110, 253, 0.06));
+  }
+
+  &__subtotal {
+    opacity: 0.75;
+    text-decoration: line-through;
+  }
+
+  &__desconto {
+    color: var(--tm-success);
+    font-weight: 600;
+  }
+
+  /* CR-004 — fora do prazo: aviso sob os botões desabilitados */
+  &__prazo {
+    background: rgba(239, 68, 68, 0.08);
+    border: 1px solid rgba(239, 68, 68, 0.25);
+    color: var(--tm-text-secondary);
+  }
+}
+
+.min-w-0 {
+  min-width: 0;
+}
+
+.extra-small {
+  font-size: 0.75rem;
+}
+
+/* Tema escuro — legibilidade no padrão do portal (data-theme) */
+:host-context([data-theme='dark']) {
+  .meus-agendamentos__voltar {
+    background-color: #21262d !important;
+    border-color: rgba(255, 255, 255, 0.1) !important;
+
+    i {
+      color: #c9d1d9 !important;
+    }
+
+    &:hover {
+      background-color: #30363d !important;
+    }
+  }
+
+  .meus-agendamentos__subtitulo,
+  .text-muted {
+    color: var(--tm-text-secondary) !important;
+  }
+}

@@ -44,6 +44,31 @@ body.sidebar-collapsed tm-sidebar .sidebar {
   box-shadow: none !important;
 }
 
+/* Botão redondo de envio de parabéns (tabela Aniversariantes) — formato travado,
+   imune a regras da lib/Bootstrap que esticam largura ou altura. Sem `display` aqui:
+   a visibilidade fica por conta de d-none/d-lg-inline-flex (responsivo). */
+html body app-aniversariantes-config .btn-enviar {
+  width: 36px !important;
+  height: 36px !important;
+  min-width: 36px !important;
+  max-width: 36px !important;
+  min-height: 36px !important;
+  max-height: 36px !important;
+  aspect-ratio: 1 / 1;
+  padding: 0 !important;
+  border-radius: 50% !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-size: 0.85rem !important;
+}
+
+/* Parabenizar sem ícone em telas menores que lg — ícone apenas no botão redondo (lg+) */
+@media (max-width: 991.98px) {
+  html body app-aniversariantes-config tm-button.btn-parabenizar .btn i {
+    display: none !important;
+  }
+}
+
 /* Ensure CDK Overlays are always on top of the drawer and modal */
 .cdk-overlay-container {
   z-index: 3000 !important;

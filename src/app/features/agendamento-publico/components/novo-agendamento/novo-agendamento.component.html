@@ -18,6 +18,17 @@
           }
           <div class="agendamento-wizard__banner-overlay"></div>
           <div class="agendamento-wizard__acoes">
+            @if (clienteLogado(); as cliente) {
+              <button
+                type="button"
+                class="agendamento-wizard__lista-espera"
+                (click)="abrirMeusAgendamentos()"
+                title="Meus agendamentos"
+              >
+                <i class="fa-regular fa-calendar-check"></i>
+                <span class="d-none d-md-inline">Meus agendamentos</span>
+              </button>
+            }
             <button
               type="button"
               class="agendamento-wizard__lista-espera"
@@ -124,6 +135,14 @@
           <div class="agendamento-wizard__lista-espera-widget mb-3">
             <app-lista-espera-portal #portalTopo [somenteStatus]="true" />
           </div>
+
+          <!-- CR-004 — visão "Meus agendamentos" mantém banner e identidade do portal -->
+          @if (visaoMeusAgendamentos()) {
+            <app-meus-agendamentos
+              (remarcar)="remarcarAgendamento($event)"
+              (voltar)="voltarDoMeusAgendamentos()"
+            />
+          } @else {
           @if (!finalizandoCadastro()) {
             @if (meuPlano(); as plano) {
               <div
@@ -231,6 +250,23 @@
               }
             }
 
+            <!-- CR-004 — banner do modo remarcação -->
+            @if (remarcacaoAlvo(); as alvo) {
+              <div class="agendamento-wizard__remarcacao rounded-3 p-3 mb-4 d-flex align-items-start justify-content-between gap-2">
+                <div>
+                  <strong class="d-block mb-1">
+                    <i class="fa-solid fa-arrows-rotate me-1"></i>Remarcando: {{ alvo.servicoNome }}
+                  </strong>
+                  <span class="extra-small d-block">
+                    Escolha a nova data e horário — o profissional receberá uma nova solicitação de confirmação.
+                  </span>
+                </div>
+                <button type="button" class="btn btn-sm btn-outline-secondary flex-shrink-0" (click)="cancelarRemarcacao()">
+                  Cancelar
+                </button>
+              </div>
+            }
+
             <nav class="agendamento-wizard__stepper mb-4" aria-label="Progresso do agendamento">
               @for (step of stepsVisiveis(); track step.numero) {
                 <button
@@ -328,11 +364,13 @@
                       [isLoading]="isLoading()"
                       [modoListaEspera]="modoListaEspera()"
                       [listaEsperaSucesso]="listaEsperaSucesso()"
+                      [modoRemarcacao]="emRemarcacao()"
                       [clienteTemData]="clienteTemDataNascimento()"
                       [coletaAtiva]="coletaDataNascimentoAtiva()"
                       (confirmar)="confirmar($event)"
                       (voltarInicio)="reiniciar()"
                       (expandirImagem)="abrirImagemModal($event)"
+                      (cupomAlterado)="cupomAplicado.set($event)"
                     />
                   }
                 }
@@ -384,22 +422,34 @@
                 @if (modoListaEspera()) {
                   <span class="text-muted small">Sem cobrança ao entrar na lista</span>
                 } @else {
-                  <span>Total</span>
-                  <strong>
-                    @if (tipoAgendamento() === 'plano') {
-                      Incluso no plano
+                  @if (tipoAgendamento() === 'plano') {
+                    <span>Total</span>
+                    <strong>Incluso no plano</strong>
+                  } @else {
+                    @if (cupomAplicado(); as cupom) {
+                      <div class="w-100 d-flex flex-column align-items-end gap-1">
+                        <span class="agendamento-wizard__resumo-subtotal">Subtotal: {{ formatarPreco(totalServico() ?? 0) }}</span>
+                        <span class="agendamento-wizard__resumo-desconto">
+                          Cupom {{ cupom.codigo }} ({{ cupom.percentual }}%): -{{ formatarPreco(valorDescontoCupom()) }}
+                        </span>
+                        <strong>{{ formatarPreco(totalComCupom()) }}</strong>
+                      </div>
                     } @else {
-                      @if (totalServico(); as total) {
-                        {{ formatarPreco(total) }}
-                      } @else {
-                        —
-                      }
+                      <span>Total</span>
+                      <strong>
+                        @if (totalServico(); as total) {
+                          {{ formatarPreco(total) }}
+                        } @else {
+                          —
+                        }
+                      </strong>
                     }
-                  </strong>
+                  }
                 }
               </div>
             </aside>
           </div>
+          }
         </div>
       </div>
     }
