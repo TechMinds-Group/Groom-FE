@@ -1,6 +1,6 @@
 ﻿<div class="container mt-5 mb-5">
   <!-- Header: Voltar + Título + Subtítulo -->
-  <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between mb-4 gap-3">
+  <div class="d-flex flex-column flex-lg-row align-items-lg-center justify-content-between mb-4 gap-3">
     <div class="d-flex align-items-center gap-3">
       <button
         (click)="voltar()"
@@ -16,12 +16,6 @@
         <span class="text-muted small custom-dark-text">Mensagem, cupom padrão e envio automático de parabéns</span>
       </div>
     </div>
-
-    @if (whatsappConectado() === false && carregando() === false) {
-      <span class="badge bg-warning-subtle text-warning-emphasis border px-3 py-2 rounded-pill fw-semibold">
-        <i class="fab fa-whatsapp me-1"></i>WhatsApp não conectado
-      </span>
-    }
   </div>
 
   @if (carregando()) {
@@ -47,7 +41,7 @@
 
           <form [formGroup]="form" (ngSubmit)="salvarConfig()">
             <div class="row g-3">
-              <div class="col-lg-7 col-12">
+              <div class="col-12">
                 <label class="form-label small fw-bold text-muted text-uppercase custom-dark-text">Mensagem configurada</label>
                 <textarea
                   class="form-control custom-dark-text"
@@ -62,13 +56,6 @@
                   }
                 </div>
               </div>
-
-              <div class="col-lg-5 col-12">
-                <label class="form-label small fw-bold text-muted text-uppercase custom-dark-text">Prévia da mensagem</label>
-                <div class="preview-box rounded-3 p-3 custom-dark-text small" data-testid="preview-mensagem">
-                  <span class="whitespace-pre-line">{{ previewMensagem }}</span>
-                </div>
-              </div>
             </div>
 
             <!-- [B] Cupom padrão -->
@@ -77,26 +64,50 @@
                 <i class="fas fa-ticket text-primary me-2"></i>Cupom padrão do aniversário
               </h4>
 
-              <div class="row g-3 align-items-end">
+              <div class="row g-3">
                 <div class="col-sm-4 col-12">
                   <tm-text
                     formControlName="percentual"
                     label="Desconto padrão (%)"
                     type="number"
+                    suffix="%"
                     class="custom-dark-text"
                   ></tm-text>
-                  <span class="text-muted extra-small">0 = sem desconto (apenas a mensagem)</span>
+                  @if (percentualAtual === 100) {
+                    <span class="extra-small text-warning d-block mt-1">
+                      <i class="fas fa-triangle-exclamation me-1"></i>100% = serviço gratuito para o cliente
+                    </span>
+                  } @else {
+                    <span class="text-muted extra-small d-block mt-1">0 = sem desconto (apenas a mensagem)</span>
+                  }
                 </div>
 
                 <div class="col-sm-4 col-12">
-                  <tm-text
-                    formControlName="validade"
-                    label="Validade do cupom (dias)"
-                    type="number"
-                    class="custom-dark-text"
-                  ></tm-text>
-                  @if (percentualAtual <= 0) {
-                    <span class="text-muted extra-small">Informe um desconto para habilitar</span>
+                  <!-- @if/@else recria o tm-text ao alternar 0 ↔ >0: o CVA do tm-text (OnPush)
+                       não re-renderiza o input interno quando só o setDisabledState muda. -->
+                  @if (percentualAtual > 0) {
+                    <tm-text
+                      formControlName="validade"
+                      label="Validade do cupom (dias)"
+                      type="text"
+                      [maxlength]="4"
+                      inputmode="numeric"
+                      class="custom-dark-text"
+                    ></tm-text>
+                  } @else {
+                    <tm-text
+                      formControlName="validade"
+                      label="Validade do cupom (dias)"
+                      type="text"
+                      [maxlength]="4"
+                      inputmode="numeric"
+                      class="custom-dark-text"
+                    ></tm-text>
+                  }
+                  @if (percentualAtual > 0) {
+                    <span class="text-muted extra-small d-block mt-1">Dias de validade do cupom após o envio</span>
+                  } @else {
+                    <span class="text-muted extra-small d-block mt-1">Informe um desconto para habilitar</span>
                   }
                 </div>
               </div>
@@ -107,6 +118,20 @@
               <h4 class="h6 fw-bold custom-dark-text mb-3">
                 <i class="fas fa-robot text-primary me-2"></i>Preferências
               </h4>
+
+              <div class="row g-3 align-items-end mb-2">
+                <div class="col-sm-4 col-12">
+                  <tm-text
+                    formControlName="horaEnvio"
+                    label="Horário do envio"
+                    type="text"
+                    [maxlength]="5"
+                    inputmode="numeric"
+                    placeholder="10:00"
+                    class="custom-dark-text"
+                  ></tm-text>
+                </div>
+              </div>
 
               <div class="form-check form-switch mb-2">
                 <input class="form-check-input" type="checkbox" role="switch" id="switchAuto" formControlName="envioAutomatico" />
@@ -126,7 +151,7 @@
             <div class="d-flex justify-content-end mt-4">
               <button
                 type="submit"
-                class="btn btn-primary px-4 py-2 shadow-sm fw-bold rounded-3 d-inline-flex align-items-center gap-2"
+                class="btn btn-primary px-4 py-2 shadow-sm fw-bold rounded-3 d-inline-flex align-items-center justify-content-center gap-2 btn-salvar-bloco"
                 [disabled]="salvando()"
               >
                 @if (salvando()) {
@@ -156,13 +181,13 @@
 
           <!-- Conversão -->
           <div class="row g-2 mb-4">
-            <div class="col-sm-6 col-12">
+            <div class="col-lg-6 col-12">
               <div class="card border-0 shadow-sm custom-dark-card rounded-3 p-3 h-100">
                 <span class="text-muted small custom-dark-text"><i class="fas fa-paper-plane text-primary me-2"></i>Parabéns enviados no ano</span>
                 <strong class="h4 mb-0 custom-dark-text" data-testid="resumo-enviados">{{ enviados() }}</strong>
               </div>
             </div>
-            <div class="col-sm-6 col-12">
+            <div class="col-lg-6 col-12">
               <div class="card border-0 shadow-sm custom-dark-card rounded-3 p-3 h-100">
                 <span class="text-muted small custom-dark-text"><i class="fas fa-ticket text-primary me-2"></i>Cupons usados no ano</span>
                 <strong class="h4 mb-0 custom-dark-text" data-testid="resumo-usados">{{ usados() }}</strong>
@@ -170,34 +195,21 @@
             </div>
           </div>
 
-          <!-- Filtros + Enviar para todos -->
-          <div class="row mb-4 g-2 align-items-center">
-            <div class="col-12 col-sm-auto">
-              <select class="form-select shadow-sm custom-dark-text" [value]="mesSelecionado()" (change)="mudarMes($event)">
-                @for (m of mesesAno; track m.valor) {
-                  <option [value]="m.valor">{{ m.label }}</option>
-                }
-              </select>
-            </div>
-
-            <div class="col-12 col-sm-4">
-              <input
-                type="text"
-                class="form-control shadow-sm custom-dark-text"
-                placeholder="Buscar por nome"
-                [value]="busca()"
-                (change)="mudarBusca($event)"
-              />
-            </div>
-
-            <div class="col-12 col-sm-auto ms-sm-auto">
-              <button
-                type="button"
-                (click)="abrirEnviarTodos()"
-                class="btn btn-outline-primary w-100 w-sm-auto px-3 py-2 shadow-sm fw-semibold d-inline-flex align-items-center justify-content-center gap-2"
-              >
-                <i class="fas fa-bullhorn"></i><span>Enviar para todos</span>
-              </button>
+          <!-- Ativar todos (a busca e a ordenação ficam na própria tabela) -->
+          <div class="row mb-2 g-2 align-items-center">
+            <div class="col-12 col-lg-auto ms-lg-auto">
+              <div class="form-check form-switch mb-0" title="Ativo marca todos como Auto; desligado desmarca todos.">
+                <input
+                  class="form-check-input"
+                  type="checkbox"
+                  role="switch"
+                  id="switchAutoTodos"
+                  [checked]="todosAuto()"
+                  [disabled]="alternandoTodos() || aniversariantes().length === 0"
+                  (change)="alternarAutoTodos($event)"
+                />
+                <label class="form-check-label custom-dark-text small fw-semibold" for="switchAutoTodos">Ativar todos</label>
+              </div>
             </div>
           </div>
 
@@ -214,7 +226,7 @@
 
           @if (aniversariantes().length === 0) {
             <div class="text-center text-muted small py-4 custom-dark-text">
-              <i class="fas fa-cake-candles me-2"></i>Nenhum aniversariante encontrado para o filtro atual.
+              <i class="fas fa-cake-candles me-2"></i>Nenhum aniversariante encontrado.
             </div>
           }
         </div>
@@ -230,9 +242,9 @@
   </div>
 </ng-template>
 
-<ng-template #aniversarioTemplate let-item>
+<ng-template #dataTemplate let-item>
   <div class="text-start custom-dark-text">
-    <span><i class="fas fa-cake-candles text-primary me-1"></i>{{ item.diaMes }}</span>
+    <span>{{ item.dataNascimento ? item.diaMes : '-' }}</span>
   </div>
 </ng-template>
 
@@ -294,17 +306,26 @@
   <div class="text-start">
     <button
       type="button"
-      class="btn btn-sm btn-outline-primary rounded-circle d-inline-flex align-items-center justify-content-center btn-enviar"
-      [disabled]="item.temWhatsapp === false || whatsappConectado() === false"
+      class="btn btn-sm btn-outline-primary rounded-circle d-none d-lg-inline-flex align-items-center justify-content-center btn-enviar"
+      [disabled]="item.temWhatsapp === false || whatsappConectado() === false || !envioParabensDisponivel(item.dataNascimento)"
       (click)="abrirEnvio(item)"
-      title="Enviar parabéns"
+      [title]="envioParabensDisponivel(item.dataNascimento) ? 'Enviar parabéns' : 'Disponível no dia do aniversário e até 7 dias depois'"
     >
-      <i class="fas fa-cake-candles"></i>
+      <i class="fas fa-paper-plane"></i>
     </button>
+    <tm-button
+      class="d-lg-none btn-parabenizar"
+      label="Parabenizar"
+      variant="outline-primary"
+      icon="fas fa-paper-plane"
+      [disabled]="item.temWhatsapp === false || whatsappConectado() === false || !envioParabensDisponivel(item.dataNascimento)"
+      [title]="envioParabensDisponivel(item.dataNascimento) ? 'Enviar parabéns' : 'Disponível no dia do aniversário e até 7 dias depois'"
+      (onClick)="abrirEnvio(item)"
+    ></tm-button>
   </div>
 </ng-template>
 
-<!-- Modal: confirmação do envio individual -->
+<!-- Modal: preview e confirmação do envio -->
 <app-enviar-parabens-modal
   [show]="modalEnvioAberto()"
   (showChange)="modalEnvioAberto.set($event)"
@@ -313,25 +334,8 @@
   [percentualPadrao]="percentualAtual"
   [validadePadrao]="validadeAtual"
   [mensagemConfig]="form.controls.mensagem.value"
+  [nomeEstabelecimento]="nomeEstabelecimento()"
   [whatsappConectado]="whatsappConectado()"
   [enviando]="enviando()"
   (confirmar)="confirmarEnvioParabens($event)"
 ></app-enviar-parabens-modal>
-
-<!-- Modal: confirmação do "Enviar para todos" -->
-<tm-modal
-  title="Enviar para todos"
-  confirmLabel="Confirmar"
-  cancelLabel="Cancelar"
-  [show]="modalConfirmarTodosAberto()"
-  (showChange)="modalConfirmarTodosAberto.set($event)"
-  (confirm)="confirmarEnviarTodos()"
-  (cancel)="modalConfirmarTodosAberto.set(false)"
-  confirmClass="btn-primary"
-  icon="fas fa-bullhorn"
->
-  <p class="custom-dark-text small mb-0">
-    Liga o envio automático de parabéns para todos os clientes da lista que ainda não receberam cupom neste ano.
-    Clientes que já receberam serão pulados. A mensagem usará a configuração salva acima.
-  </p>
-</tm-modal>

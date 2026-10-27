@@ -11,6 +11,37 @@ export const MENSAGEM_PADRAO_SEM_CUPOM =
 /** Nome do estabelecimento exibido no preview quando ainda não carregado. */
 export const ESTABELECIMENTO_PREVIEW_FALLBACK = 'nosso estabelecimento';
 
+/** Janela do envio manual de parabéns: dia do aniversário + até 7 dias depois (envio atrasado). */
+export const DIAS_JANELA_ENVIO_MANUAL = 7;
+
+/** Hora padrão do envio automático (fuso de Brasília, 24h) — espelho do default do backend. */
+export const HORA_ENVIO_PADRAO = '10:00';
+
+/** Formato aceito para a hora do envio automático: 24h "HH:mm" (00:00 a 23:59). */
+export const PADRAO_HORA_ENVIO = /^([01]\d|2[0-3]):[0-5]\d$/;
+
+/**
+ * Botão de envio manual ativo apenas no dia do aniversário e por até 7 dias depois
+ * (envio atrasado). Compara dia/mês no ano corrente em horário local (Brasília no
+ * dispositivo do usuário), sem conversão de fuso.
+ */
+export function envioParabensDisponivel(dataNascimento: string | null | undefined, referencia: Date = new Date()): boolean {
+  if (!dataNascimento) {
+    return false;
+  }
+
+  const partes = dataNascimento.split('-').map(Number);
+  if (partes.length < 3 || partes.some((parte) => Number.isNaN(parte))) {
+    return false;
+  }
+
+  const inicioHoje = new Date(referencia.getFullYear(), referencia.getMonth(), referencia.getDate()).getTime();
+  const aniversarioEsteAno = new Date(referencia.getFullYear(), partes[1] - 1, partes[2]).getTime();
+  const diffDias = Math.floor((inicioHoje - aniversarioEsteAno) / 86400000);
+
+  return diffDias >= 0 && diffDias <= DIAS_JANELA_ENVIO_MANUAL;
+}
+
 /** Placeholders suportados na mensagem configurável (RN-079). */
 export const PLACEHOLDERS_MENSAGEM: string[] = ['{nome}', '{estabelecimento}', '{percentual}', '{validade}', '{codigo}'];
 
@@ -25,6 +56,8 @@ export function montarPreviewMensagem(
   mensagemConfig: string | null | undefined,
   percentual: number,
   validadeDias: number | null,
+  nomeEstabelecimento?: string | null,
+  nomeCliente?: string | null,
 ): string {
   const comCupom = percentual > 0 && !!validadeDias;
   const textoBase =
@@ -34,12 +67,16 @@ export function montarPreviewMensagem(
         ? MENSAGEM_PADRAO_COM_CUPOM
         : MENSAGEM_PADRAO_SEM_CUPOM;
 
-  return textoBase
-    .replace('{nome}', 'Maria')
-    .replace('{estabelecimento}', ESTABELECIMENTO_PREVIEW_FALLBACK)
-    .replace('{percentual}', comCupom ? String(percentual) : '')
-    .replace('{validade}', comCupom ? String(validadeDias) : '')
-    .replace('{codigo}', comCupom ? 'ANIV-EXEMPLO1' : '');
+  // split/join troca TODAS as ocorrências de cada placeholder (String.replace troca só a primeira).
+  const substituicoes: Array<[string, string]> = [
+    ['{nome}', nomeCliente?.trim() || 'Maria'],
+    ['{estabelecimento}', nomeEstabelecimento?.trim() || ESTABELECIMENTO_PREVIEW_FALLBACK],
+    ['{percentual}', comCupom ? String(percentual) : ''],
+    ['{validade}', comCupom ? String(validadeDias) : ''],
+    ['{codigo}', comCupom ? 'ANIV-EXEMPLO1' : ''],
+  ];
+
+  return substituicoes.reduce((texto, [marcador, valor]) => texto.split(marcador).join(valor), textoBase);
 }
 
 /** Converte a config do formulário no comando de salvamento (desconto 0 zera a validade — RN-080). */
@@ -49,15 +86,18 @@ export function montarComandoSalvar(
   validadeDias: number | null,
   envioAutomatico: boolean,
   coletaDataNascimento: boolean,
+  horaEnvioAutomatico: string = HORA_ENVIO_PADRAO,
 ): SalvarAniversarioConfigCommand {
   const percentualNormalizado = Number.isFinite(percentual) ? Math.min(Math.max(Math.trunc(percentual), 0), 100) : 0;
   const comCupom = percentualNormalizado > 0 && !!validadeDias && validadeDias >= 1;
+  const horaNormalizada = horaEnvioAutomatico.trim();
 
   return {
     mensagem: mensagem && mensagem.trim().length > 0 ? mensagem.trim() : null,
     percentualDescontoPadrao: percentualNormalizado,
     validadeDiasPadrao: comCupom ? validadeDias : null,
     envioAutomatico,
+    horaEnvioAutomatico: PADRAO_HORA_ENVIO.test(horaNormalizada) ? horaNormalizada : HORA_ENVIO_PADRAO,
     coletaDataNascimento,
   };
 }
@@ -77,3 +117,6 @@ export const MESES_ANO: { valor: number; label: string }[] = [
   { valor: 11, label: 'Novembro' },
   { valor: 12, label: 'Dezembro' },
 ];
+
+/** Nome do mês (pt-BR) a partir da data ISO YYYY-MM-DD — coluna "Mês" da tabela. */
+

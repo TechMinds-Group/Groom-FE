@@ -1,20 +1,20 @@
-.preview-box {
-  background: var(--bs-tertiary-bg, #f8f9fa);
-  border: 1px solid var(--bs-border-color);
-  max-height: 180px;
-  min-height: 120px;
-  overflow-y: auto;
-  line-height: 1.5;
-}
+.btn-voltar {
+  width: 40px !important;
+  height: 40px !important;
+  min-width: 40px !important;
+  border-radius: 50% !important;
+  flex-shrink: 0;
+  padding: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  line-height: 1 !important;
+  transition: all 0.2s ease;
 
-.whitespace-pre-line {
-  white-space: pre-line;
-}
-
-.btn-enviar {
-  width: 34px;
-  height: 34px;
-  font-size: 0.8rem;
+  &:hover {
+    background-color: #e9ecef !important;
+    transform: translateX(-2px);
+  }
 }
 
 .avatar-circle {
@@ -22,4 +22,79 @@
   height: 48px;
   border-radius: 50%;
   flex-shrink: 0;
+}
+
+/* Cards no padrão do sistema: branco no claro, #161b22 no escuro */
+.details-card,
+.custom-dark-card {
+  background-color: #ffffff;
+  overflow: hidden;
+  border: 1px solid var(--tm-border-color, #e2e8f0);
+}
+
+.extra-small {
+  font-size: 0.75rem;
+}
+
+.whitespace-pre-line {
+  white-space: pre-line;
+}
+
+.btn-enviar {
+  font-size: 0.85rem;
+}
+
+/* Salvar ocupa a largura toda (col-12) em telas menores que lg */
+.btn-salvar-bloco {
+  @media (max-width: 991.98px) {
+    width: 100%;
+  }
+}
+
+/* Controles do tm-table empilhados abaixo de lg — busca "Pesquisar..." ocupa a largura toda */
+@media (max-width: 991.98px) {
+  :host ::ng-deep tm-table .table-controls-container {
+    flex-direction: column;
+    align-items: stretch !important;
+
+    .search-input-wrapper {
+      max-width: 100% !important;
+      width: 100%;
+    }
+  }
+}
+
+/* ==========================================================================
+   REGRAS DE TEMA ESCURO PADRONIZADAS (#161b22)
+   ========================================================================== */
+:host-context([data-theme='dark']),
+[data-theme='dark'] {
+  /* Placeholder legível sobre input escuro (textarea de mensagem) */
+  .form-control::placeholder {
+    color: rgba(255, 255, 255, 0.6) !important;
+    opacity: 1;
+  }
+
+  .btn-voltar {
+    background-color: #21262d !important;
+    border-color: rgba(255, 255, 255, 0.1) !important;
+
+    i {
+      color: #c9d1d9 !important;
+    }
+
+    &:hover {
+      background-color: #30363d !important;
+    }
+  }
+
+  .details-card,
+  .custom-dark-card {
+    background-color: #161b22 !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  }
+
+  .border-bottom {
+    border-color: rgba(255, 255, 255, 0.1) !important;
+  }
 }

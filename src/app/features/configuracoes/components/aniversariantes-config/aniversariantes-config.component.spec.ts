@@ -3,6 +3,7 @@ import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { provideRouter } from '@angular/router';
 import { AniversariantesConfigComponent } from './aniversariantes-config.component';
+import { montarPreviewMensagem } from '../../../../core/models/aniversariantes/aniversariantes.model';
 
 describe('AniversariantesConfigComponent', () => {
   let component: AniversariantesConfigComponent;
@@ -37,10 +38,7 @@ describe('AniversariantesConfigComponent', () => {
   });
 
   it('deve montar o preview sem menção a cupom quando o desconto é 0 (CR-004)', () => {
-    component.ngOnInit();
-    component['form'].controls.percentual.setValue(0);
-
-    const preview = component.previewMensagem;
+    const preview = montarPreviewMensagem('', 0, null);
     expect(preview).not.toContain('desconto');
     expect(preview).not.toContain('cupom');
   });

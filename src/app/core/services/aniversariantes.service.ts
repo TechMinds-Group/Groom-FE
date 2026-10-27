@@ -10,6 +10,8 @@ export interface AniversarioConfigDTO {
   percentualDescontoPadrao: number;
   validadeDiasPadrao: number | null;
   envioAutomatico: boolean;
+  /** Hora do envio automático, fuso de Brasília, formato 24h "HH:mm" (padrão "10:00"). */
+  horaEnvioAutomatico: string;
   coletaDataNascimento: boolean;
   whatsappConectado: boolean;
 }
@@ -19,6 +21,8 @@ export interface SalvarAniversarioConfigCommand {
   percentualDescontoPadrao: number;
   validadeDiasPadrao: number | null;
   envioAutomatico: boolean;
+  /** Hora do envio automático (HH:mm, 24h, Brasília). Vazio = padrão "10:00" no backend. */
+  horaEnvioAutomatico: string;
   coletaDataNascimento: boolean;
 }
 
@@ -56,9 +60,8 @@ export interface EnviarParabensResultDTO {
   status: string;
 }
 
-export interface EnviarTodosResultDTO {
-  marcados: number;
-  puladosComCupom: number;
+export interface AutoTodosResultDTO {
+  total: number;
 }
 
 export interface ResumoAniversariantesDTO {
@@ -66,7 +69,7 @@ export interface ResumoAniversariantesDTO {
   usados: number;
 }
 
-export type JanelaAniversariantes = 'hoje' | '7dias' | 'mes';
+export type JanelaAniversariantes = 'hoje' | '7dias' | 'atrasados' | 'mes' | 'ano';
 
 @Injectable({
   providedIn: 'root',
@@ -103,8 +106,8 @@ export class AniversariantesService {
     return firstValueFrom(this.http.post<EnviarParabensResultDTO>(`${this.baseUrl}/${clienteId}/parabens`, {}, { withCredentials: true, headers: { 'X-Skip-Error-Toast': 'true' } }));
   }
 
-  async enviarTodos(): Promise<EnviarTodosResultDTO> {
-    return firstValueFrom(this.http.post<EnviarTodosResultDTO>(`${this.baseUrl}/enviar-todos`, {}, { withCredentials: true, headers: { 'X-Skip-Error-Toast': 'true' } }));
+  async alternarAutoTodos(auto: boolean): Promise<AutoTodosResultDTO> {
+    return firstValueFrom(this.http.put<AutoTodosResultDTO>(`${this.baseUrl}/auto-todos`, { auto }, { withCredentials: true, headers: { 'X-Skip-Error-Toast': 'true' } }));
   }
 
   async obterResumo(): Promise<ResumoAniversariantesDTO> {

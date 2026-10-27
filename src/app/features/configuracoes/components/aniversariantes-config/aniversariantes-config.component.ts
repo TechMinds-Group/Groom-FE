@@ -13,39 +13,41 @@
 import { CommonModule, Location } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { TableColumn, TmModalComponent, TmTableComponent, TmTextComponent, TmToastService } from '@techminds-group/tm-angular-lib';
+import { TableColumn, TmButtonComponent, TmTableComponent, TmTextComponent, TmToastService } from '@techminds-group/tm-angular-lib';
 import {
   AniversarianteItemDTO,
   AniversariantesService,
   AniversarioConfigDTO,
   JanelaAniversariantes,
 } from '../../../../core/services/aniversariantes.service';
-import { MESES_ANO, montarComandoSalvar, montarPreviewMensagem } from '../../../../core/models/aniversariantes/aniversariantes.model';
+import { EstabelecimentoService } from '../../../../core/services/estabelecimento.service';
+import { MENSAGEM_PADRAO_SEM_CUPOM, HORA_ENVIO_PADRAO, PADRAO_HORA_ENVIO, envioParabensDisponivel, montarComandoSalvar } from '../../../../core/models/aniversariantes/aniversariantes.model';
 import { EnviarParabensModalComponent } from '../../../../shared/components/modais/enviar-parabens-modal/enviar-parabens-modal.component';
 
 /**
- * Menu ConfiguraÃ§Ãµes â€º Aniversariantes (RN-078/079/080 â€” CR-004): mensagem de parabÃ©ns
- * com preview, cupom padrÃ£o (0% = sem desconto), envio automÃ¡tico, tabela de
- * aniversariantes (sÃ³ quem jÃ¡ agendou â‰¥1 vez) com flag "Auto" e "Enviar para todos",
- * coleta de data de nascimento e resumo de conversÃ£o.
+ * Menu Configurações › Aniversariantes (RN-078/079/080 — CR-004): mensagem de parabéns
+ * com prévia no modal de envio, cupom padrão (0% = sem desconto), envio automático,
+ * tabela de aniversariantes (só quem já agendou ≥1 vez) com flag "Auto" individual e
+ * em massa, coleta de data de nascimento e resumo de conversão.
  */
 @Component({
   selector: 'app-aniversariantes-config',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, TmTableComponent, TmModalComponent, TmTextComponent, EnviarParabensModalComponent],
+  imports: [CommonModule, ReactiveFormsModule, TmTableComponent, TmTextComponent, TmButtonComponent, EnviarParabensModalComponent],
   templateUrl: './aniversariantes-config.component.html',
   styleUrl: './aniversariantes-config.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AniversariantesConfigComponent implements OnInit, AfterViewInit {
   private readonly aniversariantesService = inject(AniversariantesService);
+  private readonly estabelecimentoService = inject(EstabelecimentoService);
   private readonly toastService = inject(TmToastService);
   private readonly fb = inject(FormBuilder);
   private readonly cdr = inject(ChangeDetectorRef);
   private readonly location = inject(Location);
 
   @ViewChild('clienteTemplate', { static: true }) clienteTemplate!: TemplateRef<{ $implicit: AniversarianteItemDTO }>;
-  @ViewChild('aniversarioTemplate', { static: true }) aniversarioTemplate!: TemplateRef<{ $implicit: AniversarianteItemDTO }>;
+  @ViewChild('dataTemplate', { static: true }) dataTemplate!: TemplateRef<{ $implicit: AniversarianteItemDTO }>;
   @ViewChild('celularTemplate', { static: true }) celularTemplate!: TemplateRef<{ $implicit: AniversarianteItemDTO }>;
   @ViewChild('cupomTemplate', { static: true }) cupomTemplate!: TemplateRef<{ $implicit: AniversarianteItemDTO }>;
   @ViewChild('autoTemplate', { static: true }) autoTemplate!: TemplateRef<{ $implicit: AniversarianteItemDTO }>;
@@ -55,37 +57,48 @@ export class AniversariantesConfigComponent implements OnInit, AfterViewInit {
   protected readonly carregando = signal(true);
   protected readonly salvando = signal(false);
   protected readonly enviando = signal(false);
-  protected readonly enviandoTodos = signal(false);
+  protected readonly alternandoTodos = signal(false);
 
   protected readonly config = signal<AniversarioConfigDTO | null>(null);
   protected readonly aniversariantes = signal<AniversarianteItemDTO[]>([]);
   protected readonly enviados = signal(0);
   protected readonly usados = signal(0);
 
-  protected readonly busca = signal('');
-  protected readonly mesSelecionado = signal<number>(new Date().getMonth() + 1);
-  protected readonly mesesAno = MESES_ANO;
+  /** Nome real do estabelecimento para o preview de {estabelecimento} (best-effort). */
+  protected readonly nomeEstabelecimento = signal('');
 
   protected readonly modalEnvioAberto = signal(false);
-  protected readonly modalConfirmarTodosAberto = signal(false);
   protected readonly clienteSelecionado = signal<AniversarianteItemDTO | null>(null);
 
   readonly form = this.fb.group({
-    mensagem: [''],
+    // Mensagem padrão pré-preenchida (usa {nome} e {estabelecimento} — pode ser editada).
+    mensagem: [MENSAGEM_PADRAO_SEM_CUPOM],
     percentual: [0, [Validators.min(0), Validators.max(100)]],
     validade: [null as number | null],
     envioAutomatico: [false],
+    // Hora do envio automático — 24h "HH:mm", fuso de Brasília (padrão 10:00).
+    horaEnvio: [HORA_ENVIO_PADRAO, [Validators.pattern(PADRAO_HORA_ENVIO)]],
     coletaDataNascimento: [false],
   });
 
   constructor() {
-    // RN-080 â€” validade sÃ³ Ã© utilizÃ¡vel com desconto > 0: habilita/desabilita o controle
-    // reativamente (tm-text recebe setDisabledState pelo control).
-    this.form.controls.percentual.valueChanges.pipe(takeUntilDestroyed()).subscribe(() => this.atualizarEstadoValidade());
+    // RN-080 — validade só é utilizável com desconto > 0: habilita/desabilita o controle
+    // reativamente (o HTML recria o tm-text na troca de estado — CVA do tm-text não
+    // re-renderiza o campo interno em OnPush com o setDisabledState do control).
+    this.form.controls.percentual.valueChanges
+      .pipe(takeUntilDestroyed())
+      .subscribe((valor) => {
+        this.normalizarPercentual(valor);
+        this.atualizarEstadoValidade();
+        this.cdr.markForCheck();
+      });
+    this.form.controls.validade.valueChanges
+      .pipe(takeUntilDestroyed())
+      .subscribe((valor) => this.normalizarValidade(valor));
     this.atualizarEstadoValidade();
   }
 
-  /** Desconto atual do formulÃ¡rio (controla habilitaÃ§Ã£o da validade e o preview â€” RN-080). */
+  /** Desconto atual do formulário (controla a habilitação da validade — RN-080). */
   get percentualAtual(): number {
     return Number(this.form.controls.percentual.value) || 0;
   }
@@ -99,18 +112,9 @@ export class AniversariantesConfigComponent implements OnInit, AfterViewInit {
     return this.percentualAtual > 0 && this.validadeAtual !== null && this.validadeAtual >= 1;
   }
 
-  /** Preview da mensagem recalculado do formulÃ¡rio (getters â€” controls nÃ£o sÃ£o signals). */
-  get previewMensagem(): string {
-    return montarPreviewMensagem(
-      this.form.controls.mensagem.value,
-      this.percentualAtual,
-      this.validadeAtual,
-    );
-  }
-
   protected readonly whatsappConectado = computed<boolean>(() => this.config()?.whatsappConectado ?? false);
 
-  protected readonly janelaTabela: JanelaAniversariantes = 'mes';
+  protected readonly janelaTabela: JanelaAniversariantes = 'ano';
 
   protected readonly cols = computed<TableColumn<AniversarianteItemDTO>[]>(() => {
     if (this.templatesReady() === false) {
@@ -118,12 +122,12 @@ export class AniversariantesConfigComponent implements OnInit, AfterViewInit {
     }
 
     return [
-      { header: 'Cliente', template: this.clienteTemplate, width: '25%' },
-      { header: 'AniversÃ¡rio', template: this.aniversarioTemplate, width: '15%' },
-      { header: 'Celular', template: this.celularTemplate, width: '20%' },
+      { header: 'Cliente', template: this.clienteTemplate, width: '27%' },
+      { header: 'Data', template: this.dataTemplate, width: '12%' },
+      { header: 'Celular', template: this.celularTemplate, width: '23%' },
       { header: 'Cupom deste ano', template: this.cupomTemplate, width: '25%' },
-      { header: 'Auto', template: this.autoTemplate, width: '8%' },
-      { header: '', template: this.acoesTemplate, width: '7%' },
+      { header: 'Auto', template: this.autoTemplate, width: '7%' },
+      { header: '', template: this.acoesTemplate, width: '6%' },
     ];
   });
 
@@ -141,6 +145,32 @@ export class AniversariantesConfigComponent implements OnInit, AfterViewInit {
     }
   }
 
+  /** Máscara do desconto: apenas dígitos (inteiros), limite máximo de 100 — valores maiores são rejeitados. */
+  private normalizarPercentual(valor: string | number | null): void {
+    const digitos = String(valor ?? '').replace(/\D/g, '').slice(0, 3);
+    const normalizado = digitos === '' ? null : Math.min(parseInt(digitos, 10), 100);
+    const atual = this.form.controls.percentual.value ?? null;
+
+    if (atual === normalizado) {
+      return;
+    }
+
+    this.form.controls.percentual.setValue(normalizado, { emitEvent: false });
+  }
+
+  /** Máscara da validade: apenas dígitos, máximo de 4 caracteres. */
+  private normalizarValidade(valor: string | number | null): void {
+    const digitos = String(valor ?? '').replace(/\D/g, '').slice(0, 4);
+    const normalizado = digitos === '' ? null : Number(digitos);
+    const atual = this.form.controls.validade.value ?? null;
+
+    if (atual === normalizado) {
+      return;
+    }
+
+    this.form.controls.validade.setValue(normalizado, { emitEvent: false });
+  }
+
   ngAfterViewInit(): void {
     this.templatesReady.set(true);
     this.cdr.markForCheck();
@@ -154,25 +184,30 @@ export class AniversariantesConfigComponent implements OnInit, AfterViewInit {
     this.carregando.set(true);
 
     try {
-      const [config, itens, resumo] = await Promise.all([
+      const [config, itens, resumo, info] = await Promise.all([
         this.aniversariantesService.obterConfig(),
-        this.aniversariantesService.listar(this.janelaTabela, this.mesSelecionado(), this.busca()),
+        this.aniversariantesService.listar(this.janelaTabela),
         this.aniversariantesService.obterResumo(),
+        // Best-effort: falha ao buscar o nome não deve derrubar o carregamento da página.
+        this.estabelecimentoService.carregarInfo().catch(() => null),
       ]);
 
       this.config.set(config);
+      this.nomeEstabelecimento.set(info?.nomeExibicao || info?.nome || '');
       this.form.patchValue({
-        mensagem: config.mensagem ?? '',
+        // Sem mensagem salva: exibe a mensagem padrão pré-preenchida (com {nome}/{estabelecimento}).
+        mensagem: config.mensagem ?? MENSAGEM_PADRAO_SEM_CUPOM,
         percentual: config.percentualDescontoPadrao,
         validade: config.validadeDiasPadrao,
         envioAutomatico: config.envioAutomatico,
+        horaEnvio: config.horaEnvioAutomatico || HORA_ENVIO_PADRAO,
         coletaDataNascimento: config.coletaDataNascimento,
       });
       this.aniversariantes.set(itens);
       this.enviados.set(resumo.enviados);
       this.usados.set(resumo.usados);
     } catch (err) {
-      this.mostrarErro(err, 'NÃ£o foi possÃ­vel carregar as configuraÃ§Ãµes de aniversariantes.');
+      this.mostrarErro(err, 'Não foi possível carregar as configurações de aniversariantes.');
     } finally {
       this.carregando.set(false);
       this.cdr.markForCheck();
@@ -181,10 +216,10 @@ export class AniversariantesConfigComponent implements OnInit, AfterViewInit {
 
   protected async buscarLista(): Promise<void> {
     try {
-      const itens = await this.aniversariantesService.listar(this.janelaTabela, this.mesSelecionado(), this.busca());
+      const itens = await this.aniversariantesService.listar(this.janelaTabela);
       this.aniversariantes.set(itens);
     } catch (err) {
-      this.mostrarErro(err, 'NÃ£o foi possÃ­vel carregar a lista de aniversariantes.');
+      this.mostrarErro(err, 'Não foi possível carregar a lista de aniversariantes.');
     } finally {
       this.cdr.markForCheck();
     }
@@ -195,7 +230,14 @@ export class AniversariantesConfigComponent implements OnInit, AfterViewInit {
     const validade = this.validadeAtual;
 
     if (percentual > 0 && (validade === null || validade < 1)) {
-      this.toastService.error('Informe a validade do cupom em dias (mÃ­nimo 1) quando houver desconto.');
+      this.toastService.error('Informe a validade do cupom em dias (mínimo 1) quando houver desconto.');
+      return;
+    }
+
+    const horaEnvio = (this.form.controls.horaEnvio.value ?? '').trim();
+
+    if (PADRAO_HORA_ENVIO.test(horaEnvio) === false) {
+      this.toastService.error('Informe a hora do envio automático no formato 24h (HH:mm), de 00:00 a 23:59.');
       return;
     }
 
@@ -208,13 +250,14 @@ export class AniversariantesConfigComponent implements OnInit, AfterViewInit {
         validade,
         this.form.controls.envioAutomatico.value === true,
         this.form.controls.coletaDataNascimento.value === true,
+        horaEnvio,
       );
 
       const config = await this.aniversariantesService.salvarConfig(command);
       this.config.set(config);
-      this.toastService.success('ConfiguraÃ§Ã£o salva com sucesso.');
+      this.toastService.success('Configuração salva com sucesso.');
     } catch (err) {
-      this.mostrarErro(err, 'NÃ£o foi possÃ­vel salvar a configuraÃ§Ã£o.');
+      this.mostrarErro(err, 'Não foi possível salvar a configuração.');
     } finally {
       this.salvando.set(false);
       this.cdr.markForCheck();
@@ -227,31 +270,35 @@ export class AniversariantesConfigComponent implements OnInit, AfterViewInit {
     try {
       await this.aniversariantesService.alternarAuto(item.clienteId, checkbox.checked);
       item.auto = checkbox.checked;
-      this.toastService.success(checkbox.checked ? 'Envio automÃ¡tico ligado para o cliente.' : 'Envio automÃ¡tico desligado para o cliente.');
+      this.toastService.success(checkbox.checked ? 'Envio automático ligado para o cliente.' : 'Envio automático desligado para o cliente.');
     } catch (err) {
       checkbox.checked = item.auto;
-      this.mostrarErro(err, 'NÃ£o foi possÃ­vel atualizar o envio automÃ¡tico do cliente.');
+      this.mostrarErro(err, 'Não foi possível atualizar o envio automático do cliente.');
     } finally {
       this.cdr.markForCheck();
     }
   }
 
-  protected abrirEnviarTodos(): void {
-    this.modalConfirmarTodosAberto.set(true);
-  }
+  /** Toggle mestre: ligado quando todos os clientes carregados estão com "Auto" ativo. */
+  protected readonly todosAuto = computed<boolean>(() =>
+    this.aniversariantes().length > 0 && this.aniversariantes().every((item) => item.auto),
+  );
 
-  protected async confirmarEnviarTodos(): Promise<void> {
-    this.enviandoTodos.set(true);
+  protected async alternarAutoTodos(evento: Event): Promise<void> {
+    const checkbox = evento.target as HTMLInputElement;
+    const auto = checkbox.checked;
+
+    this.alternandoTodos.set(true);
 
     try {
-      const resultado = await this.aniversariantesService.enviarTodos();
-      this.toastService.success(`${resultado.marcados} cliente(s) com envio automÃ¡tico; ${resultado.puladosComCupom} pulado(s) por jÃ¡ terem cupom no ano.`);
-      this.modalConfirmarTodosAberto.set(false);
-      await this.buscarLista();
+      await this.aniversariantesService.alternarAutoTodos(auto);
+      this.aniversariantes.update((itens) => itens.map((item) => ({ ...item, auto })));
+      this.toastService.success(auto ? 'Envio automático ligado para todos os aniversariantes.' : 'Envio automático desligado para todos os aniversariantes.');
     } catch (err) {
-      this.mostrarErro(err, 'NÃ£o foi possÃ­vel ligar o envio automÃ¡tico em massa.');
+      checkbox.checked = !auto;
+      this.mostrarErro(err, 'Não foi possível atualizar o envio automático em massa.');
     } finally {
-      this.enviandoTodos.set(false);
+      this.alternandoTodos.set(false);
       this.cdr.markForCheck();
     }
   }
@@ -262,6 +309,9 @@ export class AniversariantesConfigComponent implements OnInit, AfterViewInit {
     this.cdr.markForCheck();
   }
 
+  /** Referência do template para a janela de envio (dia do aniversário + 7 dias). */
+  protected readonly envioParabensDisponivel = envioParabensDisponivel;
+
   protected async confirmarEnvioParabens(clienteId: string): Promise<void> {
     this.enviando.set(true);
 
@@ -271,33 +321,21 @@ export class AniversariantesConfigComponent implements OnInit, AfterViewInit {
       this.clienteSelecionado.set(null);
 
       if (resultado.cupomId) {
-        this.toastService.success(`ParabÃ©ns enviado com cupom de ${resultado.percentualDesconto}% vÃ¡lido por ${resultado.validadeDias} dia(s).`);
+        this.toastService.success(`Parabéns enviado com cupom de ${resultado.percentualDesconto}% válido por ${resultado.validadeDias} dia(s).`);
       } else {
-        this.toastService.success('ParabÃ©ns enviado com sucesso.');
+        this.toastService.success('Parabéns enviado com sucesso.');
       }
 
       await this.buscarLista();
     } catch (err) {
-      this.mostrarErro(err, 'NÃ£o foi possÃ­vel enviar o parabÃ©ns.');
+      this.mostrarErro(err, 'Não foi possível enviar o parabéns.');
     } finally {
       this.enviando.set(false);
       this.cdr.markForCheck();
     }
   }
 
-  protected mudarMes(evento: Event): void {
-    const select = evento.target as HTMLSelectElement;
-    this.mesSelecionado.set(Number(select.value));
-    void this.buscarLista();
-  }
-
-  protected mudarBusca(evento: Event): void {
-    const input = evento.target as HTMLInputElement;
-    this.busca.set(input.value);
-    void this.buscarLista();
-  }
-
-  /** Mensagem do erro do backend (shape { code, message }) ou fallback genÃ©rico. */
+  /** Mensagem do erro do backend (shape { code, message }) ou fallback genérico. */
   private mostrarErro(err: unknown, fallback: string): void {
     const httpError = err as { error?: { message?: string } };
     const mensagem = httpError?.error?.message ?? fallback;
