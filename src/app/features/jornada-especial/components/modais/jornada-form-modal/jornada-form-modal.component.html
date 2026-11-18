@@ -1,0 +1,115 @@
+<app-modal-form-base
+  [(show)]="show"
+  [title]="jornada() ? 'Editar Jornada Especial' : 'Nova Jornada Especial'"
+  [confirmLabel]="jornada() ? 'Salvar' : 'Cadastrar'"
+  cancelLabel="Cancelar"
+  confirmClass="btn-primary"
+  icon="fas fa-calendar-day"
+  size="md"
+  (confirm)="aoSalvar()"
+  (cancel)="aoCancelar()"
+>
+  <form [formGroup]="form" class="text-start">
+    @if (erroApi()) {
+      <div class="alert alert-danger py-2 small" role="alert">
+        <i class="fas fa-triangle-exclamation me-2"></i>{{ erroApi() }}
+      </div>
+    }
+
+    <div class="mb-3">
+      <label class="form-label small fw-bold text-muted text-uppercase tracking-wider mb-1 custom-dark-text" for="jornada-escopo">
+        Escopo *
+      </label>
+      <select class="form-select custom-dark-text" id="jornada-escopo" formControlName="profissionalId">
+        <option value="">Estabelecimento inteiro</option>
+        @for (p of profissionais(); track p.id) {
+          <option [value]="p.id">{{ p.nome }}</option>
+        }
+      </select>
+      <div class="extra-small text-muted mt-1">
+        A exceção vale para o estabelecimento inteiro ou apenas para o profissional escolhido.
+      </div>
+    </div>
+
+    <div class="mb-3">
+      <tm-text
+        formControlName="titulo"
+        label="Título *"
+        placeholder="Ex: Reunião interna, Evento local..."
+        class="custom-dark-text"
+      ></tm-text>
+      @if (form.controls.titulo.touched && form.controls.titulo.invalid) {
+        <div class="text-danger extra-small mt-1">Título é obrigatório (mínimo 2 caracteres).</div>
+      }
+    </div>
+
+    <div class="row mb-3">
+      <div class="col-6">
+        <label class="form-label small fw-bold text-muted text-uppercase tracking-wider mb-1 custom-dark-text" for="jornada-data-inicio">
+          Data Início *
+        </label>
+        <input type="date" class="form-control custom-dark-text" id="jornada-data-inicio" formControlName="dataInicio" />
+        @if (form.controls.dataInicio.touched && form.controls.dataInicio.invalid) {
+          <div class="text-danger extra-small mt-1">Data início é obrigatória.</div>
+        }
+      </div>
+      <div class="col-6">
+        <label class="form-label small fw-bold text-muted text-uppercase tracking-wider mb-1 custom-dark-text" for="jornada-data-fim">
+          Data Fim *
+        </label>
+        <input type="date" class="form-control custom-dark-text" id="jornada-data-fim" formControlName="dataFim" />
+        @if (form.controls.dataFim.touched && form.controls.dataFim.invalid) {
+          <div class="text-danger extra-small mt-1">Data fim é obrigatória.</div>
+        }
+        @if (form.controls.dataFim.touched && form.hasError('periodoInvalido')) {
+          <div class="text-danger extra-small mt-1">A data fim não pode ser anterior à data início.</div>
+        }
+      </div>
+    </div>
+
+    <div class="row mb-2">
+      <div class="col-6">
+        <label class="form-label small fw-bold text-muted text-uppercase tracking-wider mb-1 custom-dark-text" for="jornada-hora-abertura">
+          Abertura
+        </label>
+        <input type="time" class="form-control custom-dark-text" id="jornada-hora-abertura" formControlName="horaAbertura" />
+      </div>
+      <div class="col-6">
+        <label class="form-label small fw-bold text-muted text-uppercase tracking-wider mb-1 custom-dark-text" for="jornada-hora-fechamento">
+          Fechamento
+        </label>
+        <input type="time" class="form-control custom-dark-text" id="jornada-hora-fechamento" formControlName="horaFechamento" />
+        @if ((form.controls.horaAbertura.touched || form.controls.horaFechamento.touched) && form.hasError('horarioInvalido')) {
+          <div class="text-danger extra-small mt-1">O fechamento não pode ser anterior à abertura.</div>
+        }
+      </div>
+    </div>
+    <div class="extra-small text-muted mb-3">
+      Deixe os horários vazios para usar o padrão 08:00–18:00.
+    </div>
+
+    <div class="form-check mb-2">
+      <input class="form-check-input" type="checkbox" id="jornada-tem-intervalo" formControlName="temIntervalo" />
+      <label class="form-check-label small custom-dark-text" for="jornada-tem-intervalo">
+        Definir intervalo (pausa dentro do período)
+      </label>
+    </div>
+
+    @if (form.controls.temIntervalo.value) {
+      <div class="row mb-3">
+        <div class="col-6">
+          <label class="form-label small fw-bold text-muted text-uppercase tracking-wider mb-1 custom-dark-text" for="jornada-intervalo-inicio">
+            Intervalo Início
+          </label>
+          <input type="time" class="form-control custom-dark-text" id="jornada-intervalo-inicio" formControlName="intervaloInicio" />
+        </div>
+        <div class="col-6">
+          <label class="form-label small fw-bold text-muted text-uppercase tracking-wider mb-1 custom-dark-text" for="jornada-intervalo-fim">
+            Intervalo Fim
+          </label>
+          <input type="time" class="form-control custom-dark-text" id="jornada-intervalo-fim" formControlName="intervaloFim" />
+        </div>
+      </div>
+    }
+  </form>
+</app-modal-form-base>

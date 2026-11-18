@@ -1,0 +1,148 @@
+<div class="container mt-5 mb-5">
+  <!-- Header: Título e Descrição -->
+  <div class="row mb-3">
+    <div class="col-12">
+      <h1 class="h2 text-primary fw-bold mb-2 custom-dark-text d-flex align-items-center gap-2">
+        <i class="fas fa-calendar-day me-2"></i>Jornadas Especiais
+      </h1>
+      <p class="text-muted custom-dark-text mb-0">
+        Gerencie as exceções de horário do estabelecimento e dos profissionais. As exceções valem imediatamente na agenda, no portal e nos agendamentos.
+      </p>
+    </div>
+  </div>
+
+  <!-- Barra de Ações -->
+  <div class="row mb-4 g-2 align-items-center">
+    <!-- Select de Ano -->
+    <div class="col-12 col-sm-auto">
+      <select class="form-select w-100 w-sm-auto shadow-sm custom-dark-text" [value]="anoSelecionado()" (change)="mudarAno($event)">
+        @for (a of anos; track a) {
+          <option [value]="a">{{ a }}</option>
+        }
+      </select>
+    </div>
+
+    <!-- Filtro de Escopo (estabelecimento × profissional) -->
+    <div class="col-12 col-sm-auto">
+      <select
+        class="form-select w-100 w-sm-auto shadow-sm custom-dark-text"
+        [value]="filtroEscopo()"
+        (change)="mudarFiltroEscopo($event)"
+        aria-label="Filtrar por escopo"
+      >
+        <option value="todos">Todos os escopos</option>
+        <option value="estabelecimento">Estabelecimento inteiro</option>
+        @for (p of profissionais(); track p.id) {
+          <option [value]="p.id">{{ p.nome }}</option>
+        }
+      </select>
+    </div>
+
+    <!-- Botão Nova Jornada -->
+    <div class="col-12 col-sm-auto ms-sm-auto">
+      <button
+        (click)="abrirCriacao()"
+        class="btn btn-primary w-100 w-sm-auto px-4 py-2.5 shadow-sm fw-bold rounded-3 d-inline-flex align-items-center justify-content-center gap-2"
+      >
+        <i class="fas fa-plus"></i><span>Nova Jornada</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Loading -->
+  @if (carregando()) {
+    <div class="text-center py-4">
+      <div class="spinner-border text-primary" role="status"></div>
+    </div>
+  }
+
+  <!-- Tabela Padrão (tm-table) -->
+  <div class="mb-5">
+    <tm-table
+      [cols]="cols()"
+      [data]="jornadasFiltradas()"
+      [paginated]="true"
+      [pageSize]="tamanhoPagina()"
+      (pageSizeChange)="tamanhoPagina.set($event)"
+      [showControls]="true"
+    ></tm-table>
+  </div>
+</div>
+
+<!-- Templates das colunas da tabela -->
+<ng-template #tituloTemplate let-item>
+  <div class="d-flex flex-column text-start">
+    <strong class="fw-bold custom-dark-text">{{ item.titulo }}</strong>
+  </div>
+</ng-template>
+
+<ng-template #periodoTemplate let-item>
+  <div class="text-start custom-dark-text">
+    <span><i class="far fa-calendar-alt text-primary me-1"></i>{{ formatarPeriodo(item) }}</span>
+  </div>
+</ng-template>
+
+<ng-template #horarioTemplate let-item>
+  <div class="text-start custom-dark-text">
+    <span><i class="far fa-clock text-primary me-1"></i>{{ item.horaAbertura }} às {{ item.horaFechamento }}</span>
+    @if (item.temIntervalo && item.intervaloInicio && item.intervaloFim) {
+      <div class="extra-small text-muted">
+        Intervalo: {{ item.intervaloInicio }}–{{ item.intervaloFim }}
+      </div>
+    }
+  </div>
+</ng-template>
+
+<ng-template #escopoTemplate let-item>
+  <div class="d-flex align-items-center">
+    @if (item.nomeProfissional) {
+      <span class="badge bg-info-subtle text-info border border-info-subtle px-2.5 py-1 rounded-pill small fw-semibold">
+        <i class="fas fa-user-tie me-1"></i>{{ item.nomeProfissional }}
+      </span>
+    } @else {
+      <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-2.5 py-1 rounded-pill small fw-semibold">
+        <i class="fas fa-store me-1"></i>Estabelecimento
+      </span>
+    }
+  </div>
+</ng-template>
+
+<ng-template #acoesTemplate let-item>
+  <div class="d-flex align-items-center gap-1">
+    <button
+      type="button"
+      class="btn btn-sm btn-outline-primary"
+      (click)="abrirEdicao(item)"
+      title="Editar"
+    >
+      <i class="fas fa-pen"></i>
+    </button>
+    <button
+      type="button"
+      class="btn btn-sm btn-outline-danger"
+      (click)="solicitarExclusao(item)"
+      title="Excluir"
+    >
+      <i class="fas fa-trash-can"></i>
+    </button>
+  </div>
+</ng-template>
+
+<!-- Modal: Criação/Edição (RN-147-2) -->
+<app-jornada-form-modal
+  [(show)]="modalFormAberto"
+  [jornada]="jornadaSelecionada()"
+  [profissionais]="profissionais()"
+  [erroApi]="erroFormulario()"
+  (salvar)="aoSalvarFormulario($event)"
+  (cancelar)="fecharFormulario()"
+/>
+
+<!-- Modal: Exclusão (RN-147-3) -->
+<app-jornada-excluir-modal
+  [(show)]="modalExcluirAberto"
+  [jornada]="jornadaParaExcluir()"
+  [erro]="erroExclusao()"
+  (confirmar)="confirmarExclusao()"
+  (cancelar)="fecharExclusao()"
+/>
