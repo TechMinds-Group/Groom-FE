@@ -1,0 +1,27 @@
+<app-modal-form-base
+  [(show)]="show"
+  title="Excluir Jornada Especial"
+  confirmLabel="Excluir"
+  cancelLabel="Cancelar"
+  confirmClass="btn-danger"
+  icon="fas fa-exclamation-triangle"
+  iconClass="text-danger"
+  (confirm)="confirmar.emit()"
+  (cancel)="cancelar.emit()"
+>
+  <div class="text-start">
+    @if (jornada(); as j) {
+      <p class="mb-0 custom-dark-text">
+        Deseja realmente excluir a jornada especial <strong>{{ j.titulo }}</strong>?
+      </p>
+      <p class="text-danger small mt-2 mb-0">
+        <i class="fas fa-exclamation-triangle me-1"></i>A remoção é definitiva e não poderá ser desfeita.
+      </p>
+    }
+    @if (erro()) {
+      <div class="alert alert-danger py-2 small mt-3 mb-0" role="alert">
+        <i class="fas fa-triangle-exclamation me-2"></i>{{ erro() }}
+      </div>
+    }
+  </div>
+</app-modal-form-base>

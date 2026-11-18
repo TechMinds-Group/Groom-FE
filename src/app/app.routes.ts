@@ -304,6 +304,14 @@ export const routes: Routes = [
               ).then((m) => m.HorarioConfigComponent),
           },
           {
+            // RN-147 — Tela de gestão de Jornadas Especiais (exceções de horário — RN-111).
+            path: 'jornadas-especiais',
+            loadComponent: () =>
+              import(
+                './features/jornada-especial/components/jornada-especial/jornada-especial.component'
+              ).then((m) => m.JornadaEspecialComponent),
+          },
+          {
             path: 'whatsapp',
             loadComponent: () =>
               import('./features/whatsapp-integracao/components/whatsapp-integracao/whatsapp-integracao.component').then(

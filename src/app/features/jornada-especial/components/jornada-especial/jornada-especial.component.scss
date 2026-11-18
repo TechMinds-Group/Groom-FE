@@ -1,0 +1,26 @@
+:host {
+  display: block;
+}
+
+.extra-small {
+  font-size: 0.75rem;
+}
+
+:host-context([data-theme='dark']),
+[data-theme='dark'] {
+  .custom-dark-text {
+    color: #ffffff !important;
+  }
+
+  tm-table,
+  .tm-table-cell-text,
+  td,
+  span {
+    color: #ffffff !important;
+  }
+
+  label,
+  .form-label {
+    color: rgba(255, 255, 255, 0.85) !important;
+  }
+}
