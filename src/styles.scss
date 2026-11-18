@@ -10,6 +10,12 @@
 html, body { height: 100%; }
 body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 
+/* RN-098/CR-001: fundo do tema por estabelecimento — cor sólida ou linear-gradient.
+   Sem tema configurado o fallback volta ao token padrão do design system (RN-100). */
+body {
+  background: var(--tema-fundo, var(--tm-bg-color));
+}
+
 /* Override to fix sidebar toggle button focus ring overlap on collapse */
 .collapse-toggle-btn:focus {
   box-shadow: none !important;

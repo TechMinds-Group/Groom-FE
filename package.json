@@ -44,13 +44,23 @@
       "@angular/forms": "$@angular/forms"
     },
     "tar": "^7.5.20",
-    "glob": "^13.0.6"
+    "glob": "^13.0.6",
+    "karma": {
+      "glob": "^7.2.3"
+    }
   },
   "devDependencies": {
     "@angular/build": "^19.0.0",
     "@angular/cli": "^19.0.0",
     "@angular/compiler-cli": "^19.0.0",
+    "@types/jasmine": "~5.1.0",
     "@types/node": "^25.5.2",
+    "jasmine-core": "~5.1.0",
+    "karma": "~6.4.0",
+    "karma-chrome-launcher": "~3.2.0",
+    "karma-coverage": "~2.2.0",
+    "karma-jasmine": "~5.1.0",
+    "karma-jasmine-html-reporter": "~2.1.0",
     "lean-ctx-client": "^0.1.0",
     "lean-ctx-sdk": "^0.3.0",
     "prettier": "^3.8.1",

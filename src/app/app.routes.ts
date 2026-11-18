@@ -2,6 +2,7 @@ import { Routes } from '@angular/router';
 import { authGuard } from './core/guards/auth.guard';
 import { sgAuthGuard } from './core/guards/sg-auth.guard';
 import { clienteAuthGuard } from './core/guards/cliente-auth.guard';
+import { adminGuard } from './core/guards/admin.guard';
 import { tenantResolver } from './core/services/tenant-resolver.service';
 import { MainLayoutComponent } from './layout/main-layout/main-layout.component';
 
@@ -329,6 +330,15 @@ export const routes: Routes = [
               import(
                 './features/configuracoes/components/notificacoes-lista/notificacoes-lista.component'
               ).then((m) => m.NotificacoesListaComponent),
+          },
+          {
+            // RN-098-8 — Editor de Tema Visual, restrito ao Administrador (RN-030).
+            path: 'tema',
+            canActivate: [adminGuard],
+            loadComponent: () =>
+              import(
+                './features/tema/components/tema-editor/tema-editor.component'
+              ).then((m) => m.TemaEditorComponent),
           },
         ],
       },
